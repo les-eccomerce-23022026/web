@@ -1,4 +1,4 @@
-import { viewports } from '../support/utils'; // I should create this utility or just inline it.
+
 
 describe('Responsividade Geral das Páginas', () => {
   const sizes: Cypress.ViewportPreset[] = ['iphone-6', 'ipad-2', 'macbook-15'];
@@ -32,6 +32,13 @@ describe('Responsividade Geral das Páginas', () => {
         cy.scrollTo('bottom');
         cy.get('.footer').should('be.visible');
         cy.get('.footer-content').should('be.visible');
+        
+        if (size === 'iphone-6') {
+             cy.get('.footer-content').invoke('css', 'grid-template-columns').then((val) => {
+                 // Expect exactly two columns returned in computed CSS (e.g. "150px 150px")
+                 expect(val.toString().split(' ').length).to.eq(2);
+             });
+        }
       });
 
       it('Página Home Principal', () => {

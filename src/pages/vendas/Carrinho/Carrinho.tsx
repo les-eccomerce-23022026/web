@@ -31,16 +31,16 @@ export function Carrinho() {
           {data.itens.map((item: any) => (
             <tr key={item.id}>
               <td className="carrinho-td-product">
-                <img src={item.imagem} alt="Livro" />
+                <img src={item.imagem} alt="Livro" style={{width: '60px', height: '90px', objectFit:'cover', borderRadius:'4px', backgroundColor:'#e0e0e0'}} />
                 <div>
                   <strong>{item.titulo}</strong><br />
                   <span className="carrinho-product-isbn">ISBN: {item.isbn}</span>
                 </div>
               </td>
-              <td className="carrinho-td">R$ {item.precoUnitario.toFixed(2).replace('.', ',')}</td>
-              <td className="carrinho-td"><input type="number" defaultValue={item.quantidade} className="carrinho-input-qty" /></td>
-              <td className="carrinho-td">R$ {item.subtotal.toFixed(2).replace('.', ',')}</td>
-              <td><button className="btn-secondary carrinho-btn-remove">Remover</button></td>
+              <td className="carrinho-td" data-label="Preço Unit.">R$ {item.precoUnitario.toFixed(2).replace('.', ',')}</td>
+              <td className="carrinho-td" data-label="Quant."><input type="number" defaultValue={item.quantidade} className="carrinho-input-qty" /></td>
+              <td className="carrinho-td" data-label="Subtotal">R$ {item.subtotal.toFixed(2).replace('.', ',')}</td>
+              <td className="carrinho-td" data-label="Ações"><button className="btn-secondary carrinho-btn-remove">Remover</button></td>
             </tr>
           ))}
         </tbody>

@@ -82,3 +82,12 @@
 .detalhes-synopsis-text {
   line-height: 1.8;
 }
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+  .detalhes-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}

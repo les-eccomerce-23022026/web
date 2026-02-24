@@ -103,3 +103,25 @@
   padding: 15px;
   font-size: 18px;
 }
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+  .checkout-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .checkout-form-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .checkout-input-group {
+    flex-direction: column;
+  }
+
+  .checkout-summary-card {
+    position: static;
+    margin-top: 20px;
+  }
+}

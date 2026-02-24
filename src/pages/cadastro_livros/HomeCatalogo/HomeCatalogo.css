@@ -38,8 +38,8 @@
 }
 
 .cartao-livro:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
 }
 
 .cartao-livro__capa-container {
@@ -58,10 +58,25 @@
   border-radius: 4px;
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
+  background-color: #e0e0e0; /* Placeholder for broken/loading images */
+  position: relative;
+}
+
+/* Fallback content for when image is broken */
+.cartao-livro__capa::before {
+  content: "Capa indisponível";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #f0f0f0;
+  color: #888;
+  font-size: 11px;
+  text-align: center;
+  padding-top: 80px; /* Center text vertically given 200px height */
 }
 
 .cartao-livro:hover .cartao-livro__capa {
-  transform: scale(1.03);
+  transform: scale(1.05); /* slightly higher scale */
 }
 
 .cartao-livro__info {
@@ -82,6 +97,7 @@
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 

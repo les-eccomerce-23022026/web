@@ -266,3 +266,36 @@
 .btn-link-admin:hover {
   text-decoration: underline;
 }
+
+/* --- Responsividade --- */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 200px 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 15px;
+  }
+  
+  .header-admin {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .dashboard-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-admin {
+    width: 100%;
+  }
+
+  .painel-graficos {
+    display: flex;
+    flex-direction: column;
+  }
+}
