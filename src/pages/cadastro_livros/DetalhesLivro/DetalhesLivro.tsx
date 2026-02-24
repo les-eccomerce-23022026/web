@@ -1,21 +1,33 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './DetalhesLivro.css';
-import { LivroService } from '@/services/LivroService';
+import { useDetalhesLivro } from '@/hooks/useLivros';
 
 export function DetalhesLivro() {
-  const [data, setData] = useState<any>(null);
+  const { livro: data, loading, error } = useDetalhesLivro('some-id');
 
-  useEffect(() => {
-    LivroService.getDetalhes('some-id').then(setData);
-  }, []);
-
-  if (!data) return <p style={{ padding: '20px' }}>Carregando detalhes do livro...</p>;
+  if (loading) return <p style={{ padding: '20px' }}>Carregando detalhes do livro...</p>;
+  if (error) return <p style={{ padding: '20px' }}>Erro ao carregar detalhes.</p>;
+  if (!data) return <p style={{ padding: '20px' }}>Livro não encontrado.</p>;
 
   return (
     <div className="detalhes-livro">
       <div className="breadcrumb detalhes-breadcrumb">
-        <span className="detalhes-breadcrumb-path">Início &gt; {data.categorias.join(' > ')} &gt; <strong className="detalhes-breadcrumb-current">{data.titulo}</strong></span>
+        <span className="detalhes-breadcrumb-path">
+          <Link to="/" className="breadcrumb-link">Início</Link>
+          {data.categorias?.map((cat, index) => (
+            <span key={index}>
+              {' > '}
+              <Link
+                to={`/categoria/${cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-')}`}
+                className="breadcrumb-link"
+              >
+                {cat}
+              </Link>
+            </span>
+          ))}
+          {' > '}
+          <strong className="detalhes-breadcrumb-current">{data.titulo}</strong>
+        </span>
       </div>
 
       <div className="detalhes-grid">
@@ -30,7 +42,7 @@ export function DetalhesLivro() {
           <p className="detalhes-author">por <a href="#" className="detalhes-author-link">{data.autor}</a></p>
           
           <div className="rating detalhes-rating">
-            {'★'.repeat(data.estrelas)}{'☆'.repeat(5-data.estrelas)} <span className="detalhes-rating-count">({data.numeroAvaliacoes} avaliações)</span>
+            {'★'.repeat(data.estrelas || 0)}{'☆'.repeat(5-(data.estrelas || 0))} <span className="detalhes-rating-count">({data.numeroAvaliacoes} avaliações)</span>
           </div>
 
           <div className="pricing detalhes-pricing">

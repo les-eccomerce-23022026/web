@@ -47,7 +47,7 @@
 }
 
 .checkout-summary-card {
-  background-color: #F8F5EE;
+  background-color: var(--bn-bg-secondary);
   position: sticky;
   top: 20px;
 }
@@ -72,12 +72,12 @@
 .checkout-summary-item-discount {
   display: flex;
   justify-content: space-between;
-  color: #C9302C;
+  color: var(--bn-error);
 }
 
 .checkout-summary-divider {
   border: none;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--bn-border);
   margin: 20px 0;
 }
 

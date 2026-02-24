@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Carrinho.css';
-import { CarrinhoService } from '@/services/CarrinhoService';
+import { useCarrinho } from '@/hooks/useCarrinho';
 
 export function Carrinho() {
-  const [data, setData] = useState<any>(null);
+  const { data, loading, error } = useCarrinho();
 
-  useEffect(() => {
-    CarrinhoService.getCarrinho().then(setData);
-  }, []);
-
-  if (!data) return <p style={{ padding: '20px' }}>Carregando carrinho...</p>;
+  if (loading) return <p style={{ padding: '20px' }}>Carregando carrinho...</p>;
+  if (error) return <p style={{ padding: '20px' }}>Erro ao carregar carrinho.</p>;
+  if (!data) return <p style={{ padding: '20px' }}>Carrinho vazio.</p>;
 
   return (
     <div className="carrinho-page">
@@ -28,7 +25,7 @@ export function Carrinho() {
           </tr>
         </thead>
         <tbody>
-          {data.itens.map((item: any) => (
+          {data.itens.map((item) => (
             <tr key={item.uuid}>
               <td className="carrinho-td-product">
                 <img src={item.imagem} alt="Livro" style={{width: '60px', height: '90px', objectFit:'cover', borderRadius:'4px', backgroundColor:'#e0e0e0'}} />

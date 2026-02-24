@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react';
 import './HomeCatalogo.css';
-import { LivroService } from '@/services/LivroService';
+import { useLivrosDestaque } from '@/hooks/useLivros';
 
 export function HomeCatalogo() {
-  const [destaques, setDestaques] = useState<any[]>([]);
+  const { destaques, loading, error } = useLivrosDestaque();
 
-  useEffect(() => {
-    LivroService.getDestaques().then(setDestaques);
-  }, []);
+  if (loading) {
+    return <div className="home-catalogo">Carregando destaques...</div>;
+  }
+
+  if (error) {
+    return <div className="home-catalogo">Erro ao carregar destaques.</div>;
+  }
 
   return (
     <div className="home-catalogo">
@@ -17,7 +20,7 @@ export function HomeCatalogo() {
       
       <h3>Lançamentos Destacados</h3>
       <div className="grade grade--produto">
-        {destaques.map((book: any) => (
+        {destaques.map((book) => (
           <div key={book.uuid} className="cartao-livro">
             <div className="cartao-livro__capa-container">
               <img src={book.imagem} alt="Capa" className="cartao-livro__capa" />
@@ -25,7 +28,7 @@ export function HomeCatalogo() {
             <div className="cartao-livro__info">
               <h4 className="cartao-livro__titulo">{book.titulo}</h4>
               <p className="cartao-livro__autor">{book.autor}</p>
-              <div className="cartao-livro__avaliacao">{'★'.repeat(book.estrelas)}{'☆'.repeat(5-book.estrelas)}</div>
+              <div className="cartao-livro__avaliacao">{'★'.repeat(book.estrelas || 0)}{'☆'.repeat(5-(book.estrelas || 0))}</div>
               <div className="cartao-livro__preco-container">
                  <p className="cartao-livro__preco">R$ {book.preco.toFixed(2).replace('.', ',')}</p>
               </div>

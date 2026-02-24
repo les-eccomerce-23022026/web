@@ -7,6 +7,17 @@
   color: var(--bn-text-body);
 }
 
+.breadcrumb-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-link:hover {
+  color: var(--bn-primary);
+  text-decoration: underline;
+}
+
 .detalhes-breadcrumb-current {
   color: var(--bn-primary);
 }
@@ -20,7 +31,7 @@
 .detalhes-imagem-destaque {
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
   padding: 10px;
-  background: #fff;
+  background: var(--bn-bg-card);
 }
 
 .detalhes-img {
@@ -56,8 +67,8 @@
 
 .detalhes-pricing {
   padding: 20px;
-  background-color: #F8F5EE;
-  border-radius: 8px;
+  background-color: var(--bn-bg-secondary);
+  border-radius: var(--bn-border-radius-md);
   margin-bottom: 30px;
 }
 

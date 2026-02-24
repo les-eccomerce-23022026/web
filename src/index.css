@@ -7,23 +7,46 @@
   --bn-secondary: #d2b48c; /* Caqui / Dourado Mudo */
   --bn-secondary-dark: #b9935a;
 
+  /* Cores de Fundo / Backgrounds */
   --bn-bg-main: #fdfbf7; /* Off-white / Bege para fundo simulando papel */
   --bn-bg-card: #ffffff;
   --bn-bg-admin: #f4f6f9; /* Fundo do admin */
+  --bn-bg-secondary: #f8f5ee; /* Fundo de destaque suave (creme) */
+  --bn-bg-subtle: #f0f0f0; /* Fundo sutil/placeholder */
 
+  /* Cores de Texto */
   --bn-text-title: #1a1a1a; /* Alto contraste para títulos */
   --bn-text-body: #4a4a4a; /* Cinza médio para descrições */
+  --bn-text-muted: #7a7a7a; /* Cinza claro para descrições secundárias */
+  --bn-text-light: #ffffff; /* Texto claro */
+
+  /* Bordas */
   --bn-border-light: #eaeaea;
   --bn-border: #cccccc;
+  --bn-border-subtle: #eeeeee;
 
-  /* Cores de Alerta */
+  /* Cores de Alerta / Sucesso */
   --bn-error: #c9302c;
+  --bn-error-light: #fce8e6;
+  --bn-error-text: #d93025;
   --bn-success: #2e7d32;
+  --bn-success-light: #e6f4ea;
+  --bn-success-text: #1e8e3e;
   --bn-warning: #f57f17;
 
   /* Tipografia */
   --font-serif: "Lora", "Merriweather", "Playfair Display", serif;
   --font-sans: "Open Sans", "Lato", "Inter", sans-serif;
+
+  /* Sombras / Box Shadow */
+  --bn-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02);
+  --bn-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --bn-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+
+  /* Arredondamento / Border Radius */
+  --bn-border-radius-sm: 4px;
+  --bn-border-radius-md: 8px;
+  --bn-border-radius-lg: 12px;
 }
 
 * {

@@ -1,6 +1,6 @@
 .footer {
   background-color: var(--bn-primary);
-  color: #fff;
+  color: var(--bn-text-light);
   padding-top: 50px;
   margin-top: 50px;
 }

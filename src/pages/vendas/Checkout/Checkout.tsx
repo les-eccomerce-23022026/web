@@ -1,15 +1,12 @@
-import { useState, useEffect } from 'react';
 import './Checkout.css';
-import { CheckoutService } from '@/services/CheckoutService';
+import { useCheckout } from '@/hooks/useCheckout';
 
 export function Checkout() {
-  const [data, setData] = useState<any>(null);
+  const { data, loading, error } = useCheckout();
 
-  useEffect(() => {
-    CheckoutService.getCheckoutInfo().then(setData);
-  }, []);
-
-  if (!data) return <p style={{ padding: '20px' }}>Carregando dados de checkout...</p>;
+  if (loading) return <p style={{ padding: '20px' }}>Carregando dados de checkout...</p>;
+  if (error) return <p style={{ padding: '20px' }}>Erro ao carregar checkout.</p>;
+  if (!data) return <p style={{ padding: '20px' }}>Nenhum dado de checkout encontrado.</p>;
 
   return (
     <div className="checkout-page">
@@ -32,7 +29,7 @@ export function Checkout() {
              <div className="form-group checkout-form-row">
                <select defaultValue="0">
                  <option value="0">Selecionar Cartão Salvo</option>
-                 {data.cartoesSalvos.map((cartao: any) => (
+                 {data.cartoesSalvos.map((cartao) => (
                    <option key={cartao.uuid} value={cartao.uuid}>**** **** **** {cartao.final} - {cartao.nomeCliente}</option>
                  ))}
                </select>

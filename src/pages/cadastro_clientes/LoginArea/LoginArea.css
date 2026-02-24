@@ -26,7 +26,7 @@
 
 .register-box-card {
   width: 400px;
-  background-color: #F8F5EE;
+  background-color: var(--bn-bg-secondary);
 }
 
 .register-title {

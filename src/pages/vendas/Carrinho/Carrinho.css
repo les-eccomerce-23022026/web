@@ -7,13 +7,13 @@
 .carrinho-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #fff;
+  background-color: var(--bn-bg-card);
   padding: 20px;
-  border-radius: 8px;
+  border-radius: var(--bn-border-radius-md);
 }
 
 .carrinho-table-header {
-  background-color: #F4F6F9;
+  background-color: var(--bn-bg-admin);
   text-align: left;
 }
 
@@ -30,7 +30,7 @@
 
 .carrinho-product-isbn {
   font-size: 13px;
-  color: #666;
+  color: var(--bn-text-muted);
 }
 
 .carrinho-input-qty {
@@ -45,8 +45,8 @@
 .carrinho-resumo {
   margin-top: 30px;
   padding: 20px;
-  background-color: #F8F5EE;
-  border-radius: 8px;
+  background-color: var(--bn-bg-secondary);
+  border-radius: var(--bn-border-radius-md);
   display: flex;
   justify-content: space-between;
 }
@@ -77,7 +77,7 @@
 
 .carrinho-total-separator {
   border: none;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--bn-border);
   margin: 15px 0;
 }
 

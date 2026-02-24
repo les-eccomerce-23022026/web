@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { LivroService } from '@/services/LivroService';
+import { useListaLivrosAdmin } from '@/hooks/useLivros';
 import './ListaLivrosAdmin.css';
 
 export function ListaLivrosAdmin() {
-  const [livros, setLivros] = useState<any[]>([]);
+  const { livros, loading, error } = useListaLivrosAdmin();
 
-  useEffect(() => {
-    LivroService.getListaAdmin().then(setLivros);
-  }, []);
+  if (loading) return <p style={{ padding: '20px' }}>Carregando livros...</p>;
+  if (error) return <p style={{ padding: '20px' }}>Erro ao carregar lista de livros.</p>;
 
   return (
     <div className="admin-page lista-livros-admin">
@@ -75,7 +73,7 @@ export function ListaLivrosAdmin() {
                   </tr>
                 </thead>
                 <tbody>
-                  {livros.map((livro: any) => (
+                  {livros.map((livro) => (
                   <tr key={livro.uuid} className="lista-livros-td-row">
                     <td className="lista-livros-td">
                       <span className="lista-livros-id-span">{livro.uuid.substring(0, 8)}...</span>

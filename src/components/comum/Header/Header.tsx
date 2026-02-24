@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Search } from "lucide-react";
 import "./Header.css";
 
 export function Header() {
@@ -13,11 +14,14 @@ export function Header() {
           </div>
 
           <div className="search-bar">
+            <span className="header-search-icon">
+              <Search size={18} strokeWidth={2.5} />
+            </span>
             <input
               type="text"
               placeholder="Buscar por título, autor ou ISBN..."
             />
-            <button className="search-btn">🔍</button>
+            <button className="search-btn">Buscar</button>
           </div>
 
           <div className="header-actions">
