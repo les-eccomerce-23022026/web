@@ -1,8 +1,16 @@
 import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { logout } from "@/store/slices/authSlice";
 import "./Header.css";
 
 export function Header() {
+  const dispatch = useAppDispatch();
+  const carrinho = useAppSelector(state => state.carrinho.data);
+  const quantidadeItens = carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) || 0;
+  
+  const { isAuthenticated, user } = useAppSelector(state => state.auth);
+
   return (
     <header className="header-container">
       {/* Top Header - Verde Primário (full-width) */}
@@ -25,11 +33,23 @@ export function Header() {
           </div>
 
           <div className="header-actions">
-            <Link to="/minha-conta" className="action-link">
-              👤 Minha Conta
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <span className="action-link" style={{cursor: 'default'}}>
+                  👤 Olá, {user?.nome}
+                </span>
+                <span className="action-link" onClick={() => dispatch(logout())} style={{cursor: 'pointer'}}>
+                  Sair
+                </span>
+              </>
+            ) : (
+              <Link to="/minha-conta" className="action-link">
+                👤 Minha Conta
+              </Link>
+            )}
+            
             <Link to="/carrinho" className="action-link">
-              🛒 Carrinho (0)
+              🛒 Carrinho ({quantidadeItens})
             </Link>
             <Link to="/admin" className="action-link admin-link">
               ⚙️ Admin

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { DashboardAdminService } from '@/services/DashboardAdminService';
-import type { DashboardAdminInfo } from '@/interfaces/DashboardAdmin';
+import type { IDashboardAdminInfo } from '@/interfaces/IDashboardAdmin';
 
 export function useDashboardAdmin() {
-  const [data, setData] = useState<DashboardAdminInfo | null>(null);
+  const [data, setData] = useState<IDashboardAdminInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 

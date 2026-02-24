@@ -1,13 +1,26 @@
 import { Link } from 'react-router-dom';
 import './Carrinho.css';
-import { useCarrinho } from '@/hooks/useCarrinho';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { removerItem, atualizarQuantidade } from '@/store/slices/carrinhoSlice';
 
 export function Carrinho() {
-  const { data, loading, error } = useCarrinho();
+  const dispatch = useAppDispatch();
+  const { data, error, status } = useAppSelector(state => state.carrinho);
 
-  if (loading) return <p style={{ padding: '20px' }}>Carregando carrinho...</p>;
-  if (error) return <p style={{ padding: '20px' }}>Erro ao carregar carrinho.</p>;
+  if (status === 'loading') return <p style={{ padding: '20px' }}>Carregando carrinho...</p>;
+  if (status === 'failed' || error) return <p style={{ padding: '20px' }}>Erro ao carregar carrinho.</p>;
   if (!data) return <p style={{ padding: '20px' }}>Carrinho vazio.</p>;
+
+  const handleUpdateQuantidade = (uuid: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const qtd = parseInt(event.target.value, 10);
+    if (qtd >= 1) {
+      dispatch(atualizarQuantidade({ uuid, quantidade: qtd }));
+    }
+  };
+
+  const handleRemover = (uuid: string) => {
+    dispatch(removerItem(uuid));
+  };
 
   return (
     <div className="carrinho-page">
@@ -35,9 +48,23 @@ export function Carrinho() {
                 </div>
               </td>
               <td className="carrinho-td" data-label="Preço Unit.">R$ {item.precoUnitario.toFixed(2).replace('.', ',')}</td>
-              <td className="carrinho-td" data-label="Quant."><input type="number" defaultValue={item.quantidade} className="carrinho-input-qty" /></td>
+              <td className="carrinho-td" data-label="Quant.">
+                <input 
+                  type="number" 
+                  value={item.quantidade} 
+                  onChange={(e) => handleUpdateQuantidade(item.uuid, e)} 
+                  className="carrinho-input-qty" 
+                />
+              </td>
               <td className="carrinho-td" data-label="Subtotal">R$ {item.subtotal.toFixed(2).replace('.', ',')}</td>
-              <td className="carrinho-td" data-label="Ações"><button className="btn-secondary carrinho-btn-remove">Remover</button></td>
+              <td className="carrinho-td" data-label="Ações">
+                <button 
+                  onClick={() => handleRemover(item.uuid)} 
+                  className="btn-secondary carrinho-btn-remove"
+                >
+                  Remover
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

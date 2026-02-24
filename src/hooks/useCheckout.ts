@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { CheckoutService } from '@/services/CheckoutService';
-import type { CheckoutInfo } from '@/interfaces/Checkout';
+import type { ICheckoutInfo } from '@/interfaces/ICheckout';
 
 export function useCheckout() {
-  const [data, setData] = useState<CheckoutInfo | null>(null);
+  const [data, setData] = useState<ICheckoutInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 

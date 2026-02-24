@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { LivroService } from '@/services/LivroService';
-import type { Livro } from '@/interfaces/Livro';
+import type { ILivro } from '@/interfaces/ILivro';
 
 export function useLivrosDestaque() {
-  const [destaques, setDestaques] = useState<Livro[]>([]);
+  const [destaques, setDestaques] = useState<ILivro[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -23,7 +23,7 @@ export function useLivrosDestaque() {
 }
 
 export function useDetalhesLivro(id: string) {
-  const [livro, setLivro] = useState<Livro | null>(null);
+  const [livro, setLivro] = useState<ILivro | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -43,7 +43,7 @@ export function useDetalhesLivro(id: string) {
 }
 
 export function useListaLivrosAdmin() {
-  const [livros, setLivros] = useState<Livro[]>([]);
+  const [livros, setLivros] = useState<ILivro[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 

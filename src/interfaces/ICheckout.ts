@@ -1,4 +1,4 @@
-export interface EnderecoEntrega {
+export interface IEnderecoEntrega {
   logradouro: string;
   numero: string;
   complemento: string;
@@ -7,14 +7,14 @@ export interface EnderecoEntrega {
   cep: string;
 }
 
-export interface CartaoSalvo {
+export interface ICartaoSalvo {
   uuid: string;
   final: string;
   nomeCliente: string;
   bandeira: string;
 }
 
-export interface ResumoPedidoCheckout {
+export interface IResumoPedidoCheckout {
   quantidadeItens: number;
   subtotal: number;
   frete: number;
@@ -22,8 +22,8 @@ export interface ResumoPedidoCheckout {
   total: number;
 }
 
-export interface CheckoutInfo {
-  enderecoEntrega: EnderecoEntrega;
-  cartoesSalvos: CartaoSalvo[];
-  resumoPedido: ResumoPedidoCheckout;
+export interface ICheckoutInfo {
+  enderecoEntrega: IEnderecoEntrega;
+  cartoesSalvos: ICartaoSalvo[];
+  resumoPedido: IResumoPedidoCheckout;
 }

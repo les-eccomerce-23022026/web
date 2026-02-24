@@ -1,8 +1,13 @@
 export interface ILivro {
   uuid: string;
-  imagem: string;
   titulo: string;
   autor: string;
   preco: number;
-  estrelas: number;
+  imagem?: string;
+  estrelas?: number;
+  categorias?: string[];
+  categoria?: string;
+  numeroAvaliacoes?: number;
+  sinopse?: string;
+  status?: string;
 }

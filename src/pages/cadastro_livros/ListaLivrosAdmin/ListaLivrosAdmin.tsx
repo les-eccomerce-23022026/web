@@ -1,15 +1,18 @@
 import { Link } from 'react-router-dom';
 import { useListaLivrosAdmin } from '@/hooks/useLivros';
 import './ListaLivrosAdmin.css';
+import { LoadingState } from '@/components/comum/LoadingState/LoadingState';
+import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
+import { EmptyState } from '@/components/comum/EmptyState/EmptyState';
 
 export function ListaLivrosAdmin() {
   const { livros, loading, error } = useListaLivrosAdmin();
 
-  if (loading) return <p style={{ padding: '20px' }}>Carregando livros...</p>;
-  if (error) return <p style={{ padding: '20px' }}>Erro ao carregar lista de livros.</p>;
+  if (loading) return <LoadingState message="Buscando catálogo de livros..." />;
+  if (error) return <ErrorState message="Não foi possível carregar a lista de livros." onRetry={() => window.location.reload()} />;
 
   return (
-    <div className="admin-page lista-livros-admin">
+    <div className="admin-page lista-livros-admin page-transition-enter">
       <div className="header-admin-list">
         <div className="header-admin-title">
           <h2>Gestão de Catálogo (Livros)</h2>
@@ -98,7 +101,13 @@ export function ListaLivrosAdmin() {
                   ))}
                   {livros.length === 0 && (
                     <tr className="lista-livros-td-row">
-                      <td colSpan={6} className="text-center empty-state">Nenhum livro encontrado no catálogo.</td>
+                      <td colSpan={6} className="text-center p-0">
+                        <EmptyState 
+                          title="Nenhum resultado" 
+                          message="Nenhum livro encontrado no catálogo."
+                          icon="📚"
+                        />
+                      </td>
                     </tr>
                   )}
                 </tbody>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { CarrinhoService } from '@/services/CarrinhoService';
-import type { Carrinho } from '@/interfaces/Carrinho';
+import type { ICarrinho } from '@/interfaces/ICarrinho';
 
 export function useCarrinho() {
-  const [data, setData] = useState<Carrinho | null>(null);
+  const [data, setData] = useState<ICarrinho | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 

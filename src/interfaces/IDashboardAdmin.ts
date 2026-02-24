@@ -1,4 +1,4 @@
-export interface MetricasDashboard {
+export interface IMetricasDashboard {
   totalVendasMes: number;
   percentualCrescimento: number;
   pedidosPendentes: number;
@@ -10,7 +10,7 @@ export interface MetricasDashboard {
   livrosBaixoEstoque: number;
 }
 
-export interface DatasetGrafico {
+export interface IDatasetGrafico {
   label: string;
   data: number[];
   borderColor?: string;
@@ -19,12 +19,12 @@ export interface DatasetGrafico {
   tension?: number;
 }
 
-export interface GraficoInfo {
+export interface IGraficoInfo {
   labels: string[];
-  datasets: DatasetGrafico[];
+  datasets: IDatasetGrafico[];
 }
 
-export interface AtividadeRecente {
+export interface IAtividadeRecente {
   uuid: string;
   tipo: string;
   descricao: string;
@@ -32,10 +32,10 @@ export interface AtividadeRecente {
   sucesso: boolean;
 }
 
-export interface DashboardAdminInfo {
-  metricas: MetricasDashboard;
-  graficoVendasPorCategoria: GraficoInfo;
-  graficoReceitaAnual: GraficoInfo;
-  graficoStatusPedidos: GraficoInfo;
-  atividadesRecentes: AtividadeRecente[];
+export interface IDashboardAdminInfo {
+  metricas: IMetricasDashboard;
+  graficoVendasPorCategoria: IGraficoInfo;
+  graficoReceitaAnual: IGraficoInfo;
+  graficoStatusPedidos: IGraficoInfo;
+  atividadesRecentes: IAtividadeRecente[];
 }

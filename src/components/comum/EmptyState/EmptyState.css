@@ -1,0 +1,33 @@
+.empty-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  width: 100%;
+  text-align: center;
+  animation: fadeIn 0.4s ease-out;
+  background-color: var(--cor-fundo-cartao);
+  border-radius: var(--raio-borda-lg);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+  filter: grayscale(0.5);
+}
+
+.empty-state-title {
+  color: var(--cor-texto);
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.empty-state-message {
+  color: var(--cor-texto-mutado);
+  font-size: 1rem;
+  max-width: 350px;
+  line-height: 1.5;
+}

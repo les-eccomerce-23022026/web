@@ -1,19 +1,26 @@
 import './HomeCatalogo.css';
 import { useLivrosDestaque } from '@/hooks/useLivros';
+import { LoadingState } from '@/components/comum/LoadingState/LoadingState';
+import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
 
 export function HomeCatalogo() {
   const { destaques, loading, error } = useLivrosDestaque();
 
   if (loading) {
-    return <div className="home-catalogo">Carregando destaques...</div>;
+    return <LoadingState message="Buscando os melhores destaques para você..." />;
   }
 
   if (error) {
-    return <div className="home-catalogo">Erro ao carregar destaques.</div>;
+    return (
+      <ErrorState 
+        message="Ops, não foi possível carregar os destaques no momento."
+        onRetry={() => window.location.reload()} 
+      />
+    );
   }
 
   return (
-    <div className="home-catalogo">
+    <div className="home-catalogo page-transition-enter">
       <div className="pagina-inicio__banner">
         <h2 className="pagina-inicio__banner-titulo">Ofertas de Inverno - Até 50% em Ficção</h2>
       </div>

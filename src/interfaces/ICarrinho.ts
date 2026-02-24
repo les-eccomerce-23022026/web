@@ -1,4 +1,4 @@
-export interface ItemCarrinho {
+export interface IItemCarrinho {
   uuid: string;
   imagem: string;
   titulo: string;
@@ -8,19 +8,19 @@ export interface ItemCarrinho {
   subtotal: number;
 }
 
-export interface FretePadrao {
+export interface IFretePadrao {
   valor: number;
   prazo: string;
 }
 
-export interface ResumoCarrinho {
+export interface IResumoCarrinho {
   subtotal: number;
   frete: number;
   total: number;
 }
 
-export interface Carrinho {
-  itens: ItemCarrinho[];
-  fretePadrao: FretePadrao;
-  resumo: ResumoCarrinho;
+export interface ICarrinho {
+  itens: IItemCarrinho[];
+  fretePadrao: IFretePadrao;
+  resumo: IResumoCarrinho;
 }

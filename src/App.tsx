@@ -1,5 +1,7 @@
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useAppDispatch } from './store/hooks';
+import { fetchCarrinho } from './store/slices/carrinhoSlice';
 import { BaseLayout } from '@/components/comum/BaseLayout/BaseLayout';
 import { HomeCatalogo } from '@/pages/cadastro_livros/HomeCatalogo/HomeCatalogo';
 import { DetalhesLivro } from '@/pages/cadastro_livros/DetalhesLivro/DetalhesLivro';
@@ -11,6 +13,12 @@ import { ListaLivrosAdmin } from '@/pages/cadastro_livros/ListaLivrosAdmin/Lista
 import { CadastrarLivroAdmin } from '@/pages/cadastro_livros/CadastrarLivroAdmin/CadastrarLivroAdmin';
 
 function App() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchCarrinho());
+  }, [dispatch]);
+
   return (
     <BrowserRouter>
       <Routes>
