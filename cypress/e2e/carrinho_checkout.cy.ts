@@ -2,7 +2,7 @@ describe('Carrinho de Compras e Cálculo de Frete', () => {
   beforeEach(() => {
     // Add a book first to test a populated cart
     cy.visit('/');
-    cy.get('.book-card').first().contains('Ver Detalhes').click();
+    cy.get('.cartao-livro', { timeout: 10000 }).first().contains('Ver Detalhes').click();
     cy.contains('Adicionar ao Carrinho').click();
     cy.visit('/carrinho');
   });

@@ -2,7 +2,7 @@ describe('Detalhes do Livro (Página do Produto)', () => {
   beforeEach(() => {
     // Navigate via Home to get a valid book ID
     cy.visit('/');
-    cy.get('.book-card').first().contains('Ver Detalhes').click();
+    cy.get('.cartao-livro', { timeout: 10000 }).first().contains('Ver Detalhes').click();
   });
 
   it('deve exibir informações completas do livro', () => {

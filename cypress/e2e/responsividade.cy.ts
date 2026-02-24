@@ -23,7 +23,7 @@ describe('Responsividade Geral das Páginas', () => {
         } else {
              // macbook-15
              cy.get('.header-top-inner').should('have.css', 'flex-direction', 'row');
-             cy.get('.search-bar').should('have.css', 'margin', '0px 30px');
+             cy.get('.search-bar').should('have.css', 'margin', '0px 40px');
         }
       });
 

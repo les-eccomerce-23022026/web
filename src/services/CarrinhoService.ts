@@ -1,18 +1,20 @@
 import carrinhoMock from '@/mocks/carrinhoMock.json';
 import type { ICarrinho } from '@/interfaces/ICarrinho';
-import { API_ENDPOINTS } from '@/config/apiConfig';
+import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
 
 export class CarrinhoService {
   static async getCarrinho(): Promise<ICarrinho> {
-    // Simula uma chamada de API (atraso de rede)
-    // Exemplo para integração futura:
-    // const response = await fetch(API_ENDPOINTS.obterCarrinho);
-    // return response.json();
-    console.log('[Mock] Buscando dados de carrinho. Endpoint real seria:', API_ENDPOINTS.obterCarrinho);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(carrinhoMock as ICarrinho);
-      }, 300);
-    });
+    if (USE_MOCK) {
+      console.log('[Mock] Buscando dados de carrinho.');
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(carrinhoMock as ICarrinho);
+        }, 300);
+      });
+    }
+
+    const response = await fetch(API_ENDPOINTS.obterCarrinho);
+    if (!response.ok) throw new Error('Erro ao buscar dados do carrinho');
+    return response.json();
   }
 }
