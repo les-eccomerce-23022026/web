@@ -33,7 +33,7 @@ export function Checkout() {
                <select defaultValue="0">
                  <option value="0">Selecionar Cartão Salvo</option>
                  {data.cartoesSalvos.map((cartao: any) => (
-                   <option key={cartao.id} value={cartao.id}>**** **** **** {cartao.final} - {cartao.nomeCliente}</option>
+                   <option key={cartao.uuid} value={cartao.uuid}>**** **** **** {cartao.final} - {cartao.nomeCliente}</option>
                  ))}
                </select>
                <span className="checkout-text-nowrap">ou</span>

@@ -1,7 +1,7 @@
 {
   "destaques": [
     {
-      "id": "a1b2c3d4-e5f6-7890-1234-56789abcdef0",
+      "uuid": "a1b2c3d4-e5f6-7890-1234-56789abcdef0",
       "imagem": "https://m.media-amazon.com/images/I/81h2gW3v3mL._AC_UF1000,1000_QL80_.jpg",
       "titulo": "O Senhor dos Anéis: A Sociedade do Anel",
       "autor": "J.R.R. Tolkien",
@@ -9,7 +9,7 @@
       "estrelas": 5
     },
     {
-      "id": "f0e1d2c3-b4a5-6789-0123-456789abcdef",
+      "uuid": "f0e1d2c3-b4a5-6789-0123-456789abcdef",
       "imagem": "https://m.media-amazon.com/images/I/818kvS9mklL._AC_UF1000,1000_QL80_.jpg",
       "titulo": "Duna",
       "autor": "Frank Herbert",
@@ -17,7 +17,7 @@
       "estrelas": 5
     },
     {
-      "id": "1a2b3c4d-5e6f-7890-abcd-ef0123456789",
+      "uuid": "1a2b3c4d-5e6f-7890-abcd-ef0123456789",
       "imagem": "https://m.media-amazon.com/images/I/71XvO7F9uDL._AC_UF1000,1000_QL80_.jpg",
       "titulo": "1984",
       "autor": "George Orwell",
@@ -25,10 +25,50 @@
       "estrelas": 4
     },
     {
-      "id": "98765432-10fe-dcba-0987-654321fedcba",
+      "uuid": "98765432-10fe-dcba-0987-654321fedcba",
       "imagem": "https://m.media-amazon.com/images/I/91M9xPIf7pL._AC_UF1000,1000_QL80_.jpg",
       "titulo": "O Hobbit",
       "autor": "J.R.R. Tolkien",
+      "preco": 49.90,
+      "estrelas": 5
+    },
+    {
+      "uuid": "67890abc-def0-1234-5678-9abcdef01234",
+      "imagem": "https://m.media-amazon.com/images/I/81zN744nrHL._AC_UF1000,1000_QL80_.jpg",
+      "titulo": "O Silmarillion",
+      "autor": "J.R.R. Tolkien",
+      "preco": 59.90,
+      "estrelas": 5
+    },
+    {
+      "uuid": "23456789-01ab-cdef-1234-567890abcdef",
+      "imagem": "https://m.media-amazon.com/images/I/91BP88A8LXL._AC_UF1000,1000_QL80_.jpg",
+      "titulo": "A Revolução dos Bichos",
+      "autor": "George Orwell",
+      "preco": 34.90,
+      "estrelas": 5
+    },
+    {
+      "uuid": "87654321-4321-4321-4321-876543210987",
+      "imagem": "https://m.media-amazon.com/images/I/41xShlnTZTL._AC_UF1000,1000_QL80_.jpg",
+      "titulo": "Código Limpo",
+      "autor": "Robert C. Martin",
+      "preco": 85.00,
+      "estrelas": 4
+    },
+    {
+      "uuid": "11223344-5566-7788-9900-aabbccddeeff",
+      "imagem": "https://m.media-amazon.com/images/I/81iqZ2HHD-L._AC_UF1000,1000_QL80_.jpg",
+      "titulo": "Harry Potter e a Pedra Filosofal",
+      "autor": "J.K. Rowling",
+      "preco": 44.90,
+      "estrelas": 5
+    },
+    {
+      "uuid": "55667788-1122-3344-aabb-ccddeeff0011",
+      "imagem": "https://m.media-amazon.com/images/I/91SnH+LndyL._AC_UF1000,1000_QL80_.jpg",
+      "titulo": "A Menina que Roubava Livros",
+      "autor": "Markus Zusak",
       "preco": 49.90,
       "estrelas": 5
     }

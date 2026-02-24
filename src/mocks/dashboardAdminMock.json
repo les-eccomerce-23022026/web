@@ -1,14 +1,14 @@
 {
   "metricas": {
-    "totalVendasMes": 14500.0,
-    "percentualCrescimento": 12,
-    "pedidosPendentes": 42,
-    "trocasSolicitadas": 5,
-    "ticketMedio": 125.50,
-    "percentualCrescimentoTicket": 3.5,
-    "clientesAtivos": 1240,
-    "percentualCrescimentoClientes": -1.2,
-    "livrosBaixoEstoque": 12
+    "totalVendasMes": 16250.0,
+    "percentualCrescimento": 15,
+    "pedidosPendentes": 45,
+    "trocasSolicitadas": 6,
+    "ticketMedio": 128.90,
+    "percentualCrescimentoTicket": 4.2,
+    "clientesAtivos": 1255,
+    "percentualCrescimentoClientes": 1.5,
+    "livrosBaixoEstoque": 8
   },
   "graficoVendasPorCategoria": {
     "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
@@ -57,9 +57,12 @@
     ]
   },
   "atividadesRecentes": [
-    { "id": 1, "tipo": "Venda", "descricao": "Pedido #1240 finalizado e pago.", "data": "Há 5 min", "sucesso": true },
-    { "id": 2, "tipo": "Estoque", "descricao": "Livro 'Código Limpo' reposicionado (+50 un).", "data": "Há 15 min", "sucesso": true },
-    { "id": 3, "tipo": "Alerta", "descricao": "Estoque crítico para 'Dom Casmurro' (Apenas 2 un).", "data": "Há 40 min", "sucesso": false },
-    { "id": 4, "tipo": "Troca", "descricao": "Solicitação de devolução para pedido #1230.", "data": "Há 1 hora", "sucesso": false }
+    { "uuid": "e7b1a1a1-1234-4567-8901-23456789abcd", "tipo": "Venda", "descricao": "Pedido #1240 finalizado e pago.", "data": "Há 5 min", "sucesso": true },
+    { "uuid": "f8c2b2b2-2345-5678-9012-34567890bcde", "tipo": "Estoque", "descricao": "Livro 'Código Limpo' reposicionado (+50 un).", "data": "Há 15 min", "sucesso": true },
+    { "uuid": "a9d3c3c3-3456-6789-0123-45678901cdef", "tipo": "Alerta", "descricao": "Estoque crítico para 'Dom Casmurro' (Apenas 2 un).", "data": "Há 40 min", "sucesso": false },
+    { "uuid": "b0e4d4d4-4567-7890-1234-56789012def0", "tipo": "Troca", "descricao": "Solicitação de devolução para pedido #1230.", "data": "Há 1 hora", "sucesso": false },
+    { "uuid": "c1f5e5e5-5678-8901-2345-67890123ef01", "tipo": "Venda", "descricao": "Venda do livro 'O Silmarillion' confirmada.", "data": "Há 2 horas", "sucesso": true },
+    { "uuid": "d2a6f6f6-6789-9012-3456-78901234f012", "tipo": "Estoque", "descricao": "Ajuste de estoque para 'Código Limpo' concluído.", "data": "Há 3 horas", "sucesso": true },
+    { "uuid": "e3b7a7a7-7890-0123-4567-89012345a678", "tipo": "Venda", "descricao": "Pedido #1241 contendo 'A Revolução dos Bichos' recebido.", "data": "Há 4 horas", "sucesso": true }
   ]
 }

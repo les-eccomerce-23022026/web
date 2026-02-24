@@ -76,9 +76,9 @@ export function ListaLivrosAdmin() {
                 </thead>
                 <tbody>
                   {livros.map((livro: any) => (
-                  <tr key={livro.id} className="lista-livros-td-row">
+                  <tr key={livro.uuid} className="lista-livros-td-row">
                     <td className="lista-livros-td">
-                      <span className="lista-livros-id-span">{livro.id.substring(0, 8)}...</span>
+                      <span className="lista-livros-id-span">{livro.uuid.substring(0, 8)}...</span>
                     </td>
                     <td className="lista-livros-td font-medium">{livro.titulo}</td>
                     <td className="lista-livros-td text-muted">{livro.autor}</td>

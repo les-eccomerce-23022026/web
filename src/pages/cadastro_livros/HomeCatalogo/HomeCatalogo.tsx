@@ -18,7 +18,7 @@ export function HomeCatalogo() {
       <h3>Lançamentos Destacados</h3>
       <div className="grade grade--produto">
         {destaques.map((book: any) => (
-          <div key={book.id} className="cartao-livro">
+          <div key={book.uuid} className="cartao-livro">
             <div className="cartao-livro__capa-container">
               <img src={book.imagem} alt="Capa" className="cartao-livro__capa" />
             </div>
@@ -31,7 +31,7 @@ export function HomeCatalogo() {
               </div>
             </div>
             <div className="cartao-livro__acao">
-               <a href={`/livro/${book.id}`} className="botao btn-secondary">Ver Detalhes</a>
+               <a href={`/livro/${book.uuid}`} className="botao btn-secondary">Ver Detalhes</a>
             </div>
           </div>
         ))}

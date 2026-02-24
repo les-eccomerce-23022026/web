@@ -29,7 +29,7 @@ export function Carrinho() {
         </thead>
         <tbody>
           {data.itens.map((item: any) => (
-            <tr key={item.id}>
+            <tr key={item.uuid}>
               <td className="carrinho-td-product">
                 <img src={item.imagem} alt="Livro" style={{width: '60px', height: '90px', objectFit:'cover', borderRadius:'4px', backgroundColor:'#e0e0e0'}} />
                 <div>

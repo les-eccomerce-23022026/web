@@ -9,7 +9,7 @@
   },
   "cartoesSalvos": [
     {
-      "id": "c138b1bc-b827-463e-b921-6ed947da7eb9",
+      "uuid": "c138b1bc-b827-463e-b921-6ed947da7eb9",
       "final": "1234",
       "nomeCliente": "Nome do Cliente",
       "bandeira": "Mastercard"

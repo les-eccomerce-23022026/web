@@ -122,7 +122,7 @@ export function DashboardAdmin() {
                <h4>Últimas Atividades</h4>
                <ul className="activity-list">
                  {data.atividadesRecentes.map((atividade: any) => (
-                   <li key={atividade.id} className="activity-item">
+                   <li key={atividade.uuid} className="activity-item">
                      <span className={`activity-icon ${atividade.sucesso ? 'sucesso' : 'alerta'}`}></span>
                      <div className="activity-content">
                        <p className="activity-desc"><strong>{atividade.tipo}</strong>: {atividade.descricao}</p>

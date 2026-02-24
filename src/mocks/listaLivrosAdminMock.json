@@ -1,25 +1,46 @@
 {
   "livros": [
     {
-      "id": "a1b2c3d4-e5f6-7890-1234-56789abcdef0",
+      "uuid": "a1b2c3d4-e5f6-7890-1234-56789abcdef0",
       "titulo": "O Senhor dos Anéis",
       "autor": "J.R.R Tolkien",
       "categoria": "Ficção, Fantasia",
       "status": "Ativo"
     },
     {
-      "id": "b2c3d4e5-f6a7-8901-2345-6789abcdef01",
+      "uuid": "b2c3d4e5-f6a7-8901-2345-6789abcdef01",
       "titulo": "Dom Casmurro",
       "autor": "Machado de Assis",
       "categoria": "Ficção, Romance",
       "status": "Ativo"
     },
     {
-      "id": "c3d4e5f6-a7b8-9012-3456-789abcdef012",
+      "uuid": "c3d4e5f6-a7b8-9012-3456-789abcdef012",
       "titulo": "1984",
       "autor": "George Orwell",
       "categoria": "Ficção, Distopia",
       "status": "Inativo"
+    },
+    {
+      "uuid": "67890abc-def0-1234-5678-9abcdef01234",
+      "titulo": "O Silmarillion",
+      "autor": "J.R.R. Tolkien",
+      "categoria": "Ficção, Fantasia",
+      "status": "Ativo"
+    },
+    {
+      "uuid": "23456789-01ab-cdef-1234-567890abcdef",
+      "titulo": "A Revolução dos Bichos",
+      "autor": "George Orwell",
+      "categoria": "Ficção, Distopia",
+      "status": "Ativo"
+    },
+    {
+      "uuid": "87654321-4321-4321-4321-876543210987",
+      "titulo": "Código Limpo",
+      "autor": "Robert C. Martin",
+      "categoria": "Técnico, Programação",
+      "status": "Ativo"
     }
   ]
 }
