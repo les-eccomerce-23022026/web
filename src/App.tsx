@@ -1,0 +1,36 @@
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BaseLayout } from '@/components/comum/BaseLayout/BaseLayout';
+import { HomeCatalogo } from '@/pages/cadastro_livros/HomeCatalogo/HomeCatalogo';
+import { DetalhesLivro } from '@/pages/cadastro_livros/DetalhesLivro/DetalhesLivro';
+import { Carrinho } from '@/pages/vendas/Carrinho/Carrinho';
+import { Checkout } from '@/pages/vendas/Checkout/Checkout';
+import { LoginArea } from '@/pages/cadastro_clientes/LoginArea/LoginArea';
+import { DashboardAdmin } from '@/pages/analise/DashboardAdmin/DashboardAdmin';
+import { ListaLivrosAdmin } from '@/pages/cadastro_livros/ListaLivrosAdmin/ListaLivrosAdmin';
+import { CadastrarLivroAdmin } from '@/pages/cadastro_livros/CadastrarLivroAdmin/CadastrarLivroAdmin';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<BaseLayout />}>
+          <Route index element={<HomeCatalogo />} />
+          <Route path="livro/:id" element={<DetalhesLivro />} />
+          <Route path="carrinho" element={<Carrinho />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="minha-conta" element={<LoginArea />} />
+        </Route>
+        
+        {/* Painel Administrativo Layout Simplificado */}
+        <Route path="/admin">
+          <Route index element={<DashboardAdmin />} />
+          <Route path="livros" element={<ListaLivrosAdmin />} />
+          <Route path="livros/novo" element={<CadastrarLivroAdmin />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

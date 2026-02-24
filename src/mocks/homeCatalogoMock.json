@@ -1,0 +1,36 @@
+{
+  "destaques": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-1234-56789abcdef0",
+      "imagem": "https://m.media-amazon.com/images/I/81h2gW3v3mL._AC_UF1000,1000_QL80_.jpg",
+      "titulo": "O Senhor dos Anéis: A Sociedade do Anel",
+      "autor": "J.R.R. Tolkien",
+      "preco": 64.90,
+      "estrelas": 5
+    },
+    {
+      "id": "f0e1d2c3-b4a5-6789-0123-456789abcdef",
+      "imagem": "https://m.media-amazon.com/images/I/818kvS9mklL._AC_UF1000,1000_QL80_.jpg",
+      "titulo": "Duna",
+      "autor": "Frank Herbert",
+      "preco": 79.90,
+      "estrelas": 5
+    },
+    {
+      "id": "1a2b3c4d-5e6f-7890-abcd-ef0123456789",
+      "imagem": "https://m.media-amazon.com/images/I/71XvO7F9uDL._AC_UF1000,1000_QL80_.jpg",
+      "titulo": "1984",
+      "autor": "George Orwell",
+      "preco": 39.90,
+      "estrelas": 4
+    },
+    {
+      "id": "98765432-10fe-dcba-0987-654321fedcba",
+      "imagem": "https://m.media-amazon.com/images/I/91M9xPIf7pL._AC_UF1000,1000_QL80_.jpg",
+      "titulo": "O Hobbit",
+      "autor": "J.R.R. Tolkien",
+      "preco": 49.90,
+      "estrelas": 5
+    }
+  ]
+}

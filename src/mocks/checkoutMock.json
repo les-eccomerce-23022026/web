@@ -1,0 +1,25 @@
+{
+  "enderecoEntrega": {
+    "logradouro": "Rua Bela Vista",
+    "numero": "1234",
+    "complemento": "Apto 55",
+    "cidade": "São Paulo",
+    "estado": "SP",
+    "cep": "01000-000"
+  },
+  "cartoesSalvos": [
+    {
+      "id": "c138b1bc-b827-463e-b921-6ed947da7eb9",
+      "final": "1234",
+      "nomeCliente": "Nome do Cliente",
+      "bandeira": "Mastercard"
+    }
+  ],
+  "resumoPedido": {
+    "quantidadeItens": 1,
+    "subtotal": 79.90,
+    "frete": 15.00,
+    "descontoCupons": 0.00,
+    "total": 94.90
+  }
+}

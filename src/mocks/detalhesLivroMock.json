@@ -1,0 +1,11 @@
+{
+  "id": "a1b2c3d4-e5f6-7890-1234-56789abcdef0",
+  "titulo": "O Senhor dos Anéis - A Sociedade do Anel",
+  "autor": "J.R.R. Tolkien",
+  "categorias": ["Ficção", "Fantasia"],
+  "imagem": "https://via.placeholder.com/400x600?text=Capa+Lorda",
+  "estrelas": 5,
+  "numeroAvaliacoes": 152,
+  "preco": 79.9,
+  "sinopse": "Numa cidadezinha indolente do Condado, um jovem hobbit é encarregado de uma imensa tarefa. Deve empreender uma perigosa viagem através da Terra-média até as Fendas da Perdição, e lá destruir o Anel do Poder..."
+}

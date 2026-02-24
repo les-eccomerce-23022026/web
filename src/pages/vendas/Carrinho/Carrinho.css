@@ -1,0 +1,93 @@
+.carrinho-separator {
+  border: none;
+  border-top: 2px solid var(--bn-primary);
+  margin-bottom: 30px;
+}
+
+.carrinho-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.carrinho-table-header {
+  background-color: #F4F6F9;
+  text-align: left;
+}
+
+.carrinho-th, .carrinho-td {
+  padding: 15px;
+}
+
+.carrinho-td-product {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.carrinho-product-isbn {
+  font-size: 13px;
+  color: #666;
+}
+
+.carrinho-input-qty {
+  width: 60px;
+}
+
+.carrinho-btn-remove {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.carrinho-resumo {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #F8F5EE;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.carrinho-frete {
+  width: 40%;
+}
+
+.carrinho-frete-input-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.carrinho-btn-frete {
+  white-space: nowrap;
+}
+
+.carrinho-frete-result {
+  margin-top: 10px;
+  color: var(--bn-success);
+}
+
+.carrinho-totalizador {
+  width: 40%;
+  text-align: right;
+}
+
+.carrinho-total-separator {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 15px 0;
+}
+
+.carrinho-total-header {
+  color: var(--bn-primary);
+  margin-bottom: 20px;
+}
+
+.carrinho-btn-finalizar {
+  width: 100%;
+  font-size: 18px;
+  padding: 15px;
+}

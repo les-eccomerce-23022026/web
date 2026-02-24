@@ -1,0 +1,152 @@
+@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
+
+:root {
+  /* Paleta de Cores Barnes & Noble */
+  --bn-primary: #0f4c3a; /* Verde Floresta Profundo */
+  --bn-primary-dark: #0a3326;
+  --bn-secondary: #d2b48c; /* Caqui / Dourado Mudo */
+  --bn-secondary-dark: #b9935a;
+
+  --bn-bg-main: #fdfbf7; /* Off-white / Bege para fundo simulando papel */
+  --bn-bg-card: #ffffff;
+  --bn-bg-admin: #f4f6f9; /* Fundo do admin */
+
+  --bn-text-title: #1a1a1a; /* Alto contraste para títulos */
+  --bn-text-body: #4a4a4a; /* Cinza médio para descrições */
+  --bn-border-light: #eaeaea;
+  --bn-border: #cccccc;
+
+  /* Cores de Alerta */
+  --bn-error: #c9302c;
+  --bn-success: #2e7d32;
+  --bn-warning: #f57f17;
+
+  /* Tipografia */
+  --font-serif: "Lora", "Merriweather", "Playfair Display", serif;
+  --font-sans: "Open Sans", "Lato", "Inter", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bn-bg-main);
+  color: var(--bn-text-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif);
+  color: var(--bn-text-title);
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+
+a {
+  color: var(--bn-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Botões Globais */
+button {
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 4px;
+  padding: 10px 20px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--bn-primary);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: var(--bn-primary-dark);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--bn-primary);
+  border: 1px solid var(--bn-primary);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(15, 76, 58, 0.05); /* Fundo primary com opacidade */
+}
+
+.btn-admin {
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+/* Formulários Globais */
+input,
+select,
+textarea {
+  font-family: var(--font-sans);
+  background-color: #fff;
+  border: 1px solid var(--bn-border);
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 15px;
+  color: var(--bn-text-body);
+  transition: border-color 0.3s ease;
+  width: 100%;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--bn-primary);
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--bn-text-title);
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Utilitários */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.card {
+  background: var(--bn-bg-card);
+  border: 1px solid var(--bn-border-light);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}

@@ -1,0 +1,44 @@
+.auth-page {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.login-box-card {
+  width: 400px;
+  margin-right: 40px;
+}
+
+.login-title {
+  margin-bottom: 20px;
+}
+
+.login-forgot-password {
+  font-size: 12px;
+  display: block;
+  margin-top: 5px;
+}
+
+.login-btn-enter {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.register-box-card {
+  width: 400px;
+  background-color: #F8F5EE;
+}
+
+.register-title {
+  margin-bottom: 20px;
+}
+
+.register-text {
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.login-btn-register {
+  width: 100%;
+  padding: 15px;
+}
