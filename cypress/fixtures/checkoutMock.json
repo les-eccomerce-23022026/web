@@ -1,0 +1,24 @@
+{
+  "enderecoEntrega": {
+    "logradouro": "Rua Bela Vista",
+    "numero": "123",
+    "complemento": "Apto 45",
+    "cidade": "Mogi das Cruzes",
+    "estado": "SP",
+    "cep": "08700-000"
+  },
+  "cartoesSalvos": [
+    {
+      "uuid": "uuid-cartao-1",
+      "final": "4444",
+      "nomeCliente": "JOAO DA SILVA"
+    }
+  ],
+  "resumoPedido": {
+    "quantidadeItens": 1,
+    "subtotal": 59.90,
+    "frete": 15.00,
+    "descontoCupons": 0.00,
+    "total": 74.90
+  }
+}

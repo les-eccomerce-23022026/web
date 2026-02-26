@@ -15,9 +15,9 @@ describe('Refatoração de CSS Inline - TDD', () => {
     }).as('loginAdmin');
     
     cy.visit('http://localhost:5173/minha-conta');
-    cy.get('.login-box input[type="text"]').type('admin@teste.com');
-    cy.get('.login-box input[type="password"]').type('123456');
-    cy.get('.login-btn-enter').click();
+    cy.get('input[placeholder="joao@email.com"]').type('admin@teste.com');
+    cy.get('input[type="password"]').first().type('123456');
+    cy.contains('button', 'Entrar').click();
     cy.wait('@loginAdmin');
     cy.url().should('include', '/admin');
   };
@@ -29,14 +29,14 @@ describe('Refatoração de CSS Inline - TDD', () => {
     // Abrir formulário de novo administrador para ver o card
     cy.contains('button', 'Novo Administrador').click();
     
-    // Verificar card de cadastro
-    cy.get('.admin-novo-card').should('exist');
-    cy.get('.admin-novo-card').should('have.css', 'padding', '24px');
-    cy.get('.admin-novo-card').should('have.css', 'max-width', '400px');
+    // Verificar card de cadastro - usando seletor parcial para CSS Modules
+    cy.get('[class*="admin-novo-card"]').should('exist');
+    cy.get('[class*="admin-novo-card"]').should('have.css', 'padding', '24px');
+    cy.get('[class*="admin-novo-card"]').should('have.css', 'max-width', '400px');
     
     // Verificar container de botões
-    cy.get('.admin-form-actions').should('have.css', 'display', 'flex');
-    cy.get('.admin-form-actions').should('have.css', 'gap', '8px');
+    cy.get('[class*="admin-form-actions"]').should('have.css', 'display', 'flex');
+    cy.get('[class*="admin-form-actions"]').should('have.css', 'gap', '8px');
   });
 
   it('Verificar estilos de mensagem de sucesso em GerenciarAdmins.tsx', () => {
@@ -59,9 +59,9 @@ describe('Refatoração de CSS Inline - TDD', () => {
     cy.wait('@createAdmin');
 
     // Verificar mensagem de sucesso
-    cy.get('.admin-message-success').should('have.css', 'color', 'rgb(0, 128, 0)'); // green
-    cy.get('.admin-message-success').should('have.css', 'padding', '16px');
-    cy.get('.admin-message-success').should('have.css', 'background-color', 'rgb(224, 255, 224)'); // #e0ffe0
+    cy.get('[class*="admin-message-success"]').should('have.css', 'color', 'rgb(0, 128, 0)'); // green
+    cy.get('[class*="admin-message-success"]').should('have.css', 'padding', '16px');
+    cy.get('[class*="admin-message-success"]').should('have.css', 'background-color', 'rgb(224, 255, 224)'); // #e0ffe0
   });
 
   it('Verificar estilos em LoginArea.tsx', () => {
@@ -71,25 +71,25 @@ describe('Refatoração de CSS Inline - TDD', () => {
     cy.contains('button', 'Criar Nova Conta').click();
     
     // Verificar container de botões de registro
-    cy.get('.auth-form-actions').should('have.css', 'display', 'flex');
-    cy.get('.auth-form-actions').should('have.css', 'gap', '16px');
+    cy.get('[class*="auth-form-actions"]').should('have.css', 'display', 'flex');
+    cy.get('[class*="auth-form-actions"]').should('have.css', 'gap', '16px');
 
     // Simular erro de senha fraca para ver mensagem de erro
     cy.get('input[name="senha"]').type('123');
     cy.get('input[name="confirmacao_senha"]').type('123');
     cy.contains('button', 'Finalizar Cadastro').click();
 
-    cy.get('.auth-message-error').should('have.css', 'color', 'rgb(255, 0, 0)'); // red
-    cy.get('.auth-message-error').should('have.css', 'margin-bottom', '16px');
+    cy.get('[class*="auth-message-error"]').should('have.css', 'color', 'rgb(255, 0, 0)'); // red
+    cy.get('[class*="auth-message-error"]').should('have.css', 'margin-bottom', '16px');
   });
 
   it('Verificar estilos em Carrinho.tsx', () => {
     cy.visit('http://localhost:5173/carrinho');
     
     // Verificar imagem do item (o mock deve carregar itens)
-    cy.get('.carrinho-item-image').first().should('have.css', 'width', '60px');
-    cy.get('.carrinho-item-image').first().should('have.css', 'height', '90px');
-    cy.get('.carrinho-item-image').first().should('have.css', 'object-fit', 'cover');
+    cy.get('[class*="carrinho-item-image"]').first().should('have.css', 'width', '60px');
+    cy.get('[class*="carrinho-item-image"]').first().should('have.css', 'height', '90px');
+    cy.get('[class*="carrinho-item-image"]').first().should('have.css', 'object-fit', 'cover');
   });
 
   const loginAsClient = () => {
@@ -108,9 +108,9 @@ describe('Refatoração de CSS Inline - TDD', () => {
     }).as('loginCliente');
     
     cy.visit('http://localhost:5173/minha-conta');
-    cy.get('.login-box input[type="text"]').type('joao@email.com');
-    cy.get('.login-box input[type="password"]').type('123456');
-    cy.get('.login-btn-enter').click();
+    cy.get('input[placeholder="joao@email.com"]').type('joao@email.com');
+    cy.get('input[type="password"]').first().type('123456');
+    cy.contains('button', 'Entrar').click();
     cy.wait('@loginCliente');
     // Cliente é redirecionado para a home "/" que possui Header
     cy.url().should('eq', 'http://localhost:5173/');
@@ -120,48 +120,38 @@ describe('Refatoração de CSS Inline - TDD', () => {
     loginAsClient();
     
     // Ir pro carrinho usando link do Header e então pro checkout
-    cy.contains('a.action-link', 'Carrinho').click();
+    cy.contains('a', 'Carrinho').click();
     cy.url().should('include', '/carrinho');
     
     // Agora ir para checkout (o botão "Finalizar Compra" direciona para /checkout)
-    cy.get('.carrinho-btn-finalizar').click();
+    cy.contains('button', 'Finalizar Compra').click();
     cy.url().should('include', '/checkout');
     
     // Esperar um pouco pra ver se renderiza a página ou a mensagem
     cy.get('body').then($body => {
-      if ($body.find('.checkout-page').length > 0) {
-        cy.get('.checkout-page').should('be.visible');
+      if ($body.find('[class*="checkout-page"]').length > 0) {
+        cy.get('[class*="checkout-page"]').should('be.visible');
       } else {
         // Se houver erro ou vazio, vai cair na classe refatorada
-        cy.get('.checkout-status-message').should('have.css', 'padding', '20px');
+        cy.get('[class*="checkout-status-message"]').should('have.css', 'padding', '20px');
       }
     });
   });
 
   it('Verificar estilos em DetalhesLivro.tsx', () => {
     // Interceptar a chamada para forçar um "livro não encontrado"
-    // Usamos um id fixo no teste
     cy.intercept('GET', '/api/livros/teste-id-123', {
         statusCode: 404,
         body: null
     }).as('getLivroNaoEncontrado');
 
-    // Ao visitar a página diretamente o hook deve fazer a requisição de init
-    // A página /livro/:id faz fetch em /api/livros/:id
     cy.visit('http://localhost:5173/livro/teste-id-123');
     
-    // O mock service usa query params ou falha genérica, mas vamos apenas
-    // testar a mensagem se ela renderizar
     cy.get('body').then($body => {
-      // Como o LivroService tem um mock estrito local que pode não
-      // repassar o 404 da interceptação facilmente se o USE_MOCK=true estiver ativado globalmente.
-      // Se não achar o .detalhes-livro é porque provavelmente retornou ErrorState ou LoadingState.
-      // Vamos tentar assegurar que a classe de status message esteja definida ou a página principal.
-      // Para o propósito deste refatoramento de CSS inline, garantir a ausência do inline é a meta.
-      cy.get('.detalhes-status-message, .detalhes-livro, .error-state, .loading-state').should('exist');
+      cy.get('[class*="detalhes-status-message"], [class*="detalhes-livro"], [class*="error-state"], [class*="loading-state"]').should('exist');
       
-      if ($body.find('.detalhes-status-message').length > 0) {
-          cy.get('.detalhes-status-message').should('have.css', 'padding', '20px');
+      if ($body.find('[class*="detalhes-status-message"]').length > 0) {
+          cy.get('[class*="detalhes-status-message"]').should('have.css', 'padding', '20px');
       }
     });
   });
@@ -169,7 +159,7 @@ describe('Refatoração de CSS Inline - TDD', () => {
   it('Verificar estilos em Header.tsx', () => {
     // Fazer login como cliente p/ permanecer no BaseLayout (onde o header vive)
     loginAsClient();
-    cy.get('.header-logout-btn').should('exist');
-    cy.get('.header-logout-btn').should('have.css', 'cursor', 'pointer');
+    cy.get('[class*="header-logout-btn"]').should('exist');
+    cy.get('[class*="header-logout-btn"]').should('have.css', 'cursor', 'pointer');
   });
 });

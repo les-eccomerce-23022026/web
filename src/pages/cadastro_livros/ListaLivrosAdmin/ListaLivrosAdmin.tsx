@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useListaLivrosAdmin } from '@/hooks/useLivros';
-import './ListaLivrosAdmin.css';
+import styles from './ListaLivrosAdmin.module.css';
 import { LoadingState } from '@/components/comum/LoadingState/LoadingState';
 import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
 import { EmptyState } from '@/components/comum/EmptyState/EmptyState';
@@ -12,86 +12,86 @@ export function ListaLivrosAdmin() {
   if (error) return <ErrorState message="Não foi possível carregar a lista de livros." onRetry={() => window.location.reload()} />;
 
   return (
-    <div className="admin-page lista-livros-admin page-transition-enter">
-      <div className="header-admin-list">
-        <div className="header-admin-title">
+    <div className={`${styles['admin-page']} ${styles['lista-livros-admin']} page-transition-enter`}>
+      <div className={styles['header-admin-list']}>
+        <div className={styles['header-admin-title']}>
           <h2>Gestão de Catálogo (Livros)</h2>
           <p>Controle do acervo - Barnes & Noble System</p>
         </div>
         <Link to="/"><button className="btn-secondary">Sair do Painel (Loja)</button></Link>
       </div>
 
-      <div className="dashboard-grid-list">
+      <div className={styles['dashboard-grid-list']}>
         {/* Menu Lateral Admin (Mesmo padrão do Dashboard) */}
-        <aside className="sidebar-admin-list">
+        <aside className={styles['sidebar-admin-list']}>
           <ul>
-            <li className="sidebar-group-title">Menu Principal</li>
+            <li className={styles['sidebar-group-title']}>Menu Principal</li>
             <li>
-              <Link to="/admin" className="sidebar-link">📊 Dashboard Analytics</Link>
+              <Link to="/admin" className={styles['sidebar-link']}>📊 Dashboard Analytics</Link>
             </li>
-            <li className="active-admin">
-              <Link to="/admin/livros" className="sidebar-link active">📚 Gestão de Catálogo</Link>
-            </li>
-            <li>
-              <Link to="/admin/estoque" className="sidebar-link">📦 Controle de Estoque</Link>
-            </li>
-            <li className="sidebar-group-title">Atendimento</li>
-            <li>
-              <Link to="/admin/trocas" className="sidebar-link">🔄 Solicitações & Trocas</Link>
+            <li className={styles['active-admin']}>
+              <Link to="/admin/livros" className={`${styles['sidebar-link']} ${styles['active']}`}>📚 Gestão de Catálogo</Link>
             </li>
             <li>
-              <Link to="#/" className="sidebar-link disabled">👥 Gestão de Clientes</Link>
+              <Link to="/admin/estoque" className={styles['sidebar-link']}>📦 Controle de Estoque</Link>
+            </li>
+            <li className={styles['sidebar-group-title']}>Atendimento</li>
+            <li>
+              <Link to="/admin/trocas" className={styles['sidebar-link']}>🔄 Solicitações & Trocas</Link>
+            </li>
+            <li>
+              <Link to="#/" className={`${styles['sidebar-link']} ${styles['disabled']}`}>👥 Gestão de Clientes</Link>
             </li>
           </ul>
         </aside>
 
         {/* Cópia Dashboard Conteúdo */}
-        <div className="content-admin-list">
-          <div className="card list-card-wrapper">
-            <div className="toolbar lista-livros-toolbar">
-               <div className="toolbar-search-wrapper">
-                 <span className="search-icon">🔍</span>
-                 <input type="text" className="lista-livros-search" placeholder="Buscar por título, autor ou código de barras..." />
+        <div className={styles['content-admin-list']}>
+          <div className={`card ${styles['list-card-wrapper']}`}>
+            <div className={`toolbar ${styles['lista-livros-toolbar']}`}>
+               <div className={styles['toolbar-search-wrapper']}>
+                 <span className={styles['search-icon']}>🔍</span>
+                 <input type="text" className={styles['lista-livros-search']} placeholder="Buscar por título, autor ou código de barras..." />
                </div>
-               <div className="filtros lista-livros-filtros">
-                 <select defaultValue="ativos" className="filter-select">
+               <div className={`filtros ${styles['lista-livros-filtros']}`}>
+                 <select defaultValue="ativos" className={styles['filter-select']}>
                    <option value="ativos">Apenas Ativos</option>
                    <option value="inativos">Apenas Inativos</option>
                    <option value="todos">Todos</option>
                  </select>
-                 <Link to="/admin/livros/novo"><button className="btn-primary btn-add-book">+ Novo Livro</button></Link>
+                 <Link to="/admin/livros/novo"><button className={`btn-primary ${styles['btn-add-book']}`}>+ Novo Livro</button></Link>
                </div>
             </div>
             
             <div className="table-responsive">
-              <table className="lista-livros-table">
+              <table className={styles['lista-livros-table']}>
                 <thead>
-                  <tr className="lista-livros-th-row">
-                    <th className="lista-livros-th">Cód. Produto</th>
-                    <th className="lista-livros-th">Título do Livro</th>
-                    <th className="lista-livros-th">Autor(es)</th>
-                    <th className="lista-livros-th">Categoria</th>
-                    <th className="lista-livros-th">Status</th>
-                    <th className="lista-livros-th text-center">Ações Rápidas</th>
+                  <tr className={styles['lista-livros-th-row']}>
+                    <th className={styles['lista-livros-th']}>Cód. Produto</th>
+                    <th className={styles['lista-livros-th']}>Título do Livro</th>
+                    <th className={styles['lista-livros-th']}>Autor(es)</th>
+                    <th className={styles['lista-livros-th']}>Categoria</th>
+                    <th className={styles['lista-livros-th']}>Status</th>
+                    <th className={styles['lista-livros-th']}>Ações Rápidas</th>
                   </tr>
                 </thead>
                 <tbody>
                   {livros.map((livro) => (
-                  <tr key={livro.uuid} className="lista-livros-td-row">
-                    <td className="lista-livros-td">
-                      <span className="lista-livros-id-span">{livro.uuid.substring(0, 8)}...</span>
+                  <tr key={livro.uuid} className={styles['lista-livros-td-row']}>
+                    <td className={styles['lista-livros-td']}>
+                      <span className={styles['lista-livros-id-span']}>{livro.uuid.substring(0, 8)}...</span>
                     </td>
-                    <td className="lista-livros-td font-medium">{livro.titulo}</td>
-                    <td className="lista-livros-td text-muted">{livro.autor}</td>
-                    <td className="lista-livros-td">
+                    <td className={`${styles['lista-livros-td']} font-medium`}>{livro.titulo}</td>
+                    <td className={`${styles['lista-livros-td']} text-muted`}>{livro.autor}</td>
+                    <td className={styles['lista-livros-td']}>
                       <span className="category-badge">{livro.categoria}</span>
                     </td>
-                    <td className="lista-livros-td">
-                      <span className={livro.status === 'Ativo' ? 'lista-livros-status-active' : 'lista-livros-status-inactive'}>
+                    <td className={styles['lista-livros-td']}>
+                      <span className={livro.status === 'Ativo' ? styles['lista-livros-status-active'] : styles['lista-livros-status-inactive']}>
                         {livro.status}
                       </span>
                     </td>
-                    <td className="lista-livros-td flex-actions">
+                    <td className={`${styles['lista-livros-td']} flex-actions`}>
                       <button className="btn-icon-admin edit" title="Editar informações">✏️</button>
                       <button className={`btn-icon-admin ${livro.status === 'Ativo' ? 'inactivate' : 'activate'}`} title={livro.status === 'Ativo' ? 'Inativar produto' : 'Ativar produto'}>
                          {livro.status === 'Ativo' ? '🛑' : '✅'}
@@ -100,7 +100,7 @@ export function ListaLivrosAdmin() {
                   </tr>
                   ))}
                   {livros.length === 0 && (
-                    <tr className="lista-livros-td-row">
+                    <tr className={styles['lista-livros-td-row']}>
                       <td colSpan={6} className="text-center p-0">
                         <EmptyState 
                           title="Nenhum resultado" 

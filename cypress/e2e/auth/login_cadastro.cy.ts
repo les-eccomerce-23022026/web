@@ -19,6 +19,14 @@ describe('Login / Cadastro de Conta', () => {
   });
 
   it('deve permitir realizar login simulado e mudar o Header', () => {
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 200,
+      body: {
+        token: "fake-token-123",
+        user: { role: "cliente", nome: "joao" }
+      }
+    }).as('loginMock');
+
     // Digita o email
     cy.get('input[placeholder="joao@email.com"]').type('joao@email.com');
     // Digita a senha
@@ -26,12 +34,13 @@ describe('Login / Cadastro de Conta', () => {
     
     // Clica no Entrar
     cy.contains('button', 'Entrar').click();
+    cy.wait('@loginMock');
 
     // Deve redirecionar para a home
     cy.url().should('eq', Cypress.config().baseUrl + '/');
 
     // No Header, deve aparecer "Olá, joao" e o botão de sair
-    cy.contains('span', 'Olá, joao').should('be.visible');
+    cy.contains('a', 'Olá, joao').should('be.visible');
     cy.contains('span', 'Sair').should('be.visible');
     
     // Sair da conta

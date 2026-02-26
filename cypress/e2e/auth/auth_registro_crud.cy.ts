@@ -21,15 +21,12 @@ describe('Autenticação e Registro', () => {
         }
       }).as('loginRequest');
 
-      cy.visit('/minha-conta');
-      cy.get('.login-box input[type="text"]').type('joao.comprador@email.com');
-      cy.get('.login-box input[type="password"]').type('password123');
-      cy.get('.login-box button').contains('Entrar').click();
+      cy.login('joao.comprador@email.com', 'password123');
       cy.wait('@loginRequest');
 
       // Check URL and state
       cy.url().should('eq', Cypress.config().baseUrl + '/');
-      cy.contains('a', 'Olá, João Comprador').should('be.visible');
+      cy.getDataCy('header-user-profile').should('be.visible').and('contain', 'João Comprador');
 
       // Admin routes should be blocked
       cy.visit('/admin');
@@ -51,10 +48,7 @@ describe('Autenticação e Registro', () => {
         }
       }).as('loginAdmin');
 
-      cy.visit('/minha-conta');
-      cy.get('.login-box input[type="text"]').type('admin@livraria.com.br');
-      cy.get('.login-box input[type="password"]').type('password123');
-      cy.get('.login-box button').contains('Entrar').click();
+      cy.login('admin@livraria.com.br', 'password123');
       cy.wait('@loginAdmin');
 
       // Admin routes should be allowed (the app navigates automatically)
@@ -78,22 +72,22 @@ describe('Autenticação e Registro', () => {
 
       cy.visit('/minha-conta');
       // Abrir formulario
-      cy.contains('button', 'Criar Nova Conta').click();
+      cy.getDataCy('register-toggle-button').click();
 
-      cy.get('input[name="nome"]').type('João Silva');
-      cy.get('input[name="cpf"]').type('123.456.789-00');
-      cy.get('input[name="email"]').type('joao.comprador@email.com');
+      cy.getDataCy('register-nome-input').type('João Silva');
+      cy.getDataCy('register-cpf-input').type('123.456.789-00');
+      cy.getDataCy('register-email-input').type('joao.comprador@email.com');
       
       // Teste de senha fraca
-      cy.get('input[name="senha"]').type('1234');
-      cy.get('input[name="confirmacao_senha"]').type('1234');
-      cy.contains('button', 'Finalizar Cadastro').click();
+      cy.getDataCy('register-senha-input').type('1234');
+      cy.getDataCy('register-confirmacao-senha-input').type('1234');
+      cy.getDataCy('register-submit-button').click();
       cy.contains('A senha deve conter pelo menos 8 caracteres, maiúsculas, minúsculas e especiais').should('be.visible');
 
       // Teste de senha forte
-      cy.get('input[name="senha"]').clear().type('Password@123');
-      cy.get('input[name="confirmacao_senha"]').clear().type('Password@123');
-      cy.contains('button', 'Finalizar Cadastro').click();
+      cy.getDataCy('register-senha-input').clear().type('Password@123');
+      cy.getDataCy('register-confirmacao-senha-input').clear().type('Password@123');
+      cy.getDataCy('register-submit-button').click();
 
       cy.wait('@registerRequest').its('request.body').should((body) => {
         expect(body).to.include.keys('nome', 'cpf', 'email', 'senha', 'confirmacao_senha');
@@ -117,10 +111,7 @@ describe('Autenticação e Registro', () => {
         }
       }).as('loginAdminOnly');
       
-      cy.visit('/minha-conta');
-      cy.get('.login-box input[type="text"]').type('admin');
-      cy.get('.login-box input[type="password"]').type('123456');
-      cy.get('.login-box button').contains('Entrar').click();
+      cy.login('admin', '123456');
       cy.wait('@loginAdminOnly');
       
       // Access admin user management
@@ -157,14 +148,11 @@ describe('Autenticação e Registro', () => {
         }
       }).as('loginCliente');
 
-      cy.visit('/minha-conta');
-      cy.get('.login-box input[type="text"]').type('joao');
-      cy.get('.login-box input[type="password"]').type('123');
-      cy.get('.login-box button').contains('Entrar').click();
+      cy.login('joao', '123');
       cy.wait('@loginCliente');
 
       // Go to profile
-      cy.get('a.action-link').contains('Olá, João Comprador').click();
+      cy.getDataCy('header-user-profile').click();
       cy.url().should('include', '/perfil');
 
       // Atualização de Dados

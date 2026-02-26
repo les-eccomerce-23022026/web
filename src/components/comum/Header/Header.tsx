@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
-import "./Header.css";
+import styles from "./Header.module.css";
 
 export function Header() {
   const dispatch = useAppDispatch();
@@ -12,46 +12,46 @@ export function Header() {
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
 
   return (
-    <header className="header-container">
+    <header className={styles['header-container']}>
       {/* Top Header - Verde Primário (full-width) */}
-      <div className="header-top">
+      <div className={styles['header-top']}>
         {/* Container interno centraliza o conteúdo com max-width */}
-        <div className="container header-top-inner">
-          <div className="logo">
+        <div className={`container ${styles['header-top-inner']}`}>
+          <div className={styles['logo']}>
             <Link to="/">LES Livraria</Link>
           </div>
 
-          <div className="search-bar">
-            <span className="header-search-icon">
+          <div className={styles['search-bar']}>
+            <span className={styles['header-search-icon']}>
               <Search size={18} strokeWidth={2.5} />
             </span>
             <input
               type="text"
               placeholder="Buscar por título, autor ou ISBN..."
             />
-            <button className="search-btn">Buscar</button>
+            <button className={styles['search-btn']}>Buscar</button>
           </div>
 
-          <div className="header-actions">
+          <div className={styles['header-actions']}>
             {isAuthenticated ? (
               <>
-                <Link to="/perfil" className="action-link">
+                <Link to="/perfil" className={styles['action-link']} data-cy="header-user-profile">
                   👤 Olá, {user?.nome}
                 </Link>
-                <span className="action-link header-logout-btn" onClick={() => dispatch(logout())}>
+                <span className={`${styles['action-link']} ${styles['header-logout-btn']}`} onClick={() => dispatch(logout())} data-cy="header-logout-button">
                   Sair
                 </span>
               </>
             ) : (
-              <Link to="/minha-conta" className="action-link">
+              <Link to="/minha-conta" className={styles['action-link']} data-cy="header-login-link">
                 👤 Minha Conta
               </Link>
             )}
             
-            <Link to="/carrinho" className="action-link">
+            <Link to="/carrinho" className={styles['action-link']} data-cy="header-cart-link">
               🛒 Carrinho ({quantidadeItens})
             </Link>
-            <Link to="/admin" className="action-link admin-link">
+            <Link to="/admin" className={`${styles['action-link']} ${styles['admin-link']}`} data-cy="header-admin-link">
               ⚙️ Admin
             </Link>
           </div>
@@ -59,8 +59,8 @@ export function Header() {
       </div>
 
       {/* Navegação Secundária - Categorias */}
-      <nav className="header-nav">
-        <div className="container nav-links">
+      <nav className={styles['header-nav']}>
+        <div className={`container ${styles['nav-links']}`}>
           <Link to="/categoria/ficcao">Ficção</Link>
           <Link to="/categoria/nao-ficcao">Não-Ficção</Link>
           <Link to="/categoria/romance">Romance</Link>
@@ -71,7 +71,7 @@ export function Header() {
           <Link to="/categoria/autoajuda">Autoajuda</Link>
           <Link to="/categoria/tecnico">Técnico e Científico</Link>
           <Link to="/categoria/infantil">Infantil</Link>
-          <Link to="/mais-vendidos" className="nav-link-highlight">🔥 Mais Vendidos</Link>
+          <Link to="/mais-vendidos" className={styles['nav-link-highlight']}>🔥 Mais Vendidos</Link>
         </div>
       </nav>
     </header>

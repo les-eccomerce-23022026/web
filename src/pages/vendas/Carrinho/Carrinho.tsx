@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import './Carrinho.css';
+import styles from './Carrinho.module.css';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { removerItem, atualizarQuantidade } from '@/store/slices/carrinhoSlice';
 
@@ -7,9 +7,9 @@ export function Carrinho() {
   const dispatch = useAppDispatch();
   const { data, error, status } = useAppSelector(state => state.carrinho);
 
-  if (status === 'loading') return <p className="carrinho-status-message">Carregando carrinho...</p>;
-  if (status === 'failed' || error) return <p className="carrinho-status-message">Erro ao carregar carrinho.</p>;
-  if (!data) return <p className="carrinho-status-message">Carrinho vazio.</p>;
+  if (status === 'loading') return <p className={styles['carrinho-status-message']}>Carregando carrinho...</p>;
+  if (status === 'failed' || error) return <p className={styles['carrinho-status-message']}>Erro ao carregar carrinho.</p>;
+  if (!data) return <p className={styles['carrinho-status-message']}>Carrinho vazio.</p>;
 
   const handleUpdateQuantidade = (uuid: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const qtd = parseInt(event.target.value, 10);
@@ -23,44 +23,44 @@ export function Carrinho() {
   };
 
   return (
-    <div className="carrinho-page">
+    <div className={styles['carrinho-page']}>
       <h1 className="page-title">Carrinho de Compras</h1>
-      <hr className="carrinho-separator" />
+      <hr className={styles['carrinho-separator']} />
 
-      <table className="carrinho-table">
+      <table className={styles['carrinho-table']}>
         <thead>
-          <tr className="carrinho-table-header">
-            <th className="carrinho-th">Produto</th>
-            <th className="carrinho-th">Preço Unit.</th>
-            <th className="carrinho-th">Quant.</th>
-            <th className="carrinho-th">Subtotal</th>
+          <tr className={styles['carrinho-table-header']}>
+            <th className={styles['carrinho-th']}>Produto</th>
+            <th className={styles['carrinho-th']}>Preço Unit.</th>
+            <th className={styles['carrinho-th']}>Quant.</th>
+            <th className={styles['carrinho-th']}>Subtotal</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           {data.itens.map((item) => (
             <tr key={item.uuid}>
-              <td className="carrinho-td-product">
-                <img src={item.imagem} alt="Livro" className="carrinho-item-image" />
+              <td className={styles['carrinho-td-product']}>
+                <img src={item.imagem} alt="Livro" className={styles['carrinho-item-image']} />
                 <div>
                   <strong>{item.titulo}</strong><br />
-                  <span className="carrinho-product-isbn">ISBN: {item.isbn}</span>
+                  <span className={styles['carrinho-product-isbn']}>ISBN: {item.isbn}</span>
                 </div>
               </td>
-              <td className="carrinho-td" data-label="Preço Unit.">R$ {item.precoUnitario.toFixed(2).replace('.', ',')}</td>
-              <td className="carrinho-td" data-label="Quant.">
+              <td className={styles['carrinho-td']} data-label="Preço Unit.">R$ {item.precoUnitario.toFixed(2).replace('.', ',')}</td>
+              <td className={styles['carrinho-td']} data-label="Quant.">
                 <input 
                   type="number" 
                   value={item.quantidade} 
                   onChange={(e) => handleUpdateQuantidade(item.uuid, e)} 
-                  className="carrinho-input-qty" 
+                  className={styles['carrinho-input-qty']} 
                 />
               </td>
-              <td className="carrinho-td" data-label="Subtotal">R$ {item.subtotal.toFixed(2).replace('.', ',')}</td>
-              <td className="carrinho-td" data-label="Ações">
+              <td className={styles['carrinho-td']} data-label="Subtotal">R$ {item.subtotal.toFixed(2).replace('.', ',')}</td>
+              <td className={styles['carrinho-td']} data-label="Ações">
                 <button 
                   onClick={() => handleRemover(item.uuid)} 
-                  className="btn-secondary carrinho-btn-remove"
+                  className={`btn-secondary ${styles['carrinho-btn-remove']}`}
                 >
                   Remover
                 </button>
@@ -70,23 +70,23 @@ export function Carrinho() {
         </tbody>
       </table>
 
-      <div className="resumo carrinho-resumo">
-        <div className="frete carrinho-frete">
+      <div className={`resumo ${styles['carrinho-resumo']}`}>
+        <div className={`frete ${styles['carrinho-frete']}`}>
           <h4>Calcular Frete</h4>
-          <div className="carrinho-frete-input-group">
+          <div className={styles['carrinho-frete-input-group']}>
             <input type="text" placeholder="CEP (00000-000)" />
-            <button className="btn-secondary carrinho-btn-frete">Calcular Frete</button>
+            <button className={`btn-secondary ${styles['carrinho-btn-frete']}`}>Calcular Frete</button>
           </div>
-          <p className="carrinho-frete-result">Frete Padrão: R$ {data.fretePadrao.valor.toFixed(2).replace('.', ',')} ({data.fretePadrao.prazo})</p>
+          <p className={styles['carrinho-frete-result']}>Frete Padrão: R$ {data.fretePadrao.valor.toFixed(2).replace('.', ',')} ({data.fretePadrao.prazo})</p>
         </div>
         
-        <div className="totalizador carrinho-totalizador">
+        <div className={`totalizador ${styles['carrinho-totalizador']}`}>
           <p>Subtotal: R$ {data.resumo.subtotal.toFixed(2).replace('.', ',')}</p>
           <p>Frete: R$ {data.resumo.frete.toFixed(2).replace('.', ',')}</p>
-          <hr className="carrinho-total-separator" />
-          <h2 className="carrinho-total-header">Total: R$ {data.resumo.total.toFixed(2).replace('.', ',')}</h2>
+          <hr className={styles['carrinho-total-separator']} />
+          <h2 className={styles['carrinho-total-header']}>Total: R$ {data.resumo.total.toFixed(2).replace('.', ',')}</h2>
           
-          <Link to="/checkout"><button className="btn-primary carrinho-btn-finalizar">Finalizar Compra</button></Link>
+          <Link to="/checkout"><button className={`btn-primary ${styles['carrinho-btn-finalizar']}`}>Finalizar Compra</button></Link>
         </div>
       </div>
     </div>
