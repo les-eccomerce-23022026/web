@@ -1,6 +1,6 @@
 describe('Modernização do Dashboard Admin', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:5173/admin');
+    cy.visit('/admin');
   });
 
   it('não deve conter emojis nos cards de KPI', () => {

@@ -1,5 +1,15 @@
 describe('Dashboard e Gestão de Livros Admin', () => {
   beforeEach(() => {
+    cy.intercept('POST', '/api/auth/login', {
+      statusCode: 200,
+      body: {
+        token: 'fake-token-admin',
+        user: { uuid: 'uuid-admin', nome: 'Admin', email: 'admin@livraria.com.br', role: 'admin' },
+      },
+    }).as('loginAdmin');
+
+    cy.login('admin@livraria.com.br', 'password123');
+    cy.wait('@loginAdmin');
     cy.visit('/admin/livros');
   });
 

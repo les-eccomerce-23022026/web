@@ -25,7 +25,7 @@ Cypress.Commands.add('login', (email, password) => {
 });
 
 Cypress.Commands.add('getDataCy', (value) => {
-  return cy.get(`[data-cy=${value}]`);
+  return cy.get(`[data-cy="${value}"]`);
 });
 
 export {};

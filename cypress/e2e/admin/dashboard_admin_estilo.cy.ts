@@ -1,7 +1,7 @@
 describe('Estilo do Dashboard Admin - Fidelidade ao Protótipo', () => {
   beforeEach(() => {
     // Interceptar a API falsa se necessário ou apenas carregar a página
-    cy.visit('http://localhost:5173/admin');
+    cy.visit('/admin');
   });
 
   it('deve possuir a estrutura de classes de KPI igual ao HTML base', () => {

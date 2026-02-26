@@ -1,7 +1,7 @@
 describe('Estilo da Home do Catálogo - Fidelidade ao Protótipo', () => {
   beforeEach(() => {
     // Acessa a página principal (HomeCatalogo)
-    cy.visit('http://localhost:5173/');
+    cy.visit('/');
   });
 
   it('deve possuir a estrutura de banner principal', () => {

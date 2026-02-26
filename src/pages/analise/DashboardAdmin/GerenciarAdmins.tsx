@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { LayoutDashboard } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAppSelector } from '@/store/hooks';
 import styles from './GerenciarAdmins.module.css';
 
 export function GerenciarAdmins() {
@@ -10,12 +11,22 @@ export function GerenciarAdmins() {
   const [adminSenha, setAdminSenha] = useState('');
   const [message, setMessage] = useState('');
 
+  const { token } = useAppSelector((state) => state.auth);
+
   const handleCreateAdmin = async () => {
+    if (!token) {
+      setMessage('Você precisa estar autenticado como admin para cadastrar outro administrador.');
+      return;
+    }
+
     try {
       const response = await fetch('/api/admin/registro', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: adminNome, email: adminEmail, senha: adminSenha, role: 'admin' })
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ nome: adminNome, email: adminEmail, senha: adminSenha })
       });
       if (response.ok) {
         setMessage('Administrador cadastrado com sucesso.');

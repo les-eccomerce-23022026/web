@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 describe('Rodapé Robusto - Fidelidade ao Design Original', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:5173/');
+    cy.visit('/');
   });
 
   it('deve possuir um rodapé com fundo verde escuro e conteúdo distribuído em colunas', () => {

@@ -13,11 +13,8 @@ describe('Refatoração de CSS Inline - TDD', () => {
         }
       }
     }).as('loginAdmin');
-    
-    cy.visit('http://localhost:5173/minha-conta');
-    cy.get('input[placeholder="joao@email.com"]').type('admin@teste.com');
-    cy.get('input[type="password"]').first().type('123456');
-    cy.contains('button', 'Entrar').click();
+
+    cy.login('admin@teste.com', '123456');
     cy.wait('@loginAdmin');
     cy.url().should('include', '/admin');
   };
@@ -65,7 +62,7 @@ describe('Refatoração de CSS Inline - TDD', () => {
   });
 
   it('Verificar estilos em LoginArea.tsx', () => {
-    cy.visit('http://localhost:5173/minha-conta');
+    cy.visit('/minha-conta');
     
     // Abrir formulário de registro
     cy.contains('button', 'Criar Nova Conta').click();
@@ -84,7 +81,7 @@ describe('Refatoração de CSS Inline - TDD', () => {
   });
 
   it('Verificar estilos em Carrinho.tsx', () => {
-    cy.visit('http://localhost:5173/carrinho');
+    cy.visit('/carrinho');
     
     // Verificar imagem do item (o mock deve carregar itens)
     cy.get('[class*="carrinho-item-image"]').first().should('have.css', 'width', '60px');
@@ -106,14 +103,10 @@ describe('Refatoração de CSS Inline - TDD', () => {
         }
       }
     }).as('loginCliente');
-    
-    cy.visit('http://localhost:5173/minha-conta');
-    cy.get('input[placeholder="joao@email.com"]').type('joao@email.com');
-    cy.get('input[type="password"]').first().type('123456');
-    cy.contains('button', 'Entrar').click();
+
+    cy.login('joao@email.com', '123456');
     cy.wait('@loginCliente');
-    // Cliente é redirecionado para a home "/" que possui Header
-    cy.url().should('eq', 'http://localhost:5173/');
+    cy.url().should('eq', Cypress.config().baseUrl + '/');
   };
 
   it('Verificar estilos em Checkout.tsx', () => {
@@ -145,7 +138,7 @@ describe('Refatoração de CSS Inline - TDD', () => {
         body: null
     }).as('getLivroNaoEncontrado');
 
-    cy.visit('http://localhost:5173/livro/teste-id-123');
+    cy.visit('/livro/teste-id-123');
     
     cy.get('body').then($body => {
       cy.get('[class*="detalhes-status-message"], [class*="detalhes-livro"], [class*="error-state"], [class*="loading-state"]').should('exist');

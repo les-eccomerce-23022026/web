@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 describe('Navegação do Header - Categorias Completas', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:5173/');
+    cy.visit('/');
   });
 
   it('deve exibir a lista completa de categorias do design original', () => {

@@ -19,7 +19,7 @@ O cliente irá inserir o e-mail (ou CPF) e a senha na tela (`LoginArea.tsx`).
   "senha": "password123"
 }
 ```
-*(Nota: No caso de permitir validar por CPF na tela, pode-se enviar `"identificador": "cpf-ou-email"` ao invés de atrelar especificamente à chave email).*
+*(Nota: a UI permite digitar CPF no mesmo campo. Para suportar isso formalmente, pode-se trocar a chave para `"identificador": "cpf-ou-email"` no contrato. No protótipo atual, o frontend envia sempre `email`.)*
 
 ### Passo B: Backend Valida os Dados e Retorna o Perfil de Autorização
 O backend valida as credenciais no banco de dados e retorna os dados do usuário. A propriedade mais crítica é a `role` (Cargo/Perfil) ou `permissoes`, responsável por separar os compradores normais dos donos do e-commerce.
@@ -29,7 +29,7 @@ O backend valida as credenciais no banco de dados e retorna os dados do usuário
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
-    "id": "uuid-do-cliente-1234",
+    "uuid": "uuid-do-cliente-1234",
     "nome": "João Comprador",
     "email": "joao.comprador@email.com",
     "cpf": "123.456.789-00",
@@ -43,7 +43,7 @@ O backend valida as credenciais no banco de dados e retorna os dados do usuário
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "user": {
-    "id": "uuid-do-admin-9999",
+    "uuid": "uuid-do-admin-9999",
     "nome": "Administrador do Sistema",
     "email": "admin@livraria.com.br",
     "cpf": "000.111.222-33",
@@ -95,6 +95,18 @@ Quando um usuário comprador finaliza o formulário público de cadastro, o Reac
 }
 ```
 
+**Observação (protótipo atual do frontend):** a tela `LoginArea` hoje envia um payload reduzido para `POST /api/clientes/registro`:
+```json
+{
+  "nome": "João Silva",
+  "cpf": "123.456.789-00",
+  "email": "joao.comprador@email.com",
+  "senha": "Password@123",
+  "confirmacao_senha": "Password@123"
+}
+```
+Se o backend for implementar o contrato completo (com `genero`, `data_nascimento`, `telefone`, `endereco_residencial`), o frontend precisará estender o formulário e a tipagem para cumprir os requisitos (RN0026 / RNF0031-0033).
+
 ### 🔒 Regras de Segurança e Validação (RNF0031, RNF0032, RNF0033)
 - **Senha Forte (RNF0031):** O backend deve rejeitar senhas que não contenham pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas e caracteres especiais.
 - **Criptografia (RNF0033):** Toda senha deve ser armazenada utilizando algoritmos de Hash (ex: BCrypt). **Nunca armazenar senhas em texto plano**.
@@ -110,6 +122,8 @@ Sendo o cadastro público exclusivamente dedicado à criação de clientes, a l�
 - Um "admin" nunca poderá ser criado por rotas públicas de registro (`/api/clientes/registro`).
 - **Somente o administrador logado e previamente autenticado no sistema tem a permissão de registrar e conferir privilégios a outros administradores.**
 - Esta funcionalidade acontecerá em uma rota fechada (ex: `POST /api/admin/registro`) e exigirá a apresentação de um Token JWT válido com a claim de `role: "admin"` provida através do header `Authorization` na requisição.
+- O frontend deve enviar `Authorization: Bearer <token>` e o backend deve validar a role via token.
+- Mesmo na rota de admin, prefira que o backend **force** `role = "admin"` (não confiar em `role` enviada no body).
 - Alternativamente, o primeiro admin do sistema (Administrador Mestre) será cadastrado manualmente via script de inicialização do Banco de Dados (Seeders / DML Executado na base de Produção).
 
 ---

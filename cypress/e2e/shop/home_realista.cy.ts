@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 describe('Home do Catálogo - Conteúdo Realista', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:5173/');
+    cy.visit('/');
   });
 
   it('deve exibir livros com títulos e autores diversificados', () => {
