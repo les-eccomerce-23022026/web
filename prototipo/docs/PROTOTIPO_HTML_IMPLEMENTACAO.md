@@ -45,6 +45,10 @@ Páginas destinadas aos administradores da plataforma e funcionários para gest�
 - [ ] **Dashboard (Análise de Vendas)**: Tela inicial da retaguarda administrativa, contendo gráficos de vendas por período (filtros de data) e métricas gerais (receita, volume).
   - **Referência:** [Análise de Vendas](./analise/analise_vendas.md)
 
+### 🔐 Controle de Acesso e Usuários Administradores
+- [ ] **Cadastro de Administrador**: Formulário ou tela de gerenciamento de equipe. **Regra de Negócio Crítica**: Somente um administrador já logado e autenticado possui permissão para registrar outros administradores no sistema. Não deve existir rota pública para criação de perfil "admin".
+
+
 ### 📚 Catálogo e Estoque
 - [ ] **Listagem de Livros**: Tabela mostrando os livros cadastrados na loja com busca textual e paginação, possuindo controle para desativar (tirar de circulação) um produto.
   - **Referências:**
