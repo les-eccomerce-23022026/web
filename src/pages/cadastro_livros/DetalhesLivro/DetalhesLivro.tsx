@@ -13,7 +13,7 @@
   
     if (loading) return <LoadingState message="Buscando detalhes do livro..." />;
     if (error) return <ErrorState message="Não foi possível carregar os detalhes do livro." onRetry={() => window.location.reload()} />;
-    if (!data) return <p style={{ padding: '20px' }}>Livro não encontrado.</p>;
+    if (!data) return <p className="detalhes-status-message">Livro não encontrado.</p>;
   
     const handleAdicionarAoCarrinho = () => {
       dispatch(adicionarItem({

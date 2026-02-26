@@ -184,3 +184,7 @@
     justify-content: space-around;
   }
 }
+
+.header-logout-btn {
+  cursor: pointer;
+}

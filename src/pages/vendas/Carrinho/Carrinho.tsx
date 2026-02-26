@@ -7,9 +7,9 @@ export function Carrinho() {
   const dispatch = useAppDispatch();
   const { data, error, status } = useAppSelector(state => state.carrinho);
 
-  if (status === 'loading') return <p style={{ padding: '20px' }}>Carregando carrinho...</p>;
-  if (status === 'failed' || error) return <p style={{ padding: '20px' }}>Erro ao carregar carrinho.</p>;
-  if (!data) return <p style={{ padding: '20px' }}>Carrinho vazio.</p>;
+  if (status === 'loading') return <p className="carrinho-status-message">Carregando carrinho...</p>;
+  if (status === 'failed' || error) return <p className="carrinho-status-message">Erro ao carregar carrinho.</p>;
+  if (!data) return <p className="carrinho-status-message">Carrinho vazio.</p>;
 
   const handleUpdateQuantidade = (uuid: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const qtd = parseInt(event.target.value, 10);
@@ -41,7 +41,7 @@ export function Carrinho() {
           {data.itens.map((item) => (
             <tr key={item.uuid}>
               <td className="carrinho-td-product">
-                <img src={item.imagem} alt="Livro" style={{width: '60px', height: '90px', objectFit:'cover', borderRadius:'4px', backgroundColor:'#e0e0e0'}} />
+                <img src={item.imagem} alt="Livro" className="carrinho-item-image" />
                 <div>
                   <strong>{item.titulo}</strong><br />
                   <span className="carrinho-product-isbn">ISBN: {item.isbn}</span>

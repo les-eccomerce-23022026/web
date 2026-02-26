@@ -9,8 +9,11 @@ import { Carrinho } from '@/pages/vendas/Carrinho/Carrinho';
 import { Checkout } from '@/pages/vendas/Checkout/Checkout';
 import { LoginArea } from '@/pages/cadastro_clientes/LoginArea/LoginArea';
 import { DashboardAdmin } from '@/pages/analise/DashboardAdmin/DashboardAdmin';
+import { GerenciarAdmins } from '@/pages/analise/DashboardAdmin/GerenciarAdmins';
 import { ListaLivrosAdmin } from '@/pages/cadastro_livros/ListaLivrosAdmin/ListaLivrosAdmin';
 import { CadastrarLivroAdmin } from '@/pages/cadastro_livros/CadastrarLivroAdmin/CadastrarLivroAdmin';
+import { ProtectedRoute } from '@/components/comum/ProtectedRoute/ProtectedRoute';
+import { MeuPerfil } from '@/pages/cadastro_clientes/MeuPerfil/MeuPerfil';
 
 function App() {
   const dispatch = useAppDispatch();
@@ -26,13 +29,18 @@ function App() {
           <Route index element={<HomeCatalogo />} />
           <Route path="livro/:id" element={<DetalhesLivro />} />
           <Route path="carrinho" element={<Carrinho />} />
-          <Route path="checkout" element={<Checkout />} />
           <Route path="minha-conta" element={<LoginArea />} />
+          
+          <Route element={<ProtectedRoute />}>
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="perfil" element={<MeuPerfil />} />
+          </Route>
         </Route>
         
         {/* Painel Administrativo Layout Simplificado */}
-        <Route path="/admin">
+        <Route path="/admin" element={<ProtectedRoute requiredRole="admin" />}>
           <Route index element={<DashboardAdmin />} />
+          <Route path="administradores" element={<GerenciarAdmins />} />
           <Route path="livros" element={<ListaLivrosAdmin />} />
           <Route path="livros/novo" element={<CadastrarLivroAdmin />} />
         </Route>

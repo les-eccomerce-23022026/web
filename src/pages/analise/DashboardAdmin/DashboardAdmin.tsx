@@ -40,6 +40,11 @@ export function DashboardAdmin() {
               </Link>
             </li>
             <li>
+              <Link to="/admin/administradores" className="sidebar-link">
+                ⚙️ Gerenciar Administradores
+              </Link>
+            </li>
+            <li>
               <Link to="/admin/livros" className="sidebar-link">
                 <BookOpen size={18} /> Gestão de Catálogo
               </Link>

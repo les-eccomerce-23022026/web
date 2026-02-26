@@ -102,3 +102,7 @@
     gap: 20px;
   }
 }
+
+.detalhes-status-message {
+  padding: 20px;
+}

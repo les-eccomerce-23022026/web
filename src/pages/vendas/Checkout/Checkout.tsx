@@ -4,9 +4,9 @@ import { useCheckout } from '@/hooks/useCheckout';
 export function Checkout() {
   const { data, loading, error } = useCheckout();
 
-  if (loading) return <p style={{ padding: '20px' }}>Carregando dados de checkout...</p>;
-  if (error) return <p style={{ padding: '20px' }}>Erro ao carregar checkout.</p>;
-  if (!data) return <p style={{ padding: '20px' }}>Nenhum dado de checkout encontrado.</p>;
+  if (loading) return <p className="checkout-status-message">Carregando dados de checkout...</p>;
+  if (error) return <p className="checkout-status-message">Erro ao carregar checkout.</p>;
+  if (!data) return <p className="checkout-status-message">Nenhum dado de checkout encontrado.</p>;
 
   return (
     <div className="checkout-page">

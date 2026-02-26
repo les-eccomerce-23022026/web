@@ -165,3 +165,15 @@
     text-align: left;
   }
 }
+
+.carrinho-status-message {
+  padding: 20px;
+}
+
+.carrinho-item-image {
+  width: 60px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 4px;
+  background-color: #e0e0e0;
+}

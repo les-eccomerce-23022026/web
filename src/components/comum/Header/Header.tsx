@@ -35,10 +35,10 @@ export function Header() {
           <div className="header-actions">
             {isAuthenticated ? (
               <>
-                <span className="action-link" style={{cursor: 'default'}}>
+                <Link to="/perfil" className="action-link">
                   👤 Olá, {user?.nome}
-                </span>
-                <span className="action-link" onClick={() => dispatch(logout())} style={{cursor: 'pointer'}}>
+                </Link>
+                <span className="action-link header-logout-btn" onClick={() => dispatch(logout())}>
                   Sair
                 </span>
               </>
