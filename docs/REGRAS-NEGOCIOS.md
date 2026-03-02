@@ -12,4 +12,4 @@ Este documento contém todas as regras de negócio (RN/RNF) aplicadas ao projeto
 | **[RNF]**     | **DDD (Domain-Driven Design)**    | Organização modular por domínios (Vendas, Catálogo, Admin) para alta escalabilidade.                      |
 | **[RNF]**     | **Princípios SOLID**              | Código desacoplado e altamente testável para manutenibilidade a longo prazo.                              |
 | **[RN]**      | **Restrição de Criação de Admin** | Regra de que apenas um admin autenticado pode criar outro (não há rota pública).                          |
-| **[RES1]**    | **Documentação de Alterações**    | Todas as alterações feitas por agentes devem ser registradas em `docs/AGENTS.md`.                         |
+| **[RES1]**    | **Documentação Obrigatória**      | Registro compulsório de mudanças em `docs/changes.md`, `docs/REGRAS-NEGOCIOS.md` e requisitos.            |
