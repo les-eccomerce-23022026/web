@@ -1,70 +1,129 @@
-# Detalhes do Protótipo E-commerce (LES 2026)
+# Relatório Geral de Desenvolvimento
 
-Este documento descreve as especificações técnicas, o tema e os requisitos de negócio aplicados ao protótipo do projeto LES E-commerce 2026.
+**Projeto:** LES E-commerce 2026
 
 ---
 
 ## 1. Tema e Identidade Visual
 
 **Livraria Online Premium (Inspirada na Barnes & Noble)**
-Uma interface sofisticada que une a estética de uma livraria física tradicional com a velocidade e funcionalidade de um e-commerce moderno.
-
-- **Paleta de Cores:**
-  - **Verde Floresta (#0F4C3A):** Usado para ações principais e branding.
-  - **Off-white (#FDFBF7):** Fundo que reduz o cansaço visual, lembrando páginas de livros físicos.
-- **Tipografia:** Uso equilibrado de fontes com serifa (Merriweather/Georgia) para títulos e sem serifa (Lato/Inter) para legibilidade.
-- **UX Atmosphere:** Foco total na capa dos livros e clareza de informações.
+Interface sofisticada que combina a estética de uma livraria tradicional com a modernidade de um e-commerce de alta performance. Foco em legibilidade, identidade visual baseada em tons de Verde Floresta (`#0F4C3A`) e Off-white (`#FDFBF7`).
 
 ---
 
 ## 2. Stack Tecnológica
 
-O projeto utiliza tecnologias de ponta para garantir performance e manutenibilidade:
-
-- **Frontend:** [React 19](https://react.dev/) & [Vite 7](https://vite.dev/) (HMR Ultra-fast)
-- **Linguagem:** [TypeScript 5](https://www.typescriptlang.org/) (Tipagem estática e segurança de código)
-- **Estado Global:** [Redux Toolkit](https://redux-toolkit.js.org/) (Gestão centralizada de fluxos complexos)
-- **Roteamento:** [React Router Dom 7](https://reactrouter.com/) (Navegação SPA fluida)
-- **Estilização:** CSS Modules (Padrão BEM, isolamento de escopo, zero CSS inline)
-- **Analytics:** [Chart.js](https://www.chartjs.org/) (Dashboards administrativos dinâmicos)
-- **Testes:** [Cypress 15](https://www.cypress.io/) (Testes E2E e de Componentes determinísticos)
-
----
-
-## 3. Requisitos e Regras de Negócio (RNs)
-
-Abaixo estão detalhados os pilares funcionais e as regras levantadas para o projeto, devidamente numerados para rastreabilidade:
-
-### Requisitos Funcionais (RF)
-
-1. **[RF0026] Múltiplos Endereços:** Suporte nativo para múltiplos endereços (residencial e entrega) com cálculo de frete dinâmico.
-2. **[RF0031] Carrinho Resiliente:** Itens persistidos via `localStorage`, garantindo a recuperação da sacola em qualquer sessão.
-3. **[RF] Sincronização entre Abas:** Redux + Storage Events para atualização em tempo real do estado global.
-4. **[RF0055] Análise de Vendas (Dashboard):** Visualização gráfica de métricas de receita e volume por período. _(Implementado)_
-5. **[RF0051] Gestão Administrativa de Estoque:** Controle de entrada e ajuste de quantidades de livros.
-6. **[RF0040] Fluxo de Troca e Devolução:** Funcionalidade de solicitação de troca integrada ao histórico de pedidos.
-
-### Requisitos Não Funcionais (RNF)
-
-1. **[RNF0031] Senha Forte:** Validação rigorosa de complexidade (mín. 8 caracteres, letras maiúsculas/minúsculas, números e símbolos).
-2. **[RNF0033] Criptografia:** Armazenamento de credenciais utilizando algoritmos de Hash (BCrypt) para impedir vazamento de senhas.
-3. **[RNF] Fluxo Distraction-free:** Ocultação de menus e banners durante a finalização da compra para foco total na conversão.
-4. **[RNF] Feedback de Progresso:** Indicadores Visuais claros das etapas (Identificação → Entrega → Pagamento).
-5. **[RNF] DDD (Domain-Driven Design):** Organização modular por domínios (Vendas, Catálogo, Admin) para alta escalabilidade.
-6. **[RNF] Princípios SOLID:** Código desacoplado e altamente testável para manutenibilidade a longo prazo.
-
-### Regras de Negócio (RN)
-
-1. **[RN0026] Extensão de Contrato:** Coleta padronizada de dados (Gênero, Data de Nascimento e Telefone).
-2. **[RN] Restrição de Criação de Admin:** Regra de que apenas um admin autenticado pode criar outro (não há rota pública). _(Implementado)_
+- **Frontend:** React 19 (Hooks, Context API) & Vite 7
+- **Linguagem:** TypeScript 5 (Tipagem Forte e Escalabilidade)
+- **Estado Global:** Redux Toolkit (Gerenciamento centralizado de fluxos)
+- **Roteamento:** React Router Dom 7 (Navegação SPA fluida)
+- **Estilização:** CSS Modules (padrão BEM, escopo isolado, zero CSS inline)
+- **Visualização de Dados:** Chart.js & React-Chartjs-2 (Dashboards Analytics)
+- **Ícones:** Lucide React (Biblioteca de vetores leves e modernos)
+- **Testes:** Cypress 15 (E2E e Testes de Componentes determinísticos)
 
 ---
 
-## 4. Repositórios e Gestão do Projeto
+## 3. Mapeamento de Requisitos — Implementados vs. Novos
 
-- **Repositório Público do Protótipo:** [github.com/les-eccomerce-23022026/web](https://github.com/les-eccomerce-23022026/web)
-- **Gestão Ágil (Kanban):** [GitHub Projects - LES E-commerce](https://github.com/orgs/les-eccomerce-23022026/projects/1)
+> As tabelas abaixo cruzam o documento oficial de requisitos da disciplina com o que foi efetivamente construído no protótipo React. Itens marcados como **✅ Implementado** existem no código. Itens marcados como **🆕 Novo** são funcionalidades adicionadas no protótipo que **não constam** no documento oficial.
 
 ---
 
-> **Nota:** Este documento foi gerado automaticamente integrando as especificações contidas na documentação técnica oficial e nos arquivos de configuração do projeto.
+### 3.1 Requisitos Funcionais (RF)
+
+#### 3.1.1 Implementados — Previstos no Documento Oficial
+
+| ID         | Nome                                    | Status          | Evidência no Código                                                                                                                               |
+| :--------- | :-------------------------------------- | :-------------- | :------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **RF0011** | Cadastrar livro                         | ✅ Implementado | `CadastrarLivroAdmin.tsx` — formulário de cadastro com título, autor, ISBN, preço, estoque, categoria, sinopse; dispara `adicionarLivro` no Redux |
+| **RF0012** | Inativar cadastro de livro              | ✅ Implementado | `ListaLivrosAdmin.tsx` — botão "Desativar" chama `alternarStatusLivro` no `livroSlice.ts`                                                         |
+| **RF0014** | Alterar cadastro de livro               | ✅ Parcial      | `ListaLivrosAdmin.tsx` — botão "Editar" presente (UI); Redux possui `atualizarLivro`                                                              |
+| **RF0015** | Consulta de livros com filtro           | ✅ Implementado | `ListaLivrosAdmin.tsx` — busca por título, autor, ISBN, sinopse + filtro de status                                                                |
+| **RF0016** | Ativar cadastro de livro                | ✅ Implementado | `ListaLivrosAdmin.tsx` — botão "Ativar" quando status = Inativo                                                                                   |
+| **RF0021** | Cadastrar cliente                       | ✅ Implementado | `LoginArea.tsx` — formulário de registro com nome, CPF, e-mail, senha e confirmação de senha                                                      |
+| **RF0022** | Alterar dados do cliente                | ✅ Implementado | `MeuPerfil.tsx` — formulário de atualização de dados cadastrais                                                                                   |
+| **RF0023** | Inativar cadastro de cliente            | ✅ Implementado | `MeuPerfil.tsx` — "Solicitar Exclusão da Conta" com confirmação; chama DELETE na API                                                              |
+| **RF0025** | Consulta de transações do cliente       | ✅ Parcial      | `pedidosMock.json` — 7 pedidos com diferentes status (Entregue, Em Trânsito, Pendentes, Preparando, Devoluções)                                   |
+| **RF0026** | Cadastro de endereços de entrega        | ✅ Parcial      | `Checkout.tsx` — exibe endereço e possui link "Alterar endereço"                                                                                  |
+| **RF0028** | Alteração apenas de senha               | ✅ Implementado | `MeuPerfil.tsx` — seção "Alterar Senha" independente dos demais dados                                                                             |
+| **RF0031** | Gerenciar carrinho de compra            | ✅ Implementado | `Carrinho.tsx` + `carrinhoSlice.ts` — adicionar, atualizar quantidade, remover itens                                                              |
+| **RF0032** | Definir quantidade de itens no carrinho | ✅ Implementado | `Carrinho.tsx` — input de quantidade por item; `ControlesCompra.tsx` — botões `+/-` nos cards                                                     |
+| **RF0033** | Realizar compra                         | ✅ Parcial      | `Checkout.tsx` — botão "Concluir Pedido" presente (mock)                                                                                          |
+| **RF0034** | Calcular frete                          | ✅ Parcial      | `Carrinho.tsx` — campo de CEP e exibição de frete padrão via mock                                                                                 |
+| **RF0035** | Selecionar endereço de entrega          | ✅ Parcial      | `Checkout.tsx` — endereço de entrega exibido via mock                                                                                             |
+| **RF0036** | Selecionar forma de pagamento           | ✅ Implementado | `Checkout.tsx` — seleção de cartões salvos, novo cartão, cupons de troca/promocional e pagamento parcial com múltiplos cartões                    |
+| **RF0040** | Solicitar troca                         | ✅ Parcial      | `pedidosMock.json` — pedido com status "Devoluções" presente no mock                                                                              |
+| **RF0051** | Realizar entrada em estoque             | ✅ Implementado | `CadastrarLivroAdmin.tsx` — campo "Estoque Inicial"; Redux `adicionarLivro` registra a quantidade                                                 |
+| **RF0055** | Analisar histórico de vendas            | ✅ Implementado | `DashboardAdmin.tsx` — gráfico de linha (Receita Anual), gráfico de rosca (Status dos Pedidos) e gráfico de vendas por categoria                  |
+
+#### 3.1.2 Novos — Não Previstos no Documento Oficial
+
+| ID         | Nome                                      | Descrição                                                                                                                                                | Evidência no Código                                                |
+| :--------- | :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------- |
+| **RF0056** | Sincronização entre Abas                  | Redux + Storage Events para atualização em tempo real do estado global entre abas do navegador                                                           | `carrinhoSlice.ts` — estado gerenciado no Redux (base para sync)   |
+| **RF0057** | Dashboard KPIs em Tempo Real              | Painel de KPIs interligado ao estado Redux exibindo: total de livros no catálogo, livros com estoque crítico (≤ 5 un) e total de administradores ativos  | `DashboardAdmin.tsx` — `useAppSelector` para livros e admins       |
+| **RF0058** | Busca Global Dinâmica no Header           | Barra de busca no cabeçalho que filtra por título, autor e sinopse em tempo real, com sincronização entre o input e o Redux Store                        | `Header.tsx` + `livroSlice.ts` (`termoBusca`) + `HomeCatalogo.tsx` |
+| **RF0059** | Badge Visual de Quantidade no Carrinho    | Indicador numérico no ícone do carrinho no header e badge na capa do card do produto mostrando a quantidade em tempo real                                | `Header.tsx` + `HomeCatalogo.tsx`                                  |
+| **RF0060** | Gerenciamento de Administradores (CRUD)   | Interface completa para criar, editar e excluir administradores do sistema, com modais de confirmação, exclusiva para admins autenticados                | `GerenciarAdmins.tsx` + `useGerenciarAdmins.ts` + `adminSlice.ts`  |
+| **RF0061** | Rota Protegida por Perfil (Admin/Cliente) | Sistema de rotas com `ProtectedRoute` que redireciona usuários não autorizados com base em `role` (admin/cliente)                                        | `ProtectedRoute.tsx` + `App.tsx`                                   |
+| **RF0062** | Página de Detalhes do Livro               | Tela dedicada com capa ampliada, avaliação por estrelas, número de avaliações, sinopse completa, breadcrumb de categoria navegável e controles de compra | `DetalhesLivro.tsx`                                                |
+| **RF0063** | Navegação por Categorias                  | Menu de categorias no header navegável por gênero literário (Ficção, Romance, Fantasia, Técnico, etc.)                                                   | `Header.tsx` — nav secundária                                      |
+| **RF0064** | Painel de Atividades Recentes             | Log de últimas atividades do sistema no Dashboard Administrativo                                                                                         | `DashboardAdmin.tsx` — `atividadesRecentes`                        |
+
+---
+
+### 3.2 Requisitos Não Funcionais (RNF)
+
+#### 3.2.1 Implementados — Previstos no Documento Oficial
+
+| ID          | Nome                 | Status          | Evidência no Código                                                                |
+| :---------- | :------------------- | :-------------- | :--------------------------------------------------------------------------------- |
+| **RNF0031** | Senha Forte          | ✅ Implementado | `AuthService.ts` + `useLoginArea.ts` — validação de complexidade de senha          |
+| **RNF0032** | Confirmação de Senha | ✅ Implementado | `LoginArea.tsx` — campos "Senha" e "Confirmar Senha" no registro                   |
+| **RNF0033** | Senha Criptografada  | ✅ Previsto     | Arquitetura preparada para BCrypt no backend; mock não armazena senha em produção  |
+| **RNF0043** | Gráfico de Linhas    | ✅ Implementado | `DashboardAdmin.tsx` — `Line` (Chart.js) para Receita Anual e Vendas por Categoria |
+
+#### 3.2.2 Novos — Não Previstos no Documento Oficial
+
+| ID          | Nome                                            | Descrição                                                                                                                                                                 | Evidência no Código                                   |
+| :---------- | :---------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------- |
+| **RNF0045** | Fluxo Distraction-free no Checkout              | Layout de checkout sem menus e banners promocionais para foco total na conversão                                                                                          | `Checkout.tsx` — layout limpo sem header de navegação |
+| **RNF0046** | Feedback de Progresso no Checkout               | Indicador visual de etapas: `1. Identificação → 2. Entrega → 3. Pagamento`                                                                                                | `Checkout.tsx` — breadcrumb de etapas                 |
+| **RNF0047** | DDD (Domain-Driven Design)                      | Organização modular por domínios: `pages/vendas/`, `pages/cadastro_livros/`, `pages/cadastro_clientes/`, `pages/analise/`                                                 | Estrutura de pastas do projeto                        |
+| **RNF0048** | Princípios SOLID                                | Separação de responsabilidades: serviços (`AuthService`, `LivroService`), hooks customizados (`useCheckout`, `useDashboardAdmin`), slices Redux e componentes de UI puros | Toda a arquitetura do projeto                         |
+| **RNF0049** | Estado Global Persistente via Redux             | Carrinho e autenticação gerenciados no Redux Toolkit com `createAsyncThunk` para integração futura com API real                                                           | `carrinhoSlice.ts`, `authSlice.ts`, `livroSlice.ts`   |
+| **RNF0050** | Camada de Serviços com Toggle Mock/API          | `USE_MOCK` em `apiConfig.ts` permite alternar entre dados mockados e API real sem alterar componentes                                                                     | `config/apiConfig.ts` + services                      |
+| **RNF0051** | Feedback Visual de Estado (Loading/Error/Empty) | Componentes reutilizáveis `LoadingState`, `ErrorState`, `EmptyState` para todas as telas assíncronas                                                                      | `components/comum/`                                   |
+
+---
+
+### 3.3 Regras de Negócio (RN)
+
+#### 3.3.1 Implementadas — Previstas no Documento Oficial
+
+| ID         | Nome                          | Status          | Evidência no Código                                                                                                       |
+| :--------- | :---------------------------- | :-------------- | :------------------------------------------------------------------------------------------------------------------------ |
+| **RN0026** | Dados obrigatórios do cliente | ✅ Implementado | `LoginArea.tsx` — coleta Nome, CPF, E-mail, Senha; arquitetura inclui Gênero, Data de Nascimento e Telefone para extensão |
+| **RN0031** | Estoque no carrinho           | ✅ Parcial      | `carrinhoSlice.ts` — lógica de adição verifica item já existente e acumula quantidade                                     |
+| **RN0033** | Cupom promocional             | ✅ Implementado | `Checkout.tsx` — campo de cupom (troca/promocional) com botão "Aplicar"                                                   |
+| **RN0034** | Cartões de crédito múltiplos  | ✅ Implementado | `Checkout.tsx` — campo "Pagar valor parcial com este cartão (Múltiplos Cartões)"                                          |
+
+#### 3.3.2 Novas — Não Previstas no Documento Oficial
+
+| ID         | Nome                             | Descrição                                                                                                                            | Evidência no Código                                                            |
+| :--------- | :------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------- |
+| **RN0065** | Restrição de Criação de Admin    | Apenas um administrador autenticado pode criar outro; não existe rota pública para cadastro de admin                                 | `GerenciarAdmins.tsx` — acesso via `ProtectedRoute` com `requiredRole="admin"` |
+| **RN0066** | Indicador de Estoque Crítico     | Livros com estoque ≤ 5 unidades são sinalizados com badge visual diferenciado na lista administrativa e contados no KPI do Dashboard | `ListaLivrosAdmin.tsx` + `DashboardAdmin.tsx`                                  |
+| **RN0067** | Recalculo Automático do Carrinho | A cada adição, remoção ou alteração de quantidade, o subtotal, total e frete são recalculados automaticamente pelo Redux             | `carrinhoSlice.ts` — recalcula `resumo` em todos os reducers                   |
+| **RN0068** | Avaliação por Estrelas           | Os livros possuem avaliação (1-5 estrelas) e número de avaliações exibidos na página de detalhes e no catálogo                       | `DetalhesLivro.tsx` + `HomeCatalogo.tsx`                                       |
+
+---
+
+## 4. Repositórios e Gestão
+
+**Repositório Público do Protótipo:**
+[https://github.com/les-eccomerce-23022026/web](https://github.com/les-eccomerce-23022026/web)
+
+**Gestão do Projeto (Kanban):**
+[https://github.com/orgs/les-eccomerce-23022026/projects/1](https://github.com/orgs/les-eccomerce-23022026/projects/1)
