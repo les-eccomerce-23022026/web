@@ -26,20 +26,20 @@
   flex: 1;
   max-width: 600px;
   display: flex;
-  align-items: center; /* Centraliza verticalmente itens */
+  align-items: stretch;
   margin: 0 40px;
   background-color: var(--bn-bg-white);
   border-radius: 25px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
-  overflow: hidden; /* Garante que os filhos não quebrem o arredondamento */
+  overflow: hidden;
+  height: 42px; /* Altura fixa para garantir consistência */
 }
 
 .header-search-icon {
   padding-left: 20px;
   color: var(--bn-text-muted);
-  font-size: 16px;
   display: flex;
   align-items: center;
 }
@@ -54,10 +54,11 @@
   flex: 1;
   border: none;
   background: transparent;
-  padding: 12px 15px;
+  padding: 0 15px;
   font-size: 15px;
   outline: none;
   color: var(--bn-text-main);
+  height: 100%;
 }
 
 .search-bar input::placeholder {
@@ -70,7 +71,6 @@
   color: var(--bn-text-light);
   border: none;
   padding: 0 28px;
-  height: 100%; /* Ocupa toda a altura da barra */
   cursor: pointer;
   font-size: 14px;
   font-weight: 800;
@@ -82,6 +82,8 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  height: 100%;
+  border-radius: 0;
 }
 
 .search-btn::before {

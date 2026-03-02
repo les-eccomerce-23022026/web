@@ -62,14 +62,14 @@ export function HomeCatalogo() {
               )}
               <div className="cartao-livro__capa-container">
                 <CapaLivro src={book.imagem} alt={book.titulo} titulo={book.titulo} className="cartao-livro__capa" />
-              </div>
-              <div className="cartao-livro__info">
-                <h4 className="cartao-livro__titulo">{book.titulo}</h4>
-                <p className="cartao-livro__autor">{book.autor}</p>
-                <div className="cartao-livro__avaliacao">{'★'.repeat(book.estrelas || 0)}{'☆'.repeat(5 - (book.estrelas || 0))}</div>
-                <div className="cartao-livro__preco-container">
-                  <p className="cartao-livro__preco">R$ {book.preco.toFixed(2).replace('.', ',')}</p>
+                <div className="cartao-livro__info">
+                  <h4 className="cartao-livro__titulo">{book.titulo}</h4>
+                  <p className="cartao-livro__autor">{book.autor}</p>
+                  <div className="cartao-livro__avaliacao">{'★'.repeat(book.estrelas || 0)}{'☆'.repeat(5 - (book.estrelas || 0))}</div>
                 </div>
+              </div>
+              <div className="cartao-livro__preco-container">
+                <p className="cartao-livro__preco">R$ {book.preco.toFixed(2).replace('.', ',')}</p>
               </div>
               <div className="cartao-livro__acao" onClick={(e) => e.stopPropagation()}>
                 <Link to={`/livro/${book.uuid}`} className="botao btn-secondary">Ver Detalhes</Link>
