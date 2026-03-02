@@ -2,45 +2,123 @@
   "livros": [
     {
       "uuid": "a1b2c3d4-e5f6-7890-1234-56789abcdef0",
-      "titulo": "O Senhor dos Anéis",
+      "titulo": "O Senhor dos Anéis: A Sociedade do Anel",
       "autor": "J.R.R Tolkien",
+      "imagem": "https://m.media-amazon.com/images/I/81hCVEC0ExL._SY466_.jpg",
       "categoria": "Ficção, Fantasia",
-      "status": "Ativo"
+      "isbn": "978-85-325-1077-6",
+      "preco": 79.90,
+      "estoque": 12,
+      "status": "Ativo",
+      "sinopse": "Numa cidadezinha indolente do Condado, um jovem hobbit é encarregado de uma imensa tarefa. Deve empreender uma perigosa viagem através da Terra-média até as Fendas da Perdição, e lá destruir o Anel do Poder — a única coisa que pode dar ao Senhor das Trevas o poder de escravizar o mundo livre."
     },
     {
       "uuid": "b2c3d4e5-f6a7-8901-2345-6789abcdef01",
       "titulo": "Dom Casmurro",
       "autor": "Machado de Assis",
+      "imagem": "https://m.media-amazon.com/images/I/416E0ngf0xL._SY445_SX342_ML2_.jpg",
       "categoria": "Ficção, Romance",
-      "status": "Ativo"
+      "isbn": "978-85-359-0277-5",
+      "preco": 29.90,
+      "estoque": 2,
+      "status": "Ativo",
+      "sinopse": "Dom Casmurro, de Machado de Assis, é um romance realista publicado em 1899, considerado uma das obras mais importantes da literatura brasileira. A narrativa é contada em primeira pessoa pelo protagonista, Bento Santiago, que decide escrever suas memórias para 'atar as duas pontas da vida' e reviver seu passado e sua paixão por Capitu. A obra é célebre por sua ambiguidade e por levantar a eterna questão sobre a traição de Capitu."
     },
     {
-      "uuid": "c3d4e5f6-a7b8-9012-3456-789abcdef012",
+      "uuid": "1a2b3c4d-5e6f-7890-abcd-ef0123456789",
       "titulo": "1984",
       "autor": "George Orwell",
+      "imagem": "https://m.media-amazon.com/images/I/71XvO7F9uDL._SY466_.jpg",
       "categoria": "Ficção, Distopia",
-      "status": "Inativo"
+      "isbn": "978-85-250-6237-2",
+      "preco": 39.90,
+      "estoque": 20,
+      "status": "Inativo",
+      "sinopse": "1984 é um romance distópico de George Orwell. A história se passa num futuro totalitário sob o regime do Grande Irmão, onde a vigilância é constante e a verdade é manipulada. Winston Smith, o protagonista, trabalha no Ministério da Verdade reescrevendo a história, mas começa a questionar o sistema e a buscar sua própria liberdade e verdade."
+    },
+    {
+      "uuid": "f0e1d2c3-b4a5-6789-0123-456789abcdef",
+      "titulo": "Duna",
+      "autor": "Frank Herbert",
+      "imagem": "https://m.media-amazon.com/images/I/41MRn6hy8-L._SY445_SX342_ML2_.jpg",
+      "categoria": "Ficção, Fantasia",
+      "isbn": "978-85-250-6166-5",
+      "preco": 79.90,
+      "estoque": 8,
+      "status": "Ativo",
+      "sinopse": "Duna é uma obra-prima da ficção científica de Frank Herbert. O romance se passa num futuro distante num império intergaláctico, focando em Paul Atreides, herdeiro de uma família nobre encarregada de Arrakis, o planeta desértico onde se encontra a especiaria melange, a substância mais valiosa do universo."
+    },
+    {
+      "uuid": "98765432-10fe-dcba-0987-654321fedcba",
+      "titulo": "O Hobbit",
+      "autor": "J.R.R. Tolkien",
+      "imagem": "https://m.media-amazon.com/images/I/41Gz-OoRQOL._SX342_SY445_ML2_.jpg",
+      "categoria": "Ficção, Fantasia",
+      "isbn": "978-85-8063-226-5",
+      "preco": 49.90,
+      "estoque": 15,
+      "status": "Ativo",
+      "sinopse": "O Hobbit narra a aventura de Bilbo Bolseiro, um hobbit pacato que é convencido pelo mago Gandalf e um grupo de anões a participar de uma perigosa missão para recuperar um tesouro guardado pelo dragão Smaug. A jornada transforma Bilbo e revela segredos que mudarão o destino da Terra Média."
     },
     {
       "uuid": "67890abc-def0-1234-5678-9abcdef01234",
       "titulo": "O Silmarillion",
       "autor": "J.R.R. Tolkien",
+      "imagem": "https://m.media-amazon.com/images/I/51EZZWkTECL._SY445_SX342_ML2_.jpg",
       "categoria": "Ficção, Fantasia",
-      "status": "Ativo"
+      "isbn": "978-85-325-1078-3",
+      "preco": 59.90,
+      "estoque": 7,
+      "status": "Ativo",
+      "sinopse": "O Silmarillion é uma coletânea de mitos e lendas da Terra Média, narrando a criação do mundo por Ilúvatar e a história das Eras anteriores a O Senhor dos Anéis. O livro foca na rebelião de Morgoth, o primeiro Senhor das Trevas, e na luta épica dos elfos para recuperar as Silmarils, joias de luz divina."
     },
     {
       "uuid": "23456789-01ab-cdef-1234-567890abcdef",
       "titulo": "A Revolução dos Bichos",
       "autor": "George Orwell",
+      "imagem": "https://m.media-amazon.com/images/I/81qFYTFvPwL._SY466_.jpg",
       "categoria": "Ficção, Distopia",
-      "status": "Ativo"
+      "isbn": "978-85-250-3836-0",
+      "preco": 34.90,
+      "estoque": 25,
+      "status": "Ativo",
+      "sinopse": "A Revolução dos Bichos é uma sátira política de George Orwell. Os animais de uma fazenda, liderados pelos porcos, expulsam os humanos para criar uma sociedade igualitária, mas gradualmente o poder corrompe o novo regime, revelando como as revoluções podem se transformar nas tiranias que buscavam combater."
     },
     {
       "uuid": "87654321-4321-4321-4321-876543210987",
       "titulo": "Código Limpo",
       "autor": "Robert C. Martin",
+      "imagem": "https://m.media-amazon.com/images/I/41xShlnTZTL._SY466_.jpg",
       "categoria": "Técnico, Programação",
-      "status": "Ativo"
+      "isbn": "978-85-7608-597-1",
+      "preco": 85.00,
+      "estoque": 4,
+      "status": "Ativo",
+      "sinopse": "Código Limpo (Clean Code) é um guia essencial de Robert C. Martin para desenvolvedores que buscam escrever código de alta qualidade, legível e de fácil manutenção. O livro apresenta princípios, padrões e práticas práticas para transformar código ruim em código limpo e eficiente."
+    },
+    {
+      "uuid": "11223344-5566-7788-9900-aabbccddeeff",
+      "titulo": "Harry Potter e a Pedra Filosofal",
+      "autor": "J.K. Rowling",
+      "imagem": "https://m.media-amazon.com/images/I/81iqZ2HHD-L._SY466_.jpg",
+      "categoria": "Ficção, Fantasia",
+      "isbn": "978-85-325-2963-1",
+      "preco": 44.90,
+      "estoque": 30,
+      "status": "Ativo",
+      "sinopse": "Harry Potter e a Pedra Filosofal é o primeiro livro da saga de J.K. Rowling. O órfão Harry descobre em seu 11º aniversário que é um bruxo e parte para a Escola de Magia e Bruxaria de Hogwarts, onde faz amigos e confronta o mistério por trás da Pedra Filosofal e do Lorde Voldemort."
+    },
+    {
+      "uuid": "55667788-1122-3344-aabb-ccddeeff0011",
+      "titulo": "A Menina que Roubava Livros",
+      "autor": "Markus Zusak",
+      "imagem": "https://m.media-amazon.com/images/I/41pVlY-bbaL._SY445_SX342_ML2_.jpg",
+      "categoria": "Ficção, Drama",
+      "isbn": "978-85-325-2019-5",
+      "preco": 49.90,
+      "estoque": 10,
+      "status": "Ativo",
+      "sinopse": "A Menina que Roubava Livros, de Markus Zusak, é narrado pela Morte e conta a história de Liesel Meminger, uma menina que vive na Alemanha Nazista durante a Segunda Guerra Mundial e encontra nos livros roubados e nas palavras uma forma de resistência e redenção em meio ao horror da guerra."
     }
   ]
 }

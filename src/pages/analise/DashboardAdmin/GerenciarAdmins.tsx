@@ -1,96 +1,148 @@
-import { useState } from 'react';
-import { LayoutDashboard } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useAppSelector } from '@/store/hooks';
+import { useGerenciarAdmins } from './useGerenciarAdmins';
 import styles from './GerenciarAdmins.module.css';
+import { Modal } from '@/components/comum/Modal';
 
 export function GerenciarAdmins() {
-  const [showNovoAdmin, setShowNovoAdmin] = useState(false);
-  const [adminNome, setAdminNome] = useState('');
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminSenha, setAdminSenha] = useState('');
-  const [message, setMessage] = useState('');
-
-  const { token } = useAppSelector((state) => state.auth);
-
-  const handleCreateAdmin = async () => {
-    if (!token) {
-      setMessage('Você precisa estar autenticado como admin para cadastrar outro administrador.');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/admin/registro', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ nome: adminNome, email: adminEmail, senha: adminSenha })
-      });
-      if (response.ok) {
-        setMessage('Administrador cadastrado com sucesso.');
-        setShowNovoAdmin(false);
-      }
-    } catch {
-      setMessage('Erro ao cadastrar administrador.');
-    }
-  };
+  const {
+    admins,
+    form,
+    showForm,
+    editingAdmin,
+    message,
+    isConfirmModalOpen,
+    isDeleteModalOpen,
+    startCreate,
+    startEdit,
+    handleFieldChange,
+    triggerSaveConfirm,
+    handleSave,
+    triggerDelete,
+    handleDelete,
+    cancelForm,
+    setIsConfirmModalOpen,
+    setIsDeleteModalOpen,
+  } = useGerenciarAdmins();
 
   return (
-    <div className={styles['admin-dashboard']}>
-      <div className={styles['header-admin']}>
-        <div className={styles['header-admin-title']}>
-          <h2>Gerenciar Administradores</h2>
-        </div>
-        <Link to="/"><button className="btn-secondary">Sair do Painel</button></Link>
+    <div className={styles.pageContent}>
+      <header className={styles.headerActions}>
+        <h3 className={styles.pageTitle}>Gerenciar Administradores</h3>
+        <button className="btn-primary" onClick={startCreate}>
+          Novo Administrador
+        </button>
+      </header>
+
+      {message && <p className={styles.adminMessageSuccess}>{message}</p>}
+
+      <div className="card">
+        <table className={styles.adminTable}>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {admins.map((adm) => (
+              <tr key={adm.uuid}>
+                <td>{adm.nome}</td>
+                <td>{adm.email}</td>
+                <td>
+                  <div className={styles.tableActions}>
+                    <button className="btn-primary" onClick={() => startEdit(adm)}>Editar</button>
+                    <button className="btn-secondary" onClick={() => triggerDelete(adm.uuid)}>Excluir</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <div className={styles['dashboard-grid']}>
-        <aside className={styles['sidebar-admin']}>
-          <ul>
-            <li className={styles['sidebar-group-title']}>Menu Principal</li>
-            <li>
-              <Link to="/admin" className={styles['sidebar-link']}>
-                <LayoutDashboard size={18} /> Dashboard Analytics
-              </Link>
-            </li>
-            <li className={styles['active-admin']}>
-              <Link to="/admin/administradores" className={`${styles['sidebar-link']} ${styles['active']}`}>
-                ⚙️ Gerenciar Administradores
-              </Link>
-            </li>
-          </ul>
-        </aside>
-        
-        <div className={styles['content-admin']}>
-          {message && <p className={styles['admin-message-success']}>{message}</p>}
-          {!showNovoAdmin ? (
-            <div>
-              <button className="btn-primary" onClick={() => setShowNovoAdmin(true)}>Novo Administrador</button>
-            </div>
-          ) : (
-            <div className={`card ${styles['admin-novo-card']}`}>
-              <h3>Cadastrar Novo Administrador</h3>
-              <div className="form-group">
-                <label>Nome</label>
-                <input name="adminNome" type="text" value={adminNome} onChange={(e) => setAdminNome(e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>E-mail Corporativo</label>
-                <input name="adminEmail" type="email" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label>Senha de Acesso</label>
-                <input name="adminSenha" type="password" value={adminSenha} onChange={(e) => setAdminSenha(e.target.value)} />
-              </div>
-              <div className={styles['admin-form-actions']}>
-                <button className="btn-primary" onClick={handleCreateAdmin}>Salvar Administrador</button>
-                <button className="btn-secondary" onClick={() => setShowNovoAdmin(false)}>Cancelar</button>
-              </div>
+
+      {/* Modal de Cadastro/Edição */}
+      <Modal
+        isOpen={showForm}
+        onClose={cancelForm}
+        title={editingAdmin ? 'Editar Administrador' : 'Novo Administrador'}
+        footer={
+          <>
+            <button className="btn-secondary" onClick={cancelForm}>Cancelar</button>
+            <button className="btn-primary" onClick={triggerSaveConfirm}>
+              {editingAdmin ? 'Atualizar Dados' : 'Criar Administrador'}
+            </button>
+          </>
+        }
+      >
+        <div className="form-container">
+          <div className="form-group">
+            <label>Nome Completo</label>
+            <input
+              name="nome"
+              type="text"
+              placeholder="Ex: João Silva"
+              value={form.nome}
+              onChange={(e) => handleFieldChange('nome', e.target.value)}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>E-mail Corporativo</label>
+            <input
+              name="email"
+              type="email"
+              placeholder="adm@empresa.com"
+              value={form.email}
+              onChange={(e) => handleFieldChange('email', e.target.value)}
+            />
+          </div>
+
+          {!editingAdmin && (
+            <div className="form-group">
+              <label>Senha Provisória</label>
+              <input
+                name="senha"
+                type="password"
+                value={form.senha}
+                onChange={(e) => handleFieldChange('senha', e.target.value)}
+              />
             </div>
           )}
         </div>
-      </div>
+      </Modal>
+
+      {/* Modal de Confirmação de Salvamento */}
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        title="Confirmar Alterações"
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setIsConfirmModalOpen(false)}>Revisar</button>
+            <button className="btn-primary" onClick={handleSave}>Confirmar e Salvar</button>
+          </>
+        }
+      >
+        <p>Você tem certeza que deseja salvar estas informações para o administrador <strong>{form.nome}</strong>?</p>
+      </Modal>
+
+      {/* Modal de Confirmação de Exclusão */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Excluir Administrador"
+        variant="danger"
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setIsDeleteModalOpen(false)}>Cancelar</button>
+            <button className="btn-primary" style={{ backgroundColor: 'var(--bn-error)' }} onClick={handleDelete}>
+              Confirmar Exclusão
+            </button>
+          </>
+        }
+      >
+        <p>Esta ação não pode ser desfeita. O administrador perderá todo o acesso ao sistema imediatamente.</p>
+      </Modal>
     </div>
   );
 }

@@ -12,7 +12,7 @@ export function LoginArea() {
           <label>E-mail ou CPF</label>
           <input 
             type="text" 
-            placeholder="joao@email.com" 
+            placeholder="admin@livraria.com.br (admin)" 
             value={loginState.email}
             onChange={(e) => loginState.setEmail(e.target.value)}
             data-cy="login-email-input"
@@ -22,13 +22,16 @@ export function LoginArea() {
           <label>Senha</label>
           <input 
             type="password" 
-            placeholder="••••••••" 
+            placeholder="password123" 
             value={loginState.senha}
             onChange={(e) => loginState.setSenha(e.target.value)}
             data-cy="login-password-input"
           />
           <a href="#" className={styles['login-forgot-password']}>Esqueci minha senha</a>
         </div>
+        {loginState.loginError && (
+          <p className={styles['auth-message-error']}>{loginState.loginError}</p>
+        )}
         <button onClick={loginState.handleLogin} className={`btn-primary ${styles['login-btn-enter']}`} data-cy="login-submit-button">Entrar</button>
       </div>
 

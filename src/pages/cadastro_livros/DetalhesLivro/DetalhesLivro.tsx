@@ -1,32 +1,19 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import styles from './DetalhesLivro.module.css';
 import { useDetalhesLivro } from '@/hooks/useLivros';
-import { useAppDispatch } from '@/store/hooks';
-import { adicionarItem } from '@/store/slices/carrinhoSlice';
 import { LoadingState } from '@/components/comum/LoadingState/LoadingState';
 import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
+import { CapaLivro } from '@/components/comum/CapaLivro/CapaLivro';
+import { ControlesCompra } from '@/components/comum/ControlesCompra/ControlesCompra';
 
 export function DetalhesLivro() {
-  const { livro: data, loading, error } = useDetalhesLivro('some-id');
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const { uuid = '' } = useParams<{ uuid: string }>();
+  const { livro: data, loading, error } = useDetalhesLivro(uuid);
 
   if (loading) return <LoadingState message="Buscando detalhes do livro..." />;
   if (error) return <ErrorState message="Não foi possível carregar os detalhes do livro." onRetry={() => window.location.reload()} />;
   if (!data) return <p className={styles['detalhes-status-message']}>Livro não encontrado.</p>;
 
-  const handleAdicionarAoCarrinho = () => {
-    dispatch(adicionarItem({
-      uuid: data.uuid,
-      imagem: data.imagem || '',
-      titulo: data.titulo,
-      isbn: '000-00-00000-00-0',
-      precoUnitario: data.preco,
-      quantidade: 1,
-      subtotal: data.preco
-    }));
-    navigate('/carrinho');
-  };
 
   return (
     <div className={`${styles['detalhes-livro']} page-transition-enter`}>
@@ -52,7 +39,7 @@ export function DetalhesLivro() {
       <div className={styles['detalhes-grid']}>
         <div className={styles['coluna-imagem']}>
           <div className={`imagem-destaque ${styles['detalhes-imagem-destaque']}`}>
-            <img src={data.imagem} className={styles['detalhes-img']} alt="Livro" />
+            <CapaLivro src={data.imagem} alt={data.titulo} titulo={data.titulo} className={styles['detalhes-img']} />
           </div>
         </div>
         
@@ -66,7 +53,7 @@ export function DetalhesLivro() {
 
           <div className={`pricing ${styles['detalhes-pricing']}`}>
             <h2 className={styles['detalhes-price']}>R$ {data.preco.toFixed(2).replace('.', ',')}</h2>
-            <button onClick={handleAdicionarAoCarrinho} className={`btn-primary ${styles['detalhes-btn-add']}`}>Adicionar ao Carrinho</button>
+            <ControlesCompra livro={data} variant="detalhes" />
           </div>
 
           <div className="sinopse">

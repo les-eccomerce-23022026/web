@@ -1,0 +1,36 @@
+{
+  "usuarios": [
+    {
+      "uuid": "uuid-cliente-joao-001",
+      "nome": "João Comprador",
+      "email": "joao@email.com",
+      "cpf": "123.456.789-00",
+      "senha": "123456",
+      "role": "cliente"
+    },
+    {
+      "uuid": "uuid-cliente-joao-002",
+      "nome": "João Comprador",
+      "email": "joao.comprador@email.com",
+      "cpf": "123.456.789-00",
+      "senha": "password123",
+      "role": "cliente"
+    },
+    {
+      "uuid": "uuid-admin-9999",
+      "nome": "Administrador do Sistema",
+      "email": "admin@livraria.com.br",
+      "cpf": "000.111.222-33",
+      "senha": "password123",
+      "role": "admin"
+    },
+    {
+      "uuid": "uuid-admin-0001",
+      "nome": "Admin",
+      "email": "admin",
+      "cpf": "000.000.000-00",
+      "senha": "123456",
+      "role": "admin"
+    }
+  ]
+}

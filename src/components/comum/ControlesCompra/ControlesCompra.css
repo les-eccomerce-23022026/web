@@ -1,0 +1,125 @@
+.controles-compra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.controles-compra__ctrl-qtd {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--bn-bg-subtle, #f4f4f4);
+  border: 1px solid var(--bn-border-light, #ddd);
+  border-radius: 20px;
+  padding: 4px 6px;
+}
+
+.ctrl-qtd__btn {
+  background-color: white;
+  border: 1.5px solid var(--bn-border-light, #ccc);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  border-radius: 6px;
+  color: var(--bn-text-main, #333);
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.ctrl-qtd__btn:hover:not(:disabled) {
+  background-color: var(--bn-primary, #1a6b51);
+  color: white;
+  border-color: var(--bn-primary, #1a6b51);
+}
+
+.ctrl-qtd__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ctrl-qtd__icone {
+  display: flex;
+  align-items: center;
+  color: var(--bn-text-muted, #666);
+  padding: 0 4px;
+  position: relative;
+}
+
+.ctrl-qtd__valor {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--bn-primary);
+  color: black;
+  font-size: 10px;
+  font-weight: bold;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.controles-compra__btn-comprar {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* --- Variantes --- */
+
+/* Variante Detalhes (Maior e mais imponente) */
+.controles-compra--detalhes {
+  gap: 16px;
+}
+
+.controles-compra--detalhes .controles-compra__ctrl-qtd {
+  padding: 8px 12px;
+  border-radius: 30px;
+}
+
+.controles-compra--detalhes .ctrl-qtd__btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 8px;
+}
+
+.controles-compra--detalhes .ctrl-qtd__icone {
+  padding: 0 8px;
+}
+
+.controles-compra--detalhes .ctrl-qtd__valor {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  top: -10px;
+  right: -10px;
+}
+
+.controles-compra--detalhes .controles-compra__btn-comprar {
+  padding: 18px 24px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+/* --- Responsividade --- */
+@media (max-width: 480px) {
+  .controles-compra--detalhes {
+    flex-direction: column;
+  }
+
+  .controles-compra--detalhes .controles-compra__ctrl-qtd {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,14 +1,20 @@
-.cadastrar-livro-admin {
-  background-color: var(--bn-bg-admin);
-  min-height: 100vh;
-  padding: 20px;
+.cadastrar-livro-page {
+  width: 100%;
 }
 
-.cadastrar-livro-header {
+.cadastrar-livro-page-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 30px;
   align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--bn-border-light);
+}
+
+.cadastrar-livro-page-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--bn-primary);
 }
 
 .cadastrar-livro-container {
@@ -16,7 +22,6 @@
   grid-template-columns: 1fr;
   gap: 20px;
   max-width: 1000px;
-  margin: 0 auto;
 }
 
 .cadastrar-livro-section-title {

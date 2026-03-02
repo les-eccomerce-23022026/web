@@ -1,12 +1,21 @@
 import styles from './Checkout.module.css';
 import { useCheckout } from '@/hooks/useCheckout';
+import { useAppSelector } from '@/store/hooks';
 
 export function Checkout() {
   const { data, loading, error } = useCheckout();
+  const carrinho = useAppSelector((state) => state.carrinho.data);
 
   if (loading) return <p className={styles['checkout-status-message']}>Carregando dados de checkout...</p>;
   if (error) return <p className={styles['checkout-status-message']}>Erro ao carregar checkout.</p>;
   if (!data) return <p className={styles['checkout-status-message']}>Nenhum dado de checkout encontrado.</p>;
+
+  // Resumo derivado do carrinho Redux para refletir o estado real do usuário
+  const quantidadeItens = carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) ?? 0;
+  const subtotal = carrinho?.resumo.subtotal ?? 0;
+  const frete = carrinho?.resumo.frete ?? data.resumoPedido.frete;
+  const descontoCupons = data.resumoPedido.descontoCupons;
+  const total = subtotal + frete - descontoCupons;
 
   return (
     <div className={styles['checkout-page']}>
@@ -40,7 +49,7 @@ export function Checkout() {
              <div className={`form-group ${styles['checkout-form-spaced']}`}>
                 <label>Pagar valor parcial com este cartão (Múltiplos Cartões)</label>
                 <div className={styles['checkout-input-group']}>
-                  <input type="number" placeholder={`R$ ${data.resumoPedido.total.toFixed(2).replace('.', ',')}`} data-cy="checkout-partial-value-input" />
+                  <input type="number" placeholder={`R$ ${total.toFixed(2).replace('.', ',')}`} data-cy="checkout-partial-value-input" />
                   <button className="btn-secondary" data-cy="checkout-add-payment-button">Adicionar Pagamento</button>
                 </div>
              </div>
@@ -59,16 +68,16 @@ export function Checkout() {
            <div className={`card ${styles['checkout-summary-card']}`}>
               <h3 className={styles['checkout-summary-title']}>Resumo do Pedido</h3>
               <ul className={styles['checkout-summary-list']}>
-                <li className={styles['checkout-summary-item']}><span>Subtotal ({data.resumoPedido.quantidadeItens} item):</span> <span>R$ {data.resumoPedido.subtotal.toFixed(2).replace('.', ',')}</span></li>
-                <li className={styles['checkout-summary-item']}><span>Frete:</span> <span>R$ {data.resumoPedido.frete.toFixed(2).replace('.', ',')}</span></li>
-                <li className={styles['checkout-summary-item-discount']}><span>Cupons Aplicados:</span> <span>- R$ {data.resumoPedido.descontoCupons.toFixed(2).replace('.', ',')}</span></li>
+                <li className={styles['checkout-summary-item']}><span>Subtotal ({quantidadeItens} {quantidadeItens === 1 ? 'item' : 'itens'}):</span> <span>R$ {subtotal.toFixed(2).replace('.', ',')}</span></li>
+                <li className={styles['checkout-summary-item']}><span>Frete:</span> <span>R$ {frete.toFixed(2).replace('.', ',')}</span></li>
+                <li className={styles['checkout-summary-item-discount']}><span>Cupons Aplicados:</span> <span>- R$ {descontoCupons.toFixed(2).replace('.', ',')}</span></li>
               </ul>
               
               <hr className={styles['checkout-summary-divider']} />
               
               <div className={styles['checkout-total-row']}>
                 <span className={styles['checkout-total-label']}>Total a Pagar:</span>
-                <span className={styles['checkout-total-value']}>R$ {data.resumoPedido.total.toFixed(2).replace('.', ',')}</span>
+                <span className={styles['checkout-total-value']}>R$ {total.toFixed(2).replace('.', ',')}</span>
               </div>
               
               <button className={`btn-primary ${styles['checkout-btn-finish']}`} onClick={() => alert('Compra Finalizada com Sucesso!')} data-cy="checkout-finish-button">Concluir Pedido</button>

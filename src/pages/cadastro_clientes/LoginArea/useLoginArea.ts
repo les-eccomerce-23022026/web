@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
+import { AuthService } from '@/services/AuthService';
 
 export function useLoginArea() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  
+  const [loginError, setLoginError] = useState('');
+
   const [showRegister, setShowRegister] = useState(false);
   const [regNome, setRegNome] = useState('');
   const [regCpf, setRegCpf] = useState('');
@@ -20,27 +22,22 @@ export function useLoginArea() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    if (!email || !senha) return; // Early return
-    
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, senha })
-      });
-      
-      if (!response.ok) return;
+    if (!email || !senha) return;
 
-      const data = await response.json();
+    setLoginError('');
+
+    try {
+      const data = await AuthService.login({ email, senha });
       dispatch(loginSuccess({ token: data.token, user: data.user }));
-      
+
       if (data.user.role === 'admin') {
         navigate('/admin');
-        return; // Early return for admin
+        return;
       }
       navigate('/');
     } catch (err) {
-      console.error('Login mock não respondeu, ignorar no cypress mas ideal ter catch', err);
+      setLoginError('E-mail ou senha inválidos. Verifique suas credenciais.');
+      console.error('[Auth] Falha no login:', err);
     }
   };
 
@@ -61,38 +58,32 @@ export function useLoginArea() {
     }
 
     try {
-      const payload = {
+      await AuthService.registrarCliente({
         nome: regNome,
         cpf: regCpf,
         email: regEmail,
         senha: regSenha,
         confirmacao_senha: regConfirmaSenha,
-      };
-      const response = await fetch('/api/clientes/registro', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
       });
 
-      if (response.ok) {
-        setRegSuccess('Cadastro realizado com sucesso.');
-        setShowRegister(false);
-      }
+      setRegSuccess('Cadastro realizado com sucesso.');
+      setShowRegister(false);
     } catch (err) {
-      setRegError('Erro ao registrar.');
+      setRegError('Erro ao registrar. Tente novamente.');
+      console.error('[Auth] Falha no registro:', err);
     }
   };
 
   return {
-    loginState: { email, setEmail, senha, setSenha, handleLogin },
-    registerState: { 
+    loginState: { email, setEmail, senha, setSenha, handleLogin, loginError },
+    registerState: {
       showRegister, setShowRegister,
       regNome, setRegNome,
       regCpf, setRegCpf,
       regEmail, setRegEmail,
       regSenha, setRegSenha,
       regConfirmaSenha, setRegConfirmaSenha,
-      regError, regSuccess, handleRegister
-    }
+      regError, regSuccess, handleRegister,
+    },
   };
 }

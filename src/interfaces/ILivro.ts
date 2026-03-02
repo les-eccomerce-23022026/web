@@ -6,8 +6,10 @@ export interface ILivro {
   imagem?: string;
   estrelas?: number;
   categorias?: string[];
-  categoria?: string;
+  categoria?: string; // Usado na lista admin simplificada
   numeroAvaliacoes?: number;
   sinopse?: string;
-  status?: string;
+  status?: 'Ativo' | 'Inativo' | string;
+  isbn: string;
+  estoque: number;
 }

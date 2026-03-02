@@ -1,0 +1,73 @@
+[
+  {
+    "uuid": "ord-001",
+    "data": "2026-01-10T10:00:00Z",
+    "clienteUuid": "user-client-1",
+    "status": "Entregue",
+    "total": 159.80,
+    "itens": [
+      { "livroUuid": "a1b2c3d4-e5f6-7890-1234-56789abcdef0", "quantidade": 2, "precoUnitario": 79.90, "categoria": "Ficção" }
+    ]
+  },
+  {
+    "uuid": "ord-002",
+    "data": "2026-01-15T14:30:00Z",
+    "clienteUuid": "user-client-2",
+    "status": "Entregue",
+    "total": 29.90,
+    "itens": [
+      { "livroUuid": "b2c3d4e5-f6a7-8901-2345-6789abcdef01", "quantidade": 1, "precoUnitario": 29.90, "categoria": "Ficção" }
+    ]
+  },
+  {
+    "uuid": "ord-003",
+    "data": "2026-02-05T09:15:00Z",
+    "clienteUuid": "user-client-1",
+    "status": "Entregue",
+    "total": 85.00,
+    "itens": [
+      { "livroUuid": "87654321-4321-4321-4321-876543210987", "quantidade": 1, "precoUnitario": 85.00, "categoria": "Técnico" }
+    ]
+  },
+  {
+    "uuid": "ord-004",
+    "data": "2026-02-20T18:00:00Z",
+    "clienteUuid": "user-client-2",
+    "status": "Em Trânsito",
+    "total": 124.80,
+    "itens": [
+      { "livroUuid": "f0e1d2c3-b4a5-6789-0123-456789abcdef", "quantidade": 1, "precoUnitario": 79.90, "categoria": "Ficção" },
+      { "livroUuid": "11223344-5566-7788-9900-aabbccddeeff", "quantidade": 1, "precoUnitario": 44.90, "categoria": "Ficção" }
+    ]
+  },
+  {
+    "uuid": "ord-005",
+    "data": "2026-03-01T11:00:00Z",
+    "clienteUuid": "user-client-1",
+    "status": "Pendentes",
+    "total": 49.90,
+    "itens": [
+      { "livroUuid": "98765432-10fe-dcba-0987-654321fedcba", "quantidade": 1, "precoUnitario": 49.90, "categoria": "Ficção" }
+    ]
+  },
+  {
+    "uuid": "ord-006",
+    "data": "2026-03-02T08:00:00Z",
+    "clienteUuid": "user-client-2",
+    "status": "Preparando",
+    "total": 59.90,
+    "itens": [
+      { "livroUuid": "67890abc-def0-1234-5678-9abcdef01234", "quantidade": 1, "precoUnitario": 59.90, "categoria": "Ficção" }
+    ]
+  },
+  {
+    "uuid": "ord-007",
+    "data": "2026-03-02T10:00:00Z",
+    "clienteUuid": "user-client-1",
+    "status": "Devoluções",
+    "total": 39.90,
+    "itens": [
+      { "livroUuid": "1a2b3c4d-5e6f-7890-abcd-ef0123456789", "quantidade": 1, "precoUnitario": 39.90, "categoria": "Ficção" }
+    ]
+  }
+]

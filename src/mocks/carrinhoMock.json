@@ -1,31 +1,12 @@
 {
-  "itens": [
-    {
-       "uuid": "e4b6c382-7f91-4d1a-8c1c-3b02cd4d18ce",
-       "imagem": "https://m.media-amazon.com/images/I/81h2gW3v3mL._AC_UF1000,1000_QL80_.jpg",
-       "titulo": "O Senhor dos Anéis",
-       "isbn": "12345",
-       "precoUnitario": 79.90,
-       "quantidade": 1,
-       "subtotal": 79.90
-    },
-    {
-       "uuid": "11223344-5566-7788-9900-aabbccddeeff",
-       "imagem": "https://m.media-amazon.com/images/I/81iqZ2HHD-L._AC_UF1000,1000_QL80_.jpg",
-       "titulo": "Harry Potter e a Pedra Filosofal",
-       "isbn": "67890",
-       "precoUnitario": 44.90,
-       "quantidade": 1,
-       "subtotal": 44.90
-    }
-  ],
+  "itens": [],
   "fretePadrao": {
     "valor": 15.00,
     "prazo": "5 dias úteis"
   },
   "resumo": {
-    "subtotal": 124.80,
-    "frete": 15.00,
-    "total": 139.80
+    "subtotal": 0.00,
+    "frete": 0.00,
+    "total": 0.00
   }
 }

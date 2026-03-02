@@ -6,10 +6,18 @@ if (!BASE_URL) {
 }
 
 export const API_ENDPOINTS = {
+  // Livros
   obterCarrinho: `${BASE_URL}/carrinho`,
   obterLivrosDestaque: `${BASE_URL}/livros/destaques`,
   obterListaLivrosAdmin: `${BASE_URL}/admin/livros`,
   obterCheckoutInfo: `${BASE_URL}/checkout`,
   obterDashboardAdminInfo: `${BASE_URL}/admin/dashboard`,
   obterDetalhesLivro: (uuid: string) => `${BASE_URL}/livros/${uuid}`,
+
+  // Autenticação
+  login: `${BASE_URL}/auth/login`,
+  registrarCliente: `${BASE_URL}/clientes/registro`,
+  registrarAdmin: `${BASE_URL}/admin/registro`,
 };
+
+export const MOCK_TOKEN_PREFIX = 'mock-token';

@@ -1,27 +1,29 @@
 {
   "metricas": {
-    "totalVendasMes": 16250.0,
-    "percentualCrescimento": 15,
+    "totalVendasMes": 17600.0,
+    "percentualCrescimento": 28.0,
     "pedidosPendentes": 45,
     "trocasSolicitadas": 6,
-    "ticketMedio": 128.90,
+    "ticketMedio": 110.00,
     "percentualCrescimentoTicket": 4.2,
-    "clientesAtivos": 1255,
+    "clientesAtivos": 1800,
     "percentualCrescimentoClientes": 1.5,
-    "livrosBaixoEstoque": 8
+    "totalLivrosCatalogo": 9,
+    "totalAdmins": 2,
+    "livrosBaixoEstoque": 3
   },
   "graficoVendasPorCategoria": {
     "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
     "datasets": [
       {
         "label": "Ficção",
-        "data": [65, 59, 80, 81, 56, 55],
+        "data": [96, 112, 144, 168, 200, 256],
         "borderColor": "rgb(15, 76, 58)",
         "backgroundColor": "rgba(15, 76, 58, 0.5)"
       },
       {
-        "label": "Não-Ficção",
-        "data": [28, 48, 40, 19, 86, 27],
+        "label": "Técnico",
+        "data": [24, 28, 36, 42, 50, 64],
         "borderColor": "rgb(210, 180, 140)",
         "backgroundColor": "rgba(210, 180, 140, 0.5)"
       }
@@ -32,7 +34,7 @@
     "datasets": [
       {
         "label": "Receita (R$) 2026",
-        "data": [4500, 5200, 6800, 7100, 6500, 14500],
+        "data": [6600, 7700, 9900, 11550, 13750, 17600],
         "borderColor": "rgb(46, 139, 87)",
         "backgroundColor": "rgba(46, 139, 87, 0.2)",
         "fill": true,
@@ -45,7 +47,7 @@
     "datasets": [
       {
         "label": "Status dos Pedidos",
-        "data": [450, 120, 80, 42, 10],
+        "data": [450, 120, 80, 45, 6],
         "backgroundColor": [
           "rgba(15, 76, 58, 0.8)",
           "rgba(46, 139, 87, 0.8)",
@@ -57,8 +59,8 @@
     ]
   },
   "atividadesRecentes": [
-    { "uuid": "e7b1a1a1-1234-4567-8901-23456789abcd", "tipo": "Venda", "descricao": "Pedido #1240 finalizado e pago.", "data": "Há 5 min", "sucesso": true },
-    { "uuid": "f8c2b2b2-2345-5678-9012-34567890bcde", "tipo": "Estoque", "descricao": "Livro 'Código Limpo' reposicionado (+50 un).", "data": "Há 15 min", "sucesso": true },
+    { "uuid": "e7b1a1a1-1234-4567-8901-23456789abcd", "tipo": "Venda", "descricao": "Pedido #1240 finalizado — 'Harry Potter e a Pedra Filosofal' vendido.", "data": "Há 5 min", "sucesso": true },
+    { "uuid": "f8c2b2b2-2345-5678-9012-34567890bcde", "tipo": "Estoque", "descricao": "Livro 'Código Limpo' reposicionado (+50 un). Estoque atual: 4.", "data": "Há 15 min", "sucesso": true },
     { "uuid": "a9d3c3c3-3456-6789-0123-45678901cdef", "tipo": "Alerta", "descricao": "Estoque crítico para 'Dom Casmurro' (Apenas 2 un).", "data": "Há 40 min", "sucesso": false },
     { "uuid": "b0e4d4d4-4567-7890-1234-56789012def0", "tipo": "Troca", "descricao": "Solicitação de devolução para pedido #1230.", "data": "Há 1 hora", "sucesso": false },
     { "uuid": "c1f5e5e5-5678-8901-2345-67890123ef01", "tipo": "Venda", "descricao": "Venda do livro 'O Silmarillion' confirmada.", "data": "Há 2 horas", "sucesso": true },

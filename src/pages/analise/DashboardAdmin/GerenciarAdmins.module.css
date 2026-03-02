@@ -1,15 +1,51 @@
-.admin-message-success {
-    color: green;
-    padding: 16px;
-    background-color: #e0ffe0;
+.pageContent {
+  padding: 8px 0;
 }
 
-.admin-novo-card {
-    padding: 24px;
-    max-width: 400px;
+.headerActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
 }
 
-.admin-form-actions {
-    display: flex;
-    gap: 8px;
+.pageTitle {
+  margin-bottom: 0;
 }
+
+.tableActions {
+  display: flex;
+  gap: 8px;
+}
+
+.adminTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.adminTable th,
+.adminTable td {
+  padding: 16px;
+  border-bottom: 1px solid var(--bn-border-light);
+  text-align: left;
+}
+
+.adminTable th {
+  background-color: var(--bn-bg-subtle);
+  font-weight: 600;
+  color: var(--bn-text-muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.adminMessageSuccess {
+  color: var(--bn-success-text);
+  padding: 12px 16px;
+  background-color: var(--bn-success-light);
+  border-radius: var(--bn-border-radius-sm);
+  margin-bottom: 24px;
+  font-size: 14px;
+  border: 1px solid rgba(30, 142, 62, 0.2);
+}
+

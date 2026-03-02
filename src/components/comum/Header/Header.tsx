@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, User, LogOut, ShoppingCart, ShieldCheck } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import styles from "./Header.module.css";
@@ -35,24 +35,33 @@ export function Header() {
           <div className={styles['header-actions']}>
             {isAuthenticated ? (
               <>
-                <Link to="/perfil" className={styles['action-link']} data-cy="header-user-profile">
-                  👤 Olá, {user?.nome}
+                <Link to="/perfil" className={styles['action-icon']} data-cy="header-user-profile" title={`Olá, ${user?.nome}`}>
+                  <User size={22} strokeWidth={2} />
                 </Link>
-                <span className={`${styles['action-link']} ${styles['header-logout-btn']}`} onClick={() => dispatch(logout())} data-cy="header-logout-button">
-                  Sair
-                </span>
+                <button 
+                  className={`${styles['action-icon']} ${styles['logout-btn']}`} 
+                  onClick={() => dispatch(logout())} 
+                  data-cy="header-logout-button"
+                  title="Sair"
+                >
+                  <LogOut size={22} strokeWidth={2} />
+                </button>
               </>
             ) : (
-              <Link to="/minha-conta" className={styles['action-link']} data-cy="header-login-link">
-                👤 Minha Conta
+              <Link to="/minha-conta" className={styles['action-icon']} data-cy="header-login-link" title="Minha Conta">
+                <User size={22} strokeWidth={2} />
               </Link>
             )}
             
-            <Link to="/carrinho" className={styles['action-link']} data-cy="header-cart-link">
-              🛒 Carrinho ({quantidadeItens})
+            <Link to="/carrinho" className={`${styles['action-icon']} ${styles['cart-container']}`} data-cy="header-cart-link" title="Carrinho">
+              <ShoppingCart size={22} strokeWidth={2} />
+              {quantidadeItens > 0 && (
+                <span className={styles['cart-badge']}>{quantidadeItens}</span>
+              )}
             </Link>
-            <Link to="/admin" className={`${styles['action-link']} ${styles['admin-link']}`} data-cy="header-admin-link">
-              ⚙️ Admin
+
+            <Link to="/admin" className={`${styles['action-icon']} ${styles['admin-icon']}`} data-cy="header-admin-link" title="Administração">
+              <ShieldCheck size={22} strokeWidth={2} />
             </Link>
           </div>
         </div>

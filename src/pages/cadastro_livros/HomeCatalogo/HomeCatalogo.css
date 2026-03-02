@@ -35,12 +35,35 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .cartao-livro:hover {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   transform: translateY(-5px);
 }
+
+.cartao-livro__badge-carrinho {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--bn-primary);
+  color: black;
+  padding: 4px 8px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 2;
+  box-shadow: var(--bn-shadow-sm);
+}
+
+.cartao-livro__alerta-quantidade {
+  color: #ffc107;
+}
+
 
 .cartao-livro__capa-container {
   position: relative;
@@ -52,27 +75,13 @@
 }
 
 .cartao-livro__capa {
-  width: 140px;
+  width: 100%;
+  max-width: 140px;
   height: 200px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: var(--bn-border-radius-sm);
-  box-shadow: var(--bn-shadow-md); /* updated to standard shadow */
+  box-shadow: var(--bn-shadow-md); 
   transition: transform 0.3s ease;
-  background-color: var(--bn-bg-subtle); /* Placeholder for broken/loading images */
-  position: relative;
-}
-
-/* Fallback content for when image is broken */
-.cartao-livro__capa::before {
-  content: "Capa indisponível";
-  display: block;
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: var(--bn-bg-subtle);
-  color: var(--bn-text-muted);
-  font-size: 11px;
-  text-align: center;
-  padding-top: 80px; /* Center text vertically given 200px height */
 }
 
 .cartao-livro:hover .cartao-livro__capa {
@@ -138,4 +147,76 @@
   padding: 8px 12px;
   text-align: center;
   display: inline-block;
+}
+
+/* --- Linha de compra (uma linha só: [-] [🛒] [+]  [Comprar]) --- */
+.cartao-livro__linha-compra {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Grupo: botão -, ícone carrinho, botão + */
+.cartao-livro__ctrl-qtd {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--bn-bg-subtle, #f4f4f4);
+  border: 1px solid var(--bn-border-light, #ddd);
+  border-radius: 20px;
+  padding: 4px 6px;
+}
+
+.ctrl-qtd__btn {
+  background-color: white;
+  border: 1.5px solid var(--bn-border-light, #ccc);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  border-radius: 6px;
+  color: var(--bn-text-main, #333);
+  font-weight: bold;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.ctrl-qtd__btn svg {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  min-height: 14px;
+  display: block;
+}
+
+.ctrl-qtd__btn:hover {
+  background-color: var(--bn-primary, #1a6b51);
+  color: white;
+  border-color: var(--bn-primary, #1a6b51);
+}
+
+.ctrl-qtd__icone {
+  display: flex;
+  align-items: center;
+  color: var(--bn-text-muted, #666);
+  padding: 0 4px;
+}
+
+.ctrl-qtd__icone svg {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  display: block;
+}
+
+/* Botão comprar ocupa o espaço restante */
+.cartao-livro__btn-comprar {
+  flex: 1;
+  font-size: 12px;
+  padding: 8px 10px;
+  white-space: nowrap;
 }

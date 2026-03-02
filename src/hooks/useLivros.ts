@@ -1,63 +1,57 @@
 import { useState, useEffect } from 'react';
 import { LivroService } from '@/services/LivroService';
 import type { ILivro } from '@/interfaces/ILivro';
+import { useAppSelector } from '@/store/hooks';
 
 export function useLivrosDestaque() {
-  const [destaques, setDestaques] = useState<ILivro[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
+  // Agora filtramos os livros Ativos do Redux
+  const livros = useAppSelector((state) => state.livro.livros);
+  const loading = useAppSelector((state) => state.livro.status === 'loading');
+  const error = useAppSelector((state) => state.livro.status === 'failed' ? new Error(state.livro.error || 'Erro') : null);
 
-  useEffect(() => {
-    LivroService.getDestaques()
-      .then((data) => {
-        setDestaques(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
-  }, []);
+  // Consideramos como "destaques" os livros que estão Ativos no catálogo centralizado
+  const destaques = livros.filter(l => l.status === 'Ativo');
 
   return { destaques, loading, error };
 }
 
 export function useDetalhesLivro(id: string) {
-  const [livro, setLivro] = useState<ILivro | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [livroBusca, setLivroBusca] = useState<ILivro | null>(null);
+  const [loadingBusca, setLoadingBusca] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
+  const livrosStore = useAppSelector((state) => state.livro.livros);
+
+  // Derivamos o livro: se estiver no store, usamos ele. Caso contrário, usamos o da busca (fetch)
+  const foundInStore = livrosStore.find((l) => l.uuid === id);
+  const livro = foundInStore || livroBusca;
+  const loading = foundInStore ? false : loadingBusca;
 
   useEffect(() => {
+    // Se já encontramos no store, não precisamos disparar o fetch
+    if (foundInStore) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoadingBusca(true);
     LivroService.getDetalhes(id)
       .then((data) => {
-        setLivro(data);
-        setLoading(false);
+        setLivroBusca(data);
+        setLoadingBusca(false);
       })
       .catch((err) => {
         setError(err);
-        setLoading(false);
+        setLoadingBusca(false);
       });
-  }, [id]);
+  }, [id, foundInStore]);
 
   return { livro, loading, error };
 }
 
 export function useListaLivrosAdmin() {
-  const [livros, setLivros] = useState<ILivro[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    LivroService.getListaAdmin()
-      .then((data) => {
-        setLivros(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
-  }, []);
+  const livros = useAppSelector(state => state.livro.livros);
+  const loading = useAppSelector(state => state.livro.status === 'loading');
+  const error = useAppSelector(state => state.livro.status === 'failed' ? new Error(state.livro.error || 'Erro') : null);
 
   return { livros, loading, error };
 }

@@ -25,6 +25,8 @@ dist-ssr
 
 
 AGENTS.md
+CHANGES.md
+.agents
 *.txt
 
 *.log
