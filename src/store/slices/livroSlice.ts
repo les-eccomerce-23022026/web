@@ -6,12 +6,14 @@ interface LivroState {
   livros: ILivro[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
+  termoBusca: string;
 }
 
 const initialState: LivroState = {
   livros: [],
   status: 'idle',
   error: null,
+  termoBusca: '',
 };
 
 // Thunk para carregar os livros inicialmente (integrando com o mock/API)
@@ -41,6 +43,9 @@ const livroSlice = createSlice({
       if (livro) {
         livro.status = livro.status === 'Ativo' ? 'Inativo' : 'Ativo';
       }
+    },
+    setTermoBusca: (state, action: PayloadAction<string>) => {
+      state.termoBusca = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -59,6 +64,6 @@ const livroSlice = createSlice({
   },
 });
 
-export const { adicionarLivro, atualizarLivro, removerLivro, alternarStatusLivro } = livroSlice.actions;
+export const { adicionarLivro, atualizarLivro, removerLivro, alternarStatusLivro, setTermoBusca } = livroSlice.actions;
 
 export default livroSlice.reducer;

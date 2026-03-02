@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useListaLivrosAdmin } from '@/hooks/useLivros';
 import { useAppDispatch } from '@/store/hooks';
@@ -10,6 +11,8 @@ import { EmptyState } from '@/components/comum/EmptyState/EmptyState';
 export function ListaLivrosAdmin() {
   const { livros, loading, error } = useListaLivrosAdmin();
   const dispatch = useAppDispatch();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'todos' | 'ativos' | 'inativos'>('todos');
 
   if (loading) return <LoadingState message="Buscando catálogo de livros..." />;
   if (error) return <ErrorState message="Não foi possível carregar a lista de livros." onRetry={() => window.location.reload()} />;
@@ -17,6 +20,22 @@ export function ListaLivrosAdmin() {
   const handleToggleStatus = (uuid: string) => {
     dispatch(alternarStatusLivro(uuid));
   };
+
+  const filteredLivros = livros.filter(livro => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch = 
+      livro.titulo.toLowerCase().includes(term) ||
+      livro.autor.toLowerCase().includes(term) ||
+      livro.isbn.toLowerCase().includes(term) ||
+      livro.sinopse?.toLowerCase().includes(term);
+
+    const matchesStatus = 
+      statusFilter === 'todos' ||
+      (statusFilter === 'ativos' && livro.status === 'Ativo') ||
+      (statusFilter === 'inativos' && livro.status === 'Inativo');
+
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className={styles.pageContent}>
@@ -27,11 +46,17 @@ export function ListaLivrosAdmin() {
             <input
               type="text"
               className={styles.listaLivrosSearch}
-              placeholder="Buscar por título, autor ou ISBN..."
+              placeholder="Buscar por título, autor ou sinopse..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className={`filtros ${styles.listaLivrosFiltros}`}>
-            <select defaultValue="todos" className={styles.filterSelect}>
+            <select 
+              value={statusFilter} 
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className={styles.filterSelect}
+            >
               <option value="todos">Todos os Livros</option>
               <option value="ativos">Apenas Ativos</option>
               <option value="inativos">Apenas Inativos</option>
@@ -54,7 +79,7 @@ export function ListaLivrosAdmin() {
               </tr>
             </thead>
             <tbody>
-              {livros.map((livro) => (
+              {filteredLivros.map((livro) => (
                 <tr key={livro.uuid} className={styles.listaLivrosTdRow}>
                   <td className={styles.listaLivrosTd}>
                      <div className={styles.livroInfoCell}>
@@ -84,12 +109,12 @@ export function ListaLivrosAdmin() {
                   </td>
                 </tr>
               ))}
-              {livros.length === 0 && (
+              {filteredLivros.length === 0 && (
                 <tr className={styles.listaLivrosTdRow}>
                   <td colSpan={5} className={styles.textCenter}>
                     <EmptyState
                       title="Nenhum resultado"
-                      message="Nenhum livro encontrado no catálogo."
+                      message="Nenhum livro encontrado com esses filtros."
                       icon="📚"
                     />
                   </td>

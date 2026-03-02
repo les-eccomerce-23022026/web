@@ -225,3 +225,44 @@
   padding: 8px 10px;
   white-space: nowrap;
 }
+
+/* --- Cabeçalho do Catálogo / Busca --- */
+.catalogo-header {
+  margin: 24px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.search-results-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-results-info h3 span {
+  color: var(--bn-secondary);
+  font-style: italic;
+}
+
+.btn-clear-search {
+  background: none;
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-sm);
+  padding: 6px 12px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--bn-text-main);
+  transition: all 0.2s ease;
+}
+
+.btn-clear-search:hover {
+  background-color: var(--bn-bg-subtle);
+  border-color: var(--bn-secondary);
+  color: var(--bn-secondary);
+}

@@ -1,15 +1,45 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, User, LogOut, ShoppingCart, ShieldCheck } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
+import { setTermoBusca } from "@/store/slices/livroSlice";
 import styles from "./Header.module.css";
 
 export function Header() {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const carrinho = useAppSelector(state => state.carrinho.data);
-  const quantidadeItens = carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) || 0;
+  const termoStore = useAppSelector(state => state.livro.termoBusca);
+  const [inputValue, setInputValue] = useState(termoStore);
   
+  const quantidadeItens = carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) || 0;
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
+
+  // Sincroniza o input com o store caso mude externamente (ex: limpando pesquisa)
+  useEffect(() => {
+    setInputValue(termoStore);
+  }, [termoStore]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    dispatch(setTermoBusca(value));
+
+    // Se estiver em outra página, vai para a home ao começar a buscar
+    if (value && location.pathname !== '/') {
+      navigate('/');
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    dispatch(setTermoBusca(inputValue));
+    if (location.pathname !== '/') {
+      navigate('/');
+    }
+  };
 
   return (
     <header className={styles['header-container']}>
@@ -21,16 +51,18 @@ export function Header() {
             <Link to="/">LES Livraria</Link>
           </div>
 
-          <div className={styles['search-bar']}>
+          <form className={styles['search-bar']} onSubmit={handleSearchSubmit}>
             <span className={styles['header-search-icon']}>
               <Search size={18} strokeWidth={2.5} />
             </span>
             <input
               type="text"
-              placeholder="Buscar por título, autor ou ISBN..."
+              placeholder="Buscar por título, autor ou sinopse..."
+              value={inputValue}
+              onChange={handleSearchChange}
             />
-            <button className={styles['search-btn']}>Buscar</button>
-          </div>
+            <button type="submit" className={styles['search-btn']}>Buscar</button>
+          </form>
 
           <div className={styles['header-actions']}>
             {isAuthenticated ? (

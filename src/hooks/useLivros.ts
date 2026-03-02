@@ -4,13 +4,24 @@ import type { ILivro } from '@/interfaces/ILivro';
 import { useAppSelector } from '@/store/hooks';
 
 export function useLivrosDestaque() {
-  // Agora filtramos os livros Ativos do Redux
   const livros = useAppSelector((state) => state.livro.livros);
+  const termoBusca = useAppSelector((state) => state.livro.termoBusca).toLowerCase();
   const loading = useAppSelector((state) => state.livro.status === 'loading');
   const error = useAppSelector((state) => state.livro.status === 'failed' ? new Error(state.livro.error || 'Erro') : null);
 
   // Consideramos como "destaques" os livros que estão Ativos no catálogo centralizado
-  const destaques = livros.filter(l => l.status === 'Ativo');
+  // E filtramos pelo termo de busca dinâmico (título, autor ou sinopse)
+  const destaques = livros
+    .filter(l => l.status === 'Ativo')
+    .filter(l => {
+      if (!termoBusca) return true;
+      
+      const matchTitulo = l.titulo.toLowerCase().includes(termoBusca);
+      const matchAutor = l.autor.toLowerCase().includes(termoBusca);
+      const matchSinopse = l.sinopse?.toLowerCase().includes(termoBusca) || false;
+      
+      return matchTitulo || matchAutor || matchSinopse;
+    });
 
   return { destaques, loading, error };
 }
