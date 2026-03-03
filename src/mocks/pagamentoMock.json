@@ -1,0 +1,85 @@
+{
+  "enderecosCliente": [
+    {
+      "uuid": "end-001",
+      "apelido": "Casa",
+      "tipoResidencia": "Casa",
+      "tipoLogradouro": "Rua",
+      "logradouro": "Bela Vista",
+      "numero": "1234",
+      "complemento": "Apto 55",
+      "bairro": "Centro",
+      "cep": "01000-000",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "pais": "Brasil"
+    },
+    {
+      "uuid": "end-002",
+      "apelido": "Trabalho",
+      "tipoResidencia": "Apartamento",
+      "tipoLogradouro": "Avenida",
+      "logradouro": "Paulista",
+      "numero": "1000",
+      "complemento": "Sala 2001",
+      "bairro": "Bela Vista",
+      "cep": "01310-100",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "pais": "Brasil"
+    }
+  ],
+  "cartoesCliente": [
+    {
+      "uuid": "card-001",
+      "final": "1234",
+      "nomeImpresso": "JOAO COMPRADOR",
+      "bandeira": "Mastercard",
+      "validade": "12/2028"
+    },
+    {
+      "uuid": "card-002",
+      "final": "5678",
+      "nomeImpresso": "JOAO COMPRADOR",
+      "bandeira": "Visa",
+      "validade": "06/2027"
+    }
+  ],
+  "cuponsDisponiveis": [
+    {
+      "uuid": "cup-promo-001",
+      "codigo": "LIVRO10",
+      "tipo": "promocional",
+      "valor": 10.00,
+      "descricao": "Desconto de R$ 10,00 na sua compra"
+    },
+    {
+      "uuid": "cup-troca-001",
+      "codigo": "TROCA-ORD007",
+      "tipo": "troca",
+      "valor": 39.90,
+      "descricao": "Cupom de troca do pedido ord-007"
+    }
+  ],
+  "bandeirasPermitidas": ["Visa", "Mastercard", "Elo", "American Express", "Hipercard"],
+  "freteOpcoes": [
+    {
+      "uuid": "frete-001",
+      "tipo": "Padrão",
+      "valor": 15.00,
+      "prazo": "5 a 8 dias úteis"
+    },
+    {
+      "uuid": "frete-002",
+      "tipo": "Expresso",
+      "valor": 29.90,
+      "prazo": "1 a 3 dias úteis"
+    },
+    {
+      "uuid": "frete-003",
+      "tipo": "Retirada em Loja",
+      "valor": 0.00,
+      "prazo": "Disponível em 2 horas"
+    }
+  ]
+}

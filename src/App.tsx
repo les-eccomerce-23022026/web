@@ -10,9 +10,14 @@ import { HomeCatalogo } from '@/pages/cadastro_livros/HomeCatalogo/HomeCatalogo'
 import { DetalhesLivro } from '@/pages/cadastro_livros/DetalhesLivro/DetalhesLivro';
 import { Carrinho } from '@/pages/vendas/Carrinho/Carrinho';
 import { Checkout } from '@/pages/vendas/Checkout/Checkout';
+import { Pagamento } from '@/pages/vendas/Pagamento/Pagamento';
+import { PedidoConfirmado } from '@/pages/vendas/PedidoConfirmado/PedidoConfirmado';
+import { MeusPedidos } from '@/pages/vendas/MeusPedidos/MeusPedidos';
+import { SolicitarTroca } from '@/pages/vendas/SolicitarTroca/SolicitarTroca';
 import { LoginArea } from '@/pages/cadastro_clientes/LoginArea/LoginArea';
 import { DashboardAdmin } from '@/pages/analise/DashboardAdmin/DashboardAdmin';
 import { GerenciarAdmins } from '@/pages/analise/DashboardAdmin/GerenciarAdmins';
+import { GerenciarTrocas } from '@/pages/analise/GerenciarTrocas/GerenciarTrocas';
 import { ListaLivrosAdmin } from '@/pages/cadastro_livros/ListaLivrosAdmin/ListaLivrosAdmin';
 import { CadastrarLivroAdmin } from '@/pages/cadastro_livros/CadastrarLivroAdmin/CadastrarLivroAdmin';
 import { ProtectedRoute } from '@/components/comum/ProtectedRoute/ProtectedRoute';
@@ -38,7 +43,11 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="checkout" element={<Checkout />} />
+            <Route path="pagamento" element={<Pagamento />} />
+            <Route path="pedido-confirmado" element={<PedidoConfirmado />} />
             <Route path="perfil" element={<MeuPerfil />} />
+            <Route path="pedidos" element={<MeusPedidos />} />
+            <Route path="pedidos/:uuid/troca" element={<SolicitarTroca />} />
           </Route>
         </Route>
 
@@ -56,6 +65,7 @@ function App() {
             <Route path="administradores" element={<GerenciarAdmins />} />
             <Route path="livros" element={<ListaLivrosAdmin />} />
             <Route path="livros/novo" element={<CadastrarLivroAdmin />} />
+            <Route path="trocas" element={<GerenciarTrocas />} />
           </Route>
         </Route>
       </Routes>

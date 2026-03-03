@@ -1,0 +1,411 @@
+.perfilPage {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.perfilPage h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  color: var(--bn-text-title);
+}
+
+.perfilSubtitle {
+  font-size: 14px;
+  color: var(--bn-text-muted);
+  margin-bottom: 24px;
+}
+
+/* --- Global Messages --- */
+.messageSuccess {
+  padding: 12px 16px;
+  background-color: var(--bn-success-light);
+  color: var(--bn-success-text);
+  border-radius: var(--bn-border-radius-sm);
+  margin-bottom: 20px;
+  font-size: 14px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.messageError {
+  padding: 12px 16px;
+  background-color: var(--bn-error-light);
+  color: var(--bn-error-text);
+  border-radius: var(--bn-border-radius-sm);
+  margin-bottom: 20px;
+  font-size: 14px;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* --- Tab Navigation --- */
+.tabNav {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--bn-border-light);
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.tabItem {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bn-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  margin-bottom: -2px;
+}
+
+.tabItem:hover {
+  color: var(--bn-primary);
+}
+
+.tabItemActive {
+  color: var(--bn-primary);
+  border-bottom-color: var(--bn-primary);
+}
+
+/* --- Sections --- */
+.section {
+  background-color: var(--bn-bg-card);
+  padding: 24px;
+  border-radius: var(--bn-border-radius-md);
+  margin-bottom: 24px;
+  border: 1px solid var(--bn-border-light);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+  color: var(--bn-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Form Layout --- */
+.formRow {
+  display: flex;
+  gap: 12px;
+}
+
+.formRow > div,
+.formRow > .form-group {
+  flex: 1;
+}
+
+.formGroupLarge {
+  flex: 2 !important;
+}
+
+/* --- Endereço Cards --- */
+.enderecoList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.enderecoCard {
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  padding: 16px;
+  position: relative;
+  transition: box-shadow 0.2s ease;
+}
+
+.enderecoCard:hover {
+  box-shadow: var(--bn-shadow-md);
+}
+
+.enderecoApelido {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--bn-primary);
+  margin-bottom: 8px;
+}
+
+.enderecoDetalhe {
+  font-size: 13px;
+  color: var(--bn-text-body);
+  line-height: 1.6;
+}
+
+.enderecoActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* --- Cartão Cards --- */
+.cartaoList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cartaoCard {
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  padding: 16px;
+  position: relative;
+  transition: box-shadow 0.2s ease;
+}
+
+.cartaoCard:hover {
+  box-shadow: var(--bn-shadow-md);
+}
+
+.cartaoCardPreferencial {
+  border-color: var(--bn-primary);
+  background-color: rgba(15, 76, 58, 0.03);
+}
+
+.cartaoBandeira {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--bn-primary);
+  margin-bottom: 4px;
+}
+
+.cartaoFinal {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--bn-text-title);
+  margin-bottom: 4px;
+}
+
+.cartaoNome {
+  font-size: 12px;
+  color: var(--bn-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cartaoValidade {
+  font-size: 12px;
+  color: var(--bn-text-muted);
+  margin-top: 4px;
+}
+
+.cartaoBadge {
+  display: inline-block;
+  background-color: var(--bn-primary);
+  color: var(--bn-text-light);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.cartaoActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* --- Novo Endereço / Cartão Panel --- */
+.novoPanel {
+  border: 1px dashed var(--bn-border);
+  border-radius: var(--bn-border-radius-md);
+  padding: 20px;
+  margin-bottom: 16px;
+  background-color: var(--bn-bg-secondary);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.novoPanelTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--bn-text-title);
+}
+
+.novoPanelActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* --- Danger Zone --- */
+.dangerZone .sectionTitle {
+  color: var(--bn-error);
+}
+
+.dangerZone p {
+  color: var(--bn-error-text);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.btnDanger {
+  background-color: var(--bn-error);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: var(--bn-border-radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btnDanger:hover {
+  background-color: #b71c1c;
+}
+
+/* --- Small Action Buttons --- */
+.btnSmall {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.btnSmallDanger {
+  font-size: 12px;
+  padding: 6px 12px;
+  background-color: transparent;
+  color: var(--bn-error);
+  border: 1px solid var(--bn-error);
+}
+
+.btnSmallDanger:hover {
+  background-color: var(--bn-error-light);
+}
+
+/* --- Quick Links --- */
+.quickLinks {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.quickLink {
+  background-color: var(--bn-bg-secondary);
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bn-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quickLink:hover {
+  background-color: var(--bn-primary);
+  color: var(--bn-text-light);
+  border-color: var(--bn-primary);
+}
+
+/* --- Loading --- */
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--bn-text-muted);
+  font-size: 16px;
+}
+
+/* --- Hint --- */
+.hint {
+  display: block;
+  font-size: 12px;
+  color: var(--bn-text-muted);
+  margin-top: 4px;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Responsividade --- */
+@media (max-width: 768px) {
+  .perfilPage {
+    margin-top: 20px;
+    padding: 0 16px;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .enderecoList,
+  .cartaoList {
+    grid-template-columns: 1fr;
+  }
+
+  .tabNav {
+    gap: 0;
+  }
+
+  .tabItem {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .quickLinks {
+    flex-direction: column;
+  }
+}
+
+/* --- Password Toggle --- */
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordInput {
+  padding-right: 44px !important;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--bn-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background-color 0.2s, transform 0.1s;
+  z-index: 2;
+  border-radius: 4px;
+}
+
+.passwordToggle:hover {
+  color: var(--bn-primary);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.passwordToggle:active {
+  transform: scale(0.95);
+}

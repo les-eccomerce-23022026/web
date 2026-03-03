@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Search, User, LogOut, ShoppingCart, ShieldCheck } from "lucide-react";
+import { Search, User, LogOut, ShoppingCart, ShieldCheck, Package } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { setTermoBusca } from "@/store/slices/livroSlice";
@@ -69,6 +69,9 @@ export function Header() {
               <>
                 <Link to="/perfil" className={styles['action-icon']} data-cy="header-user-profile" title={`Olá, ${user?.nome}`}>
                   <User size={22} strokeWidth={2} />
+                </Link>
+                <Link to="/pedidos" className={styles['action-icon']} data-cy="header-pedidos-link" title="Meus Pedidos">
+                  <Package size={22} strokeWidth={2} />
                 </Link>
                 <button 
                   className={`${styles['action-icon']} ${styles['logout-btn']}`} 

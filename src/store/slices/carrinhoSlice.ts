@@ -66,6 +66,15 @@ const carrinhoSlice = createSlice({
           state.data.resumo.total = subtotal + state.data.resumo.frete;
         }
       }
+    },
+    // Limpar carrinho após compra finalizada (RF0037)
+    limparCarrinho: (state) => {
+      if (state.data) {
+        state.data.itens = [];
+        state.data.resumo.subtotal = 0;
+        state.data.resumo.frete = 0;
+        state.data.resumo.total = 0;
+      }
     }
   },
   extraReducers: (builder) => {
@@ -84,6 +93,6 @@ const carrinhoSlice = createSlice({
   },
 });
 
-export const { adicionarItem, removerItem, atualizarQuantidade } = carrinhoSlice.actions;
+export const { adicionarItem, removerItem, atualizarQuantidade, limparCarrinho } = carrinhoSlice.actions;
 
 export default carrinhoSlice.reducer;

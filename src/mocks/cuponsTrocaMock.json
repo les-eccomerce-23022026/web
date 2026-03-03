@@ -1,0 +1,12 @@
+[
+  {
+    "uuid": "cupom-troca-001",
+    "pedidoOrigemUuid": "ord-009",
+    "clienteUuid": "uuid-cliente-joao-001",
+    "valor": 49.90,
+    "codigo": "TROCA-2026-001",
+    "validade": "2026-06-02T23:59:59Z",
+    "utilizado": false,
+    "dataCriacao": "2026-02-28T10:30:00Z"
+  }
+]

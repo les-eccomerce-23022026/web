@@ -1,0 +1,134 @@
+{
+  "clientes": [
+    {
+      "uuid": "uuid-cliente-joao-001",
+      "nome": "João Comprador",
+      "email": "joao@email.com",
+      "cpf": "123.456.789-00",
+      "genero": "Masculino",
+      "dataNascimento": "1990-05-15",
+      "telefone": { "tipo": "Celular", "ddd": "11", "numero": "999887766" },
+      "ranking": 5,
+      "ativo": true,
+      "role": "cliente",
+      "enderecosEntrega": [
+        {
+          "uuid": "end-001",
+          "apelido": "Casa",
+          "tipoResidencia": "Casa",
+          "tipoLogradouro": "Rua",
+          "logradouro": "Bela Vista",
+          "numero": "1234",
+          "complemento": "Apto 55",
+          "bairro": "Centro",
+          "cep": "01000-000",
+          "cidade": "São Paulo",
+          "estado": "SP",
+          "pais": "Brasil"
+        },
+        {
+          "uuid": "end-002",
+          "apelido": "Trabalho",
+          "tipoResidencia": "Apartamento",
+          "tipoLogradouro": "Avenida",
+          "logradouro": "Paulista",
+          "numero": "1000",
+          "complemento": "Sala 2001",
+          "bairro": "Bela Vista",
+          "cep": "01310-100",
+          "cidade": "São Paulo",
+          "estado": "SP",
+          "pais": "Brasil"
+        }
+      ],
+      "enderecoCobranca": {
+        "uuid": "end-001",
+        "apelido": "Casa",
+        "tipoResidencia": "Casa",
+        "tipoLogradouro": "Rua",
+        "logradouro": "Bela Vista",
+        "numero": "1234",
+        "complemento": "Apto 55",
+        "bairro": "Centro",
+        "cep": "01000-000",
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "pais": "Brasil"
+      },
+      "cartoes": [
+        {
+          "uuid": "card-001",
+          "final": "1234",
+          "nomeImpresso": "JOAO COMPRADOR",
+          "bandeira": "Mastercard",
+          "validade": "12/2028"
+        },
+        {
+          "uuid": "card-002",
+          "final": "5678",
+          "nomeImpresso": "JOAO COMPRADOR",
+          "bandeira": "Visa",
+          "validade": "06/2027"
+        }
+      ],
+      "cartaoPreferencialUuid": "card-001"
+    },
+    {
+      "uuid": "uuid-cliente-joao-002",
+      "nome": "Maria Leitora",
+      "email": "joao.comprador@email.com",
+      "cpf": "987.654.321-00",
+      "genero": "Feminino",
+      "dataNascimento": "1985-11-20",
+      "telefone": { "tipo": "Celular", "ddd": "21", "numero": "988776655" },
+      "ranking": 3,
+      "ativo": true,
+      "role": "cliente",
+      "enderecosEntrega": [
+        {
+          "uuid": "end-003",
+          "apelido": "Apartamento",
+          "tipoResidencia": "Apartamento",
+          "tipoLogradouro": "Rua",
+          "logradouro": "Copacabana",
+          "numero": "500",
+          "complemento": "Bloco B, Apto 302",
+          "bairro": "Copacabana",
+          "cep": "22070-010",
+          "cidade": "Rio de Janeiro",
+          "estado": "RJ",
+          "pais": "Brasil"
+        }
+      ],
+      "enderecoCobranca": {
+        "uuid": "end-003",
+        "apelido": "Apartamento",
+        "tipoResidencia": "Apartamento",
+        "tipoLogradouro": "Rua",
+        "logradouro": "Copacabana",
+        "numero": "500",
+        "complemento": "Bloco B, Apto 302",
+        "bairro": "Copacabana",
+        "cep": "22070-010",
+        "cidade": "Rio de Janeiro",
+        "estado": "RJ",
+        "pais": "Brasil"
+      },
+      "cartoes": [
+        {
+          "uuid": "card-003",
+          "final": "9012",
+          "nomeImpresso": "MARIA LEITORA",
+          "bandeira": "Elo",
+          "validade": "03/2029"
+        }
+      ],
+      "cartaoPreferencialUuid": "card-003"
+    }
+  ],
+  "bandeirasPermitidas": ["Visa", "Mastercard", "Elo", "American Express", "Hipercard"],
+  "generosDisponiveis": ["Masculino", "Feminino", "Outro", "Prefiro não informar"],
+  "tiposTelefone": ["Celular", "Residencial", "Comercial"],
+  "tiposResidencia": ["Casa", "Apartamento", "Comercial", "Outro"],
+  "tiposLogradouro": ["Rua", "Avenida", "Travessa", "Alameda", "Praça", "Rodovia"]
+}

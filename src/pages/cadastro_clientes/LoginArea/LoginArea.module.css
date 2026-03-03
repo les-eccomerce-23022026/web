@@ -2,11 +2,14 @@
   display: flex;
   justify-content: center;
   margin-top: 40px;
+  gap: 40px;
+  flex-wrap: wrap;
+  padding: 0 20px;
 }
 
 .login-box-card {
   width: 400px;
-  margin-right: 40px;
+  align-self: flex-start;
 }
 
 .login-title {
@@ -25,7 +28,7 @@
 }
 
 .register-box-card {
-  width: 400px;
+  width: 520px;
   background-color: var(--bn-bg-secondary);
 }
 
@@ -36,11 +39,159 @@
 .register-text {
   font-size: 14px;
   margin-bottom: 20px;
+  line-height: 1.6;
 }
 
 .login-btn-register {
   width: 100%;
   padding: 15px;
+}
+
+/* --- Stepper --- */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  gap: 8px;
+}
+
+.stepperItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+}
+
+.stepperItemActive {
+  opacity: 1;
+}
+
+.stepperNumber {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--bn-primary);
+  color: var(--bn-text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stepperLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bn-text-title);
+}
+
+.stepperDivider {
+  width: 40px;
+  height: 2px;
+  background-color: var(--bn-border);
+}
+
+/* --- Step Content --- */
+.stepContent {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* --- Form Layout --- */
+.formRow {
+  display: flex;
+  gap: 12px;
+}
+
+.formRow > .form-group,
+.formRow > div {
+  flex: 1;
+}
+
+.formGroupLarge {
+  flex: 2 !important;
+}
+
+/* --- Fieldset / Endereço --- */
+.fieldset {
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: var(--bn-bg-card);
+}
+
+.legend {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bn-primary);
+  padding: 0 8px;
+}
+
+/* --- Checkbox --- */
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.checkboxRow input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--bn-primary);
+}
+
+.checkboxRow label {
+  margin-bottom: 0;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+/* --- Hint text --- */
+.hint {
+  display: block;
+  font-size: 12px;
+  color: var(--bn-text-muted);
+  margin-top: 4px;
+}
+
+/* --- Messages --- */
+.auth-message-success {
+  color: var(--bn-success-text);
+  background-color: var(--bn-success-light);
+  padding: 10px 14px;
+  border-radius: var(--bn-border-radius-sm);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.auth-message-error {
+  color: var(--bn-error-text);
+  background-color: var(--bn-error-light);
+  padding: 10px 14px;
+  border-radius: var(--bn-border-radius-sm);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.auth-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* --- Responsividade --- */
@@ -52,23 +203,57 @@
     margin-top: 20px;
   }
 
-  .login-box-card, .register-box-card {
+  .login-box-card,
+  .register-box-card {
     width: 100%;
-    margin-right: 0;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .stepper {
+    gap: 4px;
+  }
+
+  .stepperDivider {
+    width: 20px;
   }
 }
 
-.auth-message-success {
-  color: green;
-  margin-bottom: 16px;
-}
-
-.auth-message-error {
-  color: red;
-  margin-bottom: 16px;
-}
-
-.auth-form-actions {
+/* --- Password Toggle --- */
+.passwordWrapper {
+  position: relative;
   display: flex;
-  gap: 16px;
+  align-items: center;
+}
+
+.passwordInput {
+  padding-right: 44px !important;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--bn-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, transform 0.1s;
+  z-index: 2;
+  border-radius: 4px;
+}
+
+.passwordToggle:hover {
+  color: var(--bn-primary);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.passwordToggle:active {
+  transform: scale(0.95);
 }

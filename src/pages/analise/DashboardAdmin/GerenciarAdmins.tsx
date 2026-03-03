@@ -1,5 +1,6 @@
 import { useGerenciarAdmins } from './useGerenciarAdmins';
 import styles from './GerenciarAdmins.module.css';
+import { Eye, EyeOff } from 'lucide-react';
 import { Modal } from '@/components/comum/Modal';
 
 export function GerenciarAdmins() {
@@ -7,6 +8,8 @@ export function GerenciarAdmins() {
     admins,
     form,
     showForm,
+    showPassword,
+    setShowPassword,
     editingAdmin,
     message,
     isConfirmModalOpen,
@@ -100,12 +103,22 @@ export function GerenciarAdmins() {
           {!editingAdmin && (
             <div className="form-group">
               <label>Senha Provisória</label>
-              <input
-                name="senha"
-                type="password"
-                value={form.senha}
-                onChange={(e) => handleFieldChange('senha', e.target.value)}
-              />
+              <div className={styles.passwordWrapper}>
+                <input
+                  name="senha"
+                  type={showPassword ? 'text' : 'password'}
+                  className={styles.passwordInput}
+                  value={form.senha}
+                  onChange={(e) => handleFieldChange('senha', e.target.value)}
+                />
+                <button
+                  type="button"
+                  className={styles.passwordToggle}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
           )}
         </div>

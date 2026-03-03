@@ -1,0 +1,184 @@
+.container {
+  padding: 0;
+}
+
+/* ===== Header ===== */
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.headerSection h2 {
+  margin-bottom: 0;
+}
+
+.contador {
+  font-size: 13px;
+  color: var(--bn-text-muted);
+  background-color: var(--bn-bg-subtle);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ===== Tabela ===== */
+.tabelaWrapper {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabela th {
+  text-align: left;
+  padding: 12px 16px;
+  background-color: var(--bn-bg-secondary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--bn-text-muted);
+  border-bottom: 2px solid var(--bn-border-light);
+  white-space: nowrap;
+}
+
+.tabela td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--bn-border-light);
+  vertical-align: middle;
+}
+
+.tabela tbody tr:hover {
+  background-color: rgba(15, 76, 58, 0.02);
+}
+
+.colPedido {
+  font-weight: 700;
+  font-family: var(--font-serif);
+  white-space: nowrap;
+}
+
+.colMotivo {
+  max-width: 200px;
+  font-size: 13px;
+  color: var(--bn-text-muted);
+}
+
+.colTotal {
+  font-weight: 600;
+  color: var(--bn-primary);
+  white-space: nowrap;
+}
+
+.colAcoes {
+  white-space: nowrap;
+}
+
+.itemNome {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ===== Status Badges ===== */
+.statusBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.statusEmTroca {
+  background-color: #fce4ec;
+  color: #c62828;
+}
+
+.statusTrocaAutorizada {
+  background-color: #e8eaf6;
+  color: #283593;
+}
+
+.statusTrocado {
+  background-color: #e0f2f1;
+  color: #00695c;
+}
+
+/* ===== Botões ===== */
+.btnAcao {
+  font-size: 12px;
+  padding: 6px 14px;
+}
+
+.concluido {
+  font-size: 13px;
+  color: var(--bn-success-text);
+  font-weight: 600;
+}
+
+/* ===== Modal ===== */
+.modalContent {
+  padding: 8px 0;
+}
+
+.modalContent p {
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.modalItens {
+  background-color: var(--bn-bg-secondary);
+  border-radius: var(--bn-border-radius-md);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.modalItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+.estoqueOption {
+  margin-bottom: 16px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.checkboxLabel input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--bn-primary);
+}
+
+.modalInfo {
+  background-color: #e8f5e9;
+  padding: 12px 16px;
+  border-radius: var(--bn-border-radius-md);
+  font-size: 13px;
+  color: #2e7d32;
+}
+
+.modalAcoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}

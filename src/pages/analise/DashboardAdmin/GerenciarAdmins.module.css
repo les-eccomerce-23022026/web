@@ -49,3 +49,39 @@
   border: 1px solid rgba(30, 142, 62, 0.2);
 }
 
+/* --- Password Toggle --- */
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordInput {
+  padding-right: 44px !important;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--bn-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background-color 0.2s, transform 0.1s;
+  z-index: 2;
+  border-radius: 4px;
+}
+
+.passwordToggle:hover {
+  color: var(--bn-primary);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.passwordToggle:active {
+  transform: scale(0.95);
+}
+

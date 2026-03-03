@@ -3,24 +3,74 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
 import { loginSuccess } from '@/store/slices/authSlice';
 import { AuthService } from '@/services/AuthService';
+import { ClienteService } from '@/services/ClienteService';
+import clientesMock from '@/mocks/clientesMock.json';
+import type { Genero, ITelefone } from '@/interfaces/ICliente';
+import type { IEnderecoCliente } from '@/interfaces/IPagamento';
+
+const REGEX_SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
+const REGEX_CPF = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+
+const ENDERECO_VAZIO: Omit<IEnderecoCliente, 'uuid'> = {
+  apelido: '',
+  tipoResidencia: 'Casa',
+  tipoLogradouro: 'Rua',
+  logradouro: '',
+  numero: '',
+  complemento: '',
+  bairro: '',
+  cep: '',
+  cidade: '',
+  estado: '',
+  pais: 'Brasil',
+};
+
+const TELEFONE_VAZIO: ITelefone = {
+  tipo: 'Celular',
+  ddd: '',
+  numero: '',
+};
 
 export function useLoginArea() {
+  // --- Login State ---
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [showPasswordLogin, setShowPasswordLogin] = useState(false);
   const [loginError, setLoginError] = useState('');
 
+  // --- Register State ---
   const [showRegister, setShowRegister] = useState(false);
+  const [regStep, setRegStep] = useState(1);
   const [regNome, setRegNome] = useState('');
   const [regCpf, setRegCpf] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regSenha, setRegSenha] = useState('');
+  const [showPasswordRegister, setShowPasswordRegister] = useState(false);
   const [regConfirmaSenha, setRegConfirmaSenha] = useState('');
+  const [showConfirmPasswordRegister, setShowConfirmPasswordRegister] =
+    useState(false);
+  const [regGenero, setRegGenero] = useState<Genero>('Masculino');
+  const [regDataNascimento, setRegDataNascimento] = useState('');
+  const [regTelefone, setRegTelefone] = useState<ITelefone>(TELEFONE_VAZIO);
+  const [regEnderecoCobranca, setRegEnderecoCobranca] =
+    useState<Omit<IEnderecoCliente, 'uuid'>>(ENDERECO_VAZIO);
+  const [regEnderecoEntrega, setRegEnderecoEntrega] =
+    useState<Omit<IEnderecoCliente, 'uuid'>>(ENDERECO_VAZIO);
+  const [isEnderecoEntregaIgual, setIsEnderecoEntregaIgual] = useState(true);
   const [regError, setRegError] = useState('');
   const [regSuccess, setRegSuccess] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  // --- Domínios do mock ---
+  const generosDisponiveis = clientesMock.generosDisponiveis;
+  const tiposTelefone = clientesMock.tiposTelefone;
+  const tiposResidencia = clientesMock.tiposResidencia;
+  const tiposLogradouro = clientesMock.tiposLogradouro;
+
+  // --- Login ---
   const handleLogin = async () => {
     if (!email || !senha) return;
 
@@ -41,49 +91,195 @@ export function useLoginArea() {
     }
   };
 
-  const regexSenhaForte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
+  // --- Register Step 1 Validation ---
+  const validateStep1 = (): boolean => {
+    setRegError('');
 
+    if (!regNome.trim()) {
+      setRegError('Nome é obrigatório.');
+      return false;
+    }
+
+    if (!REGEX_CPF.test(regCpf)) {
+      setRegError('CPF deve estar no formato 000.000.000-00.');
+      return false;
+    }
+
+    if (!regEmail.trim() || !regEmail.includes('@')) {
+      setRegError('Informe um e-mail válido.');
+      return false;
+    }
+
+    if (!REGEX_SENHA_FORTE.test(regSenha)) {
+      setRegError(
+        'A senha deve conter pelo menos 8 caracteres, maiúsculas, minúsculas, números e especiais.',
+      );
+      return false;
+    }
+
+    if (regSenha !== regConfirmaSenha) {
+      setRegError('As senhas não coincidem.');
+      return false;
+    }
+
+    if (!regDataNascimento) {
+      setRegError('Data de nascimento é obrigatória.');
+      return false;
+    }
+
+    if (!regTelefone.ddd || !regTelefone.numero) {
+      setRegError('Telefone (DDD e Número) é obrigatório.');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleNextStep = () => {
+    if (!validateStep1()) return;
+    setRegStep(2);
+  };
+
+  const handlePrevStep = () => {
+    setRegError('');
+    setRegStep(1);
+  };
+
+  // --- Register Step 2 Validation ---
+  const validateEndereco = (
+    endereco: Omit<IEnderecoCliente, 'uuid'>,
+    label: string,
+  ): boolean => {
+    if (!endereco.logradouro.trim()) {
+      setRegError(`${label}: Logradouro é obrigatório.`);
+      return false;
+    }
+    if (!endereco.numero.trim()) {
+      setRegError(`${label}: Número é obrigatório.`);
+      return false;
+    }
+    if (!endereco.bairro.trim()) {
+      setRegError(`${label}: Bairro é obrigatório.`);
+      return false;
+    }
+    if (!endereco.cep.trim()) {
+      setRegError(`${label}: CEP é obrigatório.`);
+      return false;
+    }
+    if (!endereco.cidade.trim()) {
+      setRegError(`${label}: Cidade é obrigatório.`);
+      return false;
+    }
+    if (!endereco.estado.trim()) {
+      setRegError(`${label}: Estado é obrigatório.`);
+      return false;
+    }
+    return true;
+  };
+
+  // --- Register Submit ---
   const handleRegister = async () => {
     setRegError('');
     setRegSuccess('');
 
-    if (!regexSenhaForte.test(regSenha)) {
-      setRegError('A senha deve conter pelo menos 8 caracteres, maiúsculas, minúsculas e especiais');
-      return;
+    if (!validateEndereco(regEnderecoCobranca, 'Endereço de Cobrança')) return;
+
+    if (!isEnderecoEntregaIgual) {
+      if (!validateEndereco(regEnderecoEntrega, 'Endereço de Entrega')) return;
     }
 
-    if (regSenha !== regConfirmaSenha) {
-      setRegError('As senhas não coincidem');
-      return;
-    }
+    setIsRegistering(true);
 
     try {
-      await AuthService.registrarCliente({
+      await ClienteService.registrarClienteCompleto({
         nome: regNome,
         cpf: regCpf,
         email: regEmail,
         senha: regSenha,
         confirmacao_senha: regConfirmaSenha,
+        genero: regGenero,
+        dataNascimento: regDataNascimento,
+        telefone: regTelefone,
+        enderecoCobranca: regEnderecoCobranca,
+        enderecoEntrega: isEnderecoEntregaIgual
+          ? regEnderecoCobranca
+          : regEnderecoEntrega,
+        enderecoEntregaIgualCobranca: isEnderecoEntregaIgual,
       });
 
-      setRegSuccess('Cadastro realizado com sucesso.');
+      setRegSuccess('Cadastro realizado com sucesso! Faça login para continuar.');
       setShowRegister(false);
+      setRegStep(1);
     } catch (err) {
-      setRegError('Erro ao registrar. Tente novamente.');
+      const errorMessage =
+        err instanceof Error ? err.message : 'Erro ao registrar. Tente novamente.';
+      setRegError(errorMessage);
       console.error('[Auth] Falha no registro:', err);
+    } finally {
+      setIsRegistering(false);
     }
   };
 
+  const handleCancelRegister = () => {
+    setShowRegister(false);
+    setRegStep(1);
+    setRegError('');
+  };
+
   return {
-    loginState: { email, setEmail, senha, setSenha, handleLogin, loginError },
+    loginState: {
+      email,
+      setEmail,
+      senha,
+      setSenha,
+      showPasswordLogin,
+      setShowPasswordLogin,
+      handleLogin,
+      loginError,
+    },
     registerState: {
-      showRegister, setShowRegister,
-      regNome, setRegNome,
-      regCpf, setRegCpf,
-      regEmail, setRegEmail,
-      regSenha, setRegSenha,
-      regConfirmaSenha, setRegConfirmaSenha,
-      regError, regSuccess, handleRegister,
+      showRegister,
+      setShowRegister,
+      regStep,
+      regNome,
+      setRegNome,
+      regCpf,
+      setRegCpf,
+      regEmail,
+      setRegEmail,
+      regSenha,
+      setRegSenha,
+      showPasswordRegister,
+      setShowPasswordRegister,
+      regConfirmaSenha,
+      setRegConfirmaSenha,
+      showConfirmPasswordRegister,
+      setShowConfirmPasswordRegister,
+      regGenero,
+      setRegGenero,
+      regDataNascimento,
+      setRegDataNascimento,
+      regTelefone,
+      setRegTelefone,
+      regEnderecoCobranca,
+      setRegEnderecoCobranca,
+      regEnderecoEntrega,
+      setRegEnderecoEntrega,
+      isEnderecoEntregaIgual,
+      setIsEnderecoEntregaIgual,
+      regError,
+      regSuccess,
+      isRegistering,
+      handleNextStep,
+      handlePrevStep,
+      handleRegister,
+      handleCancelRegister,
+    },
+    dominios: {
+      generosDisponiveis,
+      tiposTelefone,
+      tiposResidencia,
+      tiposLogradouro,
     },
   };
 }

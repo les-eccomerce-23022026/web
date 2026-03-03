@@ -97,14 +97,14 @@ describe('Refatoração de CSS Inline - TDD', () => {
         user: {
           uuid: "uuid-do-cliente-1111",
           nome: "Cliente",
-          email: "joao@email.com",
+          email: "joao@gmail.com",
           cpf: "111.111.111-11",
           role: "cliente"
         }
       }
     }).as('loginCliente');
 
-    cy.login('joao@email.com', '123456');
+    cy.login('joao@gmail.com', '123456');
     cy.wait('@loginCliente');
     cy.url().should('eq', Cypress.config().baseUrl + '/');
   };

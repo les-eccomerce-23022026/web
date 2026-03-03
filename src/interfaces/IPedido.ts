@@ -1,10 +1,28 @@
-export type StatusPedido = 'Entregue' | 'Em Trânsito' | 'Preparando' | 'Pendentes' | 'Devoluções' | 'Cancelado';
+export type StatusPedido =
+  | 'Entregue'
+  | 'Em Trânsito'
+  | 'Preparando'
+  | 'Pendentes'
+  | 'Em Processamento'
+  | 'Em Troca'
+  | 'Troca Autorizada'
+  | 'Trocado'
+  | 'Cancelado';
 
 export interface IItemPedido {
   livroUuid: string;
+  titulo?: string;
   quantidade: number;
   precoUnitario: number;
-  categoria: string; // Facilitar cálculo no dashboard
+  categoria: string;
+}
+
+export interface IFormaPagamentoPedido {
+  tipo: 'cartao' | 'cupom';
+  cartaoFinal?: string;
+  bandeira?: string;
+  codigo?: string;
+  valor: number;
 }
 
 export interface IPedido {
@@ -14,4 +32,9 @@ export interface IPedido {
   itens: IItemPedido[];
   total: number;
   status: StatusPedido;
+  motivo?: string;
+  enderecoUuid?: string;
+  freteUuid?: string;
+  formaPagamento?: IFormaPagamentoPedido[];
 }
+

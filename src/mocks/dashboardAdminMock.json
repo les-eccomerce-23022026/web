@@ -43,7 +43,7 @@
     ]
   },
   "graficoStatusPedidos": {
-    "labels": ["Entregues", "Em Trânsito", "Preparando", "Pendentes", "Devoluções"],
+    "labels": ["Entregues", "Em Trânsito", "Preparando", "Pendentes", "Em Troca"],
     "datasets": [
       {
         "label": "Status dos Pedidos",

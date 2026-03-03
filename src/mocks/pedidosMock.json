@@ -2,72 +2,141 @@
   {
     "uuid": "ord-001",
     "data": "2026-01-10T10:00:00Z",
-    "clienteUuid": "user-client-1",
+    "clienteUuid": "uuid-cliente-joao-001",
     "status": "Entregue",
     "total": 159.80,
+    "enderecoUuid": "end-001",
+    "freteUuid": "frete-001",
+    "formaPagamento": [
+      { "tipo": "cartao", "cartaoFinal": "1234", "bandeira": "Mastercard", "valor": 159.80 }
+    ],
     "itens": [
-      { "livroUuid": "a1b2c3d4-e5f6-7890-1234-56789abcdef0", "quantidade": 2, "precoUnitario": 79.90, "categoria": "Ficção" }
+      { "livroUuid": "a1b2c3d4-e5f6-7890-1234-56789abcdef0", "titulo": "O Senhor dos Anéis: A Sociedade do Anel", "quantidade": 2, "precoUnitario": 79.90, "categoria": "Ficção" }
     ]
   },
   {
     "uuid": "ord-002",
     "data": "2026-01-15T14:30:00Z",
-    "clienteUuid": "user-client-2",
+    "clienteUuid": "uuid-cliente-joao-002",
     "status": "Entregue",
     "total": 29.90,
+    "enderecoUuid": "end-002",
+    "freteUuid": "frete-001",
+    "formaPagamento": [
+      { "tipo": "cartao", "cartaoFinal": "5678", "bandeira": "Visa", "valor": 29.90 }
+    ],
     "itens": [
-      { "livroUuid": "b2c3d4e5-f6a7-8901-2345-6789abcdef01", "quantidade": 1, "precoUnitario": 29.90, "categoria": "Ficção" }
+      { "livroUuid": "b2c3d4e5-f6a7-8901-2345-6789abcdef01", "titulo": "Dom Casmurro", "quantidade": 1, "precoUnitario": 29.90, "categoria": "Ficção" }
     ]
   },
   {
     "uuid": "ord-003",
     "data": "2026-02-05T09:15:00Z",
-    "clienteUuid": "user-client-1",
+    "clienteUuid": "uuid-cliente-joao-001",
     "status": "Entregue",
     "total": 85.00,
+    "enderecoUuid": "end-001",
+    "freteUuid": "frete-002",
+    "formaPagamento": [
+      { "tipo": "cartao", "cartaoFinal": "1234", "bandeira": "Mastercard", "valor": 85.00 }
+    ],
     "itens": [
-      { "livroUuid": "87654321-4321-4321-4321-876543210987", "quantidade": 1, "precoUnitario": 85.00, "categoria": "Técnico" }
+      { "livroUuid": "87654321-4321-4321-4321-876543210987", "titulo": "Código Limpo", "quantidade": 1, "precoUnitario": 85.00, "categoria": "Técnico" }
     ]
   },
   {
     "uuid": "ord-004",
     "data": "2026-02-20T18:00:00Z",
-    "clienteUuid": "user-client-2",
+    "clienteUuid": "uuid-cliente-joao-002",
     "status": "Em Trânsito",
     "total": 124.80,
+    "enderecoUuid": "end-002",
+    "freteUuid": "frete-001",
+    "formaPagamento": [
+      { "tipo": "cartao", "cartaoFinal": "5678", "bandeira": "Visa", "valor": 124.80 }
+    ],
     "itens": [
-      { "livroUuid": "f0e1d2c3-b4a5-6789-0123-456789abcdef", "quantidade": 1, "precoUnitario": 79.90, "categoria": "Ficção" },
-      { "livroUuid": "11223344-5566-7788-9900-aabbccddeeff", "quantidade": 1, "precoUnitario": 44.90, "categoria": "Ficção" }
+      { "livroUuid": "f0e1d2c3-b4a5-6789-0123-456789abcdef", "titulo": "Duna", "quantidade": 1, "precoUnitario": 79.90, "categoria": "Ficção" },
+      { "livroUuid": "11223344-5566-7788-9900-aabbccddeeff", "titulo": "Harry Potter e a Pedra Filosofal", "quantidade": 1, "precoUnitario": 44.90, "categoria": "Ficção" }
     ]
   },
   {
     "uuid": "ord-005",
     "data": "2026-03-01T11:00:00Z",
-    "clienteUuid": "user-client-1",
+    "clienteUuid": "uuid-cliente-joao-001",
     "status": "Pendentes",
     "total": 49.90,
+    "enderecoUuid": "end-001",
+    "freteUuid": "frete-003",
+    "formaPagamento": [
+      { "tipo": "cupom", "codigo": "LIVRO10", "valor": 10.00 },
+      { "tipo": "cartao", "cartaoFinal": "1234", "bandeira": "Mastercard", "valor": 39.90 }
+    ],
     "itens": [
-      { "livroUuid": "98765432-10fe-dcba-0987-654321fedcba", "quantidade": 1, "precoUnitario": 49.90, "categoria": "Ficção" }
+      { "livroUuid": "98765432-10fe-dcba-0987-654321fedcba", "titulo": "O Hobbit", "quantidade": 1, "precoUnitario": 49.90, "categoria": "Ficção" }
     ]
   },
   {
     "uuid": "ord-006",
     "data": "2026-03-02T08:00:00Z",
-    "clienteUuid": "user-client-2",
+    "clienteUuid": "uuid-cliente-joao-002",
     "status": "Preparando",
     "total": 59.90,
+    "enderecoUuid": "end-002",
+    "freteUuid": "frete-002",
+    "formaPagamento": [
+      { "tipo": "cartao", "cartaoFinal": "5678", "bandeira": "Visa", "valor": 59.90 }
+    ],
     "itens": [
-      { "livroUuid": "67890abc-def0-1234-5678-9abcdef01234", "quantidade": 1, "precoUnitario": 59.90, "categoria": "Ficção" }
+      { "livroUuid": "67890abc-def0-1234-5678-9abcdef01234", "titulo": "O Silmarillion", "quantidade": 1, "precoUnitario": 59.90, "categoria": "Ficção" }
     ]
   },
   {
     "uuid": "ord-007",
     "data": "2026-03-02T10:00:00Z",
-    "clienteUuid": "user-client-1",
-    "status": "Devoluções",
+    "clienteUuid": "uuid-cliente-joao-001",
+    "status": "Em Troca",
     "total": 39.90,
+    "motivo": "Livro veio com páginas danificadas",
+    "enderecoUuid": "end-001",
+    "freteUuid": "frete-001",
+    "formaPagamento": [
+      { "tipo": "cartao", "cartaoFinal": "1234", "bandeira": "Mastercard", "valor": 39.90 }
+    ],
     "itens": [
-      { "livroUuid": "1a2b3c4d-5e6f-7890-abcd-ef0123456789", "quantidade": 1, "precoUnitario": 39.90, "categoria": "Ficção" }
+      { "livroUuid": "1a2b3c4d-5e6f-7890-abcd-ef0123456789", "titulo": "1984", "quantidade": 1, "precoUnitario": 39.90, "categoria": "Ficção" }
+    ]
+  },
+  {
+    "uuid": "ord-008",
+    "data": "2026-02-25T14:00:00Z",
+    "clienteUuid": "uuid-cliente-joao-002",
+    "status": "Troca Autorizada",
+    "total": 34.90,
+    "motivo": "Edição errada recebida",
+    "enderecoUuid": "end-002",
+    "freteUuid": "frete-001",
+    "formaPagamento": [
+      { "tipo": "cartao", "cartaoFinal": "5678", "bandeira": "Visa", "valor": 34.90 }
+    ],
+    "itens": [
+      { "livroUuid": "23456789-01ab-cdef-1234-567890abcdef", "titulo": "A Revolução dos Bichos", "quantidade": 1, "precoUnitario": 34.90, "categoria": "Ficção" }
+    ]
+  },
+  {
+    "uuid": "ord-009",
+    "data": "2026-02-20T09:00:00Z",
+    "clienteUuid": "uuid-cliente-joao-001",
+    "status": "Trocado",
+    "total": 49.90,
+    "motivo": "Produto diferente do anunciado",
+    "enderecoUuid": "end-001",
+    "freteUuid": "frete-001",
+    "formaPagamento": [
+      { "tipo": "cartao", "cartaoFinal": "1234", "bandeira": "Mastercard", "valor": 49.90 }
+    ],
+    "itens": [
+      { "livroUuid": "55667788-1122-3344-aabb-ccddeeff0011", "titulo": "A Menina que Roubava Livros", "quantidade": 1, "precoUnitario": 49.90, "categoria": "Ficção" }
     ]
   }
 ]

@@ -86,7 +86,7 @@ export function Carrinho() {
           <hr className={styles['carrinho-total-separator']} />
           <h2 className={styles['carrinho-total-header']}>Total: R$ {data.resumo.total.toFixed(2).replace('.', ',')}</h2>
           
-          <Link to="/checkout"><button className={`btn-primary ${styles['carrinho-btn-finalizar']}`}>Finalizar Compra</button></Link>
+          <Link to="/pagamento"><button className={`btn-primary ${styles['carrinho-btn-finalizar']}`}>Finalizar Compra</button></Link>
         </div>
       </div>
     </div>

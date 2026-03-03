@@ -41,14 +41,14 @@ describe('Autenticação e Registro', () => {
           user: {
             uuid: "uuid-do-admin-9999",
             nome: "Administrador do Sistema",
-            email: "admin@livraria.com.br",
+            email: "admin@gmail.com",
             cpf: "000.111.222-33",
             role: "admin"
           }
         }
       }).as('loginAdmin');
 
-      cy.login('admin@livraria.com.br', 'password123');
+      cy.login('admin@gmail.com', 'password123');
       cy.wait('@loginAdmin');
 
       // Admin routes should be allowed (the app navigates automatically)

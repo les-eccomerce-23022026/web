@@ -17,6 +17,7 @@ export function useGerenciarAdmins() {
   const [editingAdmin, setEditingAdmin] = useState<IAdmin | null>(null);
   const [form, setForm] = useState<IAdminFormState>(INITIAL_FORM);
   const [showForm, setShowForm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -98,6 +99,8 @@ export function useGerenciarAdmins() {
     admins,
     form,
     showForm,
+    showPassword,
+    setShowPassword,
     editingAdmin,
     message,
     isConfirmModalOpen,

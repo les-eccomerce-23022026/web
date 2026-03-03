@@ -6,7 +6,7 @@ describe('Login / Cadastro de Conta', () => {
   it('deve exibir o formulário de login para clientes existentes', () => {
     cy.contains('h2', 'Já sou Cliente').should('be.visible');
     // Campo de e-mail ou CPF
-    cy.get('input[placeholder="joao@email.com"]').should('exist');
+    cy.get('input[placeholder="joao@gmail.com"]').should('exist');
     cy.contains('label', 'E-mail ou CPF').should('be.visible');
     
     // Campo de senha
@@ -28,7 +28,7 @@ describe('Login / Cadastro de Conta', () => {
     }).as('loginMock');
 
     // Digita o email
-    cy.get('input[placeholder="joao@email.com"]').type('joao@email.com');
+    cy.get('input[placeholder="joao@gmail.com"]').type('joao@gmail.com');
     // Digita a senha
     cy.get('input[type="password"]').type('123456');
     

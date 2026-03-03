@@ -5,16 +5,24 @@
       "nome": "João Comprador",
       "email": "joao@email.com",
       "cpf": "123.456.789-00",
-      "senha": "123456",
-      "role": "cliente"
+      "senha": "Senha@123",
+      "role": "cliente",
+      "genero": "Masculino",
+      "dataNascimento": "1990-05-15",
+      "telefone": { "tipo": "Celular", "ddd": "11", "numero": "999887766" },
+      "ativo": true
     },
     {
       "uuid": "uuid-cliente-joao-002",
-      "nome": "João Comprador",
+      "nome": "Maria Leitora",
       "email": "joao.comprador@email.com",
-      "cpf": "123.456.789-00",
-      "senha": "password123",
-      "role": "cliente"
+      "cpf": "987.654.321-00",
+      "senha": "Senha@456",
+      "role": "cliente",
+      "genero": "Feminino",
+      "dataNascimento": "1985-11-20",
+      "telefone": { "tipo": "Celular", "ddd": "21", "numero": "988776655" },
+      "ativo": true
     },
     {
       "uuid": "uuid-admin-9999",
@@ -22,7 +30,11 @@
       "email": "admin@livraria.com.br",
       "cpf": "000.111.222-33",
       "senha": "password123",
-      "role": "admin"
+      "role": "admin",
+      "genero": "Masculino",
+      "dataNascimento": "1980-01-01",
+      "telefone": { "tipo": "Comercial", "ddd": "11", "numero": "30001234" },
+      "ativo": true
     },
     {
       "uuid": "uuid-admin-0001",
@@ -30,7 +42,11 @@
       "email": "admin",
       "cpf": "000.000.000-00",
       "senha": "123456",
-      "role": "admin"
+      "role": "admin",
+      "genero": "Masculino",
+      "dataNascimento": "1975-06-15",
+      "telefone": { "tipo": "Comercial", "ddd": "11", "numero": "30005678" },
+      "ativo": true
     }
   ]
 }
