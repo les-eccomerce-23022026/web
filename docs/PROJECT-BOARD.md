@@ -7,7 +7,7 @@
 
 ## Board Kanban
 
-| 📋 Todo (2)                              | 🔄 In Progress (1)                         | ✅ Done (15)                                            |
+| 📋 Todo (2)                              | 🔄 In Progress (1)                         | ✅ Done (16)                                            |
 | ---------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
 | A3 · [BACKEND] Implementar API de Livros | A2 · [FRONTEND] Configurar Redux para Auth | A1 · [FRONTEND] Configurar GIT e Repositório Remoto     |
 | A4 · [FRONTEND] Criar Tela de Carrinho   |                                            | A5 · [FRONTEND] Refatoração do Mock Data e Serviços     |
@@ -24,6 +24,7 @@
 |                                          |                                            | A16 · [FRONTEND] Busca Dinâmica e Filtros Avançados     |
 |                                          |                                            | A17 · [FRONTEND] Refinamento Visual do Header/Catálogo  |
 |                                          |                                            | A18 · [FRONTEND] Painel Administrativo e Estado         |
+|                                          |                                            | A19 · [FRONTEND] Gaps Críticos: Pedidos e Clientes      |
 
 ---
 
@@ -49,6 +50,7 @@
 | A16  | FRONTEND | Busca Dinâmica e Filtros Avançados       | `commit 1a9351b` — Busca no Header/Home e filtros em ListaLivrosAdmin                                        |
 | A17  | FRONTEND | Refinamento Visual do Header e Catálogo  | `commit 56aa02a` — Ajustes de padding, alinhamento e consistência visual no layout principal                 |
 | A18  | FRONTEND | Painel Administrativo e Gestão de Estado | `commit 93c2db6` — AdminLayout, CapaLivro, Slices de Livros/Admin e AuthService com Hooks                    |
+| A19  | FRONTEND | Gaps Críticos: Pedidos e Clientes        | Funcionalidades de despachar/entregar pedidos, com baixa de estoque, e Consulta de Clientes (RF0024-RF0053)  |
 
 ---
 
