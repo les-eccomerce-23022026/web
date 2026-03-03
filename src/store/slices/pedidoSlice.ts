@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { PedidoService } from '@/services/PedidoService';
+import { LivroService } from '@/services/LivroService';
 import type { IPedido, StatusPedido } from '@/interfaces/IPedido';
 
 interface PedidoState {
@@ -23,8 +24,34 @@ export const fetchPedidosCliente = createAsyncThunk(
 
 export const fetchAllPedidos = createAsyncThunk(
   'pedido/fetchAllPedidos',
-  async () => {
-    return PedidoService.getAllPedidos();
+  async (statusFiltro?: string[]) => {
+    return PedidoService.getAllPedidos(statusFiltro);
+  },
+);
+
+export const despacharPedidoThunk = createAsyncThunk(
+  'pedido/despacharPedido',
+  async (pedidoUuid: string) => {
+    return PedidoService.despacharPedido(pedidoUuid);
+  },
+);
+
+export const confirmarEntregaThunk = createAsyncThunk(
+  'pedido/confirmarEntrega',
+  async (pedidoUuid: string) => {
+    return PedidoService.confirmarEntrega(pedidoUuid);
+  },
+);
+
+// RF0053 — Baixa em estoque: disparado após pedido aprovado/processado
+export const darBaixaEstoqueThunk = createAsyncThunk(
+  'pedido/darBaixaEstoque',
+  async (pedidoUuid: string, { getState }) => {
+    const state = getState() as { pedido: { pedidos: IPedido[] } };
+    const pedido = state.pedido.pedidos.find((p) => p.uuid === pedidoUuid);
+    if (!pedido) throw new Error('Pedido não encontrado para baixa de estoque');
+    await LivroService.darBaixaEstoque(pedido.itens.map((i) => ({ livroUuid: i.livroUuid, quantidade: i.quantidade })));
+    return pedidoUuid;
   },
 );
 
@@ -123,6 +150,22 @@ const pedidoSlice = createSlice({
         const index = state.pedidos.findIndex((p) => p.uuid === action.payload.pedido.uuid);
         if (index === -1) return;
         state.pedidos[index] = action.payload.pedido;
+      });
+
+    // despacharPedido
+    builder
+      .addCase(despacharPedidoThunk.fulfilled, (state, action) => {
+        const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
+        if (index === -1) return;
+        state.pedidos[index] = action.payload;
+      });
+
+    // confirmarEntrega
+    builder
+      .addCase(confirmarEntregaThunk.fulfilled, (state, action) => {
+        const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
+        if (index === -1) return;
+        state.pedidos[index] = action.payload;
       });
   },
 });

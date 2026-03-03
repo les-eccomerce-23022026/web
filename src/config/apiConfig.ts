@@ -57,6 +57,11 @@ export const API_ENDPOINTS = {
   // Clientes (Admin)
   listarClientes: `${BASE_URL}/admin/clientes`,
   obterClienteAdmin: (uuid: string) => `${BASE_URL}/admin/clientes/${uuid}`,
+
+  // Pedidos (Admin)
+  obterTodosPedidosAdmin: `${BASE_URL}/admin/pedidos`,
+  despacharPedido: (uuid: string) => `${BASE_URL}/admin/pedidos/${uuid}/despachar`,
+  confirmarEntrega: (uuid: string) => `${BASE_URL}/admin/pedidos/${uuid}/entrega`,
 };
 
 export const MOCK_TOKEN_PREFIX = 'mock-token';

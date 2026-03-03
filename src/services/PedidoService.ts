@@ -9,8 +9,8 @@ import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
  * compartilhadas na mesma sessão do navegador.
  * O JSON estático é carregado apenas uma vez como estado inicial.
  */
-let pedidosMemoria: IPedido[] = [...(pedidosMockJson as IPedido[])];
-let cuponsMemoria: ICupomTroca[] = [...(cuponsTrocaMockJson as ICupomTroca[])];
+const pedidosMemoria: IPedido[] = [...(pedidosMockJson as IPedido[])];
+const cuponsMemoria: ICupomTroca[] = [...(cuponsTrocaMockJson as ICupomTroca[])];
 
 function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -30,15 +30,61 @@ export class PedidoService {
     return response.json();
   }
 
-  /** Buscar todos os pedidos (admin) */
-  static async getAllPedidos(): Promise<IPedido[]> {
+  /** Buscar todos os pedidos (admin) com filtro opcional de status */
+  static async getAllPedidos(statusFiltro?: string[]): Promise<IPedido[]> {
     if (USE_MOCK) {
-      console.log('[Mock] Buscando todos os pedidos.');
-      return delay([...pedidosMemoria]);
+      console.log('[Mock] Buscando todos os pedidos. Filtro:', statusFiltro);
+      const resultado = statusFiltro
+        ? pedidosMemoria.filter((p) => statusFiltro.includes(p.status))
+        : [...pedidosMemoria];
+      return delay(resultado);
     }
 
     const response = await fetch(API_ENDPOINTS.obterPedidosCliente);
     if (!response.ok) throw new Error('Erro ao buscar pedidos');
+    return response.json();
+  }
+
+  /**
+   * RF0038 / RN0039 — Admin despacha pedido para entrega
+   * Aprovado → Em Trânsito
+   */
+  static async despacharPedido(pedidoUuid: string): Promise<IPedido> {
+    if (USE_MOCK) {
+      console.log('[Mock] Despachando pedido:', pedidoUuid);
+      const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+      if (index === -1) throw new Error('Pedido não encontrado');
+      const statusPermitidos: string[] = ['Em Processamento', 'Aprovado'];
+      if (!statusPermitidos.includes(pedidosMemoria[index].status)) {
+        throw new Error('Apenas pedidos aprovados podem ser despachados');
+      }
+      pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Em Trânsito' };
+      return delay({ ...pedidosMemoria[index] }, 400);
+    }
+
+    const response = await fetch(API_ENDPOINTS.despacharPedido(pedidoUuid), { method: 'PUT' });
+    if (!response.ok) throw new Error('Erro ao despachar pedido');
+    return response.json();
+  }
+
+  /**
+   * RF0039 / RN0040 — Admin confirma entrega
+   * Em Trânsito → Entregue
+   */
+  static async confirmarEntrega(pedidoUuid: string): Promise<IPedido> {
+    if (USE_MOCK) {
+      console.log('[Mock] Confirmando entrega pedido:', pedidoUuid);
+      const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+      if (index === -1) throw new Error('Pedido não encontrado');
+      if (pedidosMemoria[index].status !== 'Em Trânsito') {
+        throw new Error('Apenas pedidos Em Trânsito podem ser confirmados como entregues');
+      }
+      pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Entregue' };
+      return delay({ ...pedidosMemoria[index] }, 400);
+    }
+
+    const response = await fetch(API_ENDPOINTS.confirmarEntrega(pedidoUuid), { method: 'PUT' });
+    if (!response.ok) throw new Error('Erro ao confirmar entrega');
     return response.json();
   }
 

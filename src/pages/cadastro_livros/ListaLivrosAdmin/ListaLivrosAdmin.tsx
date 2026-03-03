@@ -54,7 +54,7 @@ export function ListaLivrosAdmin() {
           <div className={`filtros ${styles.listaLivrosFiltros}`}>
             <select 
               value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+              onChange={(e) => setStatusFilter(e.target.value as 'todos' | 'ativos' | 'inativos')}
               className={styles.filterSelect}
             >
               <option value="todos">Todos os Livros</option>

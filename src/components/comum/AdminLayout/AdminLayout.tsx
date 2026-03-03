@@ -1,5 +1,5 @@
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Archive, RefreshCw, Users, Settings, ChevronLeft, Home } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Archive, RefreshCw, Users, Settings, ChevronLeft, Home, Package } from 'lucide-react';
 import styles from './AdminLayout.module.css';
 
 interface AdminLayoutProps {
@@ -72,6 +72,14 @@ export function AdminLayout({ title, subtitle }: AdminLayoutProps) {
                 <Archive size={18} /> Controle de Estoque
               </Link>
             </li>
+            <li>
+              <Link
+                to="/admin/pedidos"
+                className={`${styles.sidebarLink} ${isActive('/admin/pedidos') ? styles.sidebarLinkActive : ''}`}
+              >
+                <Package size={18} /> Gerenciar Pedidos
+              </Link>
+            </li>
 
             <li className={styles.sidebarGroupTitle}>Atendimento</li>
             <li>
@@ -83,9 +91,12 @@ export function AdminLayout({ title, subtitle }: AdminLayoutProps) {
               </Link>
             </li>
             <li>
-              <span className={styles.sidebarLinkDisabled}>
+              <Link
+                to="/admin/clientes"
+                className={`${styles.sidebarLink} ${isActive('/admin/clientes') ? styles.sidebarLinkActive : ''}`}
+              >
                 <Users size={18} /> Gestão de Clientes
-              </span>
+              </Link>
             </li>
           </ul>
         </aside>

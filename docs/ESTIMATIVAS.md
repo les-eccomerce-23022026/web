@@ -13,13 +13,13 @@
 
 ## 1. Planejamento e Documentação
 
-| ID  | Atividade                                | Otimista (h) | Realista (h) | Pessimista (h) | Status | Descrição                                                                     |
-| :-: | :--------------------------------------- | :----------: | :----------: | :------------: | :----: | :---------------------------------------------------------------------------- |
-|  1  | Levantamento e organização de requisitos |      4       |      8       |       12       |   🟢   | RFs, RNFs e RNs documentados para e-commerce de livros (livraria online)      |
-|  2  | Documento de Visão (DVS)                 |      4       |      8       |       12       |   🟢   | DVS baseado no template do professor; escopo, stakeholders e riscos definidos |
-|  3  | Estimativa detalhada                     |      2       |      4       |       6        |   🟢   | Estimativa PERT (otimista / realista / pessimista) por atividade              |
-|  4  | Criação do Kanban                        |      1       |      2       |       3        |   🟢   | Kanban configurado no GitHub Projects — colunas To Do / Doing / Done          |
-|  5  | Preparação de Slides (por entrega)       |      4       |      8       |       12       |   🟢   | Slides da 1ª entrega: tema, tecnologias, requisitos, estimativa e Kanban      |
+| ID  | Atividade                                | Otimista (h) | Realista (h) | Pessimista (h) | Status | Descrição                                                                         |
+| :-: | :--------------------------------------- | :----------: | :----------: | :------------: | :----: | :-------------------------------------------------------------------------------- |
+|  1  | Levantamento e organização de requisitos |      4       |      8       |       12       |   🟢   | RFs, RNFs e RNs documentados para e-commerce de livros (livraria online)          |
+|  2  | Documento de Visão (DVS)                 |      4       |      8       |       12       |   🟢   | DVS baseado no template do professor; escopo, stakeholders e riscos definidos     |
+|  3  | Estimativa detalhada                     |      2       |      4       |       6        |   🟢   | Estimativa PERT (otimista / realista / pessimista) por atividade                  |
+|  4  | Criação do Kanban                        |      1       |      2       |       3        |   🟢   | Kanban configurado localmente (`PROJECT-BOARD.md`) — colunas To Do / Doing / Done |
+|  5  | Preparação de Slides (por entrega)       |      4       |      8       |       12       |   🟢   | Slides da 1ª entrega: tema, tecnologias, requisitos, estimativa e Kanban          |
 
 **Subtotal: O=15h | R=30h | P=45h**
 
@@ -74,7 +74,7 @@
 
 | ID  | Atividade                           | Otimista (h) | Realista (h) | Pessimista (h) | Status | Descrição                                                              |
 | :-: | :---------------------------------- | :----------: | :----------: | :------------: | :----: | :--------------------------------------------------------------------- |
-|  1  | Configuração CI/CD                  |     4,5      |      9       |      13,5      |   🔴   | Não iniciado — GitHub Actions planejado para pipeline de deploy        |
+|  1  | Configuração CI/CD                  |     4,5      |      9       |      13,5      |   🔴   | Não iniciado — Pipeline Automatizado planejado para pipeline de deploy |
 |  2  | Deploy (frontend + backend + banco) |      3       |      6       |       9        |   🔴   | Não iniciado — Vercel (frontend) e Railway/Render (backend) planejados |
 
 **Subtotal: O=7,5h | R=15h | P=22,5h**
@@ -96,12 +96,12 @@
 
 ## 📋 Como Atualizar Este Arquivo
 
-Este arquivo deve ser atualizado sempre que:
+Este arquivo deve ser atualizado **exclusivamente** com base em alterações nas [Regras de Negócio](./REGRAS-NEGOCIOS.md), [Requisitos Funcionais](./REQUISITOS-FUNCIONAIS.md) ou [Requisitos Não-Funcionais](./REQUISITOS-NAO-FUNCIONAIS.md).
 
-1. **Uma nova tarefa for adicionada** ao escopo do projeto → adicionar nova linha na categoria correta.
-2. **Uma tarefa for concluída** → alterar o ícone de status de 🔴 ou 🟡 para 🟢.
-3. **Uma tarefa entrar em andamento** → alterar de 🔴 para 🟡.
-4. **As estimativas originais mudarem** → ajustar os valores e o subtotal da categoria.
+1. **Vincular a Requisito/Regra** → Toda nova estimativa ou alteração de status deve estar diretamente ligada a um ID de RF, RN ou RNF.
+2. **Atualizar Status** → Alterar o ícone de status de 🔴 ou 🟡 para 🟢 somente após a implementação completa da regra/requisito.
+3. **Refletir no Board** → Após atualizar este arquivo, os detalhes técnicos do que foi feito devem ser registrados em tópicos e subtópicos no card correspondente em [`docs/PROJECT-BOARD.md`](./PROJECT-BOARD.md).
+4. **Recalcular Totais** → Ajustar os valores da categoria e a tabela de totais consolidados sempre que houver mudança nas horas.
 
 > 📌 **Referência cruzada:**
 >

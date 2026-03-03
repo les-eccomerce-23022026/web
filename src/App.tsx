@@ -20,6 +20,8 @@ import { GerenciarAdmins } from '@/pages/analise/DashboardAdmin/GerenciarAdmins'
 import { GerenciarTrocas } from '@/pages/analise/GerenciarTrocas/GerenciarTrocas';
 import { ListaLivrosAdmin } from '@/pages/cadastro_livros/ListaLivrosAdmin/ListaLivrosAdmin';
 import { CadastrarLivroAdmin } from '@/pages/cadastro_livros/CadastrarLivroAdmin/CadastrarLivroAdmin';
+import { GestaoClientes } from '@/pages/cadastro_clientes/GestaoClientes/GestaoClientes';
+import { GerenciarPedidos } from '@/pages/analise/GerenciarPedidos/GerenciarPedidos';
 import { ProtectedRoute } from '@/components/comum/ProtectedRoute/ProtectedRoute';
 import { MeuPerfil } from '@/pages/cadastro_clientes/MeuPerfil/MeuPerfil';
 
@@ -65,7 +67,9 @@ function App() {
             <Route path="administradores" element={<GerenciarAdmins />} />
             <Route path="livros" element={<ListaLivrosAdmin />} />
             <Route path="livros/novo" element={<CadastrarLivroAdmin />} />
+            <Route path="pedidos" element={<GerenciarPedidos />} />
             <Route path="trocas" element={<GerenciarTrocas />} />
+            <Route path="clientes" element={<GestaoClientes />} />
           </Route>
         </Route>
       </Routes>
