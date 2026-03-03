@@ -13,29 +13,48 @@ export function CadastrarLivroAdmin() {
     titulo: '',
     autor: '',
     isbn: '',
-    preco: '',
     estoque: '',
+    preco: '',
     sinopse: '',
     categoria: '',
     fornecedor: '', // RN0051
     custo: '', // RN0062
+    grupoPrecificacao: '', // RN0013
     dataEntrada: new Date().toISOString().split('T')[0], // RN0064
   });
+
+  const getMargemByGrupo = (grupo: string): number => {
+    switch (grupo) {
+      case 'Lançamento': return 0.50; // 50%
+      case 'Padrão': return 0.35;    // 35%
+      case 'Promoção': return 0.15;  // 15%
+      default: return 0;
+    }
+  };
+
+  const calcularPrecoVenda = (custoBase: string, grupo: string) => {
+    const c = parseFloat(custoBase);
+    if (isNaN(c) || !grupo) return '';
+    const margem = getMargemByGrupo(grupo);
+    return (c + (c * margem)).toFixed(2);
+  };
 
   const handleFieldChange = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
+    const precoVendaCalculado = calcularPrecoVenda(form.custo, form.grupoPrecificacao);
+
     // Validação básica de livro
-    if (!form.titulo || !form.autor || !form.isbn || !form.preco) {
+    if (!form.titulo || !form.autor || !form.isbn || !precoVendaCalculado) {
       alert('Por favor, preencha todos os campos obrigatórios (*)');
       return;
     }
 
     // RN0051, RN0062, RN0064 — Validar dados de estoque
-    if (!form.fornecedor || !form.custo || !form.dataEntrada) {
-      alert('Para dar entrada inicial no estoque, fornecedor, custo e data de entrada são obrigatórios.');
+    if (!form.fornecedor || !form.custo || !form.dataEntrada || !form.grupoPrecificacao) {
+      alert('Grupo de precificação, fornecedor, custo e data de entrada são obrigatórios.');
       return;
     }
 
@@ -46,9 +65,8 @@ export function CadastrarLivroAdmin() {
       return;
     }
 
-    // Validação do Custo x Preço (RN0013 baseline)
     const valorCusto = parseFloat(form.custo);
-    const valorPreco = parseFloat(form.preco);
+    const valorPreco = parseFloat(precoVendaCalculado);
     if (valorCusto >= valorPreco) {
       alert('O valor de venda deve ser maior que o valor de custo para gerar margem de lucro.');
       return;
@@ -114,13 +132,27 @@ export function CadastrarLivroAdmin() {
               />
             </div>
             <div className="form-group">
-              <label>Preço de Venda (R$) *</label>
+              <label>Grupo de Precificação *</label>
+              <select 
+                value={form.grupoPrecificacao}
+                onChange={(e) => handleFieldChange('grupoPrecificacao', e.target.value)}
+                style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
+              >
+                <option value="">Selecione o grupo...</option>
+                <option value="Lançamento">Lançamento (Margem 50%)</option>
+                <option value="Padrão">Padrão (Margem 35%)</option>
+                <option value="Promoção">Promoção (Margem 15%)</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Preço de Venda (R$) * [Auto]</label>
               <input 
                 type="number" 
                 step="0.01" 
-                placeholder="0.00" 
-                value={form.preco}
-                onChange={(e) => handleFieldChange('preco', e.target.value)}
+                placeholder="Calculado auto." 
+                value={calcularPrecoVenda(form.custo, form.grupoPrecificacao)}
+                disabled
+                style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
               />
             </div>
             <div className="form-group">

@@ -38,10 +38,11 @@ const livroSlice = createSlice({
     removerLivro: (state, action: PayloadAction<string>) => {
       state.livros = state.livros.filter((l) => l.uuid !== action.payload);
     },
-    alternarStatusLivro: (state, action: PayloadAction<string>) => {
-      const livro = state.livros.find((l) => l.uuid === action.payload);
+    alternarStatusLivro: (state, action: PayloadAction<{ uuid: string; justificativa: string; categoriaInativacao?: string }>) => {
+      const livro = state.livros.find((l) => l.uuid === action.payload.uuid);
       if (livro) {
         livro.status = livro.status === 'Ativo' ? 'Inativo' : 'Ativo';
+        // Mock save the justificativa here if needed
       }
     },
     setTermoBusca: (state, action: PayloadAction<string>) => {

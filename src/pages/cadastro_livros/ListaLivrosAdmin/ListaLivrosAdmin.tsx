@@ -7,18 +7,50 @@ import styles from './ListaLivrosAdmin.module.css';
 import { LoadingState } from '@/components/comum/LoadingState/LoadingState';
 import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
 import { EmptyState } from '@/components/comum/EmptyState/EmptyState';
+import { Modal } from '@/components/comum/Modal';
 
 export function ListaLivrosAdmin() {
   const { livros, loading, error } = useListaLivrosAdmin();
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'todos' | 'ativos' | 'inativos'>('todos');
+  
+  // RN0015-RN0017 - Modal de Justificativa
+  const [modalOpen, setModalOpen] = useState(false);
+  const [livroPendenteStatus, setLivroPendenteStatus] = useState<string | null>(null);
+  const [justificativaTexto, setJustificativaTexto] = useState('');
+  const [justificativaCategoria, setJustificativaCategoria] = useState('');
 
   if (loading) return <LoadingState message="Buscando catálogo de livros..." />;
   if (error) return <ErrorState message="Não foi possível carregar a lista de livros." onRetry={() => window.location.reload()} />;
 
-  const handleToggleStatus = (uuid: string) => {
-    dispatch(alternarStatusLivro(uuid));
+  const solicitarTrocaStatus = (uuid: string) => {
+    setLivroPendenteStatus(uuid);
+    setJustificativaTexto('');
+    setJustificativaCategoria('');
+    setModalOpen(true);
+  };
+
+  const confirmarTrocaStatus = () => {
+    if (!justificativaTexto || !justificativaCategoria) {
+      alert("Para prosseguir preencha a categoria e justifique a mudança.");
+      return;
+    }
+    
+    if (livroPendenteStatus) {
+      dispatch(alternarStatusLivro({ 
+        uuid: livroPendenteStatus, 
+        justificativa: justificativaTexto, 
+        categoriaInativacao: justificativaCategoria 
+      }));
+    }
+    setModalOpen(false);
+    setLivroPendenteStatus(null);
+  };
+
+  const fecharModal = () => {
+    setModalOpen(false);
+    setLivroPendenteStatus(null);
   };
 
   const filteredLivros = livros.filter(livro => {
@@ -101,7 +133,7 @@ export function ListaLivrosAdmin() {
                   <td className={`${styles.listaLivrosTd} ${styles.flexActions}`}>
                     <button className={`${styles.btnActionAdmin} ${styles.edit}`} title="Editar informações">Editar</button>
                     <button
-                      onClick={() => handleToggleStatus(livro.uuid)}
+                      onClick={() => solicitarTrocaStatus(livro.uuid)}
                       className={`${styles.btnActionAdmin} ${livro.status === 'Ativo' ? styles.inactivate : styles.activate}`}
                     >
                       {livro.status === 'Ativo' ? 'Desativar' : 'Ativar'}
@@ -124,6 +156,54 @@ export function ListaLivrosAdmin() {
           </table>
         </div>
       </div>
+
+      <Modal 
+        isOpen={modalOpen} 
+        onClose={fecharModal} 
+        title="Justificar Alteração de Status"
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Categoria da Ação *</label>
+            <select 
+              value={justificativaCategoria}
+              onChange={(e) => setJustificativaCategoria(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+            >
+              <option value="">Selecione...</option>
+              <option value="Fora de Mercado">Fora de Mercado</option>
+              <option value="Reedição">Reedição Prevista</option>
+              <option value="Avariado">Lote Avariado</option>
+              <option value="Novo Lote">Fim de Indisponibilidade/Novo Lote</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: 600 }}>Justificativa Descritiva *</label>
+            <textarea 
+              rows={4}
+              value={justificativaTexto}
+              onChange={(e) => setJustificativaTexto(e.target.value)}
+              style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+              placeholder="Descreva o motivo detalhado..."
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '16px' }}>
+            <button 
+              onClick={fecharModal} 
+              style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              Cancelar
+            </button>
+            <button 
+              onClick={confirmarTrocaStatus}
+              style={{ padding: '8px 16px', background: '#d32f2f', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              Confirmar Alteração
+            </button>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   );
 }
