@@ -16,7 +16,10 @@ export function CadastrarLivroAdmin() {
     preco: '',
     estoque: '',
     sinopse: '',
-    categoria: ''
+    categoria: '',
+    fornecedor: '', // RN0051
+    custo: '', // RN0062
+    dataEntrada: new Date().toISOString().split('T')[0], // RN0064
   });
 
   const handleFieldChange = (field: string, value: string) => {
@@ -24,9 +27,30 @@ export function CadastrarLivroAdmin() {
   };
 
   const handleSave = () => {
-    // Validação básica
+    // Validação básica de livro
     if (!form.titulo || !form.autor || !form.isbn || !form.preco) {
       alert('Por favor, preencha todos os campos obrigatórios (*)');
+      return;
+    }
+
+    // RN0051, RN0062, RN0064 — Validar dados de estoque
+    if (!form.fornecedor || !form.custo || !form.dataEntrada) {
+      alert('Para dar entrada inicial no estoque, fornecedor, custo e data de entrada são obrigatórios.');
+      return;
+    }
+
+    // RN0061 — Quantidade mínima > 0 ao entrar em estoque
+    const qtdEstoque = parseInt(form.estoque, 10);
+    if (isNaN(qtdEstoque) || qtdEstoque <= 0) {
+      alert('A quantidade em estoque deve ser maior que zero (0).');
+      return;
+    }
+
+    // Validação do Custo x Preço (RN0013 baseline)
+    const valorCusto = parseFloat(form.custo);
+    const valorPreco = parseFloat(form.preco);
+    if (valorCusto >= valorPreco) {
+      alert('O valor de venda deve ser maior que o valor de custo para gerar margem de lucro.');
       return;
     }
 
@@ -35,8 +59,8 @@ export function CadastrarLivroAdmin() {
       titulo: form.titulo,
       autor: form.autor,
       isbn: form.isbn,
-      preco: parseFloat(form.preco),
-      estoque: parseInt(form.estoque, 10) || 0,
+      preco: valorPreco,
+      estoque: qtdEstoque,
       sinopse: form.sinopse,
       status: 'Ativo',
       categoria: form.categoria || 'Geral',
@@ -106,6 +130,33 @@ export function CadastrarLivroAdmin() {
                 placeholder="0" 
                 value={form.estoque}
                 onChange={(e) => handleFieldChange('estoque', e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>Fornecedor (Estoque) *</label>
+              <input 
+                type="text" 
+                placeholder="Ex: Editora XYZ" 
+                value={form.fornecedor}
+                onChange={(e) => handleFieldChange('fornecedor', e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>Custo Unitário (R$) *</label>
+              <input 
+                type="number" 
+                step="0.01" 
+                placeholder="0.00" 
+                value={form.custo}
+                onChange={(e) => handleFieldChange('custo', e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label>Data de Entrada *</label>
+              <input 
+                type="date" 
+                value={form.dataEntrada}
+                onChange={(e) => handleFieldChange('dataEntrada', e.target.value)}
               />
             </div>
           </div>
