@@ -57,13 +57,13 @@ Este documento contém todos os requisitos funcionais do projeto **LES E-commerc
 
 ## 📦 Estoque e Análise
 
-| ID           | Requisito                     | Tipo        | Descrição                                                                               | Status          | Evidência no Código                                                                                             |
-| :----------- | :---------------------------- | :---------- | :-------------------------------------------------------------------------------------- | :-------------- | :-------------------------------------------------------------------------------------------------------------- |
-| **[RF0051]** | Realizar entrada em estoque   | Obrigatório | Registro de estoque inicial ao cadastrar livro e entrada administrativa de novos lotes. | ✅ Implementado | `CadastrarLivroAdmin.tsx` — campo "Estoque Inicial"; Redux `adicionarLivro` registra quantidade                 |
-| **[RF0052]** | Calcular valor de venda       | Obrigatório | Custo + % margem de lucro.                                                              | ⏳ Previsto     | -                                                                                                               |
-| **[RF0053]** | Dar baixa em estoque          | Obrigatório | Reduzir itens vendidos.                                                                 | ✅ Implementado | `LivroService.ts` — baixa de estoque                                                                            |
-| **[RF0054]** | Realizar reentrada em estoque | Obrigatório | Reentrada na troca se autorizado.                                                       | ✅ Implementado | `GerenciarTrocas.tsx` — checkbox para retornar itens na confirmação                                             |
-| **[RF0055]** | Analisar histórico de vendas  | Obrigatório | Visualização gráfica de métricas de receita e volume por período.                       | ✅ Implementado | `DashboardAdmin.tsx` — gráfico de linha (Receita Anual), rosca (Status dos Pedidos) e barras (Vendas/Categoria) |
+| ID           | Requisito                     | Tipo        | Descrição                                                                               | Status          | Evidência no Código                                                                                               |
+| :----------- | :---------------------------- | :---------- | :-------------------------------------------------------------------------------------- | :-------------- | :---------------------------------------------------------------------------------------------------------------- |
+| **[RF0051]** | Realizar entrada em estoque   | Obrigatório | Registro de estoque inicial ao cadastrar livro e entrada administrativa de novos lotes. | ✅ Implementado | `CadastrarLivroAdmin.tsx` — campo "Estoque Inicial"; Redux `adicionarLivro` registra quantidade                   |
+| **[RF0052]** | Calcular valor de venda       | Obrigatório | Custo + % margem de lucro.                                                              | ✅ Implementado | `CadastrarLivroAdmin.tsx` — campo `grupoPrecificacao` + `calcularPrecoVenda(custo, grupo)` (read-only automático) |
+| **[RF0053]** | Dar baixa em estoque          | Obrigatório | Reduzir itens vendidos.                                                                 | ✅ Implementado | `LivroService.ts` — baixa de estoque                                                                              |
+| **[RF0054]** | Realizar reentrada em estoque | Obrigatório | Reentrada na troca se autorizado.                                                       | ✅ Implementado | `GerenciarTrocas.tsx` — checkbox para retornar itens na confirmação                                               |
+| **[RF0055]** | Analisar histórico de vendas  | Obrigatório | Visualização gráfica de métricas de receita e volume por período.                       | ✅ Implementado | `DashboardAdmin.tsx` — gráfico de linha (Receita Anual), rosca (Status dos Pedidos) e barras (Vendas/Categoria)   |
 
 ---
 
