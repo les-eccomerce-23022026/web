@@ -34,7 +34,8 @@ export function HomeCatalogo() {
   if (error) {
     return (
       <ErrorState
-        message="Ops, não foi possível carregar os destaques no momento."
+        title="Oops! Tivemos um problema"
+        message="Não foi possível carregar os destaques da livraria no momento. Nossa equipe já foi notificada."
         onRetry={() => window.location.reload()}
       />
     );
@@ -63,9 +64,12 @@ export function HomeCatalogo() {
 
       {destaques.length === 0 ? (
         <EmptyState 
-          title="Nenhum livro encontrado" 
-          message={`Não encontramos nenhum livro que corresponda a "${termoBusca}". Tente outros termos.`}
-          icon={<Search size={48} color="#ccc" />}
+          title="Nenhum livro por aqui?" 
+          message={termoBusca 
+            ? `Não encontramos resultados para "${termoBusca}". Tente termos mais genéricos ou verifique a ortografia.`
+            : "No momento não temos livros cadastrados nesta categoria. Volte em breve para novos lançamentos!"
+          }
+          icon={<Search size={80} strokeWidth={1} color="var(--bn-primary)" />}
         />
       ) : (
         <div className="grade grade--produto">

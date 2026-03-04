@@ -265,10 +265,10 @@ export function LoginArea() {
                   />
                 </div>
                 <div className="form-group">
-                  <label>CPF * (formato: 000.000.000-00)</label>
+                  <label>CPF * (11 números ou 000.000.000-00)</label>
                   <input
                     type="text"
-                    placeholder="000.000.000-00"
+                    placeholder="Ex: 12345678901"
                     value={registerState.regCpf}
                     onChange={(e) => registerState.setRegCpf(e.target.value)}
                     data-cy="register-cpf-input"

@@ -1,6 +1,6 @@
 # Project Board — LES Frontend React
 
-> Atualizado em: 3 de março de 2026  
+> Atualizado em: 4 de março de 2026  
 > Status: Gestão local das atividades do projeto.
 
 ---
@@ -53,6 +53,7 @@
 | A18  | FRONTEND | Painel Administrativo e Gestão de Estado | `commit 93c2db6` — AdminLayout, CapaLivro, Slices de Livros/Admin e AuthService com Hooks                                                       |
 | A19  | FRONTEND | Gaps Críticos: Pedidos e Clientes        | Funcionalidades de despachar/entregar pedidos, com baixa de estoque, e Consulta de Clientes (RF0024-RF0053)                                     |
 | A20  | FRONTEND | Precificação e Justificativa de Status   | Grupo de precificação com cálculo automático (RN0013, RF0052) + Modal obrigatório de justificativa ao alterar status de livros (RN0015, RN0017) |
+| A21  | FRONTEND | Configuração para API Local              | Alterar VITE_USE_MOCK=false e BASE_URL para http://localhost:3000, permitindo uso de dados reais em vez de mocks                              |
 
 ---
 

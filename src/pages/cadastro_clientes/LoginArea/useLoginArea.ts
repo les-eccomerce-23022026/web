@@ -9,7 +9,8 @@ import type { Genero, ITelefone } from '@/interfaces/ICliente';
 import type { IEnderecoCliente } from '@/interfaces/IPagamento';
 
 const REGEX_SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
-const REGEX_CPF = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+const REGEX_CPF_COM_MASCARA = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+const REGEX_CPF_SEM_MASCARA = /^\d{11}$/;
 
 const ENDERECO_VAZIO: Omit<IEnderecoCliente, 'uuid'> = {
   apelido: '',
@@ -100,8 +101,13 @@ export function useLoginArea() {
       return false;
     }
 
-    if (!REGEX_CPF.test(regCpf)) {
-      setRegError('CPF deve estar no formato 000.000.000-00.');
+    const cpfLimpo = regCpf.trim();
+    const isFormatOk =
+      REGEX_CPF_COM_MASCARA.test(cpfLimpo) ||
+      REGEX_CPF_SEM_MASCARA.test(cpfLimpo);
+
+    if (!isFormatOk) {
+      setRegError('CPF inválido. Use 000.000.000-00 ou apenas 11 números.');
       return false;
     }
 

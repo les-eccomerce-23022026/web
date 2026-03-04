@@ -3,38 +3,71 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 2rem;
+  padding: 5rem 2rem;
   width: 100%;
-  min-height: 200px;
+  min-height: 400px;
   text-align: center;
-  animation: fadeIn 0.3s ease-in-out;
-  background-color: rgba(255, 0, 0, 0.02);
-  border-radius: var(--raio-borda-lg);
-  border: 1px dashed rgba(229, 9, 20, 0.3);
+  animation: fadeIn 0.4s ease-out;
+  background-color: var(--bn-bg-card);
+  border-radius: var(--bn-border-radius-lg);
+  border: 1px solid var(--bn-border-light);
+  box-shadow: var(--bn-shadow-md);
+  margin: 2rem 0;
 }
 
 .error-state-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: rgba(229, 9, 20, 0.1);
-  color: var(--cor-secundaria);
+  color: var(--bn-error);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  opacity: 0.8;
+  animation: shake 0.5s ease-in-out;
+}
+
+.error-state-title {
+  color: var(--bn-text-title);
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
 }
 
 .error-state-message {
-  color: var(--cor-texto);
+  color: var(--bn-text-muted);
+  font-family: var(--font-sans);
   font-size: 1.1rem;
-  margin-bottom: 1.5rem;
-  max-width: 400px;
+  margin-bottom: 2.5rem;
+  max-width: 450px;
+  line-height: 1.6;
 }
 
 .error-state-retry-btn {
-  min-width: 200px;
-  padding: 0.8rem 1.5rem;
+  min-width: 220px;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(15, 76, 58, 0.2);
+}
+
+.error-state-retry-icon {
+  transition: transform 0.4s ease;
+}
+
+.error-state-retry-btn:hover .error-state-retry-icon {
+  transform: rotate(180deg);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
