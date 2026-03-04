@@ -42,7 +42,14 @@ export class AuthService {
     });
 
     if (!response.ok) throw new Error('Erro ao realizar login');
-    return response.json();
+
+    const responseData = await response.json();
+    if (!responseData.sucesso) throw new Error('Credenciais inválidas');
+
+    return {
+      token: '', // Token is set in HttpOnly cookie
+      user: responseData.dados.user,
+    };
   }
 
   static async getAdmins(): Promise<IAdmin[]> {
