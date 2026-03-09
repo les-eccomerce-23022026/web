@@ -2,8 +2,12 @@ import { useGerenciarAdmins } from './useGerenciarAdmins';
 import styles from './GerenciarAdmins.module.css';
 import { Eye, EyeOff } from 'lucide-react';
 import { Modal } from '@/components/comum/Modal';
+import { useEffect } from 'react';
+import { useAppDispatch } from '@/store/hooks';
+import { fetchAdmins } from '@/store/slices/adminSlice';
 
 export function GerenciarAdmins() {
+  const dispatch = useAppDispatch();
   const {
     admins,
     form,
@@ -11,7 +15,10 @@ export function GerenciarAdmins() {
     showPassword,
     setShowPassword,
     editingAdmin,
-    message,
+    pageMessage,
+    pageMessageType,
+    modalMessage,
+    modalMessageType,
     isConfirmModalOpen,
     isDeleteModalOpen,
     startCreate,
@@ -24,7 +31,17 @@ export function GerenciarAdmins() {
     cancelForm,
     setIsConfirmModalOpen,
     setIsDeleteModalOpen,
+    adminToToggle,
+    isLoading,
   } = useGerenciarAdmins();
+
+  useEffect(() => {
+    dispatch(fetchAdmins());
+  }, [dispatch]);
+
+  if (isLoading) {
+    return <div className={styles.pageContent}>Carregando administradores...</div>;
+  }
 
   return (
     <div className={styles.pageContent}>
@@ -35,7 +52,11 @@ export function GerenciarAdmins() {
         </button>
       </header>
 
-      {message && <p className={styles.adminMessageSuccess}>{message}</p>}
+      {pageMessage && (
+        <p className={pageMessageType === 'success' ? styles.adminMessageSuccess : styles.errorMessage}>
+          {pageMessage}
+        </p>
+      )}
 
       <div className="card">
         <table className={styles.adminTable}>
@@ -43,6 +64,7 @@ export function GerenciarAdmins() {
             <tr>
               <th>Nome</th>
               <th>E-mail</th>
+              <th>Status</th>
               <th>Ações</th>
             </tr>
           </thead>
@@ -52,9 +74,19 @@ export function GerenciarAdmins() {
                 <td>{adm.nome}</td>
                 <td>{adm.email}</td>
                 <td>
+                  <span className={adm.ativo !== false ? styles.statusAtivo : styles.statusInativo}>
+                    {adm.ativo !== false ? 'Ativo' : 'Inativo'}
+                  </span>
+                </td>
+                <td>
                   <div className={styles.tableActions}>
                     <button className="btn-primary" onClick={() => startEdit(adm)}>Editar</button>
-                    <button className="btn-secondary" onClick={() => triggerDelete(adm.uuid)}>Excluir</button>
+                    <button 
+                      className={adm.ativo !== false ? 'btn-secondary' : 'btn-primary'} 
+                      onClick={() => triggerDelete(adm.uuid)}
+                    >
+                      {adm.ativo !== false ? 'Inativar' : 'Ativar'}
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -78,6 +110,12 @@ export function GerenciarAdmins() {
         }
       >
         <div className="form-container">
+          {modalMessage && !isConfirmModalOpen && (
+            <p className={modalMessageType === 'success' ? styles.adminMessageSuccess : styles.errorMessage}>
+              {modalMessage}
+            </p>
+          )}
+
           <div className="form-group">
             <label>Nome Completo</label>
             <input
@@ -101,25 +139,51 @@ export function GerenciarAdmins() {
           </div>
 
           {!editingAdmin && (
-            <div className="form-group">
-              <label>Senha Provisória</label>
-              <div className={styles.passwordWrapper}>
+            <>
+              <div className="form-group">
+                <label>CPF</label>
                 <input
-                  name="senha"
-                  type={showPassword ? 'text' : 'password'}
-                  className={styles.passwordInput}
-                  value={form.senha}
-                  onChange={(e) => handleFieldChange('senha', e.target.value)}
+                  name="cpf"
+                  type="text"
+                  placeholder="000.000.000-00"
+                  value={form.cpf}
+                  onChange={(e) => handleFieldChange('cpf', e.target.value)}
                 />
-                <button
-                  type="button"
-                  className={styles.passwordToggle}
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
               </div>
-            </div>
+
+              <div className="form-group">
+                <label>Senha Provisória</label>
+                <div className={styles.passwordWrapper}>
+                  <input
+                    name="senha"
+                    type={showPassword ? 'text' : 'password'}
+                    className={styles.passwordInput}
+                    value={form.senha}
+                    onChange={(e) => handleFieldChange('senha', e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className={styles.passwordToggle}
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Confirmar Senha</label>
+                <div className={styles.passwordWrapper}>
+                  <input
+                    name="confirmacaoSenha"
+                    type={showPassword ? 'text' : 'password'}
+                    className={styles.passwordInput}
+                    value={form.confirmacaoSenha}
+                    onChange={(e) => handleFieldChange('confirmacaoSenha', e.target.value)}
+                  />
+                </div>
+              </div>
+            </>
           )}
         </div>
       </Modal>
@@ -128,33 +192,54 @@ export function GerenciarAdmins() {
       <Modal
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
-        title="Confirmar Alterações"
+        title={editingAdmin ? 'Confirmar Atualização' : 'Confirmar Criação'}
         footer={
           <>
             <button className="btn-secondary" onClick={() => setIsConfirmModalOpen(false)}>Revisar</button>
-            <button className="btn-primary" onClick={handleSave}>Confirmar e Salvar</button>
-          </>
-        }
-      >
-        <p>Você tem certeza que deseja salvar estas informações para o administrador <strong>{form.nome}</strong>?</p>
-      </Modal>
-
-      {/* Modal de Confirmação de Exclusão */}
-      <Modal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        title="Excluir Administrador"
-        variant="danger"
-        footer={
-          <>
-            <button className="btn-secondary" onClick={() => setIsDeleteModalOpen(false)}>Cancelar</button>
-            <button className="btn-primary" style={{ backgroundColor: 'var(--bn-error)' }} onClick={handleDelete}>
-              Confirmar Exclusão
+            <button className="btn-primary" onClick={handleSave}>
+              {editingAdmin ? 'Confirmar Atualização' : 'Confirmar Criação'}
             </button>
           </>
         }
       >
-        <p>Esta ação não pode ser desfeita. O administrador perderá todo o acesso ao sistema imediatamente.</p>
+        {modalMessage && isConfirmModalOpen && (
+          <p className={modalMessageType === 'success' ? styles.adminMessageSuccess : styles.errorMessage}>
+            {modalMessage}
+          </p>
+        )}
+
+        <p>
+          {editingAdmin
+            ? (
+              <>
+                Você tem certeza que deseja atualizar as informações do administrador <strong>{form.nome}</strong>?
+              </>
+              )
+            : (
+              <>
+                Você tem certeza que deseja criar o administrador <strong>{form.nome}</strong>?
+              </>
+              )}
+        </p>
+      </Modal>
+
+      {/* Modal de Confirmação de Exclusão (Inativação/Ativação) */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title={adminToToggle?.ativo !== false ? 'Inativar Administrador' : 'Ativar Administrador'}
+        footer={
+          <>
+            <button className="btn-secondary" onClick={() => setIsDeleteModalOpen(false)}>Cancelar</button>
+            <button className="btn-primary" onClick={handleDelete}>
+              {adminToToggle?.ativo !== false ? 'Sim, Inativar' : 'Sim, Ativar'}
+            </button>
+          </>
+        }
+      >
+        <p>
+          Tem certeza que deseja {adminToToggle?.ativo !== false ? 'inativar' : 'ativar'} o administrador <strong>{adminToToggle?.nome}</strong>?
+        </p>
       </Modal>
     </div>
   );

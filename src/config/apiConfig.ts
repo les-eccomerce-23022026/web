@@ -40,10 +40,15 @@ export const API_ENDPOINTS = {
   /** Verifica a sessão atual e retorna o usuário autenticado (HttpOnly cookie) */
   me: `${BASE_URL}/auth/me`,
   registrarCliente: `${BASE_URL}/clientes/registro`,
+  
+  // Administração (Admin)
   registrarAdmin: `${BASE_URL}/admin/registro`,
+  listarAdmins: `${BASE_URL}/admin/administradores`,
+  ativarAdmin: (uuid: string) => `${BASE_URL}/admin/administradores/${uuid}/ativar`,
+  inativarAdmin: (uuid: string) => `${BASE_URL}/admin/administradores/${uuid}/inativar`,
 
   // Perfil do Cliente
-  obterPerfilCliente: `${BASE_URL}/clientes/perfil`,
+  obterPerfilCliente: `${BASE_URL}/api/clientes/perfil`,
   atualizarPerfilCliente: `${BASE_URL}/clientes/perfil`,
   alterarSenhaCliente: `${BASE_URL}/clientes/seguranca/alterar-senha`,
   inativarContaCliente: `${BASE_URL}/clientes/perfil`,

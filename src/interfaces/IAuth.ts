@@ -27,6 +27,8 @@ export interface IRegistroClientePayload {
 
 export interface IRegistroAdminPayload {
   nome: string;
+  cpf: string;
   email: string;
   senha: string;
+  confirmacaoSenha: string;
 }

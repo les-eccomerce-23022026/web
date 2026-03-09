@@ -69,7 +69,7 @@ export class AuthService {
       return new Promise((resolve) => setTimeout(() => resolve(admins), 300));
     }
 
-    return ApiClient.get<IAdmin[]>(API_ENDPOINTS.registrarAdmin);
+    return ApiClient.get<IAdmin[]>(API_ENDPOINTS.listarAdmins);
   }
 
   static async registrarCliente(payload: IRegistroClientePayload): Promise<void> {
@@ -88,6 +88,16 @@ export class AuthService {
     }
 
     await ApiClient.post(API_ENDPOINTS.registrarAdmin, payload);
+  }
+
+  static async ativarAdmin(uuid: string): Promise<void> {
+    if (USE_MOCK) return new Promise(r => setTimeout(r, 200));
+    await ApiClient.patch(API_ENDPOINTS.ativarAdmin(uuid), {});
+  }
+
+  static async inativarAdmin(uuid: string): Promise<void> {
+    if (USE_MOCK) return new Promise(r => setTimeout(r, 200));
+    await ApiClient.patch(API_ENDPOINTS.inativarAdmin(uuid), {});
   }
 
   /**
