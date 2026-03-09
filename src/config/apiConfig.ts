@@ -1,7 +1,7 @@
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
 
-if (!BASE_URL) {
+if (!USE_MOCK && !BASE_URL) {
   throw new Error(
     "A variável de ambiente VITE_API_BASE_URL não está definida. Verifique o seu arquivo .env",
   );

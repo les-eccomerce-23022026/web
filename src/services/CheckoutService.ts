@@ -1,15 +1,17 @@
-import checkoutMock from '@/mocks/checkoutMock.json';
-import type { ICheckoutInfo } from '@/interfaces/ICheckout';
-import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
-import { ApiClient } from './apiClient';
+/**
+ * Factory de CheckoutService.
+ *
+ * Seleciona automaticamente a implementação correta:
+ * - VITE_USE_MOCK=true  → CheckoutServiceMock
+ * - VITE_USE_MOCK=false → CheckoutServiceApi
+ */
+import { USE_MOCK } from '@/config/apiConfig';
+import { CheckoutServiceMock } from '@/services/mock/CheckoutServiceMock';
+import { CheckoutServiceApi } from '@/services/api/CheckoutServiceApi';
+import type { ICheckoutService } from '@/services/contracts/ICheckoutService';
 
-export class CheckoutService {
-  static async getCheckoutInfo(): Promise<ICheckoutInfo> {
-    if (USE_MOCK) {
-      console.log('[Mock] Buscando dados de checkout.');
-      return new Promise((resolve) => setTimeout(() => resolve(checkoutMock as ICheckoutInfo), 300));
-    }
+export const CheckoutService: ICheckoutService = USE_MOCK
+  ? new CheckoutServiceMock()
+  : new CheckoutServiceApi();
 
-    return ApiClient.get<ICheckoutInfo>(API_ENDPOINTS.obterCheckoutInfo);
-  }
-}
+export type { ICheckoutService };

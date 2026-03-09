@@ -7,7 +7,7 @@
 
 ## Board Kanban
 
-| 📋 Todo (0)                                 | 🔄 In Progress (0)                         | ✅ Done (23)                                            |
+| 📋 Todo (0)                                 | 🔄 In Progress (0)                         | ✅ Done (28)                                            |
 | ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
 |                                             |                                            | A1 · [FRONTEND] Configurar GIT e Repositório Remoto     |
 |                                             |                                            | A2 · [FRONTEND] Configurar Redux para Auth              |
@@ -33,6 +33,10 @@
 |                                             |                                            | A22 · [FRONTEND] Sincronização API Clientes             |
 |                                             |                                            | A23 · [FRONTEND] Persistência de Sessão Auth            |
 |                                             |                                            | A24 · [FRONTEND] Revarredura de Contratos API Auth/Perfil |
+|                                             |                                            | A25 · [BACKEND] Esquema de Dados e Normalização de Endereços |
+|                                             |                                            | A26 · [BACKEND] Gestão de Cartões e Perfil Expandido    |
+|                                             |                                            | A27 · [BACKEND] Painel Admin: Listagem e Status          |
+|                                             |                                            | A28 · [FRONTEND] Separação Lógica Mock/API nos Services  |
 
 ---
 
@@ -68,3 +72,7 @@
 ---
 
 > **Nota:** Este board é mantido localmente e serve como a fonte de verdade para o status das atividades de desenvolvimento.
+| A25 | BACKEND | Esquema de Dados e Normalização de Endereços | **Contexto:** Necessidade de normalizar endereços e telefones para múltiplos registros por cliente. `commits cb2b2be, babeaed`. **Detalhes:** - Criação de tabelas `ecm_perfil_cliente`, `ecm_telefone_usuario` e `ecm_endereco_usuario`. - Normalização geográfica com tabelas de Cidade, Bairro, País, CEP e Logradouro. - Implementação de seeds para estados brasileiros e tipos de endereço. |
+| A26 | BACKEND | Gestão de Cartões e Perfil Expandido | **Contexto:** Suporte a múltiplos cartões e dados de perfil (gênero, data nascimento). `commits cb2b2be, c6019be`. **Detalhes:** - Criação de tabelas `ecm_bandeira_cartao` e `ecm_cartao_usuario`. - Implementação de Repository, Service e Controller para Cartão. - Padronização de DTOs para camelCase e uso de PATCH para atualizações parciais. |
+| A27 | BACKEND | Painel Admin: Listagem e Status | **Contexto:** Funcionalidades de governança administrativa de usuários. `commit 1ae9b12`. **Detalhes:** - Implementação de listagem de administradores com filtros. - Funcionalidade de ativação/inativação (soft delete) de contas administrativas. - Atualização de DTOs de resposta e testes de integração de fluxo admin. |
+| A28 | FRONTEND | Separação Lógica Mock/API nos Services | **Contexto:** As implementações mock e real estavam misturadas nos mesmos arquivos de serviço com `if (USE_MOCK)` espalhados, dificultando manutenção e desenvolvimento paralelo. **Arquivos criados:** `src/services/contracts/I*.ts` (8 interfaces de contrato) · `src/services/mock/*ServiceMock.ts` (8 implementações mock) · `src/services/api/*ServiceApi.ts` (8 implementações reais) · **Arquivos atualizados:** `src/services/*Service.ts` (8 factories) · `src/config/apiConfig.ts`. **Detalhes:** - Padrão Strategy + Factory: interfaces TypeScript definem o contrato, duas implementações concretas (Mock e Api) atendem o contrato sem se conhecer. - Factories nos arquivos raiz (`AuthService.ts`, `LivroService.ts`, etc.) encapsulam a seleção via `VITE_USE_MOCK`. - Chamadores (hooks, slices, pages) **não precisaram de nenhuma mudança** — a API de uso é idêntica. - `apiConfig.ts` corrigido: `throw` só ocorre quando `USE_MOCK=false` e `BASE_URL` está ausente (modo mock não requer backend configurado). - `tsc --noEmit` sem erros após a refatoração. |
