@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './MeuPerfil.module.css';
 import { Eye, EyeOff } from 'lucide-react';
 import type { Genero } from '@/interfaces/ICliente';
+import { Modal } from '@/components/comum/Modal/Modal';
 
 export function MeuPerfil() {
   const {
@@ -18,6 +19,7 @@ export function MeuPerfil() {
     secaoAtiva,
     setSecaoAtiva,
     dominios,
+    confirmModal,
   } = useMeuPerfil();
   const navigate = useNavigate();
 
@@ -114,7 +116,7 @@ export function MeuPerfil() {
           <div className={styles.formRow}>
             <div className="form-group">
               <label>CPF</label>
-              <input type="text" value={user.cpf} disabled />
+              <input type="text" value={perfilState.cpf} disabled />
             </div>
             <div className="form-group">
               <label>E-mail</label>
@@ -665,6 +667,29 @@ export function MeuPerfil() {
           </button>
         </section>
       )}
+
+      {/* Modal de Confirmação Genérico */}
+      <Modal
+        isOpen={confirmModal.show}
+        onClose={confirmModal.close}
+        title={confirmModal.config.title}
+        variant={confirmModal.config.variant === 'danger' ? 'danger' : 'medium'}
+        footer={
+          <>
+            <button className="btn-secondary" onClick={confirmModal.close}>
+              Cancelar
+            </button>
+            <button
+              className={confirmModal.config.variant === 'danger' ? styles.btnDanger : 'btn-primary'}
+              onClick={confirmModal.config.onConfirm}
+            >
+              Confirmar
+            </button>
+          </>
+        }
+      >
+        <p>{confirmModal.config.message}</p>
+      </Modal>
     </div>
   );
 }

@@ -68,7 +68,20 @@ export class ApiClient {
         return {} as T;
       }
 
-      return await response.json();
+      const resposta = await response.json();
+
+      // Desempacota automaticamente o formato padrão { sucesso: true, dados: T }
+      if (
+        resposta &&
+        typeof resposta === 'object' &&
+        'sucesso' in resposta &&
+        'dados' in resposta &&
+        resposta.sucesso === true
+      ) {
+        return resposta.dados as T;
+      }
+
+      return resposta as T;
     } catch (error: any) {
       console.error('[API Error]:', error);
       if (error?.message === 'Failed to fetch') {

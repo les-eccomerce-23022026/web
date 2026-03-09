@@ -2,12 +2,13 @@ export interface IUsuario {
   uuid: string;
   nome: string;
   email: string;
-  cpf: string;
+  cpf?: string;
+  cpfMascarado?: string;
   role: "cliente" | "admin";
 }
 
 export interface ILoginResponse {
-  token: string;
+  token?: string;
   user: IUsuario;
 }
 

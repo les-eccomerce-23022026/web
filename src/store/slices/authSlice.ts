@@ -2,11 +2,15 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 
 export const SESSION_STORAGE_KEY = 'les_auth_session';
 
+interface IStoredSession {
+  user: AuthUser;
+}
+
 export interface AuthUser {
   uuid: string;
   email: string;
   nome: string;
-  cpf: string;
+  cpf?: string;
   role: 'cliente' | 'admin';
 }
 
@@ -48,17 +52,22 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    loginSuccess: (state, action: PayloadAction<{ token: string; user: AuthUser | null }>) => {
+    loginSuccess: (state, action: PayloadAction<{ token?: string; user: AuthUser | null }>) => {
       state.isAuthenticated = true;
-      state.token = action.payload.token;
+      state.token = action.payload.token ?? null;
       state.user = action.payload.user;
       state.authError = null;
       state.sessionLoading = false;
-      // Persiste a sessão em sessionStorage (limpo ao fechar a aba; token nunca vai ao localStorage — U7)
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({
-        token: action.payload.token,
+      if (!action.payload.user) {
+        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        return;
+      }
+
+      const storedSession: IStoredSession = {
         user: action.payload.user,
-      }));
+      };
+
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(storedSession));
     },
     logout: (state) => {
       state.isAuthenticated = false;
@@ -77,7 +86,7 @@ const authSlice = createSlice({
       .addCase(restoreSession.fulfilled, (state, action) => {
         if (action.payload) {
           state.isAuthenticated = true;
-          state.token = action.payload.token;
+          state.token = action.payload.token ?? null;
           state.user = action.payload.user;
         }
         state.sessionLoading = false;

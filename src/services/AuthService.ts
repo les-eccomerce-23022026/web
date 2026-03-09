@@ -1,5 +1,6 @@
 import authUsersMock from '@/mocks/authUsersMock.json';
 import type {
+  IUsuario,
   ILoginPayload,
   ILoginResponse,
   IRegistroClientePayload,
@@ -9,6 +10,22 @@ import type { IAdmin } from '@/interfaces/IAdmin';
 import { API_ENDPOINTS, USE_MOCK, MOCK_TOKEN_PREFIX } from '@/config/apiConfig';
 import { SESSION_STORAGE_KEY } from '@/store/slices/authSlice';
 import { ApiClient } from './apiClient';
+
+interface IStoredSession {
+  user: IUsuario;
+}
+
+const getStoredSession = (): IStoredSession | null => {
+  const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as IStoredSession;
+  } catch {
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    return null;
+  }
+};
 
 export class AuthService {
   static async login(payload: ILoginPayload): Promise<ILoginResponse> {
@@ -35,11 +52,11 @@ export class AuthService {
       return new Promise((resolve) => setTimeout(() => resolve(loginResponse), 300));
     }
 
-    const responseData = await ApiClient.post<{ dados: ILoginResponse }>(API_ENDPOINTS.login, payload);
-    
+    const responseData = await ApiClient.post<ILoginResponse>(API_ENDPOINTS.login, payload);
+
     return {
-      token: responseData.dados.token || '', // Se o backend retornar no corpo, guardamos no Redux
-      user: responseData.dados.user,
+      token: responseData.token,
+      user: responseData.user,
     };
   }
 
@@ -81,18 +98,18 @@ export class AuthService {
    */
   static async me(): Promise<ILoginResponse | null> {
     if (USE_MOCK) {
-      const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
-      if (!raw) return null;
-      const session = JSON.parse(raw) as { token: string; user: ILoginResponse['user'] };
-      if (!session?.token) return null;
-      return { token: session.token, user: session.user };
+      const session = getStoredSession();
+      if (!session?.user) return null;
+      return { user: session.user };
     }
 
     try {
-      const data = await ApiClient.get<{ dados: ILoginResponse }>(API_ENDPOINTS.me);
-      return data.dados;
+      const data = await ApiClient.get<ILoginResponse>(API_ENDPOINTS.me);
+      return data;
     } catch {
-      return null;
+      const session = getStoredSession();
+      if (!session?.user) return null;
+      return { user: session.user };
     }
   }
 }

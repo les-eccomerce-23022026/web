@@ -80,7 +80,7 @@ export function useLoginArea() {
     dispatch(setAuthError(null));
 
     try {
-      const data = await AuthService.login({ email, senha });
+      const data = await AuthService.login({ email: email.trim(), senha });
       dispatch(loginSuccess({ token: data.token, user: data.user }));
 
       if (data.user.role === 'admin') {

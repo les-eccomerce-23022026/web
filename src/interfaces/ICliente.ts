@@ -4,6 +4,7 @@ export interface ITelefone {
   tipo: 'Celular' | 'Residencial' | 'Comercial';
   ddd: string;
   numero: string;
+  numeroMascarado?: string;
 }
 
 export type Genero = 'Masculino' | 'Feminino' | 'Outro' | 'Prefiro não informar';
@@ -13,6 +14,7 @@ export interface ICliente {
   nome: string;
   email: string;
   cpf: string;
+  cpfMascarado?: string;
   genero: Genero;
   dataNascimento: string;
   telefone?: ITelefone; // Agora opcional

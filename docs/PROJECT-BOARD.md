@@ -32,6 +32,7 @@
 |                                             |                                            | A21 · [FRONTEND] Configuração para API Local            |
 |                                             |                                            | A22 · [FRONTEND] Sincronização API Clientes             |
 |                                             |                                            | A23 · [FRONTEND] Persistência de Sessão Auth            |
+|                                             |                                            | A24 · [FRONTEND] Revarredura de Contratos API Auth/Perfil |
 
 ---
 
@@ -62,6 +63,7 @@
 | A21  | FRONTEND | Configuração para API Local              | Alterar VITE_USE_MOCK=false e BASE_URL para http://localhost:3000, permitindo uso de dados reais em vez de mocks                                |
 | A22  | FRONTEND | Sincronização API Clientes               | Ajuste de rotas, payloads e métodos (PATCH/PUT) e correção de `ReferenceError` na Store do ApiClient                                            |
 | A23  | FRONTEND | Persistência de Sessão Auth              | **Contexto:** Estado Redux é in-memory; ao recarregar a página o usuário era deslogado mesmo com token válido. **Arquivos alterados:** `authSlice.ts` · `AuthService.ts` · `apiConfig.ts` · `App.tsx` · `ProtectedRoute.tsx`. **Detalhes:** - `authSlice`: `sessionLoading` (evita redirect prematuro) + `restoreSession` thunk + `loginSuccess`/`logout` salvam e limpam `sessionStorage` - `AuthService.me()`: lê `sessionStorage` (mock) ou chama `GET /auth/me` (real backend via cookie HttpOnly) - `App.tsx`: `dispatch(restoreSession())` antes dos demais fetches - `ProtectedRoute`: retorna `null` enquanto `sessionLoading === true` **Segurança (U7):** token nunca vai para `localStorage`; `sessionStorage` é limpo ao fechar a aba. |
+| A24  | FRONTEND | Revarredura de Contratos API Auth/Perfil | **Contexto:** comparação direta entre `backend/exports/test_results.txt` + controladores/serviços do backend e o consumo do frontend. **Arquivos alterados:** `src/interfaces/IAuth.ts` · `src/store/slices/authSlice.ts` · `src/services/AuthService.ts` · `src/services/ClienteService.ts` · `src/pages/cadastro_clientes/MeuPerfil/useMeuPerfil.ts` · `src/pages/cadastro_clientes/MeuPerfil/MeuPerfil.tsx` · `cypress/e2e/auth/auth_registro_crud.cy.ts` · `docs/API-CLIENT-SPEC.md`. **Detalhes:** - login agora tolera ausência de `cpf` e de `token` no corpo, priorizando cookie HttpOnly - restauração de sessão faz fallback para snapshot do `user` sem persistir JWT em storage - perfil do cliente é normalizado quando o backend retorna payload parcial - atualização de perfil foi alinhada de `PUT` para `PATCH` - teste Cypress e documentação da API foram sincronizados com o contrato real observado no backend. |
 
 ---
 

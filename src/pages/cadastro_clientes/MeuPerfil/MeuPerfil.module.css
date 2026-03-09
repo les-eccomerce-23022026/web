@@ -409,3 +409,26 @@
 .passwordToggle:active {
   transform: scale(0.95);
 }
+
+/* --- Modais --- */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+}
+
+.btnDanger {
+  background-color: var(--bn-danger);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: filter 0.2s;
+}
+
+.btnDanger:hover {
+  filter: brightness(0.9);
+}

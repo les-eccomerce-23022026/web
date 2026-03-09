@@ -67,7 +67,7 @@ Utilizado na tela de cadastro para criar um novo cliente com dados pessoais, tel
 
 Utilizado na tela de "Meu Perfil" para alterar dados básicos e contato.
 
-- **Rota:** `PUT /api/clientes/perfil`
+- **Rota:** `PATCH /api/clientes/perfil`
 - **Content-Type:** `application/json`
 
 ### Payload (JSON)

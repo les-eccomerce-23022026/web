@@ -10,6 +10,56 @@ import type { IEnderecoCliente, ICartaoCliente } from '@/interfaces/IPagamento';
 import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
 import { ApiClient } from './apiClient';
 
+const PERFIL_PADRAO: Omit<ICliente, 'uuid' | 'nome' | 'email' | 'cpf' | 'enderecos'> = {
+  genero: 'Prefiro não informar',
+  dataNascimento: '',
+  telefone: undefined,
+  ranking: 0,
+  ativo: true,
+  role: 'cliente',
+  enderecosEntrega: [],
+  enderecoCobranca: {
+    uuid: '',
+    apelido: '',
+    tipoResidencia: 'Casa',
+    tipoLogradouro: 'Rua',
+    logradouro: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cep: '',
+    cidade: '',
+    estado: '',
+    pais: 'Brasil',
+  },
+  cartoes: [],
+  cartaoPreferencialUuid: null,
+};
+
+const normalizarPerfilCliente = (perfil: Partial<ICliente>): ICliente => {
+  const enderecos = perfil.enderecos ?? [];
+
+  return {
+    ...PERFIL_PADRAO,
+    ...perfil,
+    uuid: perfil.uuid ?? '',
+    nome: perfil.nome ?? '',
+    email: perfil.email ?? '',
+    cpf: perfil.cpf ?? '',
+    genero: perfil.genero ?? PERFIL_PADRAO.genero,
+    dataNascimento: perfil.dataNascimento ?? '',
+    telefone: perfil.telefone,
+    enderecos,
+    enderecosEntrega: perfil.enderecosEntrega ?? enderecos,
+    enderecoCobranca: perfil.enderecoCobranca ?? enderecos[0] ?? PERFIL_PADRAO.enderecoCobranca,
+    cartoes: perfil.cartoes ?? [],
+    cartaoPreferencialUuid: perfil.cartaoPreferencialUuid ?? null,
+    role: perfil.role ?? 'cliente',
+    ranking: perfil.ranking ?? 0,
+    ativo: perfil.ativo ?? true,
+  };
+};
+
 export class ClienteService {
   /**
    * RF0021 - Obter perfil completo do cliente logado
@@ -28,7 +78,8 @@ export class ClienteService {
       );
     }
 
-    return ApiClient.get<ICliente>(API_ENDPOINTS.obterPerfilCliente);
+    const perfil = await ApiClient.get<Partial<ICliente>>(API_ENDPOINTS.obterPerfilCliente);
+    return normalizarPerfilCliente(perfil);
   }
 
   /**
@@ -40,7 +91,7 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    await ApiClient.put(API_ENDPOINTS.atualizarPerfilCliente, payload);
+    await ApiClient.patch(API_ENDPOINTS.atualizarPerfilCliente, payload);
   }
 
   /**

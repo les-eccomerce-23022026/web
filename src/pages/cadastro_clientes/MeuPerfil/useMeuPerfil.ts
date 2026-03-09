@@ -43,6 +43,31 @@ export function useMeuPerfil() {
   const [showNovoEndereco, setShowNovoEndereco] = useState(false);
   const [enderecoEditandoUuid, setEnderecoEditandoUuid] = useState<string | null>(null);
 
+  // --- Modal Confirmação ---
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalConfig, setConfirmModalConfig] = useState<{
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'medium';
+  }>({
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const openConfirmModal = (
+    title: string,
+    message: string,
+    onConfirm: () => void,
+    variant: 'danger' | 'medium' = 'medium'
+  ) => {
+    setConfirmModalConfig({ title, message, onConfirm, variant });
+    setShowConfirmModal(true);
+  };
+
+  const closeConfirmModal = () => setShowConfirmModal(false);
+
   // --- Cartões ---
   const [cartoes, setCartoes] = useState<ICartaoCliente[]>([]);
   const [cartaoPreferencialUuid, setCartaoPreferencialUuid] = useState<string | null>(null);
@@ -96,25 +121,24 @@ export function useMeuPerfil() {
         setNome(perfil.nome);
         setGenero(perfil.genero);
         setDataNascimento(perfil.dataNascimento);
+        setEnderecos(perfil.enderecos || []);
+        setCartaoPreferencialUuid(perfil.cartaoPreferencialUuid);
         
         // Telefone pode ser undefined se não foi cadastrado
         if (perfil.telefone) {
           setTelefoneTipo(perfil.telefone.tipo);
           setTelefoneDdd(perfil.telefone.ddd);
-          setTelefoneNumero(perfil.telefone.numero);
-          return;
+          setTelefoneNumero(perfil.telefone.numeroMascarado || perfil.telefone.numero);
         }
-        
-        setTelefoneTipo('Celular');
-        setTelefoneDdd('');
-        setTelefoneNumero('');
 
-        // Usar endereços do perfil em vez de chamar API separada
-        setEnderecos(perfil.enderecos || []);
+        if (!perfil.telefone) {
+          setTelefoneTipo('Celular');
+          setTelefoneDdd('');
+          setTelefoneNumero('');
+        }
 
         const cartoesResult = await ClienteService.listarCartoes(user.uuid);
         setCartoes(cartoesResult);
-        setCartaoPreferencialUuid(perfil.cartaoPreferencialUuid);
       } catch (err) {
         showMessage('Erro ao carregar perfil.', 'error');
         console.error('[Perfil] Erro:', err);
@@ -194,16 +218,23 @@ export function useMeuPerfil() {
 
   // --- Inativar Conta ---
   const handleDeleteAccount = async () => {
-    if (!window.confirm('Tem certeza que deseja inativar sua conta? Esta ação não pode ser desfeita.')) return;
-
-    try {
-      await ClienteService.inativarConta();
-      dispatch(logout());
-      navigate('/');
-    } catch (err) {
-      showMessage('Erro ao inativar conta.', 'error');
-      console.error('[Perfil] Erro ao inativar:', err);
-    }
+    openConfirmModal(
+      'Inativar Conta',
+      'Tem certeza que deseja inativar sua conta? Esta ação não pode ser desfeita.',
+      async () => {
+        try {
+          await ClienteService.inativarConta();
+          dispatch(logout());
+          navigate('/');
+        } catch (err) {
+          showMessage('Erro ao inativar conta.', 'error');
+          console.error('[Perfil] Erro ao inativar:', err);
+        } finally {
+          closeConfirmModal();
+        }
+      },
+      'danger'
+    );
   };
 
   // --- Adicionar Endereço ---
@@ -254,16 +285,23 @@ export function useMeuPerfil() {
 
   // --- Remover Endereço ---
   const handleRemoverEndereco = async (uuid: string) => {
-    if (!window.confirm('Remover este endereço?')) return;
-
-    try {
-      await ClienteService.removerEndereco(uuid);
-      setEnderecos((prev) => prev.filter((e) => e.uuid !== uuid));
-      showMessage('Endereço removido.', 'success');
-    } catch (err) {
-      showMessage('Erro ao remover endereço.', 'error');
-      console.error('[Perfil] Erro ao remover endereço:', err);
-    }
+    openConfirmModal(
+      'Remover Endereço',
+      'Tem certeza que deseja remover este endereço?',
+      async () => {
+        try {
+          await ClienteService.removerEndereco(uuid);
+          setEnderecos((prev) => prev.filter((e) => e.uuid !== uuid));
+          showMessage('Endereço removido.', 'success');
+        } catch (err) {
+          showMessage('Erro ao remover endereço.', 'error');
+          console.error('[Perfil] Erro ao remover endereço:', err);
+        } finally {
+          closeConfirmModal();
+        }
+      },
+      'danger'
+    );
   };
 
   // --- Adicionar Cartão ---
@@ -303,19 +341,26 @@ export function useMeuPerfil() {
 
   // --- Remover Cartão ---
   const handleRemoverCartao = async (uuid: string) => {
-    if (!window.confirm('Remover este cartão?')) return;
-
-    try {
-      await ClienteService.removerCartao(uuid);
-      setCartoes((prev) => prev.filter((c) => c.uuid !== uuid));
-      if (cartaoPreferencialUuid === uuid) {
-        setCartaoPreferencialUuid(null);
-      }
-      showMessage('Cartão removido.', 'success');
-    } catch (err) {
-      showMessage('Erro ao remover cartão.', 'error');
-      console.error('[Perfil] Erro ao remover cartão:', err);
-    }
+    openConfirmModal(
+      'Remover Cartão',
+      'Tem certeza que deseja remover este cartão?',
+      async () => {
+        try {
+          await ClienteService.removerCartao(uuid);
+          setCartoes((prev) => prev.filter((c) => c.uuid !== uuid));
+          if (cartaoPreferencialUuid === uuid) {
+            setCartaoPreferencialUuid(null);
+          }
+          showMessage('Cartão removido.', 'success');
+        } catch (err) {
+          showMessage('Erro ao remover cartão.', 'error');
+          console.error('[Perfil] Erro ao remover cartão:', err);
+        } finally {
+          closeConfirmModal();
+        }
+      },
+      'danger'
+    );
   };
 
   // --- Definir Cartão Preferencial ---
@@ -340,6 +385,7 @@ export function useMeuPerfil() {
     // Perfil
     perfilState: {
       nome, setNome,
+      cpf: cliente?.cpfMascarado || cliente?.cpf || '',
       genero, setGenero,
       dataNascimento, setDataNascimento,
       telefoneTipo, setTelefoneTipo,
@@ -410,5 +456,12 @@ export function useMeuPerfil() {
       tiposLogradouro,
       bandeirasPermitidas,
     },
+
+    // Modal de Confirmação
+    confirmModal: {
+      show: showConfirmModal,
+      config: confirmModalConfig,
+      close: closeConfirmModal,
+    }
   };
 }

@@ -156,7 +156,7 @@ describe('Autenticação e Registro', () => {
       cy.url().should('include', '/perfil');
 
       // Atualização de Dados
-      cy.intercept('PUT', '/api/clientes/perfil', { statusCode: 200 }).as('updateProfile');
+      cy.intercept('PATCH', '/api/clientes/perfil', { statusCode: 200 }).as('updateProfile');
       cy.get('input[name="nome"]').clear().type('João Silva Souza');
       cy.contains('button', 'Atualizar Dados').click();
       cy.wait('@updateProfile');
