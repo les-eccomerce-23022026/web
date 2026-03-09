@@ -1,0 +1,109 @@
+import type { RootState } from '@/store';
+
+interface FetchOptions extends RequestInit {
+  params?: Record<string, string>;
+}
+
+/**
+ * Cliente API centralizado para chamadas à API com tratamento de erros.
+ * Segue boas práticas de segurança:
+ * - Adiciona token JWT do Redux state se presente (para MOCK ou session storage seguro em memória).
+ * - Trata 401 (Não Autorizado) e 403 (Proibido) expirando a sessão.
+ * - Limita vazamento de informações em erros.
+ */
+export class ApiClient {
+  private static async request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
+    const { params, ...fetchOptions } = options;
+    
+    // Constrói URL com query parameters se houver
+    let url = endpoint;
+    if (params) {
+      const query = new URLSearchParams(params).toString();
+      url = `${endpoint}?${query}`;
+    }
+
+    // Pega o token atual do Redux Store
+    const { store } = await import('@/store');
+    const state = store.getState() as RootState;
+    const token = state.auth.token;
+
+    // Configuração de headers padrão
+    const headers = new Headers(fetchOptions.headers);
+    if (!headers.has('Content-Type') && !(fetchOptions.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json');
+    }
+
+    // Adiciona o token se disponível (Uso de 'Authorization' header)
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+
+    const config: RequestInit = {
+      ...fetchOptions,
+      headers,
+      // Se estivermos usando cookies HttpOnly, precisamos de credentials: 'include'
+      // mas como o usuário pediu pra "guardar o token", lidamos com o portador (Bearer) explicitamente
+      credentials: 'include', 
+    };
+
+    try {
+      const response = await fetch(url, config);
+
+      // Tratamento de segurança para sessões expiradas ou inválidas
+      if (response.status === 401 || response.status === 403) {
+        const { store } = await import('@/store');
+        const { logout, setAuthError } = await import('@/store/slices/authSlice');
+        store.dispatch(logout());
+        store.dispatch(setAuthError('Sua sessão expirou ou é inválida. Por favor, faça login novamente.'));
+        throw new Error('Sessão expirada');
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.mensagem || `Erro na requisição: ${response.status}`);
+      }
+
+      // Evita tentar parsear JSON em respostas vazias (204 No Content)
+      if (response.status === 204) {
+        return {} as T;
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      console.error('[API Error]:', error);
+      if (error?.message === 'Failed to fetch') {
+        throw new Error('Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.');
+      }
+      throw error;
+    }
+  }
+
+  static get<T>(url: string, params?: Record<string, string>) {
+    return this.request<T>(url, { method: 'GET', params });
+  }
+
+  static post<T>(url: string, body?: unknown) {
+    return this.request<T>(url, {
+      method: 'POST',
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    });
+  }
+
+  static put<T>(url: string, body?: unknown) {
+    return this.request<T>(url, {
+      method: 'PUT',
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    });
+  }
+
+  static patch<T>(url: string, body?: unknown) {
+    return this.request<T>(url, {
+      method: 'PATCH',
+      body: body instanceof FormData ? body : JSON.stringify(body),
+    });
+  }
+
+  static delete<T>(url: string) {
+    return this.request<T>(url, { method: 'DELETE' });
+  }
+}

@@ -3,6 +3,7 @@ import cuponsTrocaMockJson from '@/mocks/cuponsTrocaMock.json';
 import type { IPedido } from '@/interfaces/IPedido';
 import type { ICupomTroca } from '@/interfaces/IDevolucao';
 import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
+import { ApiClient } from './apiClient';
 
 /**
  * Store em memória para que todas as mutações (admin e cliente) sejam
@@ -25,9 +26,7 @@ export class PedidoService {
       return delay(resultado);
     }
 
-    const response = await fetch(API_ENDPOINTS.obterPedidosCliente);
-    if (!response.ok) throw new Error('Erro ao buscar pedidos');
-    return response.json();
+    return ApiClient.get<IPedido[]>(API_ENDPOINTS.obterPedidosCliente);
   }
 
   /** Buscar todos os pedidos (admin) com filtro opcional de status */
@@ -40,9 +39,7 @@ export class PedidoService {
       return delay(resultado);
     }
 
-    const response = await fetch(API_ENDPOINTS.obterPedidosCliente);
-    if (!response.ok) throw new Error('Erro ao buscar pedidos');
-    return response.json();
+    return ApiClient.get<IPedido[]>(API_ENDPOINTS.obterPedidosCliente);
   }
 
   /**
@@ -62,9 +59,7 @@ export class PedidoService {
       return delay({ ...pedidosMemoria[index] }, 400);
     }
 
-    const response = await fetch(API_ENDPOINTS.despacharPedido(pedidoUuid), { method: 'PUT' });
-    if (!response.ok) throw new Error('Erro ao despachar pedido');
-    return response.json();
+    return ApiClient.put<IPedido>(API_ENDPOINTS.despacharPedido(pedidoUuid));
   }
 
   /**
@@ -83,9 +78,7 @@ export class PedidoService {
       return delay({ ...pedidosMemoria[index] }, 400);
     }
 
-    const response = await fetch(API_ENDPOINTS.confirmarEntrega(pedidoUuid), { method: 'PUT' });
-    if (!response.ok) throw new Error('Erro ao confirmar entrega');
-    return response.json();
+    return ApiClient.put<IPedido>(API_ENDPOINTS.confirmarEntrega(pedidoUuid));
   }
 
   /** Buscar pedidos com status de troca (admin) */
@@ -97,9 +90,7 @@ export class PedidoService {
       return delay(resultado);
     }
 
-    const response = await fetch(API_ENDPOINTS.obterPedidosEmTroca);
-    if (!response.ok) throw new Error('Erro ao buscar pedidos em troca');
-    return response.json();
+    return ApiClient.get<IPedido[]>(API_ENDPOINTS.obterPedidosEmTroca);
   }
 
   /**
@@ -127,13 +118,10 @@ export class PedidoService {
       return delay({ ...pedidosMemoria[index] }, 500);
     }
 
-    const response = await fetch(API_ENDPOINTS.solicitarTroca(pedidoUuid), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ motivo, itensUuids: _itensUuids }),
+    return ApiClient.post<IPedido>(API_ENDPOINTS.solicitarTroca(pedidoUuid), { 
+      motivo, 
+      itensUuids: _itensUuids 
     });
-    if (!response.ok) throw new Error('Erro ao solicitar troca');
-    return response.json();
   }
 
   /**
@@ -152,11 +140,7 @@ export class PedidoService {
       return delay({ ...pedidosMemoria[index] }, 500);
     }
 
-    const response = await fetch(API_ENDPOINTS.autorizarTroca(pedidoUuid), {
-      method: 'PUT',
-    });
-    if (!response.ok) throw new Error('Erro ao autorizar troca');
-    return response.json();
+    return ApiClient.put<IPedido>(API_ENDPOINTS.autorizarTroca(pedidoUuid));
   }
 
   /**
@@ -197,13 +181,10 @@ export class PedidoService {
       );
     }
 
-    const response = await fetch(API_ENDPOINTS.confirmarRecebimentoTroca(pedidoUuid), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ retornarEstoque }),
-    });
-    if (!response.ok) throw new Error('Erro ao confirmar recebimento');
-    return response.json();
+    return ApiClient.put<{ pedido: IPedido; cupomGerado: ICupomTroca }>(
+      API_ENDPOINTS.confirmarRecebimentoTroca(pedidoUuid), 
+      { retornarEstoque }
+    );
   }
 
   /** RF0044 — Buscar cupons de troca do cliente */
@@ -216,8 +197,6 @@ export class PedidoService {
       return delay(resultado);
     }
 
-    const response = await fetch(API_ENDPOINTS.obterCuponsCliente);
-    if (!response.ok) throw new Error('Erro ao buscar cupons');
-    return response.json();
+    return ApiClient.get<ICupomTroca[]>(API_ENDPOINTS.obterCuponsCliente);
   }
 }

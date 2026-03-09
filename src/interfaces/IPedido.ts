@@ -7,7 +7,8 @@ export type StatusPedido =
   | 'Em Troca'
   | 'Troca Autorizada'
   | 'Trocado'
-  | 'Cancelado';
+  | 'Cancelado'
+  | 'Devoluções';
 
 export interface IItemPedido {
   livroUuid: string;

@@ -1,8 +1,10 @@
 export const BASE_URL = import.meta.env.VITE_API_BASE_URL;
-export const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
+export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 if (!BASE_URL) {
-  throw new Error("A variável de ambiente VITE_API_BASE_URL não está definida. Verifique o seu arquivo .env");
+  throw new Error(
+    "A variável de ambiente VITE_API_BASE_URL não está definida. Verifique o seu arquivo .env",
+  );
 }
 
 export const API_ENDPOINTS = {
@@ -16,12 +18,15 @@ export const API_ENDPOINTS = {
 
   // Pedidos
   obterPedidosCliente: `${BASE_URL}/pedidos`,
-  solicitarTroca: (pedidoUuid: string) => `${BASE_URL}/pedidos/${pedidoUuid}/troca`,
+  solicitarTroca: (pedidoUuid: string) =>
+    `${BASE_URL}/pedidos/${pedidoUuid}/troca`,
 
   // Trocas (Admin)
   obterPedidosEmTroca: `${BASE_URL}/admin/trocas`,
-  autorizarTroca: (pedidoUuid: string) => `${BASE_URL}/admin/trocas/${pedidoUuid}/autorizar`,
-  confirmarRecebimentoTroca: (pedidoUuid: string) => `${BASE_URL}/admin/trocas/${pedidoUuid}/confirmar`,
+  autorizarTroca: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/trocas/${pedidoUuid}/autorizar`,
+  confirmarRecebimentoTroca: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/trocas/${pedidoUuid}/confirmar`,
 
   // Cupons de troca
   obterCuponsCliente: `${BASE_URL}/cupons/troca`,
@@ -32,36 +37,44 @@ export const API_ENDPOINTS = {
 
   // Autenticação
   login: `${BASE_URL}/auth/login`,
+  /** Verifica a sessão atual e retorna o usuário autenticado (HttpOnly cookie) */
+  me: `${BASE_URL}/auth/me`,
   registrarCliente: `${BASE_URL}/clientes/registro`,
   registrarAdmin: `${BASE_URL}/admin/registro`,
 
   // Perfil do Cliente
   obterPerfilCliente: `${BASE_URL}/clientes/perfil`,
   atualizarPerfilCliente: `${BASE_URL}/clientes/perfil`,
-  alterarSenhaCliente: `${BASE_URL}/clientes/senha`,
-  inativarContaCliente: `${BASE_URL}/clientes/inativar`,
+  alterarSenhaCliente: `${BASE_URL}/clientes/seguranca/alterar-senha`,
+  inativarContaCliente: `${BASE_URL}/clientes/perfil`,
 
   // Endereços do Cliente
-  listarEnderecos: `${BASE_URL}/clientes/enderecos`,
-  adicionarEndereco: `${BASE_URL}/clientes/enderecos`,
-  editarEndereco: (uuid: string) => `${BASE_URL}/clientes/enderecos/${uuid}`,
-  removerEndereco: (uuid: string) => `${BASE_URL}/clientes/enderecos/${uuid}`,
+  listarEnderecos: `${BASE_URL}/clientes/perfil/enderecos`,
+  adicionarEndereco: `${BASE_URL}/clientes/perfil/enderecos`,
+  editarEndereco: (uuid: string) =>
+    `${BASE_URL}/clientes/perfil/enderecos/${uuid}`,
+  removerEndereco: (uuid: string) =>
+    `${BASE_URL}/clientes/perfil/enderecos/${uuid}`,
 
   // Cartões do Cliente
-  listarCartoes: `${BASE_URL}/clientes/cartoes`,
-  adicionarCartao: `${BASE_URL}/clientes/cartoes`,
-  editarCartao: (uuid: string) => `${BASE_URL}/clientes/cartoes/${uuid}`,
-  removerCartao: (uuid: string) => `${BASE_URL}/clientes/cartoes/${uuid}`,
-  definirCartaoPreferencial: (uuid: string) => `${BASE_URL}/clientes/cartoes/${uuid}/preferencial`,
+  listarCartoes: `${BASE_URL}/clientes/perfil/cartoes`,
+  adicionarCartao: `${BASE_URL}/clientes/perfil/cartoes`,
+  editarCartao: (uuid: string) => `${BASE_URL}/clientes/perfil/cartoes/${uuid}`,
+  removerCartao: (uuid: string) =>
+    `${BASE_URL}/clientes/perfil/cartoes/${uuid}`,
+  definirCartaoPreferencial: (uuid: string) =>
+    `${BASE_URL}/clientes/perfil/cartoes/${uuid}/principal`,
 
   // Clientes (Admin)
-  listarClientes: `${BASE_URL}/admin/clientes`,
-  obterClienteAdmin: (uuid: string) => `${BASE_URL}/admin/clientes/${uuid}`,
+  listarClientes: `${BASE_URL}/clientes`,
+  obterClienteAdmin: (uuid: string) => `${BASE_URL}/clientes/${uuid}`,
 
   // Pedidos (Admin)
   obterTodosPedidosAdmin: `${BASE_URL}/admin/pedidos`,
-  despacharPedido: (uuid: string) => `${BASE_URL}/admin/pedidos/${uuid}/despachar`,
-  confirmarEntrega: (uuid: string) => `${BASE_URL}/admin/pedidos/${uuid}/entrega`,
+  despacharPedido: (uuid: string) =>
+    `${BASE_URL}/admin/pedidos/${uuid}/despachar`,
+  confirmarEntrega: (uuid: string) =>
+    `${BASE_URL}/admin/pedidos/${uuid}/entrega`,
 };
 
-export const MOCK_TOKEN_PREFIX = 'mock-token';
+export const MOCK_TOKEN_PREFIX = "mock-token";

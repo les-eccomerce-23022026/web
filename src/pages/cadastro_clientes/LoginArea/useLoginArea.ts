@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '@/store/hooks';
-import { loginSuccess } from '@/store/slices/authSlice';
+import { loginSuccess, setAuthError } from '@/store/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { AuthService } from '@/services/AuthService';
 import { ClienteService } from '@/services/ClienteService';
 import clientesMock from '@/mocks/clientesMock.json';
@@ -64,6 +64,7 @@ export function useLoginArea() {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { authError } = useAppSelector((state) => state.auth);
 
   // --- Domínios do mock ---
   const generosDisponiveis = clientesMock.generosDisponiveis;
@@ -76,6 +77,7 @@ export function useLoginArea() {
     if (!email || !senha) return;
 
     setLoginError('');
+    dispatch(setAuthError(null));
 
     try {
       const data = await AuthService.login({ email, senha });
@@ -202,7 +204,7 @@ export function useLoginArea() {
         cpf: regCpf,
         email: regEmail,
         senha: regSenha,
-        confirmacao_senha: regConfirmaSenha,
+        confirmacaoSenha: regConfirmaSenha,
         genero: regGenero,
         dataNascimento: regDataNascimento,
         telefone: regTelefone,
@@ -241,7 +243,7 @@ export function useLoginArea() {
       showPasswordLogin,
       setShowPasswordLogin,
       handleLogin,
-      loginError,
+      loginError: loginError || authError,
     },
     registerState: {
       showRegister,

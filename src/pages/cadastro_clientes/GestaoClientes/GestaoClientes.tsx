@@ -137,7 +137,12 @@ export function GestaoClientes() {
               </div>
               <div className={styles.infoLinha}>
                 <Phone size={16} /> 
-                <span>({clienteSelecionado.telefone.ddd}) {clienteSelecionado.telefone.numero} — {clienteSelecionado.telefone.tipo}</span>
+                <span>
+                  {clienteSelecionado.telefone 
+                    ? `(${clienteSelecionado.telefone.ddd}) ${clienteSelecionado.telefone.numero} — ${clienteSelecionado.telefone.tipo}`
+                    : 'Não informado'
+                  }
+                </span>
               </div>
             </div>
 

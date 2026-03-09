@@ -15,12 +15,13 @@ export interface ICliente {
   cpf: string;
   genero: Genero;
   dataNascimento: string;
-  telefone: ITelefone;
+  telefone?: ITelefone; // Agora opcional
   ranking: number;
   ativo: boolean;
   role: 'cliente' | 'admin';
   enderecosEntrega: IEnderecoCliente[];
   enderecoCobranca: IEnderecoCliente;
+  enderecos: IEnderecoCliente[]; // Adicionado para compatibilidade com backend
   cartoes: ICartaoCliente[];
   cartaoPreferencialUuid: string | null;
 }
@@ -30,7 +31,7 @@ export interface IRegistroClienteCompletoPayload {
   cpf: string;
   email: string;
   senha: string;
-  confirmacao_senha: string;
+  confirmacaoSenha: string;
   genero: Genero;
   dataNascimento: string;
   telefone: ITelefone;

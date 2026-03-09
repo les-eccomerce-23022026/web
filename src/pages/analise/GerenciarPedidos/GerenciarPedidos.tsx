@@ -13,6 +13,7 @@ const STATUS_LABELS: Record<StatusPedido, string> = {
   'Em Troca': 'Em Troca',
   'Troca Autorizada': 'Troca Autorizada',
   Trocado: 'Trocado',
+  'Devoluções': 'Devoluções',
 };
 
 const STATUS_CSS: Record<string, string> = {

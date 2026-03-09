@@ -1,31 +1,37 @@
 # Project Board — LES Frontend React
 
-> Atualizado em: 4 de março de 2026  
+> Atualizado em: 9 de março de 2026  
 > Status: Gestão local das atividades do projeto.
 
 ---
 
 ## Board Kanban
 
-| 📋 Todo (2)                              | 🔄 In Progress (1)                         | ✅ Done (17)                                            |
-| ---------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
-| A3 · [BACKEND] Implementar API de Livros | A2 · [FRONTEND] Configurar Redux para Auth | A1 · [FRONTEND] Configurar GIT e Repositório Remoto     |
-| A4 · [FRONTEND] Criar Tela de Carrinho   |                                            | A5 · [FRONTEND] Refatoração do Mock Data e Serviços     |
-|                                          |                                            | A6 · [FRONTEND] Extrair CSS para Arquivos               |
-|                                          |                                            | A7 · [FRONTEND] Design System com Variáveis CSS         |
-|                                          |                                            | A8 · [FRONTEND] Adicionar Testes E2E (Cypress)          |
-|                                          |                                            | A9 · [FRONTEND] Melhorar Layout do Home e Catálogo      |
-|                                          |                                            | A10 · [FRONTEND] Responsividade no Footer               |
-|                                          |                                            | A11 · [FRONTEND] Componentizar Breadcrumbs e Buscador   |
-|                                          |                                            | A12 · [FRONTEND] Tipagem Forte e Interfaces             |
-|                                          |                                            | A13 · [FRONTEND] Gestão de Estado de UI (Loading/Error) |
-|                                          |                                            | A14 · [FRONTEND] Centralizar URLs de Base               |
-|                                          |                                            | A15 · [FRONTEND] Governança de Regras e Requisitos      |
-|                                          |                                            | A16 · [FRONTEND] Busca Dinâmica e Filtros Avançados     |
-|                                          |                                            | A17 · [FRONTEND] Refinamento Visual do Header/Catálogo  |
-|                                          |                                            | A18 · [FRONTEND] Painel Administrativo e Estado         |
-|                                          |                                            | A19 · [FRONTEND] Gaps Críticos: Pedidos e Clientes      |
-|                                          |                                            | A20 · [FRONTEND] Precificação e Justificativa de Status |
+| 📋 Todo (0)                                 | 🔄 In Progress (0)                         | ✅ Done (23)                                            |
+| ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
+|                                             |                                            | A1 · [FRONTEND] Configurar GIT e Repositório Remoto     |
+|                                             |                                            | A2 · [FRONTEND] Configurar Redux para Auth              |
+|                                             |                                            | A3 · [BACKEND] Implementar API de Livros                |
+|                                             |                                            | A4 · [FRONTEND] Criar Tela de Carrinho                  |
+|                                             |                                            | A5 · [FRONTEND] Refatoração do Mock Data e Serviços     |
+|                                             |                                            | A6 · [FRONTEND] Extrair CSS para Arquivos               |
+|                                             |                                            | A7 · [FRONTEND] Design System com Variáveis CSS         |
+|                                             |                                            | A8 · [FRONTEND] Adicionar Testes E2E (Cypress)          |
+|                                             |                                            | A9 · [FRONTEND] Melhorar Layout do Home e Catálogo      |
+|                                             |                                            | A10 · [FRONTEND] Responsividade no Footer               |
+|                                             |                                            | A11 · [FRONTEND] Componentizar Breadcrumbs e Buscador   |
+|                                             |                                            | A12 · [FRONTEND] Tipagem Forte e Interfaces             |
+|                                             |                                            | A13 · [FRONTEND] Gestão de Estado de UI (Loading/Error) |
+|                                             |                                            | A14 · [FRONTEND] Centralizar URLs de Base               |
+|                                             |                                            | A15 · [FRONTEND] Governança de Regras e Requisitos      |
+|                                             |                                            | A16 · [FRONTEND] Busca Dinâmica e Filtros Avançados     |
+|                                             |                                            | A17 · [FRONTEND] Refinamento Visual do Header/Catálogo  |
+|                                             |                                            | A18 · [FRONTEND] Painel Administrativo e Estado         |
+|                                             |                                            | A19 · [FRONTEND] Gaps Críticos: Pedidos e Clientes      |
+|                                             |                                            | A20 · [FRONTEND] Precificação e Justificativa de Status |
+|                                             |                                            | A21 · [FRONTEND] Configuração para API Local            |
+|                                             |                                            | A22 · [FRONTEND] Sincronização API Clientes             |
+|                                             |                                            | A23 · [FRONTEND] Persistência de Sessão Auth            |
 
 ---
 
@@ -53,7 +59,9 @@
 | A18  | FRONTEND | Painel Administrativo e Gestão de Estado | `commit 93c2db6` — AdminLayout, CapaLivro, Slices de Livros/Admin e AuthService com Hooks                                                       |
 | A19  | FRONTEND | Gaps Críticos: Pedidos e Clientes        | Funcionalidades de despachar/entregar pedidos, com baixa de estoque, e Consulta de Clientes (RF0024-RF0053)                                     |
 | A20  | FRONTEND | Precificação e Justificativa de Status   | Grupo de precificação com cálculo automático (RN0013, RF0052) + Modal obrigatório de justificativa ao alterar status de livros (RN0015, RN0017) |
-| A21  | FRONTEND | Configuração para API Local              | Alterar VITE_USE_MOCK=false e BASE_URL para http://localhost:3000, permitindo uso de dados reais em vez de mocks                              |
+| A21  | FRONTEND | Configuração para API Local              | Alterar VITE_USE_MOCK=false e BASE_URL para http://localhost:3000, permitindo uso de dados reais em vez de mocks                                |
+| A22  | FRONTEND | Sincronização API Clientes               | Ajuste de rotas, payloads e métodos (PATCH/PUT) e correção de `ReferenceError` na Store do ApiClient                                            |
+| A23  | FRONTEND | Persistência de Sessão Auth              | **Contexto:** Estado Redux é in-memory; ao recarregar a página o usuário era deslogado mesmo com token válido. **Arquivos alterados:** `authSlice.ts` · `AuthService.ts` · `apiConfig.ts` · `App.tsx` · `ProtectedRoute.tsx`. **Detalhes:** - `authSlice`: `sessionLoading` (evita redirect prematuro) + `restoreSession` thunk + `loginSuccess`/`logout` salvam e limpam `sessionStorage` - `AuthService.me()`: lê `sessionStorage` (mock) ou chama `GET /auth/me` (real backend via cookie HttpOnly) - `App.tsx`: `dispatch(restoreSession())` antes dos demais fetches - `ProtectedRoute`: retorna `null` enquanto `sessionLoading === true` **Segurança (U7):** token nunca vai para `localStorage`; `sessionStorage` é limpo ao fechar a aba. |
 
 ---
 

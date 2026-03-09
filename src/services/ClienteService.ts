@@ -8,6 +8,7 @@ import type {
 } from '@/interfaces/ICliente';
 import type { IEnderecoCliente, ICartaoCliente } from '@/interfaces/IPagamento';
 import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
+import { ApiClient } from './apiClient';
 
 export class ClienteService {
   /**
@@ -27,9 +28,7 @@ export class ClienteService {
       );
     }
 
-    const response = await fetch(API_ENDPOINTS.obterPerfilCliente);
-    if (!response.ok) throw new Error('Erro ao buscar perfil');
-    return response.json();
+    return ApiClient.get<ICliente>(API_ENDPOINTS.obterPerfilCliente);
   }
 
   /**
@@ -41,12 +40,7 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.atualizarPerfilCliente, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) throw new Error('Erro ao atualizar perfil');
+    await ApiClient.put(API_ENDPOINTS.atualizarPerfilCliente, payload);
   }
 
   /**
@@ -70,12 +64,11 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.alterarSenhaCliente, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    await ApiClient.patch(API_ENDPOINTS.alterarSenhaCliente, {
+      senhaAtual: payload.senhaAtual,
+      novaSenha: payload.novaSenha,
+      confirmacaoNovaSenha: payload.confirmacaoNovaSenha,
     });
-    if (!response.ok) throw new Error('Erro ao alterar senha');
   }
 
   /**
@@ -87,10 +80,7 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.inativarContaCliente, {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error('Erro ao inativar conta');
+    await ApiClient.delete(API_ENDPOINTS.inativarContaCliente);
   }
 
   /**
@@ -109,9 +99,7 @@ export class ClienteService {
       );
     }
 
-    const response = await fetch(API_ENDPOINTS.listarEnderecos);
-    if (!response.ok) throw new Error('Erro ao listar endereços');
-    return response.json();
+    return ApiClient.get<IEnderecoCliente[]>(API_ENDPOINTS.listarEnderecos);
   }
 
   /**
@@ -129,13 +117,7 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(() => resolve(novoEndereco), 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.adicionarEndereco, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(endereco),
-    });
-    if (!response.ok) throw new Error('Erro ao adicionar endereço');
-    return response.json();
+    return ApiClient.post<IEnderecoCliente>(API_ENDPOINTS.adicionarEndereco, endereco);
   }
 
   /**
@@ -152,13 +134,7 @@ export class ClienteService {
       );
     }
 
-    const response = await fetch(API_ENDPOINTS.editarEndereco(uuid), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(endereco),
-    });
-    if (!response.ok) throw new Error('Erro ao editar endereço');
-    return response.json();
+    return ApiClient.put<IEnderecoCliente>(API_ENDPOINTS.editarEndereco(uuid), endereco);
   }
 
   /**
@@ -170,10 +146,7 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.removerEndereco(uuid), {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error('Erro ao remover endereço');
+    await ApiClient.delete(API_ENDPOINTS.removerEndereco(uuid));
   }
 
   /**
@@ -192,9 +165,7 @@ export class ClienteService {
       );
     }
 
-    const response = await fetch(API_ENDPOINTS.listarCartoes);
-    if (!response.ok) throw new Error('Erro ao listar cartões');
-    return response.json();
+    return ApiClient.get<ICartaoCliente[]>(API_ENDPOINTS.listarCartoes);
   }
 
   /**
@@ -212,13 +183,26 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(() => resolve(novoCartao), 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.adicionarCartao, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cartao),
-    });
-    if (!response.ok) throw new Error('Erro ao adicionar cartão');
-    return response.json();
+    let idBandeira = 1;
+    if (cartao.bandeira.toLowerCase() === 'mastercard') idBandeira = 2;
+    else if (cartao.bandeira.toLowerCase() === 'elo') idBandeira = 3;
+    
+    let validadeIso = cartao.validade;
+    if (cartao.validade.includes('/')) {
+      const [mes, ano] = cartao.validade.split('/');
+      validadeIso = `20${ano}-${mes}-01T00:00:00.000Z`;
+    }
+
+    const payloadApi = {
+      idBandeiraCartao: idBandeira,
+      tokenCartao: `tok_sim_${Date.now()}`,
+      finalCartao: cartao.final,
+      nomeImpresso: cartao.nomeImpresso,
+      validade: validadeIso,
+      principal: false,
+    };
+
+    return ApiClient.post<ICartaoCliente>(API_ENDPOINTS.adicionarCartao, payloadApi);
   }
 
   /**
@@ -230,10 +214,7 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.removerCartao(uuid), {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error('Erro ao remover cartão');
+    await ApiClient.delete(API_ENDPOINTS.removerCartao(uuid));
   }
 
   /**
@@ -245,11 +226,7 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    const response = await fetch(
-      API_ENDPOINTS.definirCartaoPreferencial(cartaoUuid),
-      { method: 'PUT' },
-    );
-    if (!response.ok) throw new Error('Erro ao definir cartão preferencial');
+    await ApiClient.patch(API_ENDPOINTS.definirCartaoPreferencial(cartaoUuid));
   }
 
   /**
@@ -271,11 +248,6 @@ export class ClienteService {
       return new Promise((resolve) => setTimeout(resolve, 500));
     }
 
-    const response = await fetch(API_ENDPOINTS.registrarCliente, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!response.ok) throw new Error('Erro ao registrar cliente');
+    await ApiClient.post(API_ENDPOINTS.registrarCliente, payload);
   }
 }

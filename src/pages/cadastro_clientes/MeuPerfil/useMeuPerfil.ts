@@ -96,12 +96,21 @@ export function useMeuPerfil() {
         setNome(perfil.nome);
         setGenero(perfil.genero);
         setDataNascimento(perfil.dataNascimento);
-        setTelefoneTipo(perfil.telefone.tipo);
-        setTelefoneDdd(perfil.telefone.ddd);
-        setTelefoneNumero(perfil.telefone.numero);
+        
+        // Telefone pode ser undefined se não foi cadastrado
+        if (perfil.telefone) {
+          setTelefoneTipo(perfil.telefone.tipo);
+          setTelefoneDdd(perfil.telefone.ddd);
+          setTelefoneNumero(perfil.telefone.numero);
+          return;
+        }
+        
+        setTelefoneTipo('Celular');
+        setTelefoneDdd('');
+        setTelefoneNumero('');
 
-        const enderecosResult = await ClienteService.listarEnderecos(user.uuid);
-        setEnderecos(enderecosResult);
+        // Usar endereços do perfil em vez de chamar API separada
+        setEnderecos(perfil.enderecos || []);
 
         const cartoesResult = await ClienteService.listarCartoes(user.uuid);
         setCartoes(cartoesResult);

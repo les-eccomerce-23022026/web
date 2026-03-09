@@ -1,6 +1,7 @@
 import pagamentoMock from '@/mocks/pagamentoMock.json';
 import type { IPagamentoInfo } from '@/interfaces/IPagamento';
 import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
+import { ApiClient } from './apiClient';
 
 export class PagamentoService {
   static async getPagamentoInfo(): Promise<IPagamentoInfo> {
@@ -9,9 +10,7 @@ export class PagamentoService {
       return new Promise((resolve) => setTimeout(() => resolve(pagamentoMock as IPagamentoInfo), 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.obterPagamentoInfo);
-    if (!response.ok) throw new Error('Erro ao buscar dados de pagamento');
-    return response.json();
+    return ApiClient.get<IPagamentoInfo>(API_ENDPOINTS.obterPagamentoInfo);
   }
 
   /**
@@ -41,12 +40,6 @@ export class PagamentoService {
       );
     }
 
-    const response = await fetch(API_ENDPOINTS.processarPagamento, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pedidoPayload),
-    });
-    if (!response.ok) throw new Error('Erro ao processar pagamento');
-    return response.json();
+    return ApiClient.post(API_ENDPOINTS.processarPagamento, pedidoPayload);
   }
 }

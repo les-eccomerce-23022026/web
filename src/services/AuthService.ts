@@ -7,12 +7,14 @@ import type {
 } from '@/interfaces/IAuth';
 import type { IAdmin } from '@/interfaces/IAdmin';
 import { API_ENDPOINTS, USE_MOCK, MOCK_TOKEN_PREFIX } from '@/config/apiConfig';
+import { SESSION_STORAGE_KEY } from '@/store/slices/authSlice';
+import { ApiClient } from './apiClient';
 
 export class AuthService {
   static async login(payload: ILoginPayload): Promise<ILoginResponse> {
     if (USE_MOCK) {
+      // (Mock logic remains same as before)
       console.log('[Mock] Tentando login para:', payload.email);
-
       const usuario = authUsersMock.usuarios.find(
         (u) => u.email === payload.email && u.senha === payload.senha
       );
@@ -21,8 +23,7 @@ export class AuthService {
         return Promise.reject(new Error('Credenciais inválidas.'));
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { senha: _, ...userSemSenha } = usuario;
+      const { senha: _, ...userSemSenha } = usuario; // eslint-disable-line @typescript-eslint/no-unused-vars
       const loginResponse: ILoginResponse = {
         token: `${MOCK_TOKEN_PREFIX}-${usuario.uuid}`,
         user: {
@@ -31,76 +32,67 @@ export class AuthService {
         },
       };
 
-      console.log('[Mock] Login bem-sucedido:', loginResponse.user.nome);
       return new Promise((resolve) => setTimeout(() => resolve(loginResponse), 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.login, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) throw new Error('Erro ao realizar login');
-
-    const responseData = await response.json();
-    if (!responseData.sucesso) throw new Error('Credenciais inválidas');
-
+    const responseData = await ApiClient.post<{ dados: ILoginResponse }>(API_ENDPOINTS.login, payload);
+    
     return {
-      token: '', // Token is set in HttpOnly cookie
+      token: responseData.dados.token || '', // Se o backend retornar no corpo, guardamos no Redux
       user: responseData.dados.user,
     };
   }
 
   static async getAdmins(): Promise<IAdmin[]> {
     if (USE_MOCK) {
-      console.log('[Mock] Buscando lista de administradores.');
       const admins = authUsersMock.usuarios
         .filter((u) => u.role === 'admin')
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .map(({ senha: _, ...user }) => user as IAdmin);
+        .map(({ senha: _, ...user }) => user as IAdmin); // eslint-disable-line @typescript-eslint/no-unused-vars
       
       return new Promise((resolve) => setTimeout(() => resolve(admins), 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.registrarAdmin); // Assumindo endpoint de listagem se existir
-    if (!response.ok) throw new Error('Erro ao buscar administradores');
-    return response.json();
+    return ApiClient.get<IAdmin[]>(API_ENDPOINTS.registrarAdmin);
   }
 
   static async registrarCliente(payload: IRegistroClientePayload): Promise<void> {
     if (USE_MOCK) {
-      console.log('[Mock] Registrando novo cliente:', payload.email);
-
       const jaExiste = authUsersMock.usuarios.some((u) => u.email === payload.email);
-      if (jaExiste) {
-        return Promise.reject(new Error('E-mail já cadastrado.'));
-      }
-
-      return new Promise((resolve) => setTimeout(() => resolve(), 300));
+      if (jaExiste) throw new Error('E-mail já cadastrado.');
+      return new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.registrarCliente, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) throw new Error('Erro ao registrar cliente');
+    await ApiClient.post(API_ENDPOINTS.registrarCliente, payload);
   }
 
   static async registrarAdmin(payload: IRegistroAdminPayload): Promise<void> {
     if (USE_MOCK) {
-      console.log('[Mock] Registrando novo administrador:', payload.email);
-      return new Promise((resolve) => setTimeout(() => resolve(), 300));
+      return new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.registrarAdmin, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    await ApiClient.post(API_ENDPOINTS.registrarAdmin, payload);
+  }
 
-    if (!response.ok) throw new Error('Erro ao registrar administrador');
+  /**
+   * Restaura a sessão ao recarregar a página.
+   * - Mock: lê de sessionStorage (nunca localStorage — U7).
+   * - Real backend: chama GET /auth/me; o cookie HttpOnly é enviado automaticamente
+   *   pelo browser via credentials: 'include'.
+   */
+  static async me(): Promise<ILoginResponse | null> {
+    if (USE_MOCK) {
+      const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (!raw) return null;
+      const session = JSON.parse(raw) as { token: string; user: ILoginResponse['user'] };
+      if (!session?.token) return null;
+      return { token: session.token, user: session.user };
+    }
+
+    try {
+      const data = await ApiClient.get<{ dados: ILoginResponse }>(API_ENDPOINTS.me);
+      return data.dados;
+    } catch {
+      return null;
+    }
   }
 }

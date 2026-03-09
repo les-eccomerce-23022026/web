@@ -4,6 +4,7 @@ import { useAppDispatch } from './store/hooks';
 import { fetchCarrinho } from './store/slices/carrinhoSlice';
 import { fetchLivros } from './store/slices/livroSlice';
 import { fetchAdmins } from './store/slices/adminSlice';
+import { restoreSession } from './store/slices/authSlice';
 import { BaseLayout } from '@/components/comum/BaseLayout/BaseLayout';
 import { AdminLayout } from '@/components/comum/AdminLayout/AdminLayout';
 import { HomeCatalogo } from '@/pages/cadastro_livros/HomeCatalogo/HomeCatalogo';
@@ -29,9 +30,12 @@ function App() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(fetchCarrinho());
-    dispatch(fetchLivros());
-    dispatch(fetchAdmins());
+    // Restaura a sessão antes de qualquer outra busca para evitar redirect prematuro
+    dispatch(restoreSession()).finally(() => {
+      dispatch(fetchCarrinho());
+      dispatch(fetchLivros());
+      dispatch(fetchAdmins());
+    });
   }, [dispatch]);
 
   return (

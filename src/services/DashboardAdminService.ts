@@ -2,7 +2,8 @@ import pedidosMock from '@/mocks/pedidosMock.json';
 import livrosMock from '@/mocks/listaLivrosAdminMock.json';
 import type { IDashboardAdminInfo, IAtividadeRecente } from '@/interfaces/IDashboardAdmin';
 import type { IPedido } from '@/interfaces/IPedido';
-import { USE_MOCK } from '@/config/apiConfig';
+import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
+import { ApiClient } from './apiClient';
 
 export class DashboardAdminService {
   static async getDashboardInfo(): Promise<IDashboardAdminInfo> {
@@ -118,9 +119,7 @@ export class DashboardAdminService {
       return new Promise((resolve) => setTimeout(() => resolve(dashboardInfo), 300));
     }
 
-    const response = await fetch('/api/dashboard'); // Endpoint genérico
-    if (!response.ok) throw new Error('Erro ao buscar dados do dashboard');
-    return response.json();
+    return ApiClient.get<IDashboardAdminInfo>(API_ENDPOINTS.obterDashboardAdminInfo);
   }
 }
 

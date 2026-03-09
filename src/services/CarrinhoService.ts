@@ -1,6 +1,7 @@
 import carrinhoMock from '@/mocks/carrinhoMock.json';
 import type { ICarrinho } from '@/interfaces/ICarrinho';
 import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
+import { ApiClient } from './apiClient';
 
 export class CarrinhoService {
   static async getCarrinho(): Promise<ICarrinho> {
@@ -13,8 +14,6 @@ export class CarrinhoService {
       });
     }
 
-    const response = await fetch(API_ENDPOINTS.obterCarrinho);
-    if (!response.ok) throw new Error('Erro ao buscar dados do carrinho');
-    return response.json();
+    return ApiClient.get<ICarrinho>(API_ENDPOINTS.obterCarrinho);
   }
 }

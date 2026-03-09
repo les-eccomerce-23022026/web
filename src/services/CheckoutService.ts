@@ -1,6 +1,7 @@
 import checkoutMock from '@/mocks/checkoutMock.json';
 import type { ICheckoutInfo } from '@/interfaces/ICheckout';
 import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
+import { ApiClient } from './apiClient';
 
 export class CheckoutService {
   static async getCheckoutInfo(): Promise<ICheckoutInfo> {
@@ -9,8 +10,6 @@ export class CheckoutService {
       return new Promise((resolve) => setTimeout(() => resolve(checkoutMock as ICheckoutInfo), 300));
     }
 
-    const response = await fetch(API_ENDPOINTS.obterCheckoutInfo);
-    if (!response.ok) throw new Error('Erro ao buscar dados do checkout');
-    return response.json();
+    return ApiClient.get<ICheckoutInfo>(API_ENDPOINTS.obterCheckoutInfo);
   }
 }

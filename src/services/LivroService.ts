@@ -3,6 +3,7 @@ import detalhesLivroMock from '@/mocks/detalhesLivroMock.json';
 import listaLivrosAdminMock from '@/mocks/listaLivrosAdminMock.json';
 import type { ILivro } from '@/interfaces/ILivro';
 import { API_ENDPOINTS, USE_MOCK } from '@/config/apiConfig';
+import { ApiClient } from './apiClient';
 
 /** Store compartilhado em memória para que baixas de estoque reflitam em toda a sessão */
 const livrosMemoria: ILivro[] = [...(listaLivrosAdminMock.livros as ILivro[])];
@@ -29,9 +30,7 @@ export class LivroService {
       return new Promise((resolve) => setTimeout(() => resolve(homeCatalogoMock.destaques as ILivro[]), delayMs));
     }
 
-    const response = await fetch(API_ENDPOINTS.obterLivrosDestaque);
-    if (!response.ok) throw new Error('Erro ao buscar livros em destaque');
-    return response.json();
+    return ApiClient.get<ILivro[]>(API_ENDPOINTS.obterLivrosDestaque);
   }
 
   static async getDetalhes(uuid: string): Promise<ILivro> {
@@ -51,9 +50,7 @@ export class LivroService {
       });
     }
 
-    const response = await fetch(API_ENDPOINTS.obterDetalhesLivro(uuid));
-    if (!response.ok) throw new Error('Erro ao buscar detalhes do livro');
-    return response.json();
+    return ApiClient.get<ILivro>(API_ENDPOINTS.obterDetalhesLivro(uuid));
   }
 
   static async getListaAdmin(): Promise<ILivro[]> {
@@ -68,9 +65,7 @@ export class LivroService {
       return delayFn([...livrosMemoria]);
     }
 
-    const response = await fetch(API_ENDPOINTS.obterListaLivrosAdmin);
-    if (!response.ok) throw new Error('Erro ao buscar lista administrativa de livros');
-    return response.json();
+    return ApiClient.get<ILivro[]>(API_ENDPOINTS.obterListaLivrosAdmin);
   }
 
   /**
@@ -89,11 +84,6 @@ export class LivroService {
       return delayFn(undefined as unknown as void, 200);
     }
 
-    const response = await fetch(`${API_ENDPOINTS.obterListaLivrosAdmin}/baixa`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ itens }),
-    });
-    if (!response.ok) throw new Error('Erro ao dar baixa no estoque');
+    await ApiClient.post(`${API_ENDPOINTS.obterListaLivrosAdmin}/baixa`, { itens });
   }
 }

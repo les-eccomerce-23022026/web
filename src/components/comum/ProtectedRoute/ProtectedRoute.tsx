@@ -6,14 +6,18 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, sessionLoading } = useAppSelector((state) => state.auth);
+
+  // Aguarda a verificação de sessão no startup — evita redirect prematuro para /minha-conta
+  if (sessionLoading) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/minha-conta" replace />;
   }
 
   if (requiredRole && user?.role !== requiredRole) {
-    // Return to home if role mismatch
     return <Navigate to="/" replace />;
   }
 
