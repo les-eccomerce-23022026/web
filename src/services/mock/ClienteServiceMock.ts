@@ -58,21 +58,21 @@ export class ClienteServiceMock implements IClienteService {
 
   async adicionarEndereco(
     endereco: Omit<IEnderecoCliente, 'uuid'>,
-  ): Promise<IEnderecoCliente> {
+  ): Promise<IEnderecoCliente[]> {
     console.log('[Mock] Adicionando endereço:', endereco);
     const novoEndereco: IEnderecoCliente = {
       ...endereco,
       uuid: `end-${Date.now()}`,
     };
-    return delay(novoEndereco);
+    return delay([novoEndereco]); // Retorna lista com o novo (simplificado no mock)
   }
 
   async editarEndereco(
     uuid: string,
     endereco: Partial<IEnderecoCliente>,
-  ): Promise<IEnderecoCliente> {
+  ): Promise<IEnderecoCliente[]> {
     console.log('[Mock] Editando endereço:', uuid, endereco);
-    return delay({ ...endereco, uuid } as IEnderecoCliente);
+    return delay([{ ...endereco, uuid } as IEnderecoCliente]);
   }
 
   async removerEndereco(uuid: string): Promise<void> {

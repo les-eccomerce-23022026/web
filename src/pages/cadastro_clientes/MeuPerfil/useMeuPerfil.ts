@@ -62,6 +62,27 @@ export function useMeuPerfil() {
   // Endereços (Form)
   const [showNovoEndereco, setShowNovoEndereco] = useState(false);
   const [enderecoEditandoUuid, setEnderecoEditandoUuid] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (enderecoEditandoUuid) {
+      const end = enderecos.find((e) => e.uuid === enderecoEditandoUuid);
+      if (end) {
+        setNovoEndApelido(end.apelido || '');
+        setNovoEndTipoResidencia(end.tipoResidencia || 'Casa');
+        setNovoEndTipoLogradouro(end.tipoLogradouro || 'Rua');
+        setNovoEndLogradouro(end.logradouro || '');
+        setNovoEndNumero(end.numero || '');
+        setNovoEndComplemento(end.complemento || '');
+        setNovoEndBairro(end.bairro || '');
+        setNovoEndCep(end.cep || '');
+        setNovoEndCidade(end.cidade || '');
+        setNovoEndEstado(end.estado || '');
+        setNovoEndPais(end.pais || 'Brasil');
+        setShowNovoEndereco(true);
+      }
+    }
+  }, [enderecoEditandoUuid, enderecos]);
+
   const [novoEndApelido, setNovoEndApelido] = useState('');
   const [novoEndTipoResidencia, setNovoEndTipoResidencia] = useState('Casa');
   const [novoEndTipoLogradouro, setNovoEndTipoLogradouro] = useState('Rua');
@@ -116,7 +137,7 @@ export function useMeuPerfil() {
         setNome(cliente.nome);
         setGenero(cliente.genero);
         setDataNascimento(cliente.dataNascimento);
-        setVisualizacaoEmail(cliente.email);
+        setVisualizacaoEmail(cliente.emailMascarado || cliente.email);
         setVisualizacaoCpf(cliente.cpfMascarado || cliente.cpf);
         setCartaoPreferencialUuid(cliente.cartaoPreferencialUuid);
         
@@ -132,11 +153,41 @@ export function useMeuPerfil() {
   // --- Handlers ---
 
   const handleUpdateProfile = async () => {
-    const mudandoEmail = novoEmail.trim() !== '' && novoEmail !== cliente?.email;
-    const mudandoCpf = novoCpf.trim() !== '' && novoCpf !== cliente?.cpf;
-    const mudandoTelefone = novoTelefoneNumero.trim() !== '';
+    // Check if user changed the visualizacao fields (and they are not their masked default)
+    const emailAualCpfMascarado = cliente?.cpfMascarado || cliente?.cpf || '';
+    const emailAualEmailMascarado = cliente?.emailMascarado || cliente?.email || '';
+    const emailAualTelMascarado = cliente?.telefone ? `(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}` : '';
 
-    if (mudandoEmail || mudandoCpf || mudandoTelefone) {
+    const isEmailChanged = visualizacaoEmail.trim() !== '' && visualizacaoEmail !== emailAualEmailMascarado;
+    const isCpfChanged = visualizacaoCpf.trim() !== '' && visualizacaoCpf !== emailAualCpfMascarado;
+    const isTelChanged = visualizacaoTelefone.trim() !== '' && visualizacaoTelefone !== emailAualTelMascarado;
+
+    // Frontend Validations
+    if (isEmailChanged) {
+      const emailRegex = /\S+@\S+\.\S+/;
+      if (!emailRegex.test(visualizacaoEmail)) {
+        showMessage('Por favor, insira um e-mail válido.', 'error');
+        return;
+      }
+    }
+
+    if (isCpfChanged) {
+      const cleanCpf = visualizacaoCpf.replace(/\D/g, '');
+      if (cleanCpf.length !== 11) {
+        showMessage('O CPF deve ter exatamente 11 números.', 'error');
+        return;
+      }
+    }
+
+    if (isTelChanged) {
+      const cleanTel = visualizacaoTelefone.replace(/\D/g, '');
+      if (cleanTel.length < 10 || cleanTel.length > 11) {
+        showMessage('O Telefone deve ter 10 ou 11 números, contando com o DDD.', 'error');
+        return;
+      }
+    }
+
+    if (isEmailChanged || isCpfChanged || isTelChanged) {
       setShowModalSenha(true);
       return;
     }
@@ -164,13 +215,29 @@ export function useMeuPerfil() {
 
   const confirmarUpdateComSenha = async () => {
     const payload: IAtualizarPerfilPayload = { nome, genero, dataNascimento, senhaConfirmacao };
-    if (novoEmail.trim()) payload.email = novoEmail;
-    if (novoCpf.trim()) payload.cpf = novoCpf;
-    if (novoTelefoneNumero.trim()) {
+    
+    const emailAualCpfMascarado = cliente?.cpfMascarado || cliente?.cpf || '';
+    const emailAualEmailMascarado = cliente?.emailMascarado || cliente?.email || '';
+    const emailAualTelMascarado = cliente?.telefone ? `(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}` : '';
+
+    const isEmailChanged = visualizacaoEmail.trim() !== '' && visualizacaoEmail !== emailAualEmailMascarado;
+    const isCpfChanged = visualizacaoCpf.trim() !== '' && visualizacaoCpf !== emailAualCpfMascarado;
+    const isTelChanged = visualizacaoTelefone.trim() !== '' && visualizacaoTelefone !== emailAualTelMascarado;
+
+    if (isEmailChanged) payload.email = visualizacaoEmail;
+    if (isCpfChanged) payload.cpf = visualizacaoCpf.replace(/\D/g, '');
+    if (isTelChanged) {
+      const cleanTel = visualizacaoTelefone.replace(/\D/g, '');
+      if (cleanTel.length < 10 || cleanTel.length > 11) {
+        showMessage('O Telefone deve ter 10 ou 11 números, contando com o DDD.', 'error');
+        return;
+      }
+      const ddd = cleanTel.substring(0, 2);
+      const numero = cleanTel.substring(2);
       payload.telefone = { 
         tipo: novoTelefoneTipo as 'Celular' | 'Residencial' | 'Comercial', 
-        ddd: novoTelefoneDdd, 
-        numero: novoTelefoneNumero 
+        ddd: ddd, 
+        numero: numero 
       };
     }
 
@@ -179,10 +246,6 @@ export function useMeuPerfil() {
       showMessage('Dados atualizados!', 'success');
       setShowModalSenha(false);
       setSenhaConfirmacao('');
-      setNovoEmail('');
-      setNovoCpf('');
-      setNovoTelefoneDdd('');
-      setNovoTelefoneNumero('');
       hasInitialized.current = false;
     } catch (err: unknown) {
       const error = err as Error;
@@ -198,7 +261,7 @@ export function useMeuPerfil() {
     }
     try {
       await ClienteService.alterarSenha(user!.uuid, { senhaAtual, novaSenha, confirmacaoNovaSenha: confirmaNovaSenha });
-      setSenhaSuccess('Senha alterada!');
+      setSenhaSuccess('Senha altreada!');
       setSenhaAtual(''); setNovaSenha(''); setConfirmaNovaSenha('');
     } catch (err: unknown) {
       const errorMsg = (err as Error).message || 'Erro ao alterar senha.';
@@ -222,15 +285,30 @@ export function useMeuPerfil() {
 
   const handleAdicionarEndereco = async () => {
     try {
-      const novo = await ClienteService.adicionarEndereco({
+      const payload = {
         apelido: novoEndApelido, tipoResidencia: novoEndTipoResidencia, 
         tipoLogradouro: novoEndTipoLogradouro, logradouro: novoEndLogradouro,
         numero: novoEndNumero, complemento: novoEndComplemento, bairro: novoEndBairro,
         cep: novoEndCep, cidade: novoEndCidade, estado: novoEndEstado, pais: novoEndPais
-      });
-      dispatch(setEnderecos([...enderecos, novo]));
+      };
+
+      let novosEnderecos;
+      if (enderecoEditandoUuid) {
+        novosEnderecos = await ClienteService.editarEndereco(enderecoEditandoUuid, payload);
+        showMessage('Endereço atualizado!', 'success');
+      } else {
+        novosEnderecos = await ClienteService.adicionarEndereco(payload);
+        showMessage('Endereço salvo!', 'success');
+      }
+
+      // A API retorna a lista completa de endereços
+      dispatch(setEnderecos(novosEnderecos));
       setShowNovoEndereco(false);
-      showMessage('Endereço salvo!', 'success');
+      setEnderecoEditandoUuid(null);
+      // Limpar campos
+      setNovoEndApelido(''); setNovoEndLogradouro(''); setNovoEndNumero('');
+      setNovoEndComplemento(''); setNovoEndBairro(''); setNovoEndCep('');
+      setNovoEndCidade(''); setNovoEndEstado('');
     } catch {
       showMessage('Erro ao salvar endereço.', 'error');
     }
@@ -264,7 +342,7 @@ export function useMeuPerfil() {
     user, isLoading, message, messageType, cliente,
     perfilState: {
       nome, setNome, genero, setGenero, dataNascimento, setDataNascimento,
-      visualizacaoEmail, visualizacaoCpf, visualizacaoTelefone,
+      visualizacaoEmail, setVisualizacaoEmail, visualizacaoCpf, setVisualizacaoCpf, visualizacaoTelefone, setVisualizacaoTelefone,
       novoEmail, setNovoEmail, novoCpf, setNovoCpf,
       novoTelefoneDdd, setNovoTelefoneDdd, novoTelefoneNumero, setNovoTelefoneNumero, novoTelefoneTipo, setNovoTelefoneTipo,
       senhaConfirmacao, setSenhaConfirmacao, showSenhaConfirmacao, setShowSenhaConfirmacao,

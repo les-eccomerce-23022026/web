@@ -12,8 +12,8 @@ export interface IClienteService {
   alterarSenha(userUuid: string, payload: IAlterarSenhaPayload): Promise<void>;
   inativarConta(): Promise<void>;
   listarEnderecos(userUuid: string): Promise<IEnderecoCliente[]>;
-  adicionarEndereco(endereco: Omit<IEnderecoCliente, 'uuid'>): Promise<IEnderecoCliente>;
-  editarEndereco(uuid: string, endereco: Partial<IEnderecoCliente>): Promise<IEnderecoCliente>;
+  adicionarEndereco(endereco: Omit<IEnderecoCliente, 'uuid'>): Promise<IEnderecoCliente[]>;
+  editarEndereco(uuid: string, endereco: Partial<IEnderecoCliente>): Promise<IEnderecoCliente[]>;
   removerEndereco(uuid: string): Promise<void>;
   listarCartoes(userUuid: string): Promise<ICartaoCliente[]>;
   adicionarCartao(cartao: Omit<ICartaoCliente, 'uuid'>): Promise<ICartaoCliente>;

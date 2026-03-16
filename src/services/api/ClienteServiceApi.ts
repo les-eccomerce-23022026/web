@@ -86,15 +86,15 @@ export class ClienteServiceApi implements IClienteService {
 
   async adicionarEndereco(
     endereco: Omit<IEnderecoCliente, 'uuid'>,
-  ): Promise<IEnderecoCliente> {
-    return ApiClient.post<IEnderecoCliente>(API_ENDPOINTS.adicionarEndereco, endereco);
+  ): Promise<IEnderecoCliente[]> {
+    return ApiClient.post<IEnderecoCliente[]>(API_ENDPOINTS.adicionarEndereco, endereco);
   }
 
   async editarEndereco(
     uuid: string,
     endereco: Partial<IEnderecoCliente>,
-  ): Promise<IEnderecoCliente> {
-    return ApiClient.put<IEnderecoCliente>(API_ENDPOINTS.editarEndereco(uuid), endereco);
+  ): Promise<IEnderecoCliente[]> {
+    return ApiClient.patch<IEnderecoCliente[]>(API_ENDPOINTS.editarEndereco(uuid), endereco);
   }
 
   async removerEndereco(uuid: string): Promise<void> {

@@ -4,6 +4,7 @@ import styles from './MeuPerfil.module.css';
 import { Eye, EyeOff } from 'lucide-react';
 import type { Genero } from '@/interfaces/ICliente';
 import { Modal } from '@/components/comum/Modal/Modal';
+import { useMaskedField } from '@/hooks/useMaskedField';
 
 export function MeuPerfil() {
   const {
@@ -11,6 +12,7 @@ export function MeuPerfil() {
     isLoading,
     message,
     messageType,
+    cliente,
     perfilState,
     senhaState,
     enderecoState,
@@ -22,6 +24,27 @@ export function MeuPerfil() {
     confirmModal,
   } = useMeuPerfil();
   const navigate = useNavigate();
+
+  // --- Helpers de Máscara (Hook Componentizado) ---
+  const emailMask = useMaskedField({ 
+    value: perfilState.visualizacaoEmail, 
+    setter: perfilState.setVisualizacaoEmail 
+  });
+  
+  const cpfMask = useMaskedField({ 
+    value: perfilState.visualizacaoCpf, 
+    setter: perfilState.setVisualizacaoCpf 
+  });
+
+  const telMask = useMaskedField({ 
+    value: perfilState.visualizacaoTelefone, 
+    setter: perfilState.setVisualizacaoTelefone 
+  });
+
+  const nomeMask = useMaskedField({
+    value: perfilState.nome,
+    setter: perfilState.setNome
+  });
 
   if (!user) return null;
 
@@ -102,7 +125,7 @@ export function MeuPerfil() {
       {/* Seção: Dados Pessoais - RF0022 */}
       {secaoAtiva === 'perfil' && (
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>👤 Meus Dados Cadastrais</h2>
+          <h2 className={styles.sectionTitle}>Dados Pessoais</h2>
           
           <div className={styles.formRow}>
             <div className="form-group">
@@ -111,6 +134,8 @@ export function MeuPerfil() {
                 type="text"
                 value={perfilState.nome}
                 onChange={(e) => perfilState.setNome(e.target.value)}
+                onFocus={() => nomeMask.onFocus(true)}
+                onBlur={() => nomeMask.onBlur(cliente?.nome || '')}
                 placeholder="Seu nome completo"
               />
             </div>
@@ -141,52 +166,37 @@ export function MeuPerfil() {
           </div>
 
           <hr className={styles.divider} />
-          <h3 className={styles.subTitle}>🔐 Atualizar Informações de Contato e Acesso</h3>
-          <p className={styles.infoText}>
-            Preencha os campos de "Novo" apenas se desejar alterar o valor atual. 
-            Uma confirmação de senha será solicitada ao clicar em salvar.
-          </p>
+          <h3 className={styles.subTitle}>Contato</h3>
+
 
           <div className={styles.formRow}>
             <div className="form-group">
-              <label>E-mail Atual</label>
-              <input type="text" value={perfilState.visualizacaoEmail} disabled className={styles.inputDisabled} />
-            </div>
-            <div className="form-group">
-              <label>Novo E-mail</label>
-              <input
-                type="email"
-                value={perfilState.novoEmail}
-                onChange={(e) => perfilState.setNovoEmail(e.target.value)}
-                placeholder="Alterar meu e-mail"
-              />
-            </div>
-          </div>
-
-          <div className={styles.formRow}>
-            <div className="form-group">
-              <label>CPF Atual</label>
-              <input type="text" value={perfilState.visualizacaoCpf} disabled className={styles.inputDisabled} />
-            </div>
-            <div className="form-group">
-              <label>Novo CPF</label>
+              <label>E-mail</label>
               <input
                 type="text"
-                value={perfilState.novoCpf}
-                onChange={(e) => perfilState.setNovoCpf(e.target.value)}
-                placeholder="Somente números"
+                value={perfilState.visualizacaoEmail}
+                onChange={(e) => perfilState.setVisualizacaoEmail(e.target.value)}
+                onFocus={emailMask.onFocus}
+                onBlur={() => emailMask.onBlur(cliente?.emailMascarado || cliente?.email || '')}
+                placeholder="Seu e-mail"
+              />
+            </div>
+            <div className="form-group">
+              <label>CPF</label>
+              <input
+                type="text"
+                value={perfilState.visualizacaoCpf}
+                onChange={(e) => perfilState.setVisualizacaoCpf(e.target.value)}
+                onFocus={cpfMask.onFocus}
+                onBlur={() => cpfMask.onBlur(cliente?.cpfMascarado || cliente?.cpf || '')}
+                placeholder="Somente números (ex: 00000000000)"
+                maxLength={11}
               />
             </div>
           </div>
 
           <fieldset className={styles.fieldSetCritico}>
             <legend>Telefone</legend>
-            <div className={styles.formRow}>
-              <div className="form-group">
-                <label>Telefone Atual</label>
-                <input type="text" value={perfilState.visualizacaoTelefone} disabled className={styles.inputDisabled} />
-              </div>
-            </div>
             <div className={styles.formRow}>
               <div className="form-group" style={{ flex: 0.5 }}>
                 <label>Tipo</label>
@@ -201,23 +211,21 @@ export function MeuPerfil() {
                   ))}
                 </select>
               </div>
-              <div className="form-group" style={{ flex: 0.3 }}>
-                <label>DDD</label>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Número com DDD (apenas números)</label>
                 <input
                   type="text"
-                  maxLength={2}
-                  value={perfilState.novoTelefoneDdd}
-                  onChange={(e) => perfilState.setNovoTelefoneDdd(e.target.value)}
-                  placeholder="DDD"
-                />
-              </div>
-              <div className="form-group">
-                <label>Novo Número</label>
-                <input
-                  type="text"
-                  value={perfilState.novoTelefoneNumero}
-                  onChange={(e) => perfilState.setNovoTelefoneNumero(e.target.value)}
-                  placeholder="Novo número"
+                  value={perfilState.visualizacaoTelefone}
+                  onChange={(e) => perfilState.setVisualizacaoTelefone(e.target.value)}
+                  onFocus={telMask.onFocus}
+                  onBlur={() => {
+                    const telOriginal = cliente?.telefone 
+                      ? `(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}` 
+                      : '';
+                    telMask.onBlur(telOriginal);
+                  }}
+                  placeholder="Ex: 11999999999"
+                  maxLength={11}
                 />
               </div>
             </div>
@@ -336,7 +344,9 @@ export function MeuPerfil() {
 
           {enderecoState.showNovoEndereco && (
             <div className={styles.novoPanel}>
-              <h3 className={styles.novoPanelTitle}>Novo Endereço</h3>
+              <h3 className={styles.novoPanelTitle}>
+                {enderecoState.enderecoEditandoUuid ? 'Editar Endereço' : 'Novo Endereço'}
+              </h3>
               <div className="form-group">
                 <label>Apelido (ex: Casa, Trabalho)</label>
                 <input
@@ -473,11 +483,14 @@ export function MeuPerfil() {
                   className="btn-primary"
                   onClick={enderecoState.handleAdicionarEndereco}
                 >
-                  Salvar Endereço
+                  {enderecoState.enderecoEditandoUuid ? 'Salvar Alterações' : 'Salvar Endereço'}
                 </button>
                 <button
                   className="btn-secondary"
-                  onClick={() => enderecoState.setShowNovoEndereco(false)}
+                  onClick={() => {
+                    enderecoState.setShowNovoEndereco(false);
+                    enderecoState.setEnderecoEditandoUuid(null);
+                  }}
                 >
                   Cancelar
                 </button>
