@@ -527,9 +527,19 @@ export function MeuPerfil() {
                   <span className={styles.cartaoBadge}>★ Preferencial</span>
                 )}
                 <div className={styles.cartaoActions}>
+                  <button
+                    className={`btn-secondary ${styles.btnSmall}`}
+                    disabled={cartaoState.isLoading}
+                    onClick={() =>
+                      cartaoState.setCartaoEditandoUuid(cartao.uuid)
+                    }
+                  >
+                    Editar
+                  </button>
                   {cartaoState.cartaoPreferencialUuid !== cartao.uuid && (
                     <button
                       className={`btn-secondary ${styles.btnSmall}`}
+                      disabled={cartaoState.isLoading}
                       onClick={() =>
                         cartaoState.handleDefinirPreferencial(cartao.uuid)
                       }
@@ -539,6 +549,7 @@ export function MeuPerfil() {
                   )}
                   <button
                     className={styles.btnSmallDanger}
+                    disabled={cartaoState.isLoading}
                     onClick={() =>
                       cartaoState.handleRemoverCartao(cartao.uuid)
                     }
@@ -561,7 +572,9 @@ export function MeuPerfil() {
 
           {cartaoState.showNovoCartao && (
             <div className={styles.novoPanel}>
-              <h3 className={styles.novoPanelTitle}>Novo Cartão</h3>
+              <h3 className={styles.novoPanelTitle}>
+                {cartaoState.cartaoEditandoUuid ? 'Editar Cartão' : 'Novo Cartão'}
+              </h3>
               <div className="form-group">
                 <label>Número do Cartão</label>
                 <input
@@ -569,6 +582,7 @@ export function MeuPerfil() {
                   placeholder="0000 0000 0000 0000"
                   maxLength={19}
                   value={cartaoState.novoCartaoNumero}
+                  disabled={!!cartaoState.cartaoEditandoUuid}
                   onChange={(e) =>
                     cartaoState.setNovoCartaoNumero(e.target.value)
                   }
@@ -607,53 +621,74 @@ export function MeuPerfil() {
                     type="text"
                     placeholder="MM/AAAA"
                     maxLength={7}
+                    pattern="\d{2}/\d{4}"
+                    title="Formato esperado: MM/AAAA"
                     value={cartaoState.novoCartaoValidade}
-                    onChange={(e) =>
-                      cartaoState.setNovoCartaoValidade(e.target.value)
-                    }
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      if (value.length <= 2) {
+                        cartaoState.setNovoCartaoValidade(value);
+                      } else {
+                        cartaoState.setNovoCartaoValidade(`${value.slice(0, 2)}/${value.slice(2, 6)}`);
+                      }
+                    }}
                   />
                 </div>
-                <div className="form-group">
-                  <label>CVV</label>
-                  <div className={styles.passwordWrapper}>
-                    <input
-                      type={cartaoState.showNovoCartaoCvv ? 'text' : 'password'}
-                      placeholder="***"
-                      maxLength={4}
-                      className={styles.passwordInput}
-                      value={cartaoState.novoCartaoCvv}
-                      onChange={(e) =>
-                        cartaoState.setNovoCartaoCvv(e.target.value)
-                      }
-                    />
-                    <button
-                      type="button"
-                      className={styles.passwordToggle}
-                      onClick={() =>
-                        cartaoState.setShowNovoCartaoCvv(
-                          !cartaoState.showNovoCartaoCvv,
-                        )
-                      }
-                    >
-                      {cartaoState.showNovoCartaoCvv ? (
-                        <EyeOff size={18} />
-                      ) : (
-                        <Eye size={18} />
-                      )}
-                    </button>
+                {!cartaoState.cartaoEditandoUuid && (
+                  <div className="form-group">
+                    <label>CVV</label>
+                    <div className={styles.passwordWrapper}>
+                      <input
+                        type={cartaoState.showNovoCartaoCvv ? 'text' : 'password'}
+                        placeholder="***"
+                        maxLength={3}
+                        pattern="\d{3}"
+                        title="O CVV deve ter exatamente 3 dígitos numéricos"
+                        className={styles.passwordInput}
+                        value={cartaoState.novoCartaoCvv}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          cartaoState.setNovoCartaoCvv(value);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className={styles.passwordToggle}
+                        onClick={() =>
+                          cartaoState.setShowNovoCartaoCvv(
+                            !cartaoState.showNovoCartaoCvv,
+                          )
+                        }
+                      >
+                        {cartaoState.showNovoCartaoCvv ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               <div className={styles.novoPanelActions}>
                 <button
                   className="btn-primary"
+                  disabled={cartaoState.isLoading}
                   onClick={cartaoState.handleAdicionarCartao}
                 >
-                  Salvar Cartão
+                  {cartaoState.isLoading ? 'Salvando...' : (cartaoState.cartaoEditandoUuid ? 'Atualizar Cartão' : 'Salvar Cartão')}
                 </button>
                 <button
                   className="btn-secondary"
-                  onClick={() => cartaoState.setShowNovoCartao(false)}
+                  disabled={cartaoState.isLoading}
+                  onClick={() => {
+                    cartaoState.setShowNovoCartao(false);
+                    cartaoState.setCartaoEditandoUuid(null);
+                    cartaoState.setNovoCartaoNumero('');
+                    cartaoState.setNovoCartaoNome('');
+                    cartaoState.setNovoCartaoValidade('');
+                    cartaoState.setNovoCartaoCvv('');
+                  }}
                 >
                   Cancelar
                 </button>
@@ -767,7 +802,11 @@ export function MeuPerfil() {
             Ao solicitar exclusão, sua conta será inativada e você não poderá
             mais acessá-la. Esta ação não pode ser desfeita.
           </p>
-          <button className={styles.btnDanger} onClick={handleDeleteAccount}>
+          <button 
+            style={{ backgroundColor: '#dc3545', color: '#ffffff', opacity: 1, visibility: 'visible', display: 'block' }} 
+            className={styles.btnDanger} 
+            onClick={handleDeleteAccount}
+          >
             Solicitar Exclusão da Conta
           </button>
         </section>

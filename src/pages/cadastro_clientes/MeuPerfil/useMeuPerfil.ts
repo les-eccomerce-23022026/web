@@ -63,6 +63,9 @@ export function useMeuPerfil() {
   const [showNovoEndereco, setShowNovoEndereco] = useState(false);
   const [enderecoEditandoUuid, setEnderecoEditandoUuid] = useState<string | null>(null);
 
+  // Loading específico para cartões
+  const [isCartaoLoading, setIsCartaoLoading] = useState(false);
+
   useEffect(() => {
     if (enderecoEditandoUuid) {
       const end = enderecos.find((e) => e.uuid === enderecoEditandoUuid);
@@ -98,6 +101,7 @@ export function useMeuPerfil() {
   // Cartões (Form)
   const [cartaoPreferencialUuid, setCartaoPreferencialUuid] = useState<string | null>(null);
   const [showNovoCartao, setShowNovoCartao] = useState(false);
+  const [cartaoEditandoUuid, setCartaoEditandoUuid] = useState<string | null>(null);
   const [novoCartaoNumero, setNovoCartaoNumero] = useState('');
   const [novoCartaoNome, setNovoCartaoNome] = useState('');
   const [novoCartaoBandeira, setNovoCartaoBandeira] = useState('Visa');
@@ -129,26 +133,18 @@ export function useMeuPerfil() {
   }, [user, dispatch]);
 
   useEffect(() => {
-    if (cliente && !hasInitialized.current) {
-      // Usamos setTimeout para evitar o erro de "setState synchronously within an effect"
-      // que pode ocorrer em certas versões/configurações do React/ESLint.
-      // Isso garante que a atualização ocorra após a fase de renderização inicial.
-      const timer = setTimeout(() => {
-        setNome(cliente.nome);
-        setGenero(cliente.genero);
-        setDataNascimento(cliente.dataNascimento);
-        setVisualizacaoEmail(cliente.emailMascarado || cliente.email);
-        setVisualizacaoCpf(cliente.cpfMascarado || cliente.cpf);
-        setCartaoPreferencialUuid(cliente.cartaoPreferencialUuid);
-        
-        if (cliente.telefone) {
-          setVisualizacaoTelefone(`(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}`);
-        }
-        hasInitialized.current = true;
-      }, 0);
-      return () => clearTimeout(timer);
+    if (cartaoEditandoUuid) {
+      const c = cartoes.find((c) => c.uuid === cartaoEditandoUuid);
+      if (c) {
+        setNovoCartaoNumero(`**** **** **** ${c.final}`);
+        setNovoCartaoNome(c.nomeImpresso);
+        setNovoCartaoBandeira(c.bandeira);
+        setNovoCartaoValidade(c.validade);
+        setNovoCartaoCvv('');
+        setShowNovoCartao(true);
+      }
     }
-  }, [cliente]);
+  }, [cartaoEditandoUuid, cartoes]);
 
   // --- Handlers ---
 
@@ -320,22 +316,79 @@ export function useMeuPerfil() {
   };
 
   const handleAdicionarCartao = async () => {
+    if (isCartaoLoading) return;
+
+    // Validação de CVV
+    const cvvLimpo = novoCartaoCvv.replace(/\D/g, '');
+    if (cvvLimpo.length !== 3) {
+      showMessage('O CVV deve conter exatamente 3 números.', 'error');
+      return;
+    }
+
+    // Validação de Validade (MM/AAAA)
+    if (!/^(0[1-9]|1[0-2])\/\d{4}$/.test(novoCartaoValidade)) {
+      showMessage('A validade deve estar no formato MM/AAAA com um mês válido (01-12).', 'error');
+      return;
+    }
+
+    setIsCartaoLoading(true);
     try {
-      const novo = await ClienteService.adicionarCartao({
-        final: novoCartaoNumero.slice(-4), nomeImpresso: novoCartaoNome,
-        bandeira: novoCartaoBandeira, validade: novoCartaoValidade
-      });
-      dispatch(setCartoes([...cartoes, novo]));
+      if (cartaoEditandoUuid) {
+        const atualizado = await ClienteService.editarCartao(cartaoEditandoUuid, {
+          nomeImpresso: novoCartaoNome,
+          bandeira: novoCartaoBandeira,
+          validade: novoCartaoValidade,
+        });
+        dispatch(setCartoes(cartoes.map((c) => (c.uuid === cartaoEditandoUuid ? atualizado : c))));
+        showMessage('Cartão atualizado!', 'success');
+      } else {
+        const novo = await ClienteService.adicionarCartao({
+          final: novoCartaoNumero.slice(-4),
+          nomeImpresso: novoCartaoNome,
+          bandeira: novoCartaoBandeira,
+          validade: novoCartaoValidade,
+        });
+        dispatch(setCartoes([...cartoes, novo]));
+        showMessage('Cartão salvo!', 'success');
+      }
       setShowNovoCartao(false);
-      showMessage('Cartão salvo!', 'success');
+      setCartaoEditandoUuid(null);
+      setNovoCartaoNumero('');
+      setNovoCartaoNome('');
+      setNovoCartaoValidade('');
+      setNovoCartaoCvv('');
     } catch {
       showMessage('Erro ao salvar cartão.', 'error');
+    } finally {
+      setIsCartaoLoading(false);
+    }
+  };
+
+  const handleRemoverCartao = async (uuid: string) => {
+    if (isCartaoLoading) return;
+    setIsCartaoLoading(true);
+    try {
+      await ClienteService.removerCartao(uuid);
+      dispatch(setCartoes(cartoes.filter(c => c.uuid !== uuid)));
+      showMessage('Cartão removido!', 'success');
+    } catch {
+      showMessage('Erro ao remover cartão.', 'error');
+    } finally {
+      setIsCartaoLoading(false);
     }
   };
 
   const handleDefinirPreferencial = async (uuid: string) => {
-    await ClienteService.definirCartaoPreferencial(uuid);
-    setCartaoPreferencialUuid(uuid);
+    if (isCartaoLoading) return;
+    setIsCartaoLoading(true);
+    try {
+      await ClienteService.definirCartaoPreferencial(uuid);
+      setCartaoPreferencialUuid(uuid);
+    } catch {
+      showMessage('Erro ao definir cartão preferencial.', 'error');
+    } finally {
+      setIsCartaoLoading(false);
+    }
   };
 
   return {
@@ -369,8 +422,10 @@ export function useMeuPerfil() {
       novoCartaoNumero, setNovoCartaoNumero, novoCartaoNome, setNovoCartaoNome,
       novoCartaoBandeira, setNovoCartaoBandeira, novoCartaoValidade, setNovoCartaoValidade,
       novoCartaoCvv, setNovoCartaoCvv, showNovoCartaoCvv, setShowNovoCartaoCvv,
-      handleAdicionarCartao, handleRemoverCartao: (uuid: string) => dispatch(setCartoes(cartoes.filter(c => c.uuid !== uuid))),
+      cartaoEditandoUuid, setCartaoEditandoUuid,
+      handleAdicionarCartao, handleRemoverCartao,
       handleDefinirPreferencial,
+      isLoading: isCartaoLoading,
     },
     handleDeleteAccount, secaoAtiva, setSecaoAtiva,
     dominios: { generosDisponiveis, tiposTelefone, tiposResidencia, tiposLogradouro, bandeirasPermitidas },

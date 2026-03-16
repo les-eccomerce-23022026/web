@@ -113,7 +113,8 @@ export class ClienteServiceApi implements IClienteService {
     let validadeIso = cartao.validade;
     if (cartao.validade.includes('/')) {
       const [mes, ano] = cartao.validade.split('/');
-      validadeIso = `20${ano}-${mes}-01T00:00:00.000Z`;
+      // Formato MM/AA para YYYY-MM-DD (usando o primeiro dia do mês por simplicidade)
+      validadeIso = `20${ano}-${mes}-01`;
     }
 
     const payloadApi = {
@@ -131,7 +132,34 @@ export class ClienteServiceApi implements IClienteService {
   async removerCartao(uuid: string): Promise<void> {
     await ApiClient.delete(API_ENDPOINTS.removerCartao(uuid));
   }
+  async editarCartao(
+    uuid: string,
+    cartao: Partial<ICartaoCliente>,
+  ): Promise<ICartaoCliente> {
+    let idBandeira: number | undefined;
+    if (cartao.bandeira) {
+      idBandeira = 1;
+      if (cartao.bandeira.toLowerCase() === 'mastercard') idBandeira = 2;
+      else if (cartao.bandeira.toLowerCase() === 'elo') idBandeira = 3;
+    }
 
+    let validadeIso = cartao.validade;
+    if (cartao.validade && cartao.validade.includes('/')) {
+      const [mes, ano] = cartao.validade.split('/');
+      validadeIso = `${ano}-${mes}-01`;
+    }
+
+    const payloadApi = {
+      idBandeiraCartao: idBandeira,
+      nomeImpresso: cartao.nomeImpresso,
+      validade: validadeIso,
+    };
+
+    return ApiClient.patch<ICartaoCliente>(
+      API_ENDPOINTS.editarCartao(uuid),
+      payloadApi,
+    );
+  }
   async definirCartaoPreferencial(cartaoUuid: string): Promise<void> {
     await ApiClient.patch(API_ENDPOINTS.definirCartaoPreferencial(cartaoUuid));
   }

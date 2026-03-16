@@ -251,18 +251,28 @@
 }
 
 .btnDanger {
-  background-color: var(--bn-error);
-  color: #fff;
+  background-color: var(--bn-error, #dc3545);
+  color: #ffffff;
   border: none;
   padding: 12px 20px;
-  border-radius: var(--bn-border-radius-sm);
+  border-radius: var(--bn-border-radius-sm, 4px);
   cursor: pointer;
   font-weight: 600;
-  transition: background-color 0.2s;
+  display: inline-block;
+  transition: all 0.2s ease;
+  min-height: 40px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btnDanger:hover {
-  background-color: #b71c1c;
+  background-color: #bd2130;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.btnDanger:active {
+  background-color: #a71d2a;
+  transform: translateY(0);
 }
 
 /* --- Small Action Buttons --- */
