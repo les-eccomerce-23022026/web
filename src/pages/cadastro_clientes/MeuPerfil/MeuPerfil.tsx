@@ -91,30 +91,35 @@ export function MeuPerfil() {
       {/* Tab Navigation */}
       <nav className={styles.tabNav}>
         <button
+          data-cy="tab-perfil"
           className={`${styles.tabItem} ${secaoAtiva === 'perfil' ? styles.tabItemActive : ''}`}
           onClick={() => setSecaoAtiva('perfil')}
         >
           👤 Dados Pessoais
         </button>
         <button
+          data-cy="tab-enderecos"
           className={`${styles.tabItem} ${secaoAtiva === 'enderecos' ? styles.tabItemActive : ''}`}
           onClick={() => setSecaoAtiva('enderecos')}
         >
           📍 Endereços ({enderecoState.enderecos.length})
         </button>
         <button
+          data-cy="tab-cartoes"
           className={`${styles.tabItem} ${secaoAtiva === 'cartoes' ? styles.tabItemActive : ''}`}
           onClick={() => setSecaoAtiva('cartoes')}
         >
           💳 Cartões ({cartaoState.cartoes.length})
         </button>
         <button
+          data-cy="tab-senha"
           className={`${styles.tabItem} ${secaoAtiva === 'senha' ? styles.tabItemActive : ''}`}
           onClick={() => setSecaoAtiva('senha')}
         >
           🔒 Senha
         </button>
         <button
+          data-cy="tab-perigo"
           data-testid="tab-perigo"
           className={`${styles.tabItem} ${secaoAtiva === 'perigo' ? styles.tabItemActive : ''}`}
           onClick={() => setSecaoAtiva('perigo')}
@@ -132,6 +137,7 @@ export function MeuPerfil() {
             <div className="form-group">
               <label>Nome Completo</label>
               <input
+                data-cy="perfil-nome-input"
                 type="text"
                 value={perfilState.nome}
                 onChange={(e) => perfilState.setNome(e.target.value)}
@@ -146,6 +152,7 @@ export function MeuPerfil() {
             <div className="form-group">
               <label>Gênero</label>
               <select
+                data-cy="perfil-genero-select"
                 value={perfilState.genero}
                 onChange={(e) => perfilState.setGenero(e.target.value as Genero)}
               >
@@ -159,6 +166,7 @@ export function MeuPerfil() {
             <div className="form-group">
               <label>Data de Nascimento</label>
               <input
+                data-cy="perfil-nascimento-input"
                 type="date"
                 value={perfilState.dataNascimento}
                 onChange={(e) => perfilState.setDataNascimento(e.target.value)}
@@ -174,6 +182,7 @@ export function MeuPerfil() {
             <div className="form-group">
               <label>E-mail</label>
               <input
+                data-cy="perfil-email-input"
                 type="text"
                 value={perfilState.visualizacaoEmail}
                 onChange={(e) => perfilState.setVisualizacaoEmail(e.target.value)}
@@ -185,6 +194,7 @@ export function MeuPerfil() {
             <div className="form-group">
               <label>CPF</label>
               <input
+                data-cy="perfil-cpf-input"
                 type="text"
                 value={perfilState.visualizacaoCpf}
                 onChange={(e) => perfilState.setVisualizacaoCpf(e.target.value)}
@@ -202,6 +212,7 @@ export function MeuPerfil() {
               <div className="form-group" style={{ flex: 0.5 }}>
                 <label>Tipo</label>
                 <select
+                  data-cy="perfil-tel-tipo-select"
                   value={perfilState.novoTelefoneTipo}
                   onChange={(e) => perfilState.setNovoTelefoneTipo(e.target.value)}
                 >
@@ -215,6 +226,7 @@ export function MeuPerfil() {
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Número com DDD (apenas números)</label>
                 <input
+                  data-cy="perfil-tel-input"
                   type="text"
                   value={perfilState.visualizacaoTelefone}
                   onChange={(e) => perfilState.setVisualizacaoTelefone(e.target.value)}
@@ -233,6 +245,7 @@ export function MeuPerfil() {
           </fieldset>
 
           <button
+            data-cy="perfil-save-button"
             className="btn-primary"
             style={{ marginTop: '24px', width: '100%', padding: '14px' }}
             onClick={perfilState.handleUpdateProfile}
@@ -249,12 +262,14 @@ export function MeuPerfil() {
             footer={
               <>
                 <button
+                  data-cy="perfil-modal-cancel-button"
                   className="btn-secondary"
                   onClick={() => perfilState.setShowModalSenha(false)}
                 >
                   Cancelar
                 </button>
                 <button
+                  data-cy="perfil-modal-confirm-button"
                   className="btn-primary"
                   onClick={perfilState.confirmarUpdateComSenha}
                 >
@@ -272,6 +287,7 @@ export function MeuPerfil() {
                 <label>Sua Senha de Acesso</label>
                 <div className={styles.passwordWrapper}>
                   <input
+                    data-cy="perfil-modal-password-input"
                     type={perfilState.showSenhaConfirmacao ? 'text' : 'password'}
                     className={styles.passwordInput}
                     value={perfilState.senhaConfirmacao}
@@ -300,7 +316,7 @@ export function MeuPerfil() {
 
           <div className={styles.enderecoList}>
             {enderecoState.enderecos.map((end) => (
-              <div key={end.uuid} className={styles.enderecoCard}>
+              <div key={end.uuid} className={styles.enderecoCard} data-cy={`endereco-card-${end.uuid}`}>
                 <div className={styles.enderecoApelido}>
                   {end.apelido || 'Sem apelido'}
                 </div>
@@ -314,6 +330,7 @@ export function MeuPerfil() {
                 </div>
                 <div className={styles.enderecoActions}>
                   <button
+                    data-cy={`endereco-edit-button-${end.uuid}`}
                     className={`btn-secondary ${styles.btnSmall}`}
                     onClick={() =>
                       enderecoState.setEnderecoEditandoUuid(end.uuid)
@@ -322,6 +339,7 @@ export function MeuPerfil() {
                     Editar
                   </button>
                   <button
+                    data-cy={`endereco-delete-button-${end.uuid}`}
                     className={styles.btnSmallDanger}
                     onClick={() =>
                       enderecoState.handleRemoverEndereco(end.uuid)
@@ -336,6 +354,7 @@ export function MeuPerfil() {
 
           {!enderecoState.showNovoEndereco && (
             <button
+              data-cy="endereco-add-button"
               className="btn-secondary"
               onClick={() => enderecoState.setShowNovoEndereco(true)}
             >
@@ -344,13 +363,14 @@ export function MeuPerfil() {
           )}
 
           {enderecoState.showNovoEndereco && (
-            <div className={styles.novoPanel}>
+            <div className={styles.novoPanel} data-cy="endereco-form-panel">
               <h3 className={styles.novoPanelTitle}>
                 {enderecoState.enderecoEditandoUuid ? 'Editar Endereço' : 'Novo Endereço'}
               </h3>
               <div className="form-group">
                 <label>Apelido (ex: Casa, Trabalho)</label>
                 <input
+                  data-cy="endereco-apelido-input"
                   type="text"
                   value={enderecoState.novoEndApelido}
                   onChange={(e) =>
@@ -362,6 +382,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>Tipo Residência</label>
                   <select
+                    data-cy="endereco-tipo-residencia-select"
                     value={enderecoState.novoEndTipoResidencia}
                     onChange={(e) =>
                       enderecoState.setNovoEndTipoResidencia(e.target.value)
@@ -377,6 +398,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>Tipo Logradouro</label>
                   <select
+                    data-cy="endereco-tipo-logradouro-select"
                     value={enderecoState.novoEndTipoLogradouro}
                     onChange={(e) =>
                       enderecoState.setNovoEndTipoLogradouro(e.target.value)
@@ -394,6 +416,7 @@ export function MeuPerfil() {
                 <div className={`form-group ${styles.formGroupLarge}`}>
                   <label>Logradouro *</label>
                   <input
+                    data-cy="endereco-logradouro-input"
                     type="text"
                     value={enderecoState.novoEndLogradouro}
                     onChange={(e) =>
@@ -404,6 +427,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>Número *</label>
                   <input
+                    data-cy="endereco-numero-input"
                     type="text"
                     value={enderecoState.novoEndNumero}
                     onChange={(e) =>
@@ -415,6 +439,7 @@ export function MeuPerfil() {
               <div className="form-group">
                 <label>Complemento</label>
                 <input
+                  data-cy="endereco-complemento-input"
                   type="text"
                   value={enderecoState.novoEndComplemento}
                   onChange={(e) =>
@@ -426,6 +451,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>Bairro *</label>
                   <input
+                    data-cy="endereco-bairro-input"
                     type="text"
                     value={enderecoState.novoEndBairro}
                     onChange={(e) =>
@@ -436,6 +462,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>CEP *</label>
                   <input
+                    data-cy="endereco-cep-input"
                     type="text"
                     value={enderecoState.novoEndCep}
                     onChange={(e) =>
@@ -448,6 +475,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>Cidade *</label>
                   <input
+                    data-cy="endereco-cidade-input"
                     type="text"
                     value={enderecoState.novoEndCidade}
                     onChange={(e) =>
@@ -458,6 +486,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>Estado *</label>
                   <input
+                    data-cy="endereco-estado-input"
                     type="text"
                     maxLength={2}
                     value={enderecoState.novoEndEstado}
@@ -471,6 +500,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>País</label>
                   <input
+                    data-cy="endereco-pais-input"
                     type="text"
                     value={enderecoState.novoEndPais}
                     onChange={(e) =>
@@ -481,12 +511,14 @@ export function MeuPerfil() {
               </div>
               <div className={styles.novoPanelActions}>
                 <button
+                  data-cy="endereco-submit-button"
                   className="btn-primary"
                   onClick={enderecoState.handleAdicionarEndereco}
                 >
                   {enderecoState.enderecoEditandoUuid ? 'Salvar Alterações' : 'Salvar Endereço'}
                 </button>
                 <button
+                  data-cy="endereco-cancel-button"
                   className="btn-secondary"
                   onClick={() => {
                     enderecoState.setShowNovoEndereco(false);
@@ -510,6 +542,7 @@ export function MeuPerfil() {
             {cartaoState.cartoes.map((cartao) => (
               <div
                 key={cartao.uuid}
+                data-cy={`cartao-card-${cartao.uuid}`}
                 className={`${styles.cartaoCard} ${
                   cartaoState.cartaoPreferencialUuid === cartao.uuid
                     ? styles.cartaoCardPreferencial
@@ -529,6 +562,7 @@ export function MeuPerfil() {
                 )}
                 <div className={styles.cartaoActions}>
                   <button
+                    data-cy={`cartao-edit-button-${cartao.uuid}`}
                     className={`btn-secondary ${styles.btnSmall}`}
                     disabled={cartaoState.isLoading}
                     onClick={() =>
@@ -539,6 +573,7 @@ export function MeuPerfil() {
                   </button>
                   {cartaoState.cartaoPreferencialUuid !== cartao.uuid && (
                     <button
+                      data-cy={`cartao-preferencial-button-${cartao.uuid}`}
                       className={`btn-secondary ${styles.btnSmall}`}
                       disabled={cartaoState.isLoading}
                       onClick={() =>
@@ -549,6 +584,7 @@ export function MeuPerfil() {
                     </button>
                   )}
                   <button
+                    data-cy={`cartao-delete-button-${cartao.uuid}`}
                     className={styles.btnSmallDanger}
                     disabled={cartaoState.isLoading}
                     onClick={() =>
@@ -564,6 +600,7 @@ export function MeuPerfil() {
 
           {!cartaoState.showNovoCartao && (
             <button
+              data-cy="cartao-add-button"
               className="btn-secondary"
               onClick={() => cartaoState.setShowNovoCartao(true)}
             >
@@ -572,13 +609,14 @@ export function MeuPerfil() {
           )}
 
           {cartaoState.showNovoCartao && (
-            <div className={styles.novoPanel}>
+            <div className={styles.novoPanel} data-cy="cartao-form-panel">
               <h3 className={styles.novoPanelTitle}>
                 {cartaoState.cartaoEditandoUuid ? 'Editar Cartão' : 'Novo Cartão'}
               </h3>
               <div className="form-group">
                 <label>Número do Cartão</label>
                 <input
+                  data-cy="cartao-numero-input"
                   type="text"
                   placeholder="0000 0000 0000 0000"
                   maxLength={19}
@@ -592,6 +630,7 @@ export function MeuPerfil() {
               <div className="form-group">
                 <label>Nome Impresso no Cartão</label>
                 <input
+                  data-cy="cartao-nome-input"
                   type="text"
                   placeholder="NOME COMO ESTÁ NO CARTÃO"
                   value={cartaoState.novoCartaoNome}
@@ -604,6 +643,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>Bandeira</label>
                   <select
+                    data-cy="cartao-bandeira-select"
                     value={cartaoState.novoCartaoBandeira}
                     onChange={(e) =>
                       cartaoState.setNovoCartaoBandeira(e.target.value)
@@ -619,6 +659,7 @@ export function MeuPerfil() {
                 <div className="form-group">
                   <label>Validade</label>
                   <input
+                    data-cy="cartao-validade-input"
                     type="text"
                     placeholder="MM/AAAA"
                     maxLength={7}
@@ -640,6 +681,7 @@ export function MeuPerfil() {
                     <label>CVV</label>
                     <div className={styles.passwordWrapper}>
                       <input
+                        data-cy="cartao-cvv-input"
                         type={cartaoState.showNovoCartaoCvv ? 'text' : 'password'}
                         placeholder="***"
                         maxLength={3}
@@ -673,6 +715,7 @@ export function MeuPerfil() {
               </div>
               <div className={styles.novoPanelActions}>
                 <button
+                  data-cy="cartao-submit-button"
                   className="btn-primary"
                   disabled={cartaoState.isLoading}
                   onClick={cartaoState.handleAdicionarCartao}
@@ -680,6 +723,7 @@ export function MeuPerfil() {
                   {cartaoState.isLoading ? 'Salvando...' : (cartaoState.cartaoEditandoUuid ? 'Atualizar Cartão' : 'Salvar Cartão')}
                 </button>
                 <button
+                  data-cy="cartao-cancel-button"
                   className="btn-secondary"
                   disabled={cartaoState.isLoading}
                   onClick={() => {
@@ -704,15 +748,16 @@ export function MeuPerfil() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>🔒 Alterar Senha</h2>
           {senhaState.senhaError && (
-            <p className={styles.messageError}>{senhaState.senhaError}</p>
+            <p data-cy="senha-error-message" className={styles.messageError}>{senhaState.senhaError}</p>
           )}
           {senhaState.senhaSuccess && (
-            <p className={styles.messageSuccess}>{senhaState.senhaSuccess}</p>
+            <p data-cy="senha-success-message" className={styles.messageSuccess}>{senhaState.senhaSuccess}</p>
           )}
           <div className="form-group">
             <label>Senha Atual</label>
             <div className={styles.passwordWrapper}>
               <input
+                data-cy="senha-atual-input"
                 type={senhaState.showSenhaAtual ? 'text' : 'password'}
                 className={styles.passwordInput}
                 value={senhaState.senhaAtual}
@@ -737,6 +782,7 @@ export function MeuPerfil() {
             <label>Nova Senha</label>
             <div className={styles.passwordWrapper}>
               <input
+                data-cy="nova-senha-input"
                 type={senhaState.showNovaSenha ? 'text' : 'password'}
                 className={styles.passwordInput}
                 value={senhaState.novaSenha}
@@ -764,6 +810,7 @@ export function MeuPerfil() {
             <label>Confirmar Nova Senha</label>
             <div className={styles.passwordWrapper}>
               <input
+                data-cy="confirmar-nova-senha-input"
                 type={senhaState.showConfirmaNovaSenha ? 'text' : 'password'}
                 className={styles.passwordInput}
                 value={senhaState.confirmaNovaSenha}
@@ -787,6 +834,7 @@ export function MeuPerfil() {
             </div>
           </div>
           <button
+            data-cy="senha-submit-button"
             className="btn-secondary"
             onClick={senhaState.handleChangePassword}
           >
@@ -804,6 +852,7 @@ export function MeuPerfil() {
             mais acessá-la. Esta ação não pode ser desfeita.
           </p>
           <button 
+            data-cy="inativar-conta-button"
             data-testid="btn-solicitar-exclusao"
             style={{ backgroundColor: '#dc3545', color: '#ffffff', opacity: 1, visibility: 'visible', display: 'block' }} 
             className={styles.btnDanger} 
@@ -822,10 +871,11 @@ export function MeuPerfil() {
         variant={confirmModal.config.variant === 'danger' ? 'danger' : 'medium'}
         footer={
           <>
-            <button className="btn-secondary" onClick={confirmModal.close}>
+            <button data-cy="modal-cancel-button" className="btn-secondary" onClick={confirmModal.close}>
               Cancelar
             </button>
             <button
+              data-cy="modal-confirm-button"
               data-testid="modal-confirm-button"
               className={confirmModal.config.variant === 'danger' ? styles.btnDanger : 'btn-primary'}
               onClick={confirmModal.config.onConfirm}

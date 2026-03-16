@@ -1,0 +1,12 @@
+{
+  "sucesso": true,
+  "dados": {
+    "token": "fake-jwt-token-admin",
+    "user": {
+      "uuid": "uuid-admin-fixture",
+      "nome": "Admin Fixture",
+      "email": "admin@fixture.com",
+      "role": "admin"
+    }
+  }
+}

@@ -1,20 +1,20 @@
+import { Header } from '../../support/pages/layout/Header';
+
 describe('Auth - Controle de Acesso e Autorização', () => {
-  const loginCliente = Cypress.env('cliente');
-  const loginAdmin = Cypress.env('admin');
 
   context('Visibilidade de Componentes (RBAC)', () => {
     it('deve exibir o link de administração apenas para usuários com perfil admin', () => {
       // Cliente não vê o link
       cy.loginProgramatico('cliente');
       cy.visit('/');
-      cy.getDataCy('header-admin-link').should('not.exist');
+      Header.adminLink.should('not.exist');
       
-      cy.getDataCy('header-logout-button').click();
+      Header.logout();
 
       // Admin vê o link
       cy.loginProgramatico('admin');
       cy.visit('/');
-      cy.getDataCy('header-admin-link').should('be.visible').and('have.attr', 'href', '/admin');
+      Header.adminLink.should('be.visible').and('have.attr', 'href', '/admin');
     });
   });
 

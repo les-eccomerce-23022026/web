@@ -1,5 +1,6 @@
+import { Header } from '../../support/pages/layout/Header';
+
 describe('Auth - Permissões do Cliente', () => {
-  const loginCliente = Cypress.env('cliente');
 
   it('deve garantir que o cliente acesse seu perfil mas não a área de gestão administrativa', () => {
     // 1. Logar como cliente de forma rápida

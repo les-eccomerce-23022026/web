@@ -311,8 +311,23 @@ export function useMeuPerfil() {
   };
 
   const handleRemoverEndereco = async (uuid: string) => {
-    await ClienteService.removerEndereco(uuid);
-    dispatch(setEnderecos(enderecos.filter(e => e.uuid !== uuid)));
+    setConfirmModalConfig({
+      title: 'Remover Endereço',
+      message: 'Tem certeza que deseja remover este endereço?',
+      onConfirm: async () => {
+        try {
+          await ClienteService.removerEndereco(uuid);
+          dispatch(setEnderecos(enderecos.filter(e => e.uuid !== uuid)));
+          showMessage('Endereço removido!', 'success');
+        } catch {
+          showMessage('Erro ao remover endereço.', 'error');
+        } finally {
+          setShowConfirmModal(false);
+        }
+      },
+      variant: 'danger'
+    });
+    setShowConfirmModal(true);
   };
 
   const handleAdicionarCartao = async () => {
@@ -365,17 +380,25 @@ export function useMeuPerfil() {
   };
 
   const handleRemoverCartao = async (uuid: string) => {
-    if (isCartaoLoading) return;
-    setIsCartaoLoading(true);
-    try {
-      await ClienteService.removerCartao(uuid);
-      dispatch(setCartoes(cartoes.filter(c => c.uuid !== uuid)));
-      showMessage('Cartão removido!', 'success');
-    } catch {
-      showMessage('Erro ao remover cartão.', 'error');
-    } finally {
-      setIsCartaoLoading(false);
-    }
+    setConfirmModalConfig({
+      title: 'Remover Cartão',
+      message: 'Tem certeza que deseja remover este cartão?',
+      onConfirm: async () => {
+        setIsCartaoLoading(true);
+        try {
+          await ClienteService.removerCartao(uuid);
+          dispatch(setCartoes(cartoes.filter(c => c.uuid !== uuid)));
+          showMessage('Cartão removido!', 'success');
+        } catch {
+          showMessage('Erro ao remover cartão.', 'error');
+        } finally {
+          setIsCartaoLoading(false);
+          setShowConfirmModal(false);
+        }
+      },
+      variant: 'danger'
+    });
+    setShowConfirmModal(true);
   };
 
   const handleDefinirPreferencial = async (uuid: string) => {

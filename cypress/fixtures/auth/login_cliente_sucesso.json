@@ -1,0 +1,13 @@
+{
+  "sucesso": true,
+  "dados": {
+    "token": "fake-jwt-token-cliente",
+    "user": {
+      "uuid": "uuid-cliente-fixture",
+      "nome": "João Fixture",
+      "email": "joao@fixture.com",
+      "cpf": "123.456.789-00",
+      "role": "cliente"
+    }
+  }
+}

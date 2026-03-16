@@ -3,7 +3,7 @@ import { defineConfig } from "cypress";
 export default defineConfig({
   e2e: {
     baseUrl: "http://localhost:5173",
-    allowCypressEnv: false, // Desativado por segurança para evitar leitura via window.Cypress
+    allowCypressEnv: true, // Reativado para permitir acesso síncrono via Cypress.env() necessário para cy.session
     setupNodeEvents(_on, _config) {
       // implement node event listeners here
     },
