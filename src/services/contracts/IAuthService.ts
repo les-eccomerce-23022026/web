@@ -1,5 +1,4 @@
 import type {
-  IUsuario,
   ILoginPayload,
   ILoginResponse,
   IRegistroClientePayload,

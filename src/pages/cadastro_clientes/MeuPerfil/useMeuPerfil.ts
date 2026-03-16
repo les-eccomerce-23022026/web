@@ -1,40 +1,55 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
+import { 
+  fetchPerfilCompleto, 
+  updatePerfilAction, 
+  setEnderecos, 
+  setCartoes 
+} from '@/store/slices/clienteSlice';
 import { ClienteService } from '@/services/ClienteService';
-import type { ICliente, IAtualizarPerfilPayload, Genero } from '@/interfaces/ICliente';
-import type { IEnderecoCliente, ICartaoCliente } from '@/interfaces/IPagamento';
-import clientesMock from '@/mocks/clientesMock.json';
+import type { IAtualizarPerfilPayload, Genero } from '@/interfaces/ICliente';
 
-const REGEX_SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
+export const generosDisponiveis = ['Masculino', 'Feminino', 'Outro', 'Prefiro não informar'];
+export const tiposTelefone = ['Celular', 'Residencial', 'Comercial'];
+export const tiposResidencia = ['Casa', 'Apartamento', 'Outro'];
+export const tiposLogradouro = ['Rua', 'Avenida', 'Alameda', 'Praça', 'Rodovia'];
+export const bandeirasPermitidas = ['Visa', 'Mastercard', 'Elo', 'American Express'];
 
 export function useMeuPerfil() {
-  const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // --- Loading / Messages ---
-  const [isLoading, setIsLoading] = useState(true);
+  // --- Estado Global (Redux) ---
+  const { user } = useAppSelector((state) => state.auth);
+  const { perfil: cliente, isLoading, enderecos, cartoes } = useAppSelector((state) => state.cliente);
+
+  // --- Estado Local para Rascunho de Edição (Formulários) ---
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
+  const [secaoAtiva, setSecaoAtiva] = useState<'perfil' | 'enderecos' | 'cartoes' | 'senha' | 'perigo'>('perfil');
 
-  // --- Perfil ---
-  const [cliente, setCliente] = useState<ICliente | null>(null);
+  // Perfil (Inputs)
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState<Genero>('Masculino');
   const [dataNascimento, setDataNascimento] = useState('');
-
-  // Estados para edição segura (RF0022 reforçado)
-  const [cpfEdicao, setCpfEdicao] = useState('');
-  const [telefoneDdd, setTelefoneDdd] = useState('');
-  const [telefoneNumero, setTelefoneNumero] = useState('');
-  const [telefoneTipo, setTelefoneTipo] = useState('Celular');
+  
+  // Novos dados (Update seguro)
+  const [visualizacaoEmail, setVisualizacaoEmail] = useState('');
+  const [visualizacaoCpf, setVisualizacaoCpf] = useState('');
+  const [visualizacaoTelefone, setVisualizacaoTelefone] = useState('');
+  const [novoEmail, setNovoEmail] = useState('');
+  const [novoCpf, setNovoCpf] = useState('');
+  const [novoTelefoneDdd, setNovoTelefoneDdd] = useState('');
+  const [novoTelefoneNumero, setNovoTelefoneNumero] = useState('');
+  const [novoTelefoneTipo, setNovoTelefoneTipo] = useState('Celular');
+  
   const [senhaConfirmacao, setSenhaConfirmacao] = useState('');
   const [showSenhaConfirmacao, setShowSenhaConfirmacao] = useState(false);
   const [showModalSenha, setShowModalSenha] = useState(false);
 
-  // --- Senha ---
+  // Senha (Inputs)
   const [senhaAtual, setSenhaAtual] = useState('');
   const [showSenhaAtual, setShowSenhaAtual] = useState(false);
   const [novaSenha, setNovaSenha] = useState('');
@@ -44,42 +59,9 @@ export function useMeuPerfil() {
   const [senhaError, setSenhaError] = useState('');
   const [senhaSuccess, setSenhaSuccess] = useState('');
 
-  // --- Endereços ---
-  const [enderecos, setEnderecos] = useState<IEnderecoCliente[]>([]);
+  // Endereços (Form)
   const [showNovoEndereco, setShowNovoEndereco] = useState(false);
   const [enderecoEditandoUuid, setEnderecoEditandoUuid] = useState<string | null>(null);
-
-  // --- Modal Confirmação ---
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [confirmModalConfig, setConfirmModalConfig] = useState<{
-    title: string;
-    message: string;
-    onConfirm: () => void;
-    variant?: 'danger' | 'medium';
-  }>({
-    title: '',
-    message: '',
-    onConfirm: () => {},
-  });
-
-  const openConfirmModal = (
-    title: string,
-    message: string,
-    onConfirm: () => void,
-    variant: 'danger' | 'medium' = 'medium'
-  ) => {
-    setConfirmModalConfig({ title, message, onConfirm, variant });
-    setShowConfirmModal(true);
-  };
-
-  const closeConfirmModal = () => setShowConfirmModal(false);
-
-  // --- Cartões ---
-  const [cartoes, setCartoes] = useState<ICartaoCliente[]>([]);
-  const [cartaoPreferencialUuid, setCartaoPreferencialUuid] = useState<string | null>(null);
-  const [showNovoCartao, setShowNovoCartao] = useState(false);
-
-  // --- Novo Endereço Form ---
   const [novoEndApelido, setNovoEndApelido] = useState('');
   const [novoEndTipoResidencia, setNovoEndTipoResidencia] = useState('Casa');
   const [novoEndTipoLogradouro, setNovoEndTipoLogradouro] = useState('Rua');
@@ -92,7 +74,9 @@ export function useMeuPerfil() {
   const [novoEndEstado, setNovoEndEstado] = useState('');
   const [novoEndPais, setNovoEndPais] = useState('Brasil');
 
-  // --- Novo Cartão Form ---
+  // Cartões (Form)
+  const [cartaoPreferencialUuid, setCartaoPreferencialUuid] = useState<string | null>(null);
+  const [showNovoCartao, setShowNovoCartao] = useState(false);
   const [novoCartaoNumero, setNovoCartaoNumero] = useState('');
   const [novoCartaoNome, setNovoCartaoNome] = useState('');
   const [novoCartaoBandeira, setNovoCartaoBandeira] = useState('Visa');
@@ -100,15 +84,16 @@ export function useMeuPerfil() {
   const [novoCartaoCvv, setNovoCartaoCvv] = useState('');
   const [showNovoCartaoCvv, setShowNovoCartaoCvv] = useState(false);
 
-  // --- Seção ativa ---
-  const [secaoAtiva, setSecaoAtiva] = useState<'perfil' | 'enderecos' | 'cartoes' | 'senha' | 'perigo'>('perfil');
+  // Modal genérico
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmModalConfig, setConfirmModalConfig] = useState<{
+    title: string;
+    message: string;
+    onConfirm: () => void;
+    variant?: 'danger' | 'medium';
+  }>({ title: '', message: '', onConfirm: () => {} });
 
-  // --- Domínios ---
-  const generosDisponiveis = clientesMock.generosDisponiveis;
-  const tiposTelefone = clientesMock.tiposTelefone;
-  const tiposResidencia = clientesMock.tiposResidencia;
-  const tiposLogradouro = clientesMock.tiposLogradouro;
-  const bandeirasPermitidas = clientesMock.bandeirasPermitidas;
+  const hasInitialized = useRef(false);
 
   const showMessage = useCallback((msg: string, type: 'success' | 'error') => {
     setMessage(msg);
@@ -116,425 +101,201 @@ export function useMeuPerfil() {
     setTimeout(() => setMessage(''), 5000);
   }, []);
 
-  // --- Carregar Perfil ---
+  // --- Sincronizar Redux -> State Local (Apenas no carregamento) ---
   useEffect(() => {
     if (!user) return;
+    dispatch(fetchPerfilCompleto(user.uuid));
+  }, [user, dispatch]);
 
-    const carregarPerfil = async () => {
-      try {
-        const perfil = await ClienteService.obterPerfil(user.uuid);
-        setCliente(perfil);
-        setNome(perfil.nome);
-        setGenero(perfil.genero);
-        setDataNascimento(perfil.dataNascimento);
-        setCpfEdicao(perfil.cpfMascarado || perfil.cpf);
-        setEnderecos(perfil.enderecos || []);
-        setCartaoPreferencialUuid(perfil.cartaoPreferencialUuid);
+  useEffect(() => {
+    if (cliente && !hasInitialized.current) {
+      // Usamos setTimeout para evitar o erro de "setState synchronously within an effect"
+      // que pode ocorrer em certas versões/configurações do React/ESLint.
+      // Isso garante que a atualização ocorra após a fase de renderização inicial.
+      const timer = setTimeout(() => {
+        setNome(cliente.nome);
+        setGenero(cliente.genero);
+        setDataNascimento(cliente.dataNascimento);
+        setVisualizacaoEmail(cliente.email);
+        setVisualizacaoCpf(cliente.cpfMascarado || cliente.cpf);
+        setCartaoPreferencialUuid(cliente.cartaoPreferencialUuid);
         
-        // Telefone pode ser undefined se não foi cadastrado
-        if (perfil.telefone) {
-          setTelefoneTipo(perfil.telefone.tipo);
-          setTelefoneDdd(perfil.telefone.ddd);
-          setTelefoneNumero(perfil.telefone.numeroMascarado || perfil.telefone.numero);
+        if (cliente.telefone) {
+          setVisualizacaoTelefone(`(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}`);
         }
+        hasInitialized.current = true;
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [cliente]);
 
-        if (!perfil.telefone) {
-          setTelefoneTipo('Celular');
-          setTelefoneDdd('');
-          setTelefoneNumero('');
-        }
+  // --- Handlers ---
 
-        const cartoesResult = await ClienteService.listarCartoes(user.uuid);
-        setCartoes(cartoesResult);
-      } catch (err) {
-        showMessage('Erro ao carregar perfil.', 'error');
-        console.error('[Perfil] Erro:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    carregarPerfil();
-  }, [user, showMessage]);
-
-  // --- Atualizar Perfil ---
   const handleUpdateProfile = async () => {
-    if (!nome.trim()) {
-      showMessage('Nome é obrigatório.', 'error');
+    const mudandoEmail = novoEmail.trim() !== '' && novoEmail !== cliente?.email;
+    const mudandoCpf = novoCpf.trim() !== '' && novoCpf !== cliente?.cpf;
+    const mudandoTelefone = novoTelefoneNumero.trim() !== '';
+
+    if (mudandoEmail || mudandoCpf || mudandoTelefone) {
+      setShowModalSenha(true);
       return;
     }
 
     const payload: IAtualizarPerfilPayload = {};
-
-    // 1. Verificar o que mudou (Comparação cirúrgica)
     if (nome !== cliente?.nome) payload.nome = nome;
     if (genero !== cliente?.genero) payload.genero = genero;
     if (dataNascimento !== cliente?.dataNascimento) payload.dataNascimento = dataNascimento;
 
-    // 2. Dados críticos: Só enviar se NÃO estiverem mascarados e forem diferentes do original
-    const cpfOriginal = cliente?.cpfMascarado || cliente?.cpf;
-    const cpfMudou = cpfEdicao !== cpfOriginal && !cpfEdicao.includes('*');
-    if (cpfMudou) payload.cpf = cpfEdicao;
-
-    const telOriginal = cliente?.telefone?.numeroMascarado || cliente?.telefone?.numero || '';
-    const telMudou = (telefoneNumero !== telOriginal || telefoneDdd !== cliente?.telefone?.ddd || telefoneTipo !== cliente?.telefone?.tipo) 
-                     && !telefoneNumero.includes('*');
-
-    if (telMudou) {
-      payload.telefone = {
-        tipo: telefoneTipo as any,
-        ddd: telefoneDdd,
-        numero: telefoneNumero,
-      };
-    }
-
-    // 3. Se nada mudou, avisar e não fazer nada
     if (Object.keys(payload).length === 0) {
       showMessage('Nenhuma alteração detectada.', 'success');
       return;
     }
 
-    // 4. Se mudou dado crítico, abrir o modal de senha
-    if (cpfMudou || telMudou) {
-      setShowModalSenha(true);
-      return; // Para aqui, espera o modal
-    }
-
-    // 5. Se mudou apenas dados básicos (nome, gênero, etc), executa direto
     try {
-      await ClienteService.atualizarPerfil(payload);
+      await dispatch(updatePerfilAction(payload)).unwrap();
       showMessage('Dados atualizados com sucesso!', 'success');
-      const perfilAtualizado = await ClienteService.obterPerfil(user!.uuid);
-      setCliente(perfilAtualizado);
-    } catch (err: any) {
-      showMessage(err.message || 'Erro ao atualizar dados.', 'error');
+      hasInitialized.current = false; // Permite re-sincronizar se necessário
+    } catch (err: unknown) {
+      const error = err as Error;
+      const errorMsg = typeof err === 'string' ? err : error.message || 'Erro ao atualizar dados.';
+      showMessage(errorMsg, 'error');
     }
   };
 
   const confirmarUpdateComSenha = async () => {
-    if (!senhaConfirmacao) {
-      showMessage('Informe sua senha para confirmar.', 'error');
-      return;
-    }
-
-    const payload: IAtualizarPerfilPayload = {
-      nome,
-      genero,
-      dataNascimento,
-      senhaConfirmacao,
-    };
-
-    // Adiciona dados críticos ao payload
-    if (!cpfEdicao.includes('*')) payload.cpf = cpfEdicao;
-    if (!telefoneNumero.includes('*')) {
-      payload.telefone = {
-        tipo: telefoneTipo as any,
-        ddd: telefoneDdd,
-        numero: telefoneNumero,
+    const payload: IAtualizarPerfilPayload = { nome, genero, dataNascimento, senhaConfirmacao };
+    if (novoEmail.trim()) payload.email = novoEmail;
+    if (novoCpf.trim()) payload.cpf = novoCpf;
+    if (novoTelefoneNumero.trim()) {
+      payload.telefone = { 
+        tipo: novoTelefoneTipo as 'Celular' | 'Residencial' | 'Comercial', 
+        ddd: novoTelefoneDdd, 
+        numero: novoTelefoneNumero 
       };
     }
 
     try {
-      await ClienteService.atualizarPerfil(payload);
-      showMessage('Dados críticos atualizados com sucesso!', 'success');
+      await dispatch(updatePerfilAction(payload)).unwrap();
+      showMessage('Dados atualizados!', 'success');
       setShowModalSenha(false);
       setSenhaConfirmacao('');
-      const perfilAtualizado = await ClienteService.obterPerfil(user!.uuid);
-      setCliente(perfilAtualizado);
-    } catch (err: any) {
-      showMessage(err.message || 'Senha inválida ou erro na atualização.', 'error');
+      setNovoEmail('');
+      setNovoCpf('');
+      setNovoTelefoneDdd('');
+      setNovoTelefoneNumero('');
+      hasInitialized.current = false;
+    } catch (err: unknown) {
+      const error = err as Error;
+      const errorMsg = typeof err === 'string' ? err : error.message || 'Erro na atualização segura.';
+      showMessage(errorMsg, 'error');
     }
   };
 
-  // --- Alterar Senha ---
   const handleChangePassword = async () => {
-    setSenhaError('');
-    setSenhaSuccess('');
-
-    if (!senhaAtual) {
-      setSenhaError('Informe a senha atual.');
+    if (!senhaAtual || !novaSenha || novaSenha !== confirmaNovaSenha) {
+      setSenhaError('Verifique os campos de senha.');
       return;
     }
-
-    if (!REGEX_SENHA_FORTE.test(novaSenha)) {
-      setSenhaError('Nova senha deve ter 8+ caracteres, maiúsculas, minúsculas, números e especiais.');
-      return;
-    }
-
-    if (novaSenha !== confirmaNovaSenha) {
-      setSenhaError('As senhas não coincidem.');
-      return;
-    }
-
-    if (!user) return;
-
     try {
-      await ClienteService.alterarSenha(user.uuid, {
-        senhaAtual,
-        novaSenha,
-        confirmacaoNovaSenha: confirmaNovaSenha,
-      });
-      setSenhaSuccess('Senha alterada com sucesso!');
-      setSenhaAtual('');
-      setNovaSenha('');
-      setConfirmaNovaSenha('');
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Erro ao alterar senha.';
+      await ClienteService.alterarSenha(user!.uuid, { senhaAtual, novaSenha, confirmacaoNovaSenha: confirmaNovaSenha });
+      setSenhaSuccess('Senha alterada!');
+      setSenhaAtual(''); setNovaSenha(''); setConfirmaNovaSenha('');
+    } catch (err: unknown) {
+      const errorMsg = (err as Error).message || 'Erro ao alterar senha.';
       setSenhaError(errorMsg);
-      console.error('[Perfil] Erro ao alterar senha:', err);
     }
   };
 
-  // --- Inativar Conta ---
-  const handleDeleteAccount = async () => {
-    openConfirmModal(
-      'Inativar Conta',
-      'Tem certeza que deseja inativar sua conta? Esta ação não pode ser desfeita.',
-      async () => {
-        try {
-          await ClienteService.inativarConta();
-          dispatch(logout());
-          navigate('/');
-        } catch (err) {
-          showMessage('Erro ao inativar conta.', 'error');
-          console.error('[Perfil] Erro ao inativar:', err);
-        } finally {
-          closeConfirmModal();
-        }
+  const handleDeleteAccount = () => {
+    setConfirmModalConfig({
+      title: 'Inativar Conta',
+      message: 'Tem certeza?',
+      onConfirm: async () => {
+        await ClienteService.inativarConta();
+        dispatch(logout());
+        navigate('/');
       },
-      'danger'
-    );
+      variant: 'danger'
+    });
+    setShowConfirmModal(true);
   };
 
-  // --- Adicionar Endereço ---
   const handleAdicionarEndereco = async () => {
-    if (!novoEndLogradouro.trim() || !novoEndNumero.trim() || !novoEndBairro.trim() || !novoEndCep.trim() || !novoEndCidade.trim() || !novoEndEstado.trim()) {
-      showMessage('Preencha todos os campos obrigatórios do endereço.', 'error');
-      return;
-    }
-
     try {
-      const novoEndereco = await ClienteService.adicionarEndereco({
-        apelido: novoEndApelido,
-        tipoResidencia: novoEndTipoResidencia,
-        tipoLogradouro: novoEndTipoLogradouro,
-        logradouro: novoEndLogradouro,
-        numero: novoEndNumero,
-        complemento: novoEndComplemento,
-        bairro: novoEndBairro,
-        cep: novoEndCep,
-        cidade: novoEndCidade,
-        estado: novoEndEstado,
-        pais: novoEndPais,
+      const novo = await ClienteService.adicionarEndereco({
+        apelido: novoEndApelido, tipoResidencia: novoEndTipoResidencia, 
+        tipoLogradouro: novoEndTipoLogradouro, logradouro: novoEndLogradouro,
+        numero: novoEndNumero, complemento: novoEndComplemento, bairro: novoEndBairro,
+        cep: novoEndCep, cidade: novoEndCidade, estado: novoEndEstado, pais: novoEndPais
       });
-
-      setEnderecos((prev) => [...prev, novoEndereco]);
-      limparFormEndereco();
+      dispatch(setEnderecos([...enderecos, novo]));
       setShowNovoEndereco(false);
-      showMessage('Endereço adicionado com sucesso!', 'success');
-    } catch (err) {
-      showMessage('Erro ao adicionar endereço.', 'error');
-      console.error('[Perfil] Erro ao adicionar endereço:', err);
+      showMessage('Endereço salvo!', 'success');
+    } catch {
+      showMessage('Erro ao salvar endereço.', 'error');
     }
   };
 
-  const limparFormEndereco = () => {
-    setNovoEndApelido('');
-    setNovoEndTipoResidencia('Casa');
-    setNovoEndTipoLogradouro('Rua');
-    setNovoEndLogradouro('');
-    setNovoEndNumero('');
-    setNovoEndComplemento('');
-    setNovoEndBairro('');
-    setNovoEndCep('');
-    setNovoEndCidade('');
-    setNovoEndEstado('');
-    setNovoEndPais('Brasil');
-  };
-
-  // --- Remover Endereço ---
   const handleRemoverEndereco = async (uuid: string) => {
-    openConfirmModal(
-      'Remover Endereço',
-      'Tem certeza que deseja remover este endereço?',
-      async () => {
-        try {
-          await ClienteService.removerEndereco(uuid);
-          setEnderecos((prev) => prev.filter((e) => e.uuid !== uuid));
-          showMessage('Endereço removido.', 'success');
-        } catch (err) {
-          showMessage('Erro ao remover endereço.', 'error');
-          console.error('[Perfil] Erro ao remover endereço:', err);
-        } finally {
-          closeConfirmModal();
-        }
-      },
-      'danger'
-    );
+    await ClienteService.removerEndereco(uuid);
+    dispatch(setEnderecos(enderecos.filter(e => e.uuid !== uuid)));
   };
 
-  // --- Adicionar Cartão ---
   const handleAdicionarCartao = async () => {
-    if (!novoCartaoNumero || !novoCartaoNome || !novoCartaoValidade || !novoCartaoCvv) {
-      showMessage('Preencha todos os campos do cartão.', 'error');
-      return;
-    }
-
-    const final4 = novoCartaoNumero.slice(-4);
-
     try {
-      const novoCartao = await ClienteService.adicionarCartao({
-        final: final4,
-        nomeImpresso: novoCartaoNome.toUpperCase(),
-        bandeira: novoCartaoBandeira,
-        validade: novoCartaoValidade,
+      const novo = await ClienteService.adicionarCartao({
+        final: novoCartaoNumero.slice(-4), nomeImpresso: novoCartaoNome,
+        bandeira: novoCartaoBandeira, validade: novoCartaoValidade
       });
-
-      setCartoes((prev) => [...prev, novoCartao]);
-      limparFormCartao();
+      dispatch(setCartoes([...cartoes, novo]));
       setShowNovoCartao(false);
-      showMessage('Cartão adicionado com sucesso!', 'success');
-    } catch (err) {
-      showMessage('Erro ao adicionar cartão.', 'error');
-      console.error('[Perfil] Erro ao adicionar cartão:', err);
+      showMessage('Cartão salvo!', 'success');
+    } catch {
+      showMessage('Erro ao salvar cartão.', 'error');
     }
   };
 
-  const limparFormCartao = () => {
-    setNovoCartaoNumero('');
-    setNovoCartaoNome('');
-    setNovoCartaoBandeira('Visa');
-    setNovoCartaoValidade('');
-    setNovoCartaoCvv('');
-  };
-
-  // --- Remover Cartão ---
-  const handleRemoverCartao = async (uuid: string) => {
-    openConfirmModal(
-      'Remover Cartão',
-      'Tem certeza que deseja remover este cartão?',
-      async () => {
-        try {
-          await ClienteService.removerCartao(uuid);
-          setCartoes((prev) => prev.filter((c) => c.uuid !== uuid));
-          if (cartaoPreferencialUuid === uuid) {
-            setCartaoPreferencialUuid(null);
-          }
-          showMessage('Cartão removido.', 'success');
-        } catch (err) {
-          showMessage('Erro ao remover cartão.', 'error');
-          console.error('[Perfil] Erro ao remover cartão:', err);
-        } finally {
-          closeConfirmModal();
-        }
-      },
-      'danger'
-    );
-  };
-
-  // --- Definir Cartão Preferencial ---
   const handleDefinirPreferencial = async (uuid: string) => {
-    try {
-      await ClienteService.definirCartaoPreferencial(uuid);
-      setCartaoPreferencialUuid(uuid);
-      showMessage('Cartão preferencial definido!', 'success');
-    } catch (err) {
-      showMessage('Erro ao definir cartão preferencial.', 'error');
-      console.error('[Perfil] Erro ao definir preferencial:', err);
-    }
+    await ClienteService.definirCartaoPreferencial(uuid);
+    setCartaoPreferencialUuid(uuid);
   };
 
   return {
-    user,
-    isLoading,
-    message,
-    messageType,
-    cliente,
-
-    // Perfil
+    user, isLoading, message, messageType, cliente,
     perfilState: {
-      nome, setNome,
-      cpf: cpfEdicao, setCpfEdicao,
-      genero, setGenero,
-      dataNascimento, setDataNascimento,
-      telefoneTipo, setTelefoneTipo,
-      telefoneDdd, setTelefoneDdd,
-      telefoneNumero, setTelefoneNumero,
-      senhaConfirmacao, setSenhaConfirmacao,
-      showSenhaConfirmacao, setShowSenhaConfirmacao,
-      showModalSenha, setShowModalSenha,
-      handleUpdateProfile,
-      confirmarUpdateComSenha,
+      nome, setNome, genero, setGenero, dataNascimento, setDataNascimento,
+      visualizacaoEmail, visualizacaoCpf, visualizacaoTelefone,
+      novoEmail, setNovoEmail, novoCpf, setNovoCpf,
+      novoTelefoneDdd, setNovoTelefoneDdd, novoTelefoneNumero, setNovoTelefoneNumero, novoTelefoneTipo, setNovoTelefoneTipo,
+      senhaConfirmacao, setSenhaConfirmacao, showSenhaConfirmacao, setShowSenhaConfirmacao,
+      showModalSenha, setShowModalSenha, handleUpdateProfile, confirmarUpdateComSenha,
     },
-
-    // Senha
     senhaState: {
-      senhaAtual, setSenhaAtual,
-      showSenhaAtual, setShowSenhaAtual,
-      novaSenha, setNovaSenha,
-      showNovaSenha, setShowNovaSenha,
-      confirmaNovaSenha, setConfirmaNovaSenha,
-      showConfirmaNovaSenha, setShowConfirmaNovaSenha,
-      senhaError, senhaSuccess,
-      handleChangePassword,
+      senhaAtual, setSenhaAtual, showSenhaAtual, setShowSenhaAtual,
+      novaSenha, setNovaSenha, showNovaSenha, setShowNovaSenha,
+      confirmaNovaSenha, setConfirmaNovaSenha, showConfirmaNovaSenha, setShowConfirmaNovaSenha,
+      senhaError, senhaSuccess, handleChangePassword,
     },
-
-    // Endereços
     enderecoState: {
-      enderecos,
-      showNovoEndereco, setShowNovoEndereco,
+      enderecos, showNovoEndereco, setShowNovoEndereco,
       enderecoEditandoUuid, setEnderecoEditandoUuid,
-      novoEndApelido, setNovoEndApelido,
-      novoEndTipoResidencia, setNovoEndTipoResidencia,
-      novoEndTipoLogradouro, setNovoEndTipoLogradouro,
-      novoEndLogradouro, setNovoEndLogradouro,
-      novoEndNumero, setNovoEndNumero,
-      novoEndComplemento, setNovoEndComplemento,
-      novoEndBairro, setNovoEndBairro,
-      novoEndCep, setNovoEndCep,
-      novoEndCidade, setNovoEndCidade,
-      novoEndEstado, setNovoEndEstado,
-      novoEndPais, setNovoEndPais,
-      handleAdicionarEndereco,
-      handleRemoverEndereco,
+      novoEndApelido, setNovoEndApelido, novoEndTipoResidencia, setNovoEndTipoResidencia,
+      novoEndTipoLogradouro, setNovoEndTipoLogradouro, novoEndLogradouro, setNovoEndLogradouro,
+      novoEndNumero, setNovoEndNumero, novoEndComplemento, setNovoEndComplemento,
+      novoEndBairro, setNovoEndBairro, novoEndCep, setNovoEndCep,
+      novoEndCidade, setNovoEndCidade, novoEndEstado, setNovoEndEstado, novoEndPais, setNovoEndPais,
+      handleAdicionarEndereco, handleRemoverEndereco,
     },
-
-    // Cartões
     cartaoState: {
-      cartoes,
-      cartaoPreferencialUuid,
-      showNovoCartao, setShowNovoCartao,
-      novoCartaoNumero, setNovoCartaoNumero,
-      novoCartaoNome, setNovoCartaoNome,
-      novoCartaoBandeira, setNovoCartaoBandeira,
-      novoCartaoValidade, setNovoCartaoValidade,
-      novoCartaoCvv, setNovoCartaoCvv,
-      showNovoCartaoCvv, setShowNovoCartaoCvv,
-      handleAdicionarCartao,
-      handleRemoverCartao,
+      cartoes, cartaoPreferencialUuid, showNovoCartao, setShowNovoCartao,
+      novoCartaoNumero, setNovoCartaoNumero, novoCartaoNome, setNovoCartaoNome,
+      novoCartaoBandeira, setNovoCartaoBandeira, novoCartaoValidade, setNovoCartaoValidade,
+      novoCartaoCvv, setNovoCartaoCvv, showNovoCartaoCvv, setShowNovoCartaoCvv,
+      handleAdicionarCartao, handleRemoverCartao: (uuid: string) => dispatch(setCartoes(cartoes.filter(c => c.uuid !== uuid))),
       handleDefinirPreferencial,
     },
-
-    // Zona de perigo
-    handleDeleteAccount,
-
-    // Seção ativa (tab navigation)
-    secaoAtiva, setSecaoAtiva,
-
-    // Domínios
-    dominios: {
-      generosDisponiveis,
-      tiposTelefone,
-      tiposResidencia,
-      tiposLogradouro,
-      bandeirasPermitidas,
-    },
-
-    // Modal de Confirmação
-    confirmModal: {
-      show: showConfirmModal,
-      config: confirmModalConfig,
-      close: closeConfirmModal,
-    }
+    handleDeleteAccount, secaoAtiva, setSecaoAtiva,
+    dominios: { generosDisponiveis, tiposTelefone, tiposResidencia, tiposLogradouro, bandeirasPermitidas },
+    confirmModal: { show: showConfirmModal, config: confirmModalConfig, close: () => setShowConfirmModal(false) }
   };
 }

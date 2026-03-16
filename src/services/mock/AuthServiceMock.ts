@@ -58,7 +58,7 @@ export class AuthServiceMock implements IAuthService {
   async getAdmins(): Promise<IAdmin[]> {
     const admins = authUsersMock.usuarios
       .filter((u) => u.role === 'admin')
-      .map(({ senha: _, ...user }) => user as IAdmin); // eslint-disable-line @typescript-eslint/no-unused-vars
+      .map(({ senha: _, ...user }) => user as IAdmin);
 
     return delay(admins);
   }

@@ -82,9 +82,10 @@ export class ApiClient {
       }
 
       return resposta as T;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[API Error]:', error);
-      if (error?.message === 'Failed to fetch') {
+      const err = error as Error;
+      if (err?.message === 'Failed to fetch') {
         throw new Error('Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.');
       }
       throw error;

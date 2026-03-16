@@ -102,7 +102,8 @@ export function MeuPerfil() {
       {/* Seção: Dados Pessoais - RF0022 */}
       {secaoAtiva === 'perfil' && (
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>Atualizar Dados Cadastrais</h2>
+          <h2 className={styles.sectionTitle}>👤 Meus Dados Cadastrais</h2>
+          
           <div className={styles.formRow}>
             <div className="form-group">
               <label>Nome Completo</label>
@@ -110,25 +111,11 @@ export function MeuPerfil() {
                 type="text"
                 value={perfilState.nome}
                 onChange={(e) => perfilState.setNome(e.target.value)}
+                placeholder="Seu nome completo"
               />
             </div>
           </div>
-          <div className={styles.formRow}>
-            <div className="form-group">
-              <label>CPF</label>
-              <input 
-                type="text" 
-                value={perfilState.cpf} 
-                onChange={(e) => perfilState.setCpfEdicao(e.target.value)}
-                placeholder="000.000.000-00"
-              />
-              <small className={styles.hint}>Apague os asteriscos para editar o CPF</small>
-            </div>
-            <div className="form-group">
-              <label>E-mail</label>
-              <input type="text" value={user.email} disabled title="O e-mail não pode ser alterado por segurança." />
-            </div>
-          </div>
+
           <div className={styles.formRow}>
             <div className="form-group">
               <label>Gênero</label>
@@ -136,7 +123,7 @@ export function MeuPerfil() {
                 value={perfilState.genero}
                 onChange={(e) => perfilState.setGenero(e.target.value as Genero)}
               >
-                {dominios.generosDisponiveis.map((g) => (
+                {dominios.generosDisponiveis.map((g: string) => (
                   <option key={g} value={g}>
                     {g}
                   </option>
@@ -152,58 +139,103 @@ export function MeuPerfil() {
               />
             </div>
           </div>
-          <fieldset className={styles.section}>
-            <legend className={styles.sectionTitle}>Telefone</legend>
+
+          <hr className={styles.divider} />
+          <h3 className={styles.subTitle}>🔐 Atualizar Informações de Contato e Acesso</h3>
+          <p className={styles.infoText}>
+            Preencha os campos de "Novo" apenas se desejar alterar o valor atual. 
+            Uma confirmação de senha será solicitada ao clicar em salvar.
+          </p>
+
+          <div className={styles.formRow}>
+            <div className="form-group">
+              <label>E-mail Atual</label>
+              <input type="text" value={perfilState.visualizacaoEmail} disabled className={styles.inputDisabled} />
+            </div>
+            <div className="form-group">
+              <label>Novo E-mail</label>
+              <input
+                type="email"
+                value={perfilState.novoEmail}
+                onChange={(e) => perfilState.setNovoEmail(e.target.value)}
+                placeholder="Alterar meu e-mail"
+              />
+            </div>
+          </div>
+
+          <div className={styles.formRow}>
+            <div className="form-group">
+              <label>CPF Atual</label>
+              <input type="text" value={perfilState.visualizacaoCpf} disabled className={styles.inputDisabled} />
+            </div>
+            <div className="form-group">
+              <label>Novo CPF</label>
+              <input
+                type="text"
+                value={perfilState.novoCpf}
+                onChange={(e) => perfilState.setNovoCpf(e.target.value)}
+                placeholder="Somente números"
+              />
+            </div>
+          </div>
+
+          <fieldset className={styles.fieldSetCritico}>
+            <legend>Telefone</legend>
             <div className={styles.formRow}>
               <div className="form-group">
+                <label>Telefone Atual</label>
+                <input type="text" value={perfilState.visualizacaoTelefone} disabled className={styles.inputDisabled} />
+              </div>
+            </div>
+            <div className={styles.formRow}>
+              <div className="form-group" style={{ flex: 0.5 }}>
                 <label>Tipo</label>
                 <select
-                  value={perfilState.telefoneTipo}
-                  onChange={(e) => perfilState.setTelefoneTipo(e.target.value)}
+                  value={perfilState.novoTelefoneTipo}
+                  onChange={(e) => perfilState.setNovoTelefoneTipo(e.target.value)}
                 >
-                  {dominios.tiposTelefone.map((t) => (
+                  {dominios.tiposTelefone.map((t: string) => (
                     <option key={t} value={t}>
                       {t}
                     </option>
                   ))}
                 </select>
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ flex: 0.3 }}>
                 <label>DDD</label>
                 <input
                   type="text"
                   maxLength={2}
-                  value={perfilState.telefoneDdd}
-                  onChange={(e) => perfilState.setTelefoneDdd(e.target.value)}
+                  value={perfilState.novoTelefoneDdd}
+                  onChange={(e) => perfilState.setNovoTelefoneDdd(e.target.value)}
+                  placeholder="DDD"
                 />
               </div>
-              <div className={`form-group ${styles.formGroupLarge}`}>
-                <label>Número</label>
+              <div className="form-group">
+                <label>Novo Número</label>
                 <input
                   type="text"
-                  value={perfilState.telefoneNumero}
-                  onChange={(e) =>
-                    perfilState.setTelefoneNumero(e.target.value)
-                  }
-                  placeholder="99999-9999"
+                  value={perfilState.novoTelefoneNumero}
+                  onChange={(e) => perfilState.setNovoTelefoneNumero(e.target.value)}
+                  placeholder="Novo número"
                 />
-                <small className={styles.hint}>Apague os asteriscos para editar o número</small>
               </div>
             </div>
           </fieldset>
 
           <button
             className="btn-primary"
+            style={{ marginTop: '24px', width: '100%', padding: '14px' }}
             onClick={perfilState.handleUpdateProfile}
           >
-            Atualizar Dados
+            Salvar Todas as Alterações
           </button>
 
           {/* Modal de Confirmação de Senha para Dados Críticos */}
           <Modal
             isOpen={perfilState.showModalSenha}
             onClose={() => perfilState.setShowModalSenha(false)}
-            title="Confirmação de Segurança"
+            title="⚠️ Confirmação de Segurança"
             variant="medium"
             footer={
               <>
@@ -217,18 +249,18 @@ export function MeuPerfil() {
                   className="btn-primary"
                   onClick={perfilState.confirmarUpdateComSenha}
                 >
-                  Confirmar Alteração
+                  Confirmar e Salvar
                 </button>
               </>
             }
           >
             <div className={styles.modalBody}>
               <p>
-                Você está alterando dados críticos (**CPF** ou **Telefone**). Por motivos de segurança, 
-                confirme sua senha atual para prosseguir.
+                Você está alterando dados críticos (**E-mail**, **CPF** ou **Telefone**). 
+                Por motivos de segurança, confirme sua <strong>senha atual</strong> para prosseguir.
               </p>
               <div className="form-group" style={{ marginTop: '20px' }}>
-                <label>Sua Senha Atual</label>
+                <label>Sua Senha de Acesso</label>
                 <div className={styles.passwordWrapper}>
                   <input
                     type={perfilState.showSenhaConfirmacao ? 'text' : 'password'}
@@ -324,7 +356,7 @@ export function MeuPerfil() {
                       enderecoState.setNovoEndTipoResidencia(e.target.value)
                     }
                   >
-                    {dominios.tiposResidencia.map((t) => (
+                    {dominios.tiposResidencia.map((t: string) => (
                       <option key={t} value={t}>
                         {t}
                       </option>
@@ -339,7 +371,7 @@ export function MeuPerfil() {
                       enderecoState.setNovoEndTipoLogradouro(e.target.value)
                     }
                   >
-                    {dominios.tiposLogradouro.map((t) => (
+                    {dominios.tiposLogradouro.map((t: string) => (
                       <option key={t} value={t}>
                         {t}
                       </option>
@@ -549,7 +581,7 @@ export function MeuPerfil() {
                       cartaoState.setNovoCartaoBandeira(e.target.value)
                     }
                   >
-                    {dominios.bandeirasPermitidas.map((b) => (
+                    {dominios.bandeirasPermitidas.map((b: string) => (
                       <option key={b} value={b}>
                         {b}
                       </option>

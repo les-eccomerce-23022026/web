@@ -159,11 +159,12 @@ export function useGerenciarAdmins() {
       showPageFeedback('Administrador cadastrado com sucesso!');
       dispatch(fetchAdmins());
       resetForm();
-    } catch (err: any) {
-      console.error('[Admin] Erro ao salvar:', err);
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error('[Admin] Erro ao salvar:', error);
       setIsConfirmModalOpen(false);
       showModalFeedback(
-        normalizeAdminSaveError(err.message || 'Erro ao salvar administrador.'),
+        normalizeAdminSaveError(error.message || 'Erro ao salvar administrador.'),
         'error',
       );
     }
@@ -193,9 +194,10 @@ export function useGerenciarAdmins() {
           showPageFeedback(`Administrador ${adminToToggle.nome} ativado com sucesso.`);
         }
         dispatch(fetchAdmins());
-      } catch (err: any) {
-        console.error(err);
-        showPageFeedback(err.message || 'Erro ao alterar status do administrador.', 'error');
+      } catch (err: unknown) {
+        const error = err as Error;
+        console.error(error);
+        showPageFeedback(error.message || 'Erro ao alterar status do administrador.', 'error');
       } finally {
         setIsDeleteModalOpen(false);
         setAdminToToggle(null);
