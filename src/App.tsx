@@ -58,7 +58,7 @@ function App() {
         </Route>
 
         {/* Painel Administrativo — todas as rotas compartilham o AdminLayout */}
-        <Route path="/admin" element={<ProtectedRoute requiredRole="admin" />}>
+        <Route path="/admin" element={<ProtectedRoute requireAction="access_admin_panel" />}>
           <Route
             element={
               <AdminLayout

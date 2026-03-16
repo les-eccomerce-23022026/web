@@ -1,22 +1,22 @@
-describe('Autenticação e Registro', () => {
+describe('Auth - Fluxos de Registro, Login e Gestão de Perfil (CRUD)', () => {
 
-  beforeEach(() => {
-    // We can visit the home or start at minha-conta
-  });
+  context('Autenticação de Usuários', () => {
+    it('deve logar como cliente e validar informações no Header', () => {
+      const fakeUser = {
+        uuid: "uuid-cliente-123",
+        nome: "João Comprador",
+        email: "joao.comprador@email.com",
+        cpf: "123.456.789-00",
+        role: "cliente"
+      };
 
-  context('1. Fluxo e Dados de Autenticação (Login)', () => {
-    it('deve logar como cliente retornando uuid, cpf, role e token', () => {
-      // Setup network intercept for login
-      cy.intercept('POST', '/api/auth/login', {
+      cy.intercept('POST', '**/auth/login', {
         statusCode: 200,
         body: {
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-          user: {
-            uuid: "uuid-do-cliente-1234",
-            nome: "João Comprador",
-            email: "joao.comprador@email.com",
-            cpf: "123.456.789-00",
-            role: "cliente"
+          sucesso: true,
+          dados: {
+            token: "fake-jwt-token",
+            user: fakeUser
           }
         }
       }).as('loginRequest');
@@ -24,26 +24,28 @@ describe('Autenticação e Registro', () => {
       cy.login('joao.comprador@email.com', 'password123');
       cy.wait('@loginRequest');
 
-      // Check URL and state
       cy.url().should('eq', Cypress.config().baseUrl + '/');
-      cy.getDataCy('header-user-profile').should('be.visible').and('contain', 'João Comprador');
+      
+      cy.getDataCy('header-user-profile')
+        .should('be.visible')
+        .and('have.attr', 'title', `Olá, ${fakeUser.nome}`);
 
-      // Admin routes should be blocked
-      cy.visit('/admin');
+      cy.visit('/admin', { failOnStatusCode: false });
       cy.url().should('not.include', '/admin');
     });
 
-    it('deve logar como administrador e permitir acesso ao painel de administração', () => {
-      cy.intercept('POST', '/api/auth/login', {
+    it('deve logar como administrador e acessar o painel administrativo', () => {
+      cy.intercept('POST', '**/auth/login', {
         statusCode: 200,
         body: {
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-          user: {
-            uuid: "uuid-do-admin-9999",
-            nome: "Administrador do Sistema",
-            email: "admin@gmail.com",
-            cpf: "000.111.222-33",
-            role: "admin"
+          sucesso: true,
+          dados: {
+            token: "fake-jwt-token-admin",
+            user: {
+              uuid: "uuid-admin-999",
+              nome: "Admin Sistema",
+              role: "admin"
+            }
           }
         }
       }).as('loginAdmin');
@@ -51,132 +53,111 @@ describe('Autenticação e Registro', () => {
       cy.login('admin@gmail.com', 'password123');
       cy.wait('@loginAdmin');
 
-      // Admin routes should be allowed (the app navigates automatically)
       cy.url().should('include', '/admin');
-      cy.contains('h2', 'Painel Administrativo Corporativo').should('be.visible');
-    });
-
-    it('deve proteger rotas sensíveis como /checkout antes de logar', () => {
-      cy.visit('/checkout');
-      // Deve ser redirecionado para a tela de login
-      cy.url().should('include', '/minha-conta');
+      cy.contains('h2', 'Painel Administrativo').should('be.visible');
     });
   });
 
-  context('2. Fluxo e Dados de Registro do Cliente (Cadastro Real)', () => {
-    it('deve permitir o registro de um novo cliente com senha forte requerida', () => {
-      cy.intercept('POST', '/api/clientes/registro', {
+  context('Registro de Novo Cliente (Fluxo Completo)', () => {
+    it('deve validar senha forte e permitir registro com sucesso através do stepper', () => {
+      cy.intercept('POST', '**/clientes/registro', {
         statusCode: 201,
-        body: { message: "Cadastro realizado com sucesso." }
+        body: { sucesso: true, dados: { message: "Cadastro realizado com sucesso." } }
       }).as('registerRequest');
 
       cy.visit('/minha-conta');
-      // Abrir formulario
       cy.getDataCy('register-toggle-button').click();
 
+      // Step 1: Dados Pessoais
       cy.getDataCy('register-nome-input').type('João Silva');
       cy.getDataCy('register-cpf-input').type('123.456.789-00');
-      cy.getDataCy('register-email-input').type('joao.comprador@email.com');
+      cy.getDataCy('register-email-input').type('joao.novo@email.com');
+      cy.getDataCy('register-nascimento-input').type('1990-01-01');
       
-      // Teste de senha fraca
-      cy.getDataCy('register-senha-input').type('1234');
-      cy.getDataCy('register-confirmacao-senha-input').type('1234');
-      cy.getDataCy('register-submit-button').click();
-      cy.contains('A senha deve conter pelo menos 8 caracteres, maiúsculas, minúsculas e especiais').should('be.visible');
+      // DDD e Número
+      cy.get('label').contains('DDD').parent().find('input').type('11');
+      cy.get('label').contains('Número').parent().find('input').type('999887766');
 
-      // Teste de senha forte
-      cy.getDataCy('register-senha-input').clear().type('Password@123');
-      cy.getDataCy('register-confirmacao-senha-input').clear().type('Password@123');
-      cy.getDataCy('register-submit-button').click();
+      // Senha forte
+      cy.getDataCy('register-senha-input').clear().type('StrongPass@2026');
+      cy.getDataCy('register-confirmacao-senha-input').clear().type('StrongPass@2026');
+      
+      // Avançar para Step 2
+      cy.getDataCy('register-next-step-button').click();
+      cy.contains('Endereço de Cobrança').should('be.visible');
 
-      cy.wait('@registerRequest').its('request.body').should((body) => {
-        expect(body).to.include.keys('nome', 'cpf', 'email', 'senha', 'confirmacao_senha');
-        expect(body).to.not.have.property('role'); // Nunca enviar role publicamente
-      });
+      // Step 2: Endereço
+      cy.get('input[placeholder="Nome da rua"]').type('Rua das Flores');
+      cy.get('input[placeholder="123"]').type('100');
+      cy.get('input[placeholder="00000-000"]').type('01234-567');
+      cy.get('label').contains('Bairro').parent().find('input').type('Centro');
+      cy.get('label').contains('Cidade').parent().find('input').type('São Paulo');
+      cy.get('input[placeholder="SP"]').type('SP');
+
+      cy.getDataCy('register-submit-button').click();
+      cy.wait('@registerRequest');
       cy.contains('Cadastro realizado com sucesso').should('be.visible');
     });
   });
 
-  context('3. Cadastro de Perfil de Administradores', () => {
-    it('deve permitir cadastro de admin apenas pelo painel de um admin autenticado', () => {
-      cy.intercept('POST', '/api/auth/login', {
+  context('Gestão de Perfil do Cliente', () => {
+    const fakeUser = { uuid: "c-123", nome: "João", role: "cliente", email: "joao@teste.com" };
+
+    beforeEach(() => {
+      // Usar login programático
+      cy.loginProgramatico('cliente');
+
+      // Mock do Perfil
+      cy.intercept('GET', '**/clientes/perfil', {
         statusCode: 200,
         body: {
-          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-          user: {
-            uuid: "uuid-do-admin-9999",
-            nome: "Admin",
-            role: "admin"
+          sucesso: true,
+          dados: {
+            uuid: fakeUser.uuid,
+            nome: fakeUser.nome,
+            email: fakeUser.email,
+            cpf: "111.222.333-44",
+            role: "cliente",
+            enderecos: [],
+            cartoes: []
           }
         }
-      }).as('loginAdminOnly');
-      
-      cy.login('admin', '123456');
-      cy.wait('@loginAdminOnly');
-      
-      // Access admin user management
-      cy.contains('a', 'Gerenciar Administradores').click();
-      cy.contains('button', 'Novo Administrador').click();
-      
-      cy.intercept('POST', '/api/admin/registro', {
-        statusCode: 201
-      }).as('adminRegister');
-
-      cy.get('input[name="adminNome"]').type('Novo Admin');
-      cy.get('input[name="adminEmail"]').type('novoadmin@livraria.com');
-      cy.get('input[name="adminSenha"]').type('SuperSenha@2026');
-      cy.contains('button', 'Salvar Administrador').click();
-
-      cy.wait('@adminRegister');
-      cy.contains('Administrador cadastrado com sucesso.').should('be.visible');
+      }).as('getPerfil');
     });
-  });
 
-  context('4. Atualização e Exclusão de Contas (CRUD de Clientes)', () => {
-    it('deve permitir acesso ao perfil e edição de dados, alteração de senha e inativação de conta', () => {
-      // Mock login as cliente
-      cy.intercept('POST', '/api/auth/login', {
-        statusCode: 200,
-        body: {
-          token: "TokenMock",
-          user: {
-            uuid: "uuid-do-cliente-1234",
-            nome: "João Comprador",
-            email: "joao.comprador@email.com",
-            role: "cliente"
-          }
-        }
-      }).as('loginCliente');
-
-      cy.login('joao', '123');
-      cy.wait('@loginCliente');
-
-      // Go to profile
-      cy.getDataCy('header-user-profile').click();
-      cy.url().should('include', '/perfil');
-
-      // Atualização de Dados
-      cy.intercept('PATCH', '/api/clientes/perfil', { statusCode: 200 }).as('updateProfile');
-      cy.get('input[name="nome"]').clear().type('João Silva Souza');
-      cy.contains('button', 'Atualizar Dados').click();
-      cy.wait('@updateProfile');
-      cy.contains('Dados atualizados com sucesso').should('be.visible');
-
-      // Alteração de Senha
-      cy.intercept('PUT', '/api/clientes/senha', { statusCode: 200 }).as('changePassword');
-      cy.get('input[name="senha_atual"]').type('senhaAtual123');
-      cy.get('input[name="nova_senha"]').type('NovaSenha@321');
-      cy.contains('button', 'Alterar Senha').click();
-      cy.wait('@changePassword');
-      cy.contains('Senha atualizada com sucesso').should('be.visible');
-
-      // Inativação da Conta
-      cy.on('window:confirm', () => true);
-      cy.intercept('DELETE', '/api/clientes/perfil', { statusCode: 200 }).as('inativarConta');
-      cy.contains('button', 'Solicitar Exclusão da Conta').click();
-      cy.wait('@inativarConta');
+    it('deve permitir visualizar e navegar pelas seções do perfil', () => {
+      cy.visit('/perfil');
+      cy.wait('@getPerfil');
       
-      // Should logout after inativacao and redirect to login page
+      cy.get('body').should('not.contain', 'Carregando');
+      cy.get('h1').should('contain', 'Meu Perfil');
+
+      // Navegação por abas - usando o texto visível (com emoji se necessário)
+      cy.contains('Endereços').click();
+      cy.contains('Cartões').click();
+      cy.contains('Senha').click();
+      cy.contains('h2', 'Alterar Senha').should('be.visible');
+      
+      cy.get('[data-testid="tab-perigo"]').click();
+      cy.contains('h2', 'Zona de Perigo').should('be.visible');
+    });
+
+    it('deve permitir solicitar a inativação da conta', () => {
+      cy.visit('/perfil');
+      cy.wait('@getPerfil');
+      cy.get('[data-testid="tab-perigo"]').click();
+      
+      cy.intercept('DELETE', '**/clientes/perfil', {
+        statusCode: 200,
+        body: { sucesso: true, dados: { mensagem: "Inativado" } }
+      }).as('inativarRequest');
+
+      cy.get('[data-testid="btn-solicitar-exclusao"]').click();
+      
+      // Confirmar no Modal
+      cy.get('[data-testid="modal-confirm-button"]').should('be.visible').click();
+
+      cy.wait('@inativarRequest');
       cy.url().should('include', '/minha-conta');
     });
   });

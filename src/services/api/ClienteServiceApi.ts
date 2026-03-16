@@ -132,10 +132,11 @@ export class ClienteServiceApi implements IClienteService {
   async removerCartao(uuid: string): Promise<void> {
     await ApiClient.delete(API_ENDPOINTS.removerCartao(uuid));
   }
+
   async editarCartao(
     uuid: string,
     cartao: Partial<ICartaoCliente>,
-  ): Promise<ICartaoCliente> {
+  ): Promise<ICartaoCliente[]> {
     let idBandeira: number | undefined;
     if (cartao.bandeira) {
       idBandeira = 1;
@@ -146,20 +147,24 @@ export class ClienteServiceApi implements IClienteService {
     let validadeIso = cartao.validade;
     if (cartao.validade && cartao.validade.includes('/')) {
       const [mes, ano] = cartao.validade.split('/');
-      validadeIso = `${ano}-${mes}-01`;
+      validadeIso = `20${ano.padStart(2, '0')}-${mes.padStart(2, '0')}-01`;
     }
 
     const payloadApi = {
       idBandeiraCartao: idBandeira,
+      tokenCartao: undefined, // Update logic doesn't usually change token
+      finalCartao: cartao.final,
       nomeImpresso: cartao.nomeImpresso,
       validade: validadeIso,
     };
 
-    return ApiClient.patch<ICartaoCliente>(
+    // Assuming endpoint returns list of cards like editarEndereco
+    return ApiClient.patch<ICartaoCliente[]>(
       API_ENDPOINTS.editarCartao(uuid),
       payloadApi,
     );
   }
+
   async definirCartaoPreferencial(cartaoUuid: string): Promise<void> {
     await ApiClient.patch(API_ENDPOINTS.definirCartaoPreferencial(cartaoUuid));
   }

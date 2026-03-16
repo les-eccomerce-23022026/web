@@ -96,6 +96,14 @@ export class ClienteServiceMock implements IClienteService {
     return delay(novoCartao);
   }
 
+  async editarCartao(
+    uuid: string,
+    cartao: Partial<ICartaoCliente>,
+  ): Promise<ICartaoCliente[]> {
+    console.log('[Mock] Editando cartão:', uuid, cartao);
+    return delay([{ ...cartao, uuid } as ICartaoCliente]);
+  }
+
   async removerCartao(uuid: string): Promise<void> {
     console.log('[Mock] Removendo cartão:', uuid);
     return delay(undefined as unknown as void);

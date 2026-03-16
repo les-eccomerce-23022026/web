@@ -13,6 +13,7 @@ import type { IAuthService } from '@/services/contracts/IAuthService';
 
 interface IStoredSession {
   user: IUsuario;
+  token?: string | null;
 }
 
 const getStoredSession = (): IStoredSession | null => {
@@ -67,7 +68,7 @@ export class AuthServiceApi implements IAuthService {
     } catch {
       const session = getStoredSession();
       if (!session?.user) return null;
-      return { user: session.user };
+      return { user: session.user, token: session.token };
     }
   }
 }

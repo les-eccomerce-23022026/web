@@ -82,6 +82,7 @@ export const ControlesCompra: React.FC<ControlesCompraProps> = ({
       <button
         className={`botao btn-primary controles-compra__btn-comprar`}
         onClick={(e) => handleAdicionarAoCarrinho(e, true)}
+        data-cy="checkout-buy-button"
       >
         {variant === 'card' ? 'Comprar' : 'Comprar Agora'}
       </button>

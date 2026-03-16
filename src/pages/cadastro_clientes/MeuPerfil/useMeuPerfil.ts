@@ -334,12 +334,12 @@ export function useMeuPerfil() {
     setIsCartaoLoading(true);
     try {
       if (cartaoEditandoUuid) {
-        const atualizado = await ClienteService.editarCartao(cartaoEditandoUuid, {
+        const novosCartoes = await ClienteService.editarCartao(cartaoEditandoUuid, {
           nomeImpresso: novoCartaoNome,
           bandeira: novoCartaoBandeira,
           validade: novoCartaoValidade,
         });
-        dispatch(setCartoes(cartoes.map((c) => (c.uuid === cartaoEditandoUuid ? atualizado : c))));
+        dispatch(setCartoes(novosCartoes));
         showMessage('Cartão atualizado!', 'success');
       } else {
         const novo = await ClienteService.adicionarCartao({

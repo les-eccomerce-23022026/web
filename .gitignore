@@ -26,6 +26,7 @@ prints
 
 .env
 .env.*
+cypress.env.json
 
 
 AGENTS.md

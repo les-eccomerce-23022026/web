@@ -1,24 +1,27 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAppSelector } from '@/store/hooks';
+import { useAuthorization } from '@/hooks/useAuthorization';
+import { LoadingState } from '../LoadingState/LoadingState';
+import type { PermissionAction } from '@/config/permissions';
 
 interface ProtectedRouteProps {
-  requiredRole?: 'cliente' | 'admin';
+  requireAction?: PermissionAction;
 }
 
-export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
-  const { isAuthenticated, user, sessionLoading } = useAppSelector((state) => state.auth);
+/**
+ * ProtectedRoute - Regra #1: Early Returns e OCP.
+ * Protege rotas baseadas em capacidades (actions) ao invés de papéis fixos.
+ */
+export function ProtectedRoute({ requireAction }: ProtectedRouteProps) {
+  const { isAuthenticated, sessionLoading } = useAppSelector((state) => state.auth);
+  const { hasPermission } = useAuthorization();
 
-  // Aguarda a verificação de sessão no startup — evita redirect prematuro para /minha-conta
-  if (sessionLoading) {
-    return null;
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/minha-conta" replace />;
-  }
-
-  if (requiredRole && user?.role !== requiredRole) {
-    return <Navigate to="/" replace />;
+  // Guard Clauses limpos no topo
+  if (sessionLoading) return <LoadingState />;
+  if (!isAuthenticated) return <Navigate to="/minha-conta" replace />;
+  
+  if (requireAction && !hasPermission(requireAction)) {
+    return <Navigate to="/" replace />; // Bloqueia acesso não autorizado
   }
 
   return <Outlet />;

@@ -115,6 +115,7 @@ export function MeuPerfil() {
           🔒 Senha
         </button>
         <button
+          data-testid="tab-perigo"
           className={`${styles.tabItem} ${secaoAtiva === 'perigo' ? styles.tabItemActive : ''}`}
           onClick={() => setSecaoAtiva('perigo')}
         >
@@ -803,6 +804,7 @@ export function MeuPerfil() {
             mais acessá-la. Esta ação não pode ser desfeita.
           </p>
           <button 
+            data-testid="btn-solicitar-exclusao"
             style={{ backgroundColor: '#dc3545', color: '#ffffff', opacity: 1, visibility: 'visible', display: 'block' }} 
             className={styles.btnDanger} 
             onClick={handleDeleteAccount}
@@ -824,6 +826,7 @@ export function MeuPerfil() {
               Cancelar
             </button>
             <button
+              data-testid="modal-confirm-button"
               className={confirmModal.config.variant === 'danger' ? styles.btnDanger : 'btn-primary'}
               onClick={confirmModal.config.onConfirm}
             >

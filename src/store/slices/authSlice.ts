@@ -4,6 +4,7 @@ export const SESSION_STORAGE_KEY = 'les_auth_session';
 
 interface IStoredSession {
   user: AuthUser;
+  token?: string | null;
 }
 
 export interface AuthUser {
@@ -23,10 +24,23 @@ interface AuthState {
   sessionLoading: boolean;
 }
 
+const getStoredSession = (): IStoredSession | null => {
+  if (typeof window === 'undefined') return null;
+  const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+};
+
+const stored = getStoredSession();
+
 const initialState: AuthState = {
-  isAuthenticated: false,
-  token: null,
-  user: null,
+  isAuthenticated: !!stored,
+  token: stored?.token ?? null,
+  user: stored?.user ?? null,
   authError: null,
   sessionLoading: true,
 };
@@ -65,6 +79,7 @@ const authSlice = createSlice({
 
       const storedSession: IStoredSession = {
         user: action.payload.user,
+        token: action.payload.token,
       };
 
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(storedSession));

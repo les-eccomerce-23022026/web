@@ -147,7 +147,7 @@ export function LoginArea() {
 
   return (
     <div className={styles['auth-page']}>
-      <div className={`card ${styles['login-box-card']}`}>
+      <div className={`card ${styles['login-box-card']}`} data-cy="login-form">
         <h2 className={styles['login-title']}>Já sou Cliente</h2>
         <div className="form-group">
           <label>E-mail ou CPF</label>

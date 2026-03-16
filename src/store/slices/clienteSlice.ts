@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { ClienteService } from '@/services/ClienteService';
-import type { ICliente, IAtualizarPerfilPayload, Genero } from '@/interfaces/ICliente';
+import type { ICliente, IAtualizarPerfilPayload, Genero, ITelefone } from '@/interfaces/ICliente';
 import type { IEnderecoCliente, ICartaoCliente } from '@/interfaces/IPagamento';
 
 interface ClienteState {
@@ -93,7 +93,7 @@ const clienteSlice = createSlice({
             ...action.payload,
             genero: (action.payload.genero as Genero) || state.perfil.genero,
             telefone: action.payload.telefone 
-              ? { ...state.perfil.telefone, ...action.payload.telefone } as any
+              ? { ...state.perfil.telefone, ...action.payload.telefone } as ITelefone
               : state.perfil.telefone
           };
         }

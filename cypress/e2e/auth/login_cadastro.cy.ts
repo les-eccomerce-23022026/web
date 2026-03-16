@@ -1,58 +1,78 @@
-describe('Login / Cadastro de Conta', () => {
+describe('Auth - Login e Fluxo de Cadastro Inicial', () => {
   beforeEach(() => {
     cy.visit('/minha-conta');
   });
 
-  it('deve exibir o formulário de login para clientes existentes', () => {
+  it('deve exibir o formulário de login com os campos corretos', () => {
     cy.contains('h2', 'Já sou Cliente').should('be.visible');
-    // Campo de e-mail ou CPF
-    cy.get('input[placeholder="joao@gmail.com"]').should('exist');
-    cy.contains('label', 'E-mail ou CPF').should('be.visible');
     
-    // Campo de senha
-    cy.get('input[type="password"]').should('exist');
-    cy.contains('label', 'Senha').should('be.visible');
+    // Usando data-cy conforme a implementação real
+    cy.getDataCy('login-email-input').should('be.visible');
+    cy.getDataCy('login-password-input').should('be.visible');
+    cy.getDataCy('login-submit-button').should('be.visible').and('contain', 'Entrar');
     
-    // Botão de ação
-    cy.contains('button', 'Entrar').should('be.visible');
     cy.contains('a', 'Esqueci minha senha').should('be.visible');
   });
 
-  it('deve permitir realizar login simulado e mudar o Header', () => {
-    cy.intercept('POST', '/api/auth/login', {
+  it('deve realizar login simulado e atualizar o estado do Header', () => {
+    const fakeUser = { 
+      uuid: "user-123", 
+      nome: "João Teste", 
+      email: "joao@teste.com", 
+      role: "cliente" 
+    };
+
+    cy.intercept('POST', '**/auth/login', {
       statusCode: 200,
       body: {
-        token: "fake-token-123",
-        user: { role: "cliente", nome: "joao" }
+        sucesso: true,
+        dados: {
+          token: "fake-jwt-token",
+          user: fakeUser
+        }
       }
-    }).as('loginMock');
+    }).as('loginRequest');
 
-    // Digita o email
-    cy.get('input[placeholder="joao@gmail.com"]').type('joao@gmail.com');
-    // Digita a senha
-    cy.get('input[type="password"]').type('123456');
+    // Preenche os campos
+    cy.getDataCy('login-email-input').type('joao@teste.com');
+    cy.getDataCy('login-password-input').type('senha123');
     
-    // Clica no Entrar
-    cy.contains('button', 'Entrar').click();
-    cy.wait('@loginMock');
+    // Submete
+    cy.getDataCy('login-submit-button').click();
+    
+    cy.wait('@loginRequest');
 
-    // Deve redirecionar para a home
+    // Deve redirecionar (padrão do useLoginArea é para / se for cliente)
     cy.url().should('eq', Cypress.config().baseUrl + '/');
 
-    // No Header, deve aparecer "Olá, joao" e o botão de sair
-    cy.contains('a', 'Olá, joao').should('be.visible');
-    cy.contains('span', 'Sair').should('be.visible');
+    // No Header, o ícone de perfil deve ter o title com o nome do usuário
+    cy.getDataCy('header-user-profile')
+      .should('be.visible')
+      .and('have.attr', 'title', `Olá, ${fakeUser.nome}`);
+    
+    // Botão de logout deve estar visível
+    cy.getDataCy('header-logout-button').should('be.visible');
     
     // Sair da conta
-    cy.contains('span', 'Sair').click();
+    cy.getDataCy('header-logout-button').click();
 
-    // Voltou ao estado normal
-    cy.contains('a', 'Minha Conta').should('be.visible');
+    // Deve voltar ao estado de "Minha Conta"
+    cy.getDataCy('header-login-link').should('be.visible');
+    cy.getDataCy('header-user-profile').should('not.exist');
   });
 
-  it('deve exibir a área para criar nova conta', () => {
+  it('deve exibir e permitir alternar para a área de criação de nova conta', () => {
     cy.contains('h2', 'Quero me Cadastrar').should('be.visible');
-    cy.contains('button', 'Criar Nova Conta').should('be.visible');
-    cy.contains('p', 'Crie sua conta na LES Livraria').should('be.visible');
+    cy.getDataCy('register-toggle-button').should('be.visible').and('contain', 'Criar Nova Conta');
+    
+    // Clica para abrir o cadastro
+    cy.getDataCy('register-toggle-button').click();
+    
+    // Deve exibir o título de Criar Conta e o Stepper
+    cy.contains('h2', 'Criar Conta').should('be.visible');
+    cy.contains('span', 'Dados Pessoais').should('be.visible');
+    
+    // Verifica se o campo de nome do primeiro step está visível
+    cy.getDataCy('register-nome-input').should('be.visible');
   });
 });

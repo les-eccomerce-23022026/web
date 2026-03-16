@@ -51,6 +51,18 @@ export class ApiClient {
 
       // Tratamento de segurança para sessões expiradas ou inválidas
       if (response.status === 401 || response.status === 403) {
+        // Se for a verificação de sessão (/auth/me), não desloga automaticamente
+        // para permitir que o AuthService tente o fallback do sessionStorage.
+        if (url.includes('/auth/me')) {
+          throw new Error('Sessão inválida ou expirada');
+        }
+
+        // Se for 403 (Proibido), o usuário está autenticado mas não tem permissão.
+        // Não devemos deslogar, apenas lançar o erro para o componente tratar (ex: redirecionar p/ home).
+        if (response.status === 403) {
+          throw new Error('Você não tem permissão para acessar este recurso.');
+        }
+
         const { store } = await import('@/store');
         const { logout, setAuthError } = await import('@/store/slices/authSlice');
         store.dispatch(logout());

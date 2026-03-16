@@ -95,9 +95,11 @@ export function Header() {
               )}
             </Link>
 
-            <Link to="/admin" className={`${styles['action-icon']} ${styles['admin-icon']}`} data-cy="header-admin-link" title="Administração">
-              <ShieldCheck size={22} strokeWidth={2} />
-            </Link>
+            {user?.role === 'admin' && (
+              <Link to="/admin" className={`${styles['action-icon']} ${styles['admin-icon']}`} data-cy="header-admin-link" title="Administração">
+                <ShieldCheck size={22} strokeWidth={2} />
+              </Link>
+            )}
           </div>
         </div>
       </div>
