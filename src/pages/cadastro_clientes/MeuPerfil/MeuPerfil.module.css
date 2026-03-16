@@ -432,3 +432,23 @@
 .btnDanger:hover {
   filter: brightness(0.9);
 }
+
+/* --- Critical Action Confirmation --- */
+.criticalAction {
+  background-color: rgba(255, 193, 7, 0.08);
+  border: 1px dashed #ffc107;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+  margin-bottom: 24px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.criticalAction label {
+  color: #856404;
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 8px;
+  display: block;
+}
+

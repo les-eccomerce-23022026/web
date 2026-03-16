@@ -48,7 +48,7 @@ export const API_ENDPOINTS = {
   inativarAdmin: (uuid: string) => `${BASE_URL}/admin/administradores/${uuid}/inativar`,
 
   // Perfil do Cliente
-  obterPerfilCliente: `${BASE_URL}/api/clientes/perfil`,
+  obterPerfilCliente: `${BASE_URL}/clientes/perfil`,
   atualizarPerfilCliente: `${BASE_URL}/clientes/perfil`,
   alterarSenhaCliente: `${BASE_URL}/clientes/seguranca/alterar-senha`,
   inativarContaCliente: `${BASE_URL}/clientes/perfil`,

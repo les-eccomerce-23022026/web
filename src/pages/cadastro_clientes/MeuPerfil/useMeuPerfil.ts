@@ -24,9 +24,15 @@ export function useMeuPerfil() {
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState<Genero>('Masculino');
   const [dataNascimento, setDataNascimento] = useState('');
-  const [telefoneTipo, setTelefoneTipo] = useState('Celular');
+
+  // Estados para edição segura (RF0022 reforçado)
+  const [cpfEdicao, setCpfEdicao] = useState('');
   const [telefoneDdd, setTelefoneDdd] = useState('');
   const [telefoneNumero, setTelefoneNumero] = useState('');
+  const [telefoneTipo, setTelefoneTipo] = useState('Celular');
+  const [senhaConfirmacao, setSenhaConfirmacao] = useState('');
+  const [showSenhaConfirmacao, setShowSenhaConfirmacao] = useState(false);
+  const [showModalSenha, setShowModalSenha] = useState(false);
 
   // --- Senha ---
   const [senhaAtual, setSenhaAtual] = useState('');
@@ -121,6 +127,7 @@ export function useMeuPerfil() {
         setNome(perfil.nome);
         setGenero(perfil.genero);
         setDataNascimento(perfil.dataNascimento);
+        setCpfEdicao(perfil.cpfMascarado || perfil.cpf);
         setEnderecos(perfil.enderecos || []);
         setCartaoPreferencialUuid(perfil.cartaoPreferencialUuid);
         
@@ -157,23 +164,85 @@ export function useMeuPerfil() {
       return;
     }
 
+    const payload: IAtualizarPerfilPayload = {};
+
+    // 1. Verificar o que mudou (Comparação cirúrgica)
+    if (nome !== cliente?.nome) payload.nome = nome;
+    if (genero !== cliente?.genero) payload.genero = genero;
+    if (dataNascimento !== cliente?.dataNascimento) payload.dataNascimento = dataNascimento;
+
+    // 2. Dados críticos: Só enviar se NÃO estiverem mascarados e forem diferentes do original
+    const cpfOriginal = cliente?.cpfMascarado || cliente?.cpf;
+    const cpfMudou = cpfEdicao !== cpfOriginal && !cpfEdicao.includes('*');
+    if (cpfMudou) payload.cpf = cpfEdicao;
+
+    const telOriginal = cliente?.telefone?.numeroMascarado || cliente?.telefone?.numero || '';
+    const telMudou = (telefoneNumero !== telOriginal || telefoneDdd !== cliente?.telefone?.ddd || telefoneTipo !== cliente?.telefone?.tipo) 
+                     && !telefoneNumero.includes('*');
+
+    if (telMudou) {
+      payload.telefone = {
+        tipo: telefoneTipo as any,
+        ddd: telefoneDdd,
+        numero: telefoneNumero,
+      };
+    }
+
+    // 3. Se nada mudou, avisar e não fazer nada
+    if (Object.keys(payload).length === 0) {
+      showMessage('Nenhuma alteração detectada.', 'success');
+      return;
+    }
+
+    // 4. Se mudou dado crítico, abrir o modal de senha
+    if (cpfMudou || telMudou) {
+      setShowModalSenha(true);
+      return; // Para aqui, espera o modal
+    }
+
+    // 5. Se mudou apenas dados básicos (nome, gênero, etc), executa direto
+    try {
+      await ClienteService.atualizarPerfil(payload);
+      showMessage('Dados atualizados com sucesso!', 'success');
+      const perfilAtualizado = await ClienteService.obterPerfil(user!.uuid);
+      setCliente(perfilAtualizado);
+    } catch (err: any) {
+      showMessage(err.message || 'Erro ao atualizar dados.', 'error');
+    }
+  };
+
+  const confirmarUpdateComSenha = async () => {
+    if (!senhaConfirmacao) {
+      showMessage('Informe sua senha para confirmar.', 'error');
+      return;
+    }
+
     const payload: IAtualizarPerfilPayload = {
       nome,
       genero,
       dataNascimento,
-      telefone: {
-        tipo: telefoneTipo as 'Celular' | 'Residencial' | 'Comercial',
+      senhaConfirmacao,
+    };
+
+    // Adiciona dados críticos ao payload
+    if (!cpfEdicao.includes('*')) payload.cpf = cpfEdicao;
+    if (!telefoneNumero.includes('*')) {
+      payload.telefone = {
+        tipo: telefoneTipo as any,
         ddd: telefoneDdd,
         numero: telefoneNumero,
-      },
-    };
+      };
+    }
 
     try {
       await ClienteService.atualizarPerfil(payload);
-      showMessage('Dados atualizados com sucesso!', 'success');
-    } catch (err) {
-      showMessage('Erro ao atualizar dados.', 'error');
-      console.error('[Perfil] Erro ao atualizar:', err);
+      showMessage('Dados críticos atualizados com sucesso!', 'success');
+      setShowModalSenha(false);
+      setSenhaConfirmacao('');
+      const perfilAtualizado = await ClienteService.obterPerfil(user!.uuid);
+      setCliente(perfilAtualizado);
+    } catch (err: any) {
+      showMessage(err.message || 'Senha inválida ou erro na atualização.', 'error');
     }
   };
 
@@ -385,13 +454,17 @@ export function useMeuPerfil() {
     // Perfil
     perfilState: {
       nome, setNome,
-      cpf: cliente?.cpfMascarado || cliente?.cpf || '',
+      cpf: cpfEdicao, setCpfEdicao,
       genero, setGenero,
       dataNascimento, setDataNascimento,
       telefoneTipo, setTelefoneTipo,
       telefoneDdd, setTelefoneDdd,
       telefoneNumero, setTelefoneNumero,
+      senhaConfirmacao, setSenhaConfirmacao,
+      showSenhaConfirmacao, setShowSenhaConfirmacao,
+      showModalSenha, setShowModalSenha,
       handleUpdateProfile,
+      confirmarUpdateComSenha,
     },
 
     // Senha

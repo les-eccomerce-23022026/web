@@ -43,10 +43,12 @@ export interface IRegistroClienteCompletoPayload {
 }
 
 export interface IAtualizarPerfilPayload {
-  nome: string;
-  genero: Genero;
-  dataNascimento: string;
-  telefone: ITelefone;
+  nome?: string;
+  genero?: string;
+  dataNascimento?: string;
+  cpf?: string;
+  telefone?: Partial<ITelefone>;
+  senhaConfirmacao?: string;
 }
 
 export interface IAlterarSenhaPayload {

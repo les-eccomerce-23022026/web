@@ -35,3 +35,5 @@ CHANGES.md
 
 *.log
 github-projects
+playwright-report
+test-results

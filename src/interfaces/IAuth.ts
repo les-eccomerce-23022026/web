@@ -31,4 +31,5 @@ export interface IRegistroAdminPayload {
   email: string;
   senha: string;
   confirmacaoSenha: string;
+  usarMesmaSenha?: boolean;
 }

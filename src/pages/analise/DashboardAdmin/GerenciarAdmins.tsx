@@ -151,38 +151,55 @@ export function GerenciarAdmins() {
                 />
               </div>
 
-              <div className="form-group">
-                <label>Senha Provisória</label>
-                <div className={styles.passwordWrapper}>
-                  <input
-                    name="senha"
-                    type={showPassword ? 'text' : 'password'}
-                    className={styles.passwordInput}
-                    value={form.senha}
-                    onChange={(e) => handleFieldChange('senha', e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    className={styles.passwordToggle}
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
+              <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
+                <input
+                  id="usarMesmaSenha"
+                  name="usarMesmaSenha"
+                  type="checkbox"
+                  checked={form.usarMesmaSenha}
+                  onChange={(e) => handleFieldChange('usarMesmaSenha', e.target.checked)}
+                />
+                <label htmlFor="usarMesmaSenha" style={{ marginBottom: 0, cursor: 'pointer' }}>
+                  Usar mesma senha se já for cliente
+                </label>
               </div>
 
-              <div className="form-group">
-                <label>Confirmar Senha</label>
-                <div className={styles.passwordWrapper}>
-                  <input
-                    name="confirmacaoSenha"
-                    type={showPassword ? 'text' : 'password'}
-                    className={styles.passwordInput}
-                    value={form.confirmacaoSenha}
-                    onChange={(e) => handleFieldChange('confirmacaoSenha', e.target.value)}
-                  />
-                </div>
-              </div>
+              {!form.usarMesmaSenha && (
+                <>
+                  <div className="form-group">
+                    <label>Senha Provisória</label>
+                    <div className={styles.passwordWrapper}>
+                      <input
+                        name="senha"
+                        type={showPassword ? 'text' : 'password'}
+                        className={styles.passwordInput}
+                        value={form.senha}
+                        onChange={(e) => handleFieldChange('senha', e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className={styles.passwordToggle}
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Confirmar Senha</label>
+                    <div className={styles.passwordWrapper}>
+                      <input
+                        name="confirmacaoSenha"
+                        type={showPassword ? 'text' : 'password'}
+                        className={styles.passwordInput}
+                        value={form.confirmacaoSenha}
+                        onChange={(e) => handleFieldChange('confirmacaoSenha', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>

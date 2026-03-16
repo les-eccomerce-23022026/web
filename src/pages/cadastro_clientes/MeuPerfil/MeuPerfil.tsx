@@ -116,11 +116,17 @@ export function MeuPerfil() {
           <div className={styles.formRow}>
             <div className="form-group">
               <label>CPF</label>
-              <input type="text" value={perfilState.cpf} disabled />
+              <input 
+                type="text" 
+                value={perfilState.cpf} 
+                onChange={(e) => perfilState.setCpfEdicao(e.target.value)}
+                placeholder="000.000.000-00"
+              />
+              <small className={styles.hint}>Apague os asteriscos para editar o CPF</small>
             </div>
             <div className="form-group">
               <label>E-mail</label>
-              <input type="text" value={user.email} disabled />
+              <input type="text" value={user.email} disabled title="O e-mail não pode ser alterado por segurança." />
             </div>
           </div>
           <div className={styles.formRow}>
@@ -179,16 +185,70 @@ export function MeuPerfil() {
                   onChange={(e) =>
                     perfilState.setTelefoneNumero(e.target.value)
                   }
+                  placeholder="99999-9999"
                 />
+                <small className={styles.hint}>Apague os asteriscos para editar o número</small>
               </div>
             </div>
           </fieldset>
+
           <button
             className="btn-primary"
             onClick={perfilState.handleUpdateProfile}
           >
             Atualizar Dados
           </button>
+
+          {/* Modal de Confirmação de Senha para Dados Críticos */}
+          <Modal
+            isOpen={perfilState.showModalSenha}
+            onClose={() => perfilState.setShowModalSenha(false)}
+            title="Confirmação de Segurança"
+            variant="medium"
+            footer={
+              <>
+                <button
+                  className="btn-secondary"
+                  onClick={() => perfilState.setShowModalSenha(false)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn-primary"
+                  onClick={perfilState.confirmarUpdateComSenha}
+                >
+                  Confirmar Alteração
+                </button>
+              </>
+            }
+          >
+            <div className={styles.modalBody}>
+              <p>
+                Você está alterando dados críticos (**CPF** ou **Telefone**). Por motivos de segurança, 
+                confirme sua senha atual para prosseguir.
+              </p>
+              <div className="form-group" style={{ marginTop: '20px' }}>
+                <label>Sua Senha Atual</label>
+                <div className={styles.passwordWrapper}>
+                  <input
+                    type={perfilState.showSenhaConfirmacao ? 'text' : 'password'}
+                    className={styles.passwordInput}
+                    value={perfilState.senhaConfirmacao}
+                    onChange={(e) => perfilState.setSenhaConfirmacao(e.target.value)}
+                    placeholder="Digite sua senha"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    className={styles.passwordToggle}
+                    onClick={() => perfilState.setShowSenhaConfirmacao(!perfilState.showSenhaConfirmacao)}
+                  >
+                    {perfilState.showSenhaConfirmacao ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Modal>
         </section>
       )}
 

@@ -12,4 +12,5 @@ export interface IAdminFormState {
   email: string;
   senha: string;
   confirmacaoSenha: string;
+  usarMesmaSenha: boolean;
 }

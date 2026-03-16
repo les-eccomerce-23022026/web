@@ -12,7 +12,8 @@ const INITIAL_FORM: IAdminFormState = {
   cpf: '', 
   email: '', 
   senha: '', 
-  confirmacaoSenha: '' 
+  confirmacaoSenha: '',
+  usarMesmaSenha: false
 };
 
 export function useGerenciarAdmins() {
@@ -85,13 +86,14 @@ export function useGerenciarAdmins() {
       cpf: '', // CPF geralmente não é editável ou não retornado
       email: admin.email, 
       senha: '', 
-      confirmacaoSenha: '' 
+      confirmacaoSenha: '',
+      usarMesmaSenha: false
     });
     setShowForm(true);
     clearModalFeedback();
   }
 
-  function handleFieldChange(field: keyof IAdminFormState, value: string) {
+  function handleFieldChange(field: keyof IAdminFormState, value: string | boolean) {
     if (modalMessage) {
       clearModalFeedback();
     }
@@ -106,13 +108,20 @@ export function useGerenciarAdmins() {
     }
 
     if (!editingAdmin) {
-      if (!form.nome || !form.cpf || !form.email || !form.senha) {
+      if (!form.nome || !form.cpf || !form.email) {
         showModalFeedback('Por favor, preencha todos os campos obrigatórios.', 'error');
         return;
       }
-      if (form.senha !== form.confirmacaoSenha) {
-        showModalFeedback('As senhas não conferem.', 'error');
-        return;
+
+      if (!form.usarMesmaSenha) {
+        if (!form.senha) {
+          showModalFeedback('Por favor, defina uma senha para o administrador.', 'error');
+          return;
+        }
+        if (form.senha !== form.confirmacaoSenha) {
+          showModalFeedback('As senhas não conferem.', 'error');
+          return;
+        }
       }
     }
 
@@ -143,7 +152,8 @@ export function useGerenciarAdmins() {
         cpf: form.cpf,
         email: form.email,
         senha: form.senha,
-        confirmacaoSenha: form.confirmacaoSenha
+        confirmacaoSenha: form.confirmacaoSenha,
+        usarMesmaSenha: form.usarMesmaSenha
       });
 
       showPageFeedback('Administrador cadastrado com sucesso!');
