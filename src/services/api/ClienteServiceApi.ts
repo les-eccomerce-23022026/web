@@ -113,8 +113,9 @@ export class ClienteServiceApi implements IClienteService {
     let validadeIso = cartao.validade;
     if (cartao.validade.includes('/')) {
       const [mes, ano] = cartao.validade.split('/');
-      // Formato MM/AA para YYYY-MM-DD (usando o primeiro dia do mês por simplicidade)
-      validadeIso = `20${ano}-${mes}-01`;
+      // Se o ano vier com 4 dígitos (ex: 2030), usa direto. Se vier com 2 (ex: 30), prefixa com 20.
+      const anoCompleto = ano.length === 2 ? `20${ano}` : ano;
+      validadeIso = `${anoCompleto}-${mes.padStart(2, '0')}-01`;
     }
 
     const payloadApi = {
@@ -147,19 +148,22 @@ export class ClienteServiceApi implements IClienteService {
     let validadeIso = cartao.validade;
     if (cartao.validade && cartao.validade.includes('/')) {
       const [mes, ano] = cartao.validade.split('/');
-      validadeIso = `20${ano.padStart(2, '0')}-${mes.padStart(2, '0')}-01`;
+      const anoCompleto = ano.length === 2 ? `20${ano}` : ano;
+      validadeIso = `${anoCompleto}-${mes.padStart(2, '0')}-01`;
     }
 
-    const payloadApi = {
+    const payloadApi: any = {
       idBandeiraCartao: idBandeira,
-      tokenCartao: undefined, // Update logic doesn't usually change token
-      finalCartao: cartao.final,
       nomeImpresso: cartao.nomeImpresso,
       validade: validadeIso,
     };
 
+    // Remove undefined fields
+    Object.keys(payloadApi).forEach(key => payloadApi[key] === undefined && delete payloadApi[key]);
+
     // Assuming endpoint returns list of cards like editarEndereco
-    return ApiClient.patch<ICartaoCliente[]>(
+    // In some cases it returns a singular object, we'll handle this in the hook.
+    return ApiClient.patch<any>(
       API_ENDPOINTS.editarCartao(uuid),
       payloadApi,
     );

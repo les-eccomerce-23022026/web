@@ -48,8 +48,16 @@ describe('Cliente - Perfil - Gestão de Endereços', () => {
     ProfilePage.saveAddressButton.click();
     cy.contains('Endereço salvo!').should('be.visible');
 
+    // Editar
+    ProfilePage.getEditButton('endereco').click();
+    const novoApelido = 'APELIDO ALTERADO ' + Date.now();
+    ProfilePage.addressApelidoInput.clear().type(novoApelido);
+    ProfilePage.saveAddressButton.click();
+    cy.contains('Endereço atualizado!').should('be.visible');
+    cy.contains(novoApelido).should('be.visible');
+
     // Remover
-    cy.get(`[data-cy^="endereco-delete-button-"]`).last().click();
+    ProfilePage.getDeleteButton('endereco').last().click();
     ProfilePage.genericModalConfirmButton.click();
     cy.contains('Endereço removido!').should('be.visible');
   });

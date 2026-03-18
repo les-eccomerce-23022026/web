@@ -46,8 +46,33 @@ describe('Cliente - Perfil - Gestão de Cartões', () => {
     ProfilePage.saveCardButton.click();
     cy.contains('Cartão salvo!').should('be.visible');
 
+    // Editar o cartão recém criado - Garantir que a lista atualizou
+    cy.contains(nomeCartao).should('be.visible');
+    ProfilePage.getEditButton('cartao').should('be.visible').click();
+    
+    // Garantir que o formulário de edição carregou o nome atual
+    ProfilePage.cardNomeInput.should('have.value', nomeCartao);
+    
+    const novoNomeCartao = 'NOME ALTERADO ' + Date.now();
+    ProfilePage.cardNomeInput.clear().type(novoNomeCartao);
+
+    // Interceptar para debug
+    cy.intercept('PATCH', '**/clientes/perfil/cartoes/**').as('editCard');
+    ProfilePage.saveCardButton.click();
+    
+    cy.wait('@editCard').then((interception) => {
+      expect(interception.response?.statusCode).to.be.oneOf([200, 201]);
+    });
+    
+    cy.contains('Cartão atualizado!', { timeout: 10000 }).should('be.visible');
+    cy.contains(novoNomeCartao).should('be.visible');
+
+    // Definir como preferencial
+    ProfilePage.getPreferredButton().click();
+    ProfilePage.preferredCardBadge.should('be.visible');
+
     // Remover
-    cy.get(`[data-cy^="cartao-delete-button-"]`).last().click();
+    ProfilePage.getDeleteButton('cartao').last().click();
     ProfilePage.genericModalConfirmButton.click();
     cy.contains('Cartão removido!').should('be.visible');
   });

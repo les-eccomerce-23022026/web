@@ -156,7 +156,15 @@ export function useMeuPerfil() {
         setNovoCartaoNumero(`**** **** **** ${c.final}`);
         setNovoCartaoNome(c.nomeImpresso);
         setNovoCartaoBandeira(c.bandeira);
-        setNovoCartaoValidade(c.validade);
+        
+        // Normalizar validade de ISO (YYYY-MM-DD) para MM/AAAA se necessário
+        let validadeExibicao = c.validade;
+        if (c.validade && c.validade.includes('-')) {
+          const [ano, mes] = c.validade.split('-');
+          validadeExibicao = `${mes}/${ano}`;
+        }
+        setNovoCartaoValidade(validadeExibicao);
+        
         setNovoCartaoCvv('');
         setShowNovoCartao(true);
       }
@@ -318,8 +326,18 @@ export function useMeuPerfil() {
         showMessage('Endereço salvo!', 'success');
       }
 
-      // A API retorna a lista completa de endereços
-      dispatch(setEnderecos(novosEnderecos));
+      // A API pode retornar a lista completa ou apenas o item editado
+      if (Array.isArray(novosEnderecos)) {
+        dispatch(setEnderecos(novosEnderecos));
+      } else if (novosEnderecos && typeof novosEnderecos === 'object') {
+        // Se for objeto único, atualizamos a lista localmente ou recarregamos
+        // Para manter a simplicidade e garantir ordem, vamos recarregar ou filtrar/adicionar
+        const listaAtualizada = enderecoEditandoUuid 
+          ? enderecos.map(e => e.uuid === enderecoEditandoUuid ? novosEnderecos : e)
+          : [...enderecos, novosEnderecos];
+        dispatch(setEnderecos(listaAtualizada));
+      }
+      
       setShowNovoEndereco(false);
       setEnderecoEditandoUuid(null);
       // Limpar campos
@@ -354,9 +372,13 @@ export function useMeuPerfil() {
   const handleAdicionarCartao = async () => {
     if (isCartaoLoading) return;
 
-    // Validação de CVV
+    // Validação de CVV (Apenas para novos cartões ou se preenchido na edição)
     const cvvLimpo = novoCartaoCvv.replace(/\D/g, '');
-    if (cvvLimpo.length !== 3) {
+    if (!cartaoEditandoUuid && cvvLimpo.length !== 3) {
+      showMessage('O CVV deve conter exatamente 3 números.', 'error');
+      return;
+    }
+    if (cartaoEditandoUuid && cvvLimpo.length > 0 && cvvLimpo.length !== 3) {
       showMessage('O CVV deve conter exatamente 3 números.', 'error');
       return;
     }
@@ -370,11 +392,16 @@ export function useMeuPerfil() {
     setIsCartaoLoading(true);
     try {
       if (cartaoEditandoUuid) {
-        const novosCartoes = await ClienteService.editarCartao(cartaoEditandoUuid, {
+        const result = await ClienteService.editarCartao(cartaoEditandoUuid, {
           nomeImpresso: novoCartaoNome,
           bandeira: novoCartaoBandeira,
           validade: novoCartaoValidade,
         });
+        
+        const novosCartoes = Array.isArray(result) 
+          ? result 
+          : cartoes.map(c => c.uuid === cartaoEditandoUuid ? result : c);
+        
         dispatch(setCartoes(novosCartoes));
         showMessage('Cartão atualizado!', 'success');
       } else {

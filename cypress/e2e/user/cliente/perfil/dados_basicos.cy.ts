@@ -28,6 +28,8 @@ describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
       });
     });
     cy.visit('/perfil');
+    // Esperar o perfil carregar (o campo de nome deve ser populado)
+    ProfilePage.nomeInput.should('not.have.value', '', { timeout: 15000 });
   });
 
   describe('Dados Não Críticos', () => {
@@ -44,6 +46,18 @@ describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
       cy.reload();
       ProfilePage.nomeInput.should('have.value', novoNome);
       ProfilePage.generoSelect.should('have.value', 'Feminino');
+    });
+
+    it('deve permitir alterar a data de nascimento sem exigir senha', () => {
+      const novaData = '1995-05-15';
+      
+      ProfilePage.nascimentoInput.clear().type(novaData);
+      ProfilePage.saveProfileButton.click();
+
+      cy.contains('Dados atualizados com sucesso!', { timeout: 10000 }).should('be.visible');
+      
+      cy.reload();
+      ProfilePage.nascimentoInput.should('have.value', novaData);
     });
   });
 
@@ -66,6 +80,7 @@ describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
 
       // No reload, o e-mail virá mascarado. Ex: n***9@teste.com
       cy.reload();
+      ProfilePage.emailInput.should('not.have.value', '');
       ProfilePage.emailInput.invoke('val').then((val: any) => {
         expect(val).to.contain('*'); // Deve estar mascarado
         expect(val).to.contain('@teste.com'); // Deve manter o domínio
@@ -99,6 +114,24 @@ describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
         expect(cleanVal).to.contain('11');
         expect(val).to.contain('*');
       });
+    });
+
+    it('deve garantir que o CPF é apenas leitura', () => {
+      // 1. Garantir que o campo existe e é readonly
+      cy.get('[data-cy="perfil-cpf-input"]', { timeout: 15000 })
+        .should('be.visible')
+        .and('have.attr', 'readonly');
+      
+      // 2. Tentar interagir (não deve mudar nada)
+      cy.get('[data-cy="perfil-cpf-input"]', { timeout: 15000 })
+        .click({ force: true })
+        .type('99999999999', { force: true });
+      
+      // 3. Validar valor final mascarado
+      cy.get('[data-cy="perfil-cpf-input"]', { timeout: 15000 })
+        .should('not.have.value', '')
+        .invoke('val')
+        .should('contain', '*');
     });
   });
 });

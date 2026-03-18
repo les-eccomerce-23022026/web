@@ -51,6 +51,7 @@ export class ProfilePage {
   static get cardValidadeInput() { return cy.get('[data-cy="cartao-validade-input"]'); }
   static get cardCvvInput() { return cy.get('[data-cy="cartao-cvv-input"]'); }
   static get saveCardButton() { return cy.get('[data-cy="cartao-submit-button"]'); }
+  static get preferredCardBadge() { return cy.get('[data-cy="cartao-preferencial-badge"]'); }
 
   // Senha
   static get currentPasswordInput() { return cy.get('[data-cy="senha-atual-input"]'); }
@@ -73,6 +74,18 @@ export class ProfilePage {
       case 'senha': this.tabSecurity.click(); break;
       case 'perigo': this.tabDangerZone.click(); break;
     }
+  }
+
+  static getEditButton(type: 'endereco' | 'cartao', index = 0) {
+    return cy.get(`[data-cy^="${type}-edit-button-"]`).eq(index);
+  }
+
+  static getDeleteButton(type: 'endereco' | 'cartao', index = 0) {
+    return cy.get(`[data-cy^="${type}-delete-button-"]`).eq(index);
+  }
+
+  static getPreferredButton(index = 0) {
+    return cy.get(`[data-cy^="cartao-preferencial-button-"]`).eq(index);
   }
 
   static fillPersonalData(data: { nome?: string, email?: string, cpf?: string, tel?: string }) {

@@ -31,11 +31,6 @@ export function MeuPerfil() {
     setter: perfilState.setVisualizacaoEmail 
   });
   
-  const cpfMask = useMaskedField({ 
-    value: perfilState.visualizacaoCpf, 
-    setter: perfilState.setVisualizacaoCpf 
-  });
-
   const telMask = useMaskedField({ 
     value: perfilState.visualizacaoTelefone, 
     setter: perfilState.setVisualizacaoTelefone 
@@ -197,11 +192,8 @@ export function MeuPerfil() {
                 data-cy="perfil-cpf-input"
                 type="text"
                 value={perfilState.visualizacaoCpf}
-                onChange={(e) => perfilState.setVisualizacaoCpf(e.target.value)}
-                onFocus={cpfMask.onFocus}
-                onBlur={() => cpfMask.onBlur(cliente?.cpfMascarado || cliente?.cpf || '')}
-                placeholder="Somente números (ex: 00000000000)"
-                maxLength={11}
+                readOnly
+                title="O CPF não pode ser alterado após o cadastro."
               />
             </div>
           </div>
@@ -558,7 +550,7 @@ export function MeuPerfil() {
                   Validade: {cartao.validade}
                 </div>
                 {cartaoState.cartaoPreferencialUuid === cartao.uuid && (
-                  <span className={styles.cartaoBadge}>★ Preferencial</span>
+                  <span className={styles.cartaoBadge} data-cy="cartao-preferencial-badge">★ Preferencial</span>
                 )}
                 <div className={styles.cartaoActions}>
                   <button
