@@ -33,6 +33,11 @@ export class ApiClient {
       headers.set('Content-Type', 'application/json');
     }
 
+    // Injeta o header para usar o banco de testes se a variável de ambiente estiver ativa
+    if (import.meta.env.VITE_USE_TEST_DB === 'true') {
+      headers.set('x-use-test-db', 'true');
+    }
+
     // Adiciona o token se disponível (Uso de 'Authorization' header)
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);

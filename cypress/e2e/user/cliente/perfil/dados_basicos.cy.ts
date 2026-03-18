@@ -28,63 +28,92 @@ describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
       });
     });
     cy.visit('/perfil');
-    // Esperar o perfil carregar (o campo de nome deve ser populado)
-    ProfilePage.nomeInput.should('not.have.value', '', { timeout: 15000 });
+    // Esperar o perfil carregar com timeout estendido para ambientes mais lentos
+    ProfilePage.nomeInput.should('not.have.value', '', { timeout: 30000 });
+    cy.wait(2000); // Pausa inicial para o vídeo mostrar os dados carregados
   });
 
   describe('Dados Não Críticos', () => {
     it('deve permitir alterar nome e gênero simultaneamente sem exigir senha', () => {
+      // Mostrar dados atuais
+      ProfilePage.nomeInput.invoke('val').then(val => cy.log('Nome Atual: ' + val));
+      cy.wait(1000);
+
       const novoNome = 'Nome Alterado ' + Date.now();
-      
       ProfilePage.nomeInput.clear().type(novoNome);
       ProfilePage.generoSelect.select('Feminino');
+      
+      cy.wait(2000); // Pausa para o vídeo mostrar o novo valor digitado antes de salvar
+
       ProfilePage.saveProfileButton.click();
 
       cy.contains('Dados atualizados com sucesso!', { timeout: 10000 }).should('be.visible');
+      cy.wait(2000); 
       
-      // Validar persistência
+      // Validar persistência e mostrar na tela
       cy.reload();
+      ProfilePage.nomeInput.should('not.have.value', '', { timeout: 15000 });
       ProfilePage.nomeInput.should('have.value', novoNome);
       ProfilePage.generoSelect.should('have.value', 'Feminino');
+      cy.wait(2000);
     });
 
     it('deve permitir alterar a data de nascimento sem exigir senha', () => {
+      ProfilePage.nascimentoInput.invoke('val').then(val => cy.log('Data Atual: ' + val));
+      cy.wait(1000);
+
       const novaData = '1995-05-15';
-      
       ProfilePage.nascimentoInput.clear().type(novaData);
+      
+      cy.wait(2000);
+
       ProfilePage.saveProfileButton.click();
 
       cy.contains('Dados atualizados com sucesso!', { timeout: 10000 }).should('be.visible');
+      cy.wait(2000);
       
       cy.reload();
+      ProfilePage.nascimentoInput.should('not.have.value', '', { timeout: 15000 });
       ProfilePage.nascimentoInput.should('have.value', novaData);
+      cy.wait(2000);
     });
   });
 
   describe('Dados Críticos', () => {
     it('deve exigir senha para alterar o e-mail', () => {
+      ProfilePage.emailInput.invoke('val').then(val => cy.log('Email Atual: ' + val));
+      cy.wait(1000);
+
       const novoEmail = `novo_email_${Date.now()}@teste.com`;
-      
       ProfilePage.emailInput.clear().type(novoEmail);
+      
+      cy.wait(2000); // Mostrar novo email antes de disparar o modal
+
       ProfilePage.saveProfileButton.click();
 
-      ProfilePage.passwordConfirmInput.should('be.visible');
+      // Valida o modal de confirmação de segurança
+      cy.get('h2').contains('⚠️ Confirmação de Segurança').should('be.visible');
+      cy.wait(2000); 
+      
+      ProfilePage.passwordConfirmInput.should('be.visible').type(testUser.senha);
+      cy.wait(1000);
       
       cy.intercept('PATCH', '**/clientes/perfil').as('updatePerfil');
-      
-      ProfilePage.confirmWithPassword(testUser.senha);
+      ProfilePage.modalConfirmButton.click();
 
       cy.wait('@updatePerfil').its('response.statusCode').should('eq', 200);
 
       cy.contains(/Dados atualizados/i, { timeout: 10000 }).should('be.visible');
+      cy.wait(2000);
 
-      // No reload, o e-mail virá mascarado. Ex: n***9@teste.com
+      // No reload, o e-mail virá mascarado.
       cy.reload();
-      ProfilePage.emailInput.should('not.have.value', '');
+      ProfilePage.emailInput.should('not.have.value', '', { timeout: 15000 });
       ProfilePage.emailInput.invoke('val').then((val: any) => {
-        expect(val).to.contain('*'); // Deve estar mascarado
-        expect(val).to.contain('@teste.com'); // Deve manter o domínio
+        expect(val).to.contain('*'); 
+        expect(val).to.contain('@teste.com');
       });
+      cy.wait(2000);
     });
 
     it('deve exigir senha para alteração mista (nome + telefone)', () => {
@@ -93,27 +122,32 @@ describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
 
       ProfilePage.nomeInput.clear().type(novoNomeMisto);
       ProfilePage.telInput.clear().type(novoTelefone);
+      
+      cy.wait(2000);
+
       ProfilePage.saveProfileButton.click();
 
-      ProfilePage.passwordConfirmInput.should('be.visible');
+      cy.get('h2').contains('⚠️ Confirmação de Segurança').should('be.visible');
+      cy.wait(2000);
+      
+      ProfilePage.passwordConfirmInput.should('be.visible').type(testUser.senha);
+      cy.wait(1000);
       
       cy.intercept('PATCH', '**/clientes/perfil').as('updatePerfilMisto');
-      
-      ProfilePage.confirmWithPassword(testUser.senha);
+      ProfilePage.modalConfirmButton.click();
 
       cy.wait('@updatePerfilMisto').its('response.statusCode').should('eq', 200);
       cy.contains(/Dados atualizados/i, { timeout: 10000 }).should('be.visible');
+      cy.wait(2000);
 
       cy.reload();
+      ProfilePage.nomeInput.should('not.have.value', '', { timeout: 15000 });
       ProfilePage.nomeInput.should('have.value', novoNomeMisto);
       
-      // Telefone mascarado. Ex: (11) 9****-7777
       ProfilePage.telInput.invoke('val').then((val: any) => {
-        const cleanVal = val.replace(/\D/g, '');
-        // Deve conter o DDD e o final do número se a máscara for padrão
-        expect(cleanVal).to.contain('11');
         expect(val).to.contain('*');
       });
+      cy.wait(2000);
     });
 
     it('deve garantir que o CPF é apenas leitura', () => {

@@ -13,9 +13,12 @@ describe('Cliente - Registro (Wizard)', () => {
       cy.intercept('POST', '**/clientes/registro').as('registerRequest');
 
       RegisterPage.fillStep1(newUser);
+      cy.wait(2000); // Pausa para ver preenchimento do passo 1
+
       RegisterPage.goToNextStep();
       
       cy.contains('Endereço de Cobrança').should('be.visible');
+      cy.wait(1000);
 
       RegisterPage.fillAddress({
         logradouro: 'Rua das Flores',
@@ -25,11 +28,13 @@ describe('Cliente - Registro (Wizard)', () => {
         cidade: 'São Paulo',
         estado: 'SP'
       });
+      cy.wait(2000); // Pausa para ver preenchimento do endereço
 
       RegisterPage.finish();
       cy.wait('@registerRequest');
       
       cy.contains(`Bem-vindo, ${newUser.nome}!`).should('be.visible');
+      cy.wait(3000); // Pausa final para ver boas-vindas
     });
   });
 
@@ -38,9 +43,12 @@ describe('Cliente - Registro (Wizard)', () => {
       const userInvalidCpf = { ...newUser, cpf: '123' };
       
       RegisterPage.fillStep1(userInvalidCpf);
+      cy.wait(2000);
+
       RegisterPage.goToNextStep();
       
       cy.contains('CPF inválido. Use 000.000.000-00 ou apenas 11 números.').should('be.visible');
+      cy.wait(2000);
     });
   });
 });

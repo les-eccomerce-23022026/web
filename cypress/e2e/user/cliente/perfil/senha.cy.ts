@@ -33,13 +33,17 @@ describe('Cliente - Perfil - Troca de Senha', () => {
 
   it('deve permitir alterar a senha com sucesso', () => {
     const novaSenha = 'NovaSenha123!';
+    cy.wait(1000);
 
     ProfilePage.currentPasswordInput.type(testUser.senha);
     ProfilePage.newPasswordInput.type(novaSenha);
     ProfilePage.confirmNewPasswordInput.type(novaSenha);
+    cy.wait(2000); // Pausa para ver preenchimento
+
     ProfilePage.submitPasswordButton.click();
 
     ProfilePage.successMessage.should('be.visible').and('contain', 'Senha altreada!');
+    cy.wait(2000); // Pausa para ver sucesso
 
     // Tentar login com a nova senha para validar
     cy.request({
@@ -54,20 +58,28 @@ describe('Cliente - Perfil - Troca de Senha', () => {
   });
 
   it('deve validar erro ao errar a senha atual', () => {
+    cy.wait(1000);
     ProfilePage.currentPasswordInput.type('SenhaErrada123');
     ProfilePage.newPasswordInput.type('NovaSenha456!');
     ProfilePage.confirmNewPasswordInput.type('NovaSenha456!');
+    cy.wait(2000);
+
     ProfilePage.submitPasswordButton.click();
 
     ProfilePage.errorMessage.should('be.visible');
+    cy.wait(2000);
   });
 
   it('deve validar erro ao confirmar senha nova incorretamente', () => {
+    cy.wait(1000);
     ProfilePage.currentPasswordInput.type(testUser.senha);
     ProfilePage.newPasswordInput.type('NovaSenha456!');
     ProfilePage.confirmNewPasswordInput.type('Diferente123');
+    cy.wait(2000);
+
     ProfilePage.submitPasswordButton.click();
 
     ProfilePage.errorMessage.should('be.visible').and('contain', 'Verifique os campos de senha.');
+    cy.wait(2000);
   });
 });
