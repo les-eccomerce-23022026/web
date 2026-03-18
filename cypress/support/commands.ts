@@ -37,12 +37,15 @@ Cypress.Commands.add('login', (email, password) => {
  */
 Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
   const user = Cypress.env(userType);
-  const apiUrl = 'http://localhost:3000/api'; // Pode vir de Cypress.env('apiUrl') se houver
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3000/api';
 
   cy.session(`session-${userType}`, () => {
     cy.request({
       method: 'POST',
       url: `${apiUrl}/auth/login`,
+      headers: {
+        'x-use-test-db': 'true'
+      },
       body: {
         email: user.email,
         senha: user.senha

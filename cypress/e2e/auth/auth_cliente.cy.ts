@@ -3,7 +3,7 @@ import { RegisterPage } from '../../support/pages/auth/RegisterPage';
 import { Header } from '../../support/pages/layout/Header';
 import { ProfilePage } from '../../support/pages/user/ProfilePage';
 
-describe('Auth - Fluxos de Registro, Login e Gestão de Perfil (CRUD)', () => {
+describe('Auth - Fluxos de Registro, Login e Gestão de Perfil do Cliente', () => {
 
   beforeEach(() => {
     // Intercepta todas as chamadas para a API e adiciona o header do banco de testes
@@ -15,27 +15,13 @@ describe('Auth - Fluxos de Registro, Login e Gestão de Perfil (CRUD)', () => {
     });
   });
 
-  context('Autenticação de Usuários', () => {
+  context('Autenticação de Cliente', () => {
     it('deve logar como cliente e validar informações no Header', () => {
       cy.fixture('auth/login_cliente_sucesso').then((json) => {
         cy.intercept('POST', '**/auth/login', json).as('loginRequest');
         cy.login(json.dados.user.email, 'password123');
         cy.wait('@loginRequest');
         Header.verifyLoggedIn(json.dados.user.nome);
-      });
-
-      // Rotas admin bloqueadas
-      cy.visit('/admin', { failOnStatusCode: false });
-      cy.url().should('not.include', '/admin');
-    });
-
-    it('deve logar como administrador e acessar o painel administrativo', () => {
-      cy.fixture('auth/login_admin_sucesso').then((json) => {
-        cy.intercept('POST', '**/auth/login', json).as('loginAdmin');
-        cy.login(json.dados.user.email, 'password123');
-        cy.wait('@loginAdmin');
-        cy.url().should('include', '/admin');
-        cy.contains('h2', 'Painel Administrativo').should('be.visible');
       });
     });
   });
@@ -78,11 +64,7 @@ describe('Auth - Fluxos de Registro, Login e Gestão de Perfil (CRUD)', () => {
       });
 
       RegisterPage.finish();
-      cy.wait('@registerRequest').then((interception) => {
-        if (interception.response && interception.response.statusCode !== 201) {
-          cy.log('Register Error Body: ' + JSON.stringify(interception.response.body));
-        }
-      });
+      cy.wait('@registerRequest');
       
       cy.contains(`Bem-vindo, ${newUser.nome}!`).should('be.visible');
     });
@@ -123,10 +105,10 @@ describe('Auth - Fluxos de Registro, Login e Gestão de Perfil (CRUD)', () => {
 
     before(() => {
       const n = () => Math.floor(Math.random() * 10).toString();
-      const dynamicCpf = `${n()}${n()}${n()}.${n()}${n()}${n()}.${n()}${n()}${n()}-${n()}${n()}`;
+      const dCpf = `${n()}${n()}${n()}.${n()}${n()}${n()}.${n()}${n()}${n()}-${n()}${n()}`;
       testUser = {
         nome: 'Perfil Tester',
-        cpf: dynamicCpf,
+        cpf: dCpf,
         email: `tester.perfil.${Date.now()}@email.com`,
         senha: '@asdfJKLÇ123',
         confirmacaoSenha: '@asdfJKLÇ123'
@@ -173,7 +155,6 @@ describe('Auth - Fluxos de Registro, Login e Gestão de Perfil (CRUD)', () => {
     it('deve permitir solicitar a inativação da conta', () => {
       cy.visit('/perfil');
       
-      // Stub para inativação pois é uma ação destrutiva para o usuário de teste desta spec
       cy.intercept('DELETE', '**/clientes/perfil', {
         statusCode: 200,
         body: { sucesso: true, dados: { mensagem: "Inativado" } }

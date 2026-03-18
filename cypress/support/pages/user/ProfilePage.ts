@@ -104,4 +104,10 @@ export class ProfilePage {
     if (card.validade) this.cardValidadeInput.clear().type(card.validade);
     if (card.cvv) this.cardCvvInput.clear().type(card.cvv);
   }
+
+  static requestAccountDeletion() {
+    this.navigateToTab('perigo');
+    this.deleteAccountButton.should('be.visible').click();
+    this.genericModalConfirmButton.should('be.visible').click();
+  }
 }

@@ -1,13 +1,13 @@
 # Project Board — LES Frontend React
 
-> Atualizado em: 16 de março de 2026  
+> Atualizado em: 18 de março de 2026  
 > Status: Gestão local das atividades do projeto.
 
 ---
 
 ## Board Kanban
 
-| 📋 Todo (0)                                 | 🔄 In Progress (0)                         | ✅ Done (33)                                            |
+| 📋 Todo (0)                                 | 🔄 In Progress (0)                         | ✅ Done (34)                                            |
 | ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
 |                                             |                                            | A1 · [FRONTEND] Configurar GIT e Repositório Remoto     |
 |                                             |                                            | A2 · [FRONTEND] Configurar Redux para Auth              |

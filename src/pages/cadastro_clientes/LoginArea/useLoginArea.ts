@@ -215,7 +215,7 @@ export function useLoginArea() {
         enderecoEntregaIgualCobranca: isEnderecoEntregaIgual,
       });
 
-      setRegSuccess('Cadastro realizado com sucesso! Faça login para continuar.');
+      setRegSuccess(`Bem-vindo, ${regNome}! Cadastro realizado com sucesso.`);
       setShowRegister(false);
       setRegStep(1);
     } catch (err) {
