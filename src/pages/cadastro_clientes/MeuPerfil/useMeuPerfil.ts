@@ -133,6 +133,23 @@ export function useMeuPerfil() {
   }, [user, dispatch]);
 
   useEffect(() => {
+    if (cliente && !hasInitialized.current) {
+      setNome(cliente.nome || '');
+      setGenero((cliente.genero as Genero) || 'Masculino');
+      setDataNascimento(cliente.dataNascimento || '');
+      setVisualizacaoEmail(cliente.emailMascarado || cliente.email || '');
+      setVisualizacaoCpf(cliente.cpfMascarado || cliente.cpf || '');
+      const telStr = cliente.telefone 
+        ? `(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}`
+        : '';
+      setVisualizacaoTelefone(telStr);
+      setNovoTelefoneTipo(cliente.telefone?.tipo || 'Celular');
+      
+      hasInitialized.current = true;
+    }
+  }, [cliente]);
+
+  useEffect(() => {
     if (cartaoEditandoUuid) {
       const c = cartoes.find((c) => c.uuid === cartaoEditandoUuid);
       if (c) {
@@ -210,7 +227,11 @@ export function useMeuPerfil() {
   };
 
   const confirmarUpdateComSenha = async () => {
-    const payload: IAtualizarPerfilPayload = { nome, genero, dataNascimento, senhaConfirmacao };
+    const payload: IAtualizarPerfilPayload = { senhaConfirmacao };
+
+    if (nome && nome !== cliente?.nome) payload.nome = nome;
+    if (genero && genero !== cliente?.genero) payload.genero = genero as Genero;
+    if (dataNascimento && dataNascimento !== cliente?.dataNascimento) payload.dataNascimento = dataNascimento;
     
     const emailAualCpfMascarado = cliente?.cpfMascarado || cliente?.cpf || '';
     const emailAualEmailMascarado = cliente?.emailMascarado || cliente?.email || '';

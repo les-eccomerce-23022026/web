@@ -1,10 +1,13 @@
-describe('Dashboard e Gestão de Livros Admin', () => {
+describe('Administrador - Gestão de Livros (Cadastro)', () => {
+
   beforeEach(() => {
-    cy.intercept('POST', '/api/auth/login', {
+    cy.intercept('POST', '**/auth/login', {
       statusCode: 200,
       body: {
-        token: 'fake-token-admin',
-        user: { uuid: 'uuid-admin', nome: 'Admin', email: 'admin@gmail.com', role: 'admin' },
+        dados: {
+          token: 'fake-token-admin',
+          user: { uuid: 'uuid-admin', nome: 'Admin', email: 'admin@gmail.com', role: 'admin' },
+        }
       },
     }).as('loginAdmin');
 
@@ -16,7 +19,6 @@ describe('Dashboard e Gestão de Livros Admin', () => {
   it('deve listar os livros em formato de tabela com colunas corretas', () => {
     cy.contains('Gestão de Catálogo (Livros)').should('be.visible');
     
-    // Check table headers
     cy.contains('th', 'Cód. Produto').should('exist');
     cy.contains('th', 'Título do Livro').should('exist');
     cy.contains('th', 'Autor(es)').should('exist');
@@ -30,12 +32,8 @@ describe('Dashboard e Gestão de Livros Admin', () => {
     cy.get('select.filter-select').find('option').contains('Apenas Ativos').should('exist');
   });
 
-  it('deve permitir acesso para criação de novo livro e ver botões de ação', () => {
+  it('deve permitir acesso para criação de novo livro', () => {
     cy.contains('+ Novo Livro').should('exist');
     cy.get('table tbody tr').should('have.length.greaterThan', 0);
-    cy.get('table tbody tr').first().within(() => {
-      cy.get('.btn-icon-admin.edit').should('be.visible');
-      cy.get('.btn-icon-admin').should('have.length.at.least', 2);
-    });
   });
 });

@@ -15,9 +15,24 @@ declare global {
       login(email: string, password: string): Chainable<void>;
       loginProgramatico(userType: 'admin' | 'cliente'): Chainable<void>;
       getDataCy(value: string): Chainable<JQuery<HTMLElement>>;
+      getNewUser(): Chainable<{ nome: string, cpf: string, email: string, senha: string }>;
     }
   }
 }
+
+/**
+ * Gera um usuário dinâmico para testes de registro e perfil.
+ */
+Cypress.Commands.add('getNewUser', () => {
+  const n = () => Math.floor(Math.random() * 10).toString();
+  const cpf = `${n()}${n()}${n()}.${n()}${n()}${n()}.${n()}${n()}${n()}-${n()}${n()}`;
+  return cy.wrap({
+    nome: 'João Silva Teste',
+    cpf: cpf,
+    email: `teste.${Date.now()}.${Math.floor(Math.random() * 1000)}@email.com`,
+    senha: 'StrongPass@2026'
+  });
+});
 
 /**
  * Login via UI - Útil para testar o fluxo completo de login e feedbacks visuais.
