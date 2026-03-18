@@ -1,6 +1,7 @@
 import { defineConfig } from "cypress";
 
 export default defineConfig({
+  video: true,
   e2e: {
     baseUrl: "http://localhost:5173",
     allowCypressEnv: true, // Reativado para permitir acesso síncrono via Cypress.env() necessário para cy.session
@@ -15,9 +16,17 @@ export default defineConfig({
         senha: "@asdfJKLÇ123"
       }
     },
-    setupNodeEvents(_on, _config) {
-      // implement node event listeners here
+    setupNodeEvents(on, _config) {
+      on('before:browser:launch', (browser, launchOptions) => {
+        if (browser.name === 'chrome' && browser.isHeadless) {
+          launchOptions.args.push('--window-size=1920,1080');
+          launchOptions.args.push('--force-device-scale-factor=1');
+        }
+        return launchOptions;
+      });
     },
+    viewportWidth: 1920,
+    viewportHeight: 1080,
     specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
   },
 });

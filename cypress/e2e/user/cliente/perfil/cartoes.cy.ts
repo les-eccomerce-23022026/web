@@ -29,51 +29,73 @@ describe('Cliente - Perfil - Gestão de Cartões', () => {
     });
   });
 
-  it('deve permitir gerenciar cartões de crédito', () => {
+  it('deve permitir gerenciar cartões de crédito de diferentes bandeiras', () => {
     cy.visit('/perfil');
     ProfilePage.navigateToTab('cartoes');
 
-    // Adicionar
-    ProfilePage.addCardButton.click();
-    const nomeCartao = 'TESTER ' + Date.now();
-    ProfilePage.fillCard({
-      numero: '4444555566667777',
-      nome: nomeCartao,
-      bandeira: 'Visa',
-      validade: '12/2030',
-      cvv: '123'
+    const bandeiras = [
+      { nome: 'Visa', numero: '4444555566667777' },
+      { nome: 'Mastercard', numero: '5555666677778888' },
+      { nome: 'Elo', numero: '6666777788889999' },
+      { nome: 'American Express', numero: '371234567890123' }
+    ];
+
+    bandeiras.forEach((bandeira, index) => {
+      ProfilePage.addCardButton.click();
+      const nomeDono = `TESTER ${bandeira.nome} ${Date.now()}`;
+      
+      ProfilePage.fillCard({
+        numero: bandeira.numero,
+        nome: nomeDono,
+        bandeira: bandeira.nome,
+        validade: '12/2030',
+        cvv: '123'
+      });
+      
+      ProfilePage.saveCardButton.click();
+      cy.contains('Cartão salvo!').should('be.visible');
+      cy.contains(nomeDono).should('be.visible');
+      
+      // Se for o primeiro, define como preferencial para testar o badge
+      if (index === 0) {
+        ProfilePage.getPreferredButton(0).click();
+        ProfilePage.preferredCardBadge.should('be.visible');
+      }
+
+      cy.wait(500);
     });
-    ProfilePage.saveCardButton.click();
-    cy.contains('Cartão salvo!').should('be.visible');
 
-    // Editar o cartão recém criado - Garantir que a lista atualizou
-    cy.contains(nomeCartao).should('be.visible');
-    ProfilePage.getEditButton('cartao').should('be.visible').click();
-    
-    // Garantir que o formulário de edição carregou o nome atual
-    ProfilePage.cardNomeInput.should('have.value', nomeCartao);
-    
-    const novoNomeCartao = 'NOME ALTERADO ' + Date.now();
-    ProfilePage.cardNomeInput.clear().type(novoNomeCartao);
-
-    // Interceptar para debug
-    cy.intercept('PATCH', '**/clientes/perfil/cartoes/**').as('editCard');
-    ProfilePage.saveCardButton.click();
-    
-    cy.wait('@editCard').then((interception) => {
-      expect(interception.response?.statusCode).to.be.oneOf([200, 201]);
+    // Validar que todos estão na lista e realizar trocas sucessivas de preferencial
+    bandeiras.forEach((b) => {
+      cy.contains(b.nome).should('be.visible');
+      
+      // Encontra o botão de preferencial para este cartão específico e clica se ele existir
+      // (se já for o preferencial, o botão não aparece, então pulamos)
+      cy.get('body').then(($body) => {
+        const selector = `[data-cy^="cartao-item-"]:contains("${b.nome}") [data-cy^="cartao-preferencial-button-"]`;
+        if ($body.find(selector).length > 0) {
+          cy.get(selector).click();
+          ProfilePage.preferredCardBadge.should('be.visible');
+          cy.wait(1000); // Pausa para o vídeo
+        }
+      });
     });
-    
-    cy.contains('Cartão atualizado!', { timeout: 10000 }).should('be.visible');
-    cy.contains(novoNomeCartao).should('be.visible');
 
-    // Definir como preferencial
-    ProfilePage.getPreferredButton().click();
-    ProfilePage.preferredCardBadge.should('be.visible');
+    // Editar o último para garantir que a edição funciona com Amex
+    const novoNomeAmex = 'AMEX ALTERADO';
+    ProfilePage.getEditButton('cartao', 3).click();
+    ProfilePage.cardNomeInput.clear().type(novoNomeAmex);
+    ProfilePage.saveCardButton.click();
+    cy.contains('Cartão atualizado!').should('be.visible');
+    cy.contains(novoNomeAmex).should('be.visible');
 
-    // Remover
-    ProfilePage.getDeleteButton('cartao').last().click();
-    ProfilePage.genericModalConfirmButton.click();
-    cy.contains('Cartão removido!').should('be.visible');
+    // Remover um por um para limpar e testar exclusão múltipla
+    bandeiras.forEach(() => {
+      ProfilePage.getDeleteButton('cartao', 0).click();
+      cy.get('h2').contains('Remover Cartão').should('be.visible');
+      ProfilePage.genericModalConfirmButton.click();
+      cy.contains('Cartão removido!').should('be.visible');
+      cy.wait(500);
+    });
   });
 });

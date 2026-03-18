@@ -106,9 +106,11 @@ export class ClienteServiceApi implements IClienteService {
   }
 
   async adicionarCartao(cartao: Omit<ICartaoCliente, 'uuid'>): Promise<ICartaoCliente> {
-    let idBandeira = 1;
-    if (cartao.bandeira.toLowerCase() === 'mastercard') idBandeira = 2;
-    else if (cartao.bandeira.toLowerCase() === 'elo') idBandeira = 3;
+    const bandeirasMap: Record<string, number> = {
+      mastercard: 2,
+      elo: 3,
+    };
+    const idBandeira = bandeirasMap[cartao.bandeira.toLowerCase()] ?? 1;
 
     let validadeIso = cartao.validade;
     if (cartao.validade.includes('/')) {
@@ -138,12 +140,14 @@ export class ClienteServiceApi implements IClienteService {
     uuid: string,
     cartao: Partial<ICartaoCliente>,
   ): Promise<ICartaoCliente[]> {
-    let idBandeira: number | undefined;
-    if (cartao.bandeira) {
-      idBandeira = 1;
-      if (cartao.bandeira.toLowerCase() === 'mastercard') idBandeira = 2;
-      else if (cartao.bandeira.toLowerCase() === 'elo') idBandeira = 3;
-    }
+    const bandeirasMap: Record<string, number> = {
+      mastercard: 2,
+      elo: 3,
+    };
+    
+    const idBandeira = cartao.bandeira 
+      ? (bandeirasMap[cartao.bandeira.toLowerCase()] ?? 1)
+      : undefined;
 
     let validadeIso = cartao.validade;
     if (cartao.validade && cartao.validade.includes('/')) {

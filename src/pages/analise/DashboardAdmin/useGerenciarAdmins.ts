@@ -179,29 +179,31 @@ export function useGerenciarAdmins() {
   }
 
   async function handleDelete() {
-    if (adminToToggle) {
-      try {
-        if (!isAuthenticated || user?.role !== 'admin') {
-          showPageFeedback('Você precisa estar autenticado para alterar o status de administradores.', 'error');
-          return;
-        }
+    if (!adminToToggle) return;
 
-        if (adminToToggle.ativo !== false) {
-          await AuthService.inativarAdmin(adminToToggle.uuid);
-          showPageFeedback(`Administrador ${adminToToggle.nome} inativado com sucesso.`);
-        } else {
-          await AuthService.ativarAdmin(adminToToggle.uuid);
-          showPageFeedback(`Administrador ${adminToToggle.nome} ativado com sucesso.`);
-        }
-        dispatch(fetchAdmins());
-      } catch (err: unknown) {
-        const error = err as Error;
-        console.error(error);
-        showPageFeedback(error.message || 'Erro ao alterar status do administrador.', 'error');
-      } finally {
-        setIsDeleteModalOpen(false);
-        setAdminToToggle(null);
+    try {
+      if (!isAuthenticated || user?.role !== 'admin') {
+        showPageFeedback('Você precisa estar autenticado para alterar o status de administradores.', 'error');
+        return;
       }
+
+      if (adminToToggle.ativo !== false) {
+        await AuthService.inativarAdmin(adminToToggle.uuid);
+        showPageFeedback(`Administrador ${adminToToggle.nome} inativado com sucesso.`);
+        dispatch(fetchAdmins());
+        return;
+      }
+      
+      await AuthService.ativarAdmin(adminToToggle.uuid);
+      showPageFeedback(`Administrador ${adminToToggle.nome} ativado com sucesso.`);
+      dispatch(fetchAdmins());
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error(error);
+      showPageFeedback(error.message || 'Erro ao alterar status do administrador.', 'error');
+    } finally {
+      setIsDeleteModalOpen(false);
+      setAdminToToggle(null);
     }
   }
 

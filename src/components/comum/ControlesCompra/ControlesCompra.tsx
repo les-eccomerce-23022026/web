@@ -51,9 +51,10 @@ export const ControlesCompra: React.FC<ControlesCompraProps> = ({
 
     if (novaQuantidade <= 0) {
       dispatch(removerItem(livro.uuid));
-    } else {
-      dispatch(atualizarQuantidade({ uuid: livro.uuid, quantidade: novaQuantidade }));
+      return;
     }
+
+    dispatch(atualizarQuantidade({ uuid: livro.uuid, quantidade: novaQuantidade }));
   };
 
   return (

@@ -662,11 +662,10 @@ export function MeuPerfil() {
                       const value = e.target.value.replace(/\D/g, '');
                       if (value.length <= 2) {
                         cartaoState.setNovoCartaoValidade(value);
-                      } else {
-                        cartaoState.setNovoCartaoValidade(`${value.slice(0, 2)}/${value.slice(2, 6)}`);
+                        return;
                       }
-                    }}
-                  />
+                      cartaoState.setNovoCartaoValidade(`${value.slice(0, 2)}/${value.slice(2, 6)}`);
+                    }}                  />
                 </div>
                 {!cartaoState.cartaoEditandoUuid && (
                   <div className="form-group">
@@ -863,7 +862,11 @@ export function MeuPerfil() {
         variant={confirmModal.config.variant === 'danger' ? 'danger' : 'medium'}
         footer={
           <>
-            <button data-cy="modal-cancel-button" className="btn-secondary" onClick={confirmModal.close}>
+            <button 
+              data-cy="modal-cancel-button" 
+              className="btn-secondary" 
+              onClick={confirmModal.close}
+            >
               Cancelar
             </button>
             <button

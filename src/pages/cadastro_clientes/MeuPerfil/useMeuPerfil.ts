@@ -317,36 +317,43 @@ export function useMeuPerfil() {
         cep: novoEndCep, cidade: novoEndCidade, estado: novoEndEstado, pais: novoEndPais
       };
 
-      let novosEnderecos;
       if (enderecoEditandoUuid) {
-        novosEnderecos = await ClienteService.editarEndereco(enderecoEditandoUuid, payload);
+        const novosEnderecos = await ClienteService.editarEndereco(enderecoEditandoUuid, payload);
         showMessage('Endereço atualizado!', 'success');
-      } else {
-        novosEnderecos = await ClienteService.adicionarEndereco(payload);
-        showMessage('Endereço salvo!', 'success');
+        atualizarListaEnderecos(novosEnderecos, enderecoEditandoUuid);
+        finalizarFluxoEndereco();
+        return;
       }
 
-      // A API pode retornar a lista completa ou apenas o item editado
-      if (Array.isArray(novosEnderecos)) {
-        dispatch(setEnderecos(novosEnderecos));
-      } else if (novosEnderecos && typeof novosEnderecos === 'object') {
-        // Se for objeto único, atualizamos a lista localmente ou recarregamos
-        // Para manter a simplicidade e garantir ordem, vamos recarregar ou filtrar/adicionar
-        const listaAtualizada = enderecoEditandoUuid 
-          ? enderecos.map(e => e.uuid === enderecoEditandoUuid ? novosEnderecos : e)
-          : [...enderecos, novosEnderecos];
-        dispatch(setEnderecos(listaAtualizada));
-      }
-      
-      setShowNovoEndereco(false);
-      setEnderecoEditandoUuid(null);
-      // Limpar campos
-      setNovoEndApelido(''); setNovoEndLogradouro(''); setNovoEndNumero('');
-      setNovoEndComplemento(''); setNovoEndBairro(''); setNovoEndCep('');
-      setNovoEndCidade(''); setNovoEndEstado('');
+      const novosEnderecos = await ClienteService.adicionarEndereco(payload);
+      showMessage('Endereço salvo!', 'success');
+      atualizarListaEnderecos(novosEnderecos);
+      finalizarFluxoEndereco();
     } catch {
       showMessage('Erro ao salvar endereço.', 'error');
     }
+  };
+
+  const atualizarListaEnderecos = (novosEnderecos: any, editandoUuid?: string | null) => {
+    if (Array.isArray(novosEnderecos)) {
+      dispatch(setEnderecos(novosEnderecos));
+      return;
+    }
+
+    if (novosEnderecos && typeof novosEnderecos === 'object') {
+      const listaAtualizada = editandoUuid 
+        ? enderecos.map(e => e.uuid === editandoUuid ? novosEnderecos : e)
+        : [...enderecos, novosEnderecos];
+      dispatch(setEnderecos(listaAtualizada));
+    }
+  };
+
+  const finalizarFluxoEndereco = () => {
+    setShowNovoEndereco(false);
+    setEnderecoEditandoUuid(null);
+    setNovoEndApelido(''); setNovoEndLogradouro(''); setNovoEndNumero('');
+    setNovoEndComplemento(''); setNovoEndBairro(''); setNovoEndCep('');
+    setNovoEndCidade(''); setNovoEndEstado('');
   };
 
   const handleRemoverEndereco = async (uuid: string) => {
@@ -404,27 +411,33 @@ export function useMeuPerfil() {
         
         dispatch(setCartoes(novosCartoes));
         showMessage('Cartão atualizado!', 'success');
-      } else {
-        const novo = await ClienteService.adicionarCartao({
-          final: novoCartaoNumero.slice(-4),
-          nomeImpresso: novoCartaoNome,
-          bandeira: novoCartaoBandeira,
-          validade: novoCartaoValidade,
-        });
-        dispatch(setCartoes([...cartoes, novo]));
-        showMessage('Cartão salvo!', 'success');
+        finalizarFluxoCartao();
+        return;
       }
-      setShowNovoCartao(false);
-      setCartaoEditandoUuid(null);
-      setNovoCartaoNumero('');
-      setNovoCartaoNome('');
-      setNovoCartaoValidade('');
-      setNovoCartaoCvv('');
+
+      const novo = await ClienteService.adicionarCartao({
+        final: novoCartaoNumero.slice(-4),
+        nomeImpresso: novoCartaoNome,
+        bandeira: novoCartaoBandeira,
+        validade: novoCartaoValidade,
+      });
+      dispatch(setCartoes([...cartoes, novo]));
+      showMessage('Cartão salvo!', 'success');
+      finalizarFluxoCartao();
     } catch {
       showMessage('Erro ao salvar cartão.', 'error');
     } finally {
       setIsCartaoLoading(false);
     }
+  };
+
+  const finalizarFluxoCartao = () => {
+    setShowNovoCartao(false);
+    setCartaoEditandoUuid(null);
+    setNovoCartaoNumero('');
+    setNovoCartaoNome('');
+    setNovoCartaoValidade('');
+    setNovoCartaoCvv('');
   };
 
   const handleRemoverCartao = async (uuid: string) => {

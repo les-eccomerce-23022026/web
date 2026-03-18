@@ -28,20 +28,26 @@ const carrinhoSlice = createSlice({
   reducers: {
     // Adicionar ao carrinho
     adicionarItem: (state, action: PayloadAction<IItemCarrinho>) => {
-      if (state.data) {
-        // Lógica simplificada: Verifica se o item já existe para não duplicar, ou apenas adiciona
-        const existe = state.data.itens.find(i => i.uuid === action.payload.uuid);
-        if (existe) {
-          existe.quantidade += action.payload.quantidade;
-          existe.subtotal = existe.quantidade * existe.precoUnitario;
-        } else {
-          state.data.itens.push(action.payload);
-        }
-        // Recalcular resumo base
+      if (!state.data) return;
+
+      const existe = state.data.itens.find(i => i.uuid === action.payload.uuid);
+      if (existe) {
+        existe.quantidade += action.payload.quantidade;
+        existe.subtotal = existe.quantidade * existe.precoUnitario;
+        
+        // Recalcular resumo base (Shared logic after either modification)
         const subtotal = state.data.itens.reduce((acc, item) => acc + item.subtotal, 0);
         state.data.resumo.subtotal = subtotal;
         state.data.resumo.total = subtotal + state.data.resumo.frete;
+        return;
       }
+      
+      state.data.itens.push(action.payload);
+      
+      // Recalcular resumo base
+      const subtotal = state.data.itens.reduce((acc, item) => acc + item.subtotal, 0);
+      state.data.resumo.subtotal = subtotal;
+      state.data.resumo.total = subtotal + state.data.resumo.frete;
     },
     // Remover do carrinho
     removerItem: (state, action: PayloadAction<string>) => {
