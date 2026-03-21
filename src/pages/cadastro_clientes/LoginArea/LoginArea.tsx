@@ -171,6 +171,7 @@ export function LoginArea() {
               data-cy="login-password-input"
             />
             <button
+              data-cy="login-password-toggle"
               type="button"
               className={styles.passwordToggle}
               onClick={() =>
@@ -192,7 +193,7 @@ export function LoginArea() {
           </a>
         </div>
         {loginState.loginError && (
-          <p className={styles['auth-message-error']}>{loginState.loginError}</p>
+          <p className={styles['auth-message-error']} data-cy="login-error-message">{loginState.loginError}</p>
         )}
         <button
           onClick={loginState.handleLogin}
@@ -383,6 +384,7 @@ export function LoginArea() {
                       data-cy="register-senha-input"
                     />
                     <button
+                      data-cy="register-password-toggle"
                       type="button"
                       className={styles.passwordToggle}
                       onClick={() =>
@@ -425,6 +427,7 @@ export function LoginArea() {
                       data-cy="register-confirmacao-senha-input"
                     />
                     <button
+                      data-cy="register-confirm-password-toggle"
                       type="button"
                       className={styles.passwordToggle}
                       onClick={() =>

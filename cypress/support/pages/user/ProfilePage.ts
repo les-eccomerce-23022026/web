@@ -27,6 +27,7 @@ export class ProfilePage {
 
   // Modal Confirmação de Senha (para dados críticos)
   static get passwordConfirmInput() { return cy.get('[data-cy="perfil-modal-password-input"]'); }
+  static get passwordConfirmToggle() { return cy.get('[data-cy="perfil-modal-password-toggle"]'); }
   static get modalConfirmButton() { return cy.get('[data-cy="perfil-modal-confirm-button"]'); }
   static get modalCancelButton() { return cy.get('[data-cy="perfil-modal-cancel-button"]'); }
 
@@ -55,8 +56,11 @@ export class ProfilePage {
 
   // Senha
   static get currentPasswordInput() { return cy.get('[data-cy="senha-atual-input"]'); }
+  static get currentPasswordToggle() { return cy.get('[data-cy="senha-atual-toggle"]'); }
   static get newPasswordInput() { return cy.get('[data-cy="nova-senha-input"]'); }
+  static get newPasswordToggle() { return cy.get('[data-cy="nova-senha-toggle"]'); }
   static get confirmNewPasswordInput() { return cy.get('[data-cy="confirmar-nova-senha-input"]'); }
+  static get confirmNewPasswordToggle() { return cy.get('[data-cy="confirmar-nova-senha-toggle"]'); }
   static get submitPasswordButton() { return cy.get('[data-cy="senha-submit-button"]'); }
 
   // Inativação (Zona de Perigo)
@@ -89,33 +93,34 @@ export class ProfilePage {
   }
 
   static fillPersonalData(data: { nome?: string, email?: string, cpf?: string, tel?: string }) {
-    if (data.nome) this.nomeInput.clear().type(data.nome);
-    if (data.email) this.emailInput.clear().type(data.email);
-    if (data.cpf) this.cpfInput.clear().type(data.cpf);
-    if (data.tel) this.telInput.clear().type(data.tel);
+    if (data.nome) this.nomeInput.clear({ force: true }).type(data.nome, { force: true });
+    if (data.email) this.emailInput.clear({ force: true }).type(data.email, { force: true });
+    if (data.cpf) this.cpfInput.clear({ force: true }).type(data.cpf, { force: true });
+    if (data.tel) this.telInput.clear({ force: true }).type(data.tel, { force: true });
   }
 
   static confirmWithPassword(password: string) {
     this.passwordConfirmInput.should('be.visible').type(password);
+    this.passwordConfirmToggle.click();
     this.modalConfirmButton.click();
   }
 
   static fillAddress(address: any) {
-    if (address.apelido) this.addressApelidoInput.clear().type(address.apelido);
-    if (address.logradouro) this.addressLogradouroInput.clear().type(address.logradouro);
-    if (address.numero) this.addressNumeroInput.clear().type(address.numero);
-    if (address.bairro) this.addressBairroInput.clear().type(address.bairro);
-    if (address.cep) this.addressCepInput.clear().type(address.cep);
-    if (address.cidade) this.addressCidadeInput.clear().type(address.cidade);
-    if (address.estado) this.addressEstadoInput.clear().type(address.estado);
+    if (address.apelido) this.addressApelidoInput.clear({ force: true }).type(address.apelido, { force: true });
+    if (address.logradouro) this.addressLogradouroInput.clear({ force: true }).type(address.logradouro, { force: true });
+    if (address.numero) this.addressNumeroInput.clear({ force: true }).type(address.numero, { force: true });
+    if (address.bairro) this.addressBairroInput.clear({ force: true }).type(address.bairro, { force: true });
+    if (address.cep) this.addressCepInput.clear({ force: true }).type(address.cep, { force: true });
+    if (address.cidade) this.addressCidadeInput.clear({ force: true }).type(address.cidade, { force: true });
+    if (address.estado) this.addressEstadoInput.clear({ force: true }).type(address.estado, { force: true });
   }
 
   static fillCard(card: any) {
-    if (card.numero) this.cardNumeroInput.clear().type(card.numero);
-    if (card.nome) this.cardNomeInput.clear().type(card.nome);
-    if (card.bandeira) this.cardBandeiraSelect.select(card.bandeira);
-    if (card.validade) this.cardValidadeInput.clear().type(card.validade);
-    if (card.cvv) this.cardCvvInput.clear().type(card.cvv);
+    if (card.numero) this.cardNumeroInput.clear({ force: true }).type(card.numero, { force: true });
+    if (card.nome) this.cardNomeInput.clear({ force: true }).type(card.nome, { force: true });
+    if (card.bandeira) this.cardBandeiraSelect.select(card.bandeira, { force: true });
+    if (card.validade) this.cardValidadeInput.clear({ force: true }).type(card.validade, { force: true });
+    if (card.cvv) this.cardCvvInput.clear({ force: true }).type(card.cvv, { force: true });
   }
 
   static requestAccountDeletion() {

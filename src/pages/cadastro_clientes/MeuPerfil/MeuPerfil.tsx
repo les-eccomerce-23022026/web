@@ -288,6 +288,7 @@ export function MeuPerfil() {
                     autoFocus
                   />
                   <button
+                    data-cy="perfil-modal-password-toggle"
                     type="button"
                     className={styles.passwordToggle}
                     onClick={() => perfilState.setShowSenhaConfirmacao(!perfilState.showSenhaConfirmacao)}
@@ -755,6 +756,7 @@ export function MeuPerfil() {
                 onChange={(e) => senhaState.setSenhaAtual(e.target.value)}
               />
               <button
+                data-cy="senha-atual-toggle"
                 type="button"
                 className={styles.passwordToggle}
                 onClick={() =>
@@ -780,6 +782,7 @@ export function MeuPerfil() {
                 onChange={(e) => senhaState.setNovaSenha(e.target.value)}
               />
               <button
+                data-cy="nova-senha-toggle"
                 type="button"
                 className={styles.passwordToggle}
                 onClick={() =>
@@ -808,6 +811,7 @@ export function MeuPerfil() {
                 onChange={(e) => senhaState.setConfirmaNovaSenha(e.target.value)}
               />
               <button
+                data-cy="confirmar-nova-senha-toggle"
                 type="button"
                 className={styles.passwordToggle}
                 onClick={() =>

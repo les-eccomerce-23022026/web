@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "cypress:run": "cypress run",
+    "cypress:run:cliente": "cypress run --spec \"cypress/e2e/user/cliente/**/*.cy.ts\"",
     "cypress:open": "cypress open"
   },
   "dependencies": {

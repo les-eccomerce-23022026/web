@@ -11,6 +11,10 @@ export class LoginPage {
     return cy.getDataCy('login-submit-button');
   }
 
+  static get errorMessage() {
+    return cy.getDataCy('login-error-message');
+  }
+
   static get registerToggleButton() {
     return cy.getDataCy('register-toggle-button');
   }

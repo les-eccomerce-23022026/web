@@ -12,11 +12,13 @@ describe('Cliente - Registro (Wizard)', () => {
     cy.getNewUser().then((newUser) => {
       cy.intercept('POST', '**/clientes/registro').as('registerRequest');
 
+      cy.scrollTo('top'); // Garante que o header apareça
       RegisterPage.fillStep1(newUser);
       cy.wait(2000); // Pausa para ver preenchimento do passo 1
 
       RegisterPage.goToNextStep();
       
+      cy.scrollTo('top');
       cy.contains('Endereço de Cobrança').should('be.visible');
       cy.wait(1000);
 
@@ -42,6 +44,7 @@ describe('Cliente - Registro (Wizard)', () => {
     cy.getNewUser().then((newUser) => {
       const userInvalidCpf = { ...newUser, cpf: '123' };
       
+      cy.scrollTo('top');
       RegisterPage.fillStep1(userInvalidCpf);
       cy.wait(2000);
 

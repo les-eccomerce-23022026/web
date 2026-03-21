@@ -13,12 +13,30 @@ describe('Cliente - Autenticação', () => {
     LoginPage.passwordInput.should('be.visible');
   });
 
+  it('deve exibir mensagem de erro ao inserir credenciais inválidas', () => {
+    cy.intercept('POST', '**/auth/login', {
+      statusCode: 401,
+      body: { mensagem: 'Credenciais inválidas' }
+    }).as('loginFail');
+
+    LoginPage.emailInput.type('usuario@invalido.com');
+    LoginPage.passwordInput.type('senhaIncorreta');
+    LoginPage.submitButton.click();
+
+    cy.wait('@loginFail');
+    LoginPage.errorMessage
+      .should('be.visible')
+      .and('contain', 'E-mail ou senha inválidos');
+    
+    cy.wait(2000); // Pausa para ver o feedback de erro
+  });
+
   it('deve realizar login e validar o estado do Header', () => {
     cy.fixture('auth/login_cliente_sucesso').then((json) => {
       cy.intercept('POST', '**/auth/login', json).as('loginRequest');
       
-      LoginPage.emailInput.type(json.dados.user.email);
-      LoginPage.passwordInput.type('password123');
+      LoginPage.emailInput.type('cristiana@gmail.com');
+      LoginPage.passwordInput.type('cliente@asdfJKLÇ123');
       cy.wait(2000); // Pausa para ver as credenciais digitadas
 
       LoginPage.submitButton.click();

@@ -286,7 +286,7 @@ export function useMeuPerfil() {
     }
     try {
       await ClienteService.alterarSenha(user!.uuid, { senhaAtual, novaSenha, confirmacaoNovaSenha: confirmaNovaSenha });
-      setSenhaSuccess('Senha altreada!');
+      setSenhaSuccess('Senha alterada!');
       setSenhaAtual(''); setNovaSenha(''); setConfirmaNovaSenha('');
     } catch (err: unknown) {
       const errorMsg = (err as Error).message || 'Erro ao alterar senha.';

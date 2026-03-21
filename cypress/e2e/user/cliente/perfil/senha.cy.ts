@@ -1,7 +1,8 @@
 import { ProfilePage } from '../../../../support/pages/user/ProfilePage';
 
 describe('Cliente - Perfil - Troca de Senha', () => {
-  let testUser: any;
+  let testUser: { nome: string; cpf: string; email: string; senha: string };
+  const novaSenha = 'NovaSenha@2026Forte';
 
   before(() => {
     cy.getNewUser().then((user) => {
@@ -32,17 +33,22 @@ describe('Cliente - Perfil - Troca de Senha', () => {
   });
 
   it('deve permitir alterar a senha com sucesso', () => {
-    const novaSenha = 'NovaSenha123!';
     cy.wait(1000);
 
     ProfilePage.currentPasswordInput.type(testUser.senha);
+    ProfilePage.currentPasswordToggle.click();
+    
     ProfilePage.newPasswordInput.type(novaSenha);
+    ProfilePage.newPasswordToggle.click();
+    
     ProfilePage.confirmNewPasswordInput.type(novaSenha);
+    ProfilePage.confirmNewPasswordToggle.click();
+    
     cy.wait(2000); // Pausa para ver preenchimento
 
     ProfilePage.submitPasswordButton.click();
 
-    ProfilePage.successMessage.should('be.visible').and('contain', 'Senha altreada!');
+    ProfilePage.successMessage.should('be.visible').and('contain', 'Senha alterada!');
     cy.wait(2000); // Pausa para ver sucesso
 
     // Tentar login com a nova senha para validar
@@ -52,16 +58,13 @@ describe('Cliente - Perfil - Troca de Senha', () => {
       headers: { 'x-use-test-db': 'true' },
       body: { email: testUser.email, senha: novaSenha }
     }).its('status').should('eq', 200);
-    
-    // Atualizar testUser para as próximas iterações se houver
-    testUser.senha = novaSenha;
   });
 
   it('deve validar erro ao errar a senha atual', () => {
     cy.wait(1000);
     ProfilePage.currentPasswordInput.type('SenhaErrada123');
-    ProfilePage.newPasswordInput.type('NovaSenha456!');
-    ProfilePage.confirmNewPasswordInput.type('NovaSenha456!');
+    ProfilePage.newPasswordInput.type(novaSenha);
+    ProfilePage.confirmNewPasswordInput.type(novaSenha);
     cy.wait(2000);
 
     ProfilePage.submitPasswordButton.click();
@@ -73,7 +76,7 @@ describe('Cliente - Perfil - Troca de Senha', () => {
   it('deve validar erro ao confirmar senha nova incorretamente', () => {
     cy.wait(1000);
     ProfilePage.currentPasswordInput.type(testUser.senha);
-    ProfilePage.newPasswordInput.type('NovaSenha456!');
+    ProfilePage.newPasswordInput.type(novaSenha);
     ProfilePage.confirmNewPasswordInput.type('Diferente123');
     cy.wait(2000);
 

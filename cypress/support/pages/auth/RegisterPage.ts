@@ -5,7 +5,9 @@ export class RegisterPage {
   static get emailInput() { return cy.getDataCy('register-email-input'); }
   static get nascimentoInput() { return cy.getDataCy('register-nascimento-input'); }
   static get senhaInput() { return cy.getDataCy('register-senha-input'); }
+  static get senhaToggle() { return cy.getDataCy('register-password-toggle'); }
   static get confirmacaoSenhaInput() { return cy.getDataCy('register-confirmacao-senha-input'); }
+  static get confirmacaoSenhaToggle() { return cy.getDataCy('register-confirm-password-toggle'); }
   static get nextStepButton() { return cy.getDataCy('register-next-step-button'); }
 
   // Step 2
@@ -22,7 +24,10 @@ export class RegisterPage {
     cy.get('label').contains('Número').parent().find('input').clear().type('999887766');
 
     this.senhaInput.clear().type(user.senha);
+    this.senhaToggle.click();
+    
     this.confirmacaoSenhaInput.clear().type(user.senha);
+    this.confirmacaoSenhaToggle.click();
   }
 
   static fillAddress(address: any) {

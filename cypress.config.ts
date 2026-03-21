@@ -8,8 +8,8 @@ export default defineConfig({
     env: {
       apiUrl: "http://localhost:3000/api",
       admin: {
-        email: "admin@admin.com",
-        senha: "@asdfJKLÇ123"
+        email: "admin@livraria.com.br",
+        senha: "Admin@123"
       },
       cliente: {
         email: "email.teste@gmail.com",
@@ -17,6 +17,12 @@ export default defineConfig({
       }
     },
     setupNodeEvents(on, _config) {
+      on('task', {
+        log(message) {
+          console.log(message);
+          return null;
+        },
+      });
       on('before:browser:launch', (browser, launchOptions) => {
         if (browser.name === 'chrome' && browser.isHeadless) {
           launchOptions.args.push('--window-size=1920,1080');
@@ -27,6 +33,7 @@ export default defineConfig({
     },
     viewportWidth: 1920,
     viewportHeight: 1080,
+    scrollBehavior: false,
     specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
   },
 });

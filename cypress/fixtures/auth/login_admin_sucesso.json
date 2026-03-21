@@ -4,8 +4,8 @@
     "token": "fake-jwt-token-admin",
     "user": {
       "uuid": "uuid-admin-fixture",
-      "nome": "Admin Fixture",
-      "email": "admin@fixture.com",
+      "nome": "Cristiana Admin",
+      "email": "cristiana@gmail.com",
       "role": "admin"
     }
   }
