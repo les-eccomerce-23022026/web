@@ -349,9 +349,13 @@ export function MeuPerfil() {
             <button
               data-cy="endereco-add-button"
               className="btn-secondary"
+              disabled={enderecoState.enderecos.length >= 5}
+              title={enderecoState.enderecos.length >= 5 ? 'Limite de 5 endereços atingido' : ''}
               onClick={() => enderecoState.setShowNovoEndereco(true)}
             >
-              + Adicionar Novo Endereço
+              {enderecoState.enderecos.length >= 5 
+                ? 'Limite de 5 Endereços Atingido' 
+                : '+ Adicionar Novo Endereço'}
             </button>
           )}
 

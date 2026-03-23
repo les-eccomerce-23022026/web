@@ -97,8 +97,8 @@ export class ClienteServiceApi implements IClienteService {
     return ApiClient.patch<IEnderecoCliente[]>(API_ENDPOINTS.editarEndereco(uuid), endereco);
   }
 
-  async removerEndereco(uuid: string): Promise<void> {
-    await ApiClient.delete(API_ENDPOINTS.removerEndereco(uuid));
+  async removerCartao(uuid: string): Promise<void> {
+    await ApiClient.delete(API_ENDPOINTS.removerCartao(uuid));
   }
 
   async listarCartoes(_userUuid: string): Promise<ICartaoCliente[]> {
@@ -106,22 +106,24 @@ export class ClienteServiceApi implements IClienteService {
   }
 
   async adicionarCartao(cartao: Omit<ICartaoCliente, 'uuid'>): Promise<ICartaoCliente> {
-    const bandeirasMap: Record<string, number> = {
-      mastercard: 2,
-      elo: 3,
+    const bandeirasMap: Record<string, string> = {
+      visa: 'd30d587f-8140-469d-a5fc-8e0c998c72f4',
+      mastercard: 'd6eac520-7651-4ae9-84d5-b0bbf269be2e',
+      elo: '21317eba-311d-4bb8-9054-6debff64f2da',
+      'american express': '01fd90d0-0c72-4787-8667-965b2c39f75f',
+      hipercard: '02cacd79-1ec5-44c5-9142-486cb4bc82f1',
     };
-    const idBandeira = bandeirasMap[cartao.bandeira.toLowerCase()] ?? 1;
+    const uuidBandeira = bandeirasMap[cartao.bandeira.toLowerCase()] ?? bandeirasMap.visa;
 
     let validadeIso = cartao.validade;
     if (cartao.validade.includes('/')) {
       const [mes, ano] = cartao.validade.split('/');
-      // Se o ano vier com 4 dígitos (ex: 2030), usa direto. Se vier com 2 (ex: 30), prefixa com 20.
       const anoCompleto = ano.length === 2 ? `20${ano}` : ano;
       validadeIso = `${anoCompleto}-${mes.padStart(2, '0')}-01`;
     }
 
     const payloadApi = {
-      idBandeira,
+      uuidBandeira,
       token: `tok_sim_${Date.now()}`,
       final: cartao.final,
       nomeImpresso: cartao.nomeImpresso,
@@ -140,13 +142,16 @@ export class ClienteServiceApi implements IClienteService {
     uuid: string,
     cartao: Partial<ICartaoCliente>,
   ): Promise<ICartaoCliente[]> {
-    const bandeirasMap: Record<string, number> = {
-      mastercard: 2,
-      elo: 3,
+    const bandeirasMap: Record<string, string> = {
+      visa: 'd30d587f-8140-469d-a5fc-8e0c998c72f4',
+      mastercard: 'd6eac520-7651-4ae9-84d5-b0bbf269be2e',
+      elo: '21317eba-311d-4bb8-9054-6debff64f2da',
+      'american express': '01fd90d0-0c72-4787-8667-965b2c39f75f',
+      hipercard: '02cacd79-1ec5-44c5-9142-486cb4bc82f1',
     };
     
-    const idBandeira = cartao.bandeira 
-      ? (bandeirasMap[cartao.bandeira.toLowerCase()] ?? 1)
+    const uuidBandeira = cartao.bandeira 
+      ? (bandeirasMap[cartao.bandeira.toLowerCase()] ?? bandeirasMap.visa)
       : undefined;
 
     let validadeIso = cartao.validade;
@@ -157,20 +162,25 @@ export class ClienteServiceApi implements IClienteService {
     }
 
     const payloadApi: any = {
-      idBandeiraCartao: idBandeira,
+      uuidBandeira,
       nomeImpresso: cartao.nomeImpresso,
       validade: validadeIso,
     };
 
     // Remove undefined fields
-    Object.keys(payloadApi).forEach(key => payloadApi[key] === undefined && delete payloadApi[key]);
+    Object.keys(payloadApi).forEach((key) => {
+      if (payloadApi[key] === undefined) {
+        delete payloadApi[key];
+      }
+    });
 
-    // Assuming endpoint returns list of cards like editarEndereco
-    // In some cases it returns a singular object, we'll handle this in the hook.
-    return ApiClient.patch<any>(
+    const result = await ApiClient.patch<any>(
       API_ENDPOINTS.editarCartao(uuid),
       payloadApi,
     );
+
+    // O backend retorna um objeto singular do cartão atualizado, mas o contrato espera uma lista.
+    return Array.isArray(result) ? result : [result];
   }
 
   async definirCartaoPreferencial(cartaoUuid: string): Promise<void> {

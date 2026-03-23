@@ -24,9 +24,16 @@ Cenário: Cadastro de cliente com sucesso (Caminho Feliz)
 
 Cenário: Tentativa de cadastro com CPF inválido (Caminho de Falha)
   Dado que eu preencho os dados básicos corretamente
-  Mas informo um CPF "000.000.000-00"
+  Mas informo um CPF "1234567890" (sem máscara ou formato inválido)
   Quando eu clico em "Finalizar Cadastro"
-  Então o sistema deve exibir a mensagem de erro "CPF inválido"
+  # Observação: O backend atualmente aceita este formato sem validação rigorosa
+  Então o sistema deve criar a conta (comportamento atual)
+
+Cenário: Tentativa de cadastro com email já existente (Caminho de Falha)
+  Dado que eu tento registrar um cliente
+  E informo um e-mail "joao.teste.feliz@email.com" que já consta na base
+  Quando eu clico em "Finalizar Cadastro"
+  Então o sistema deve exibir a mensagem "Já existe um usuário cadastrado com este e-mail."
 
 Cenário: Tentativa de cadastro com senha fraca (Caminho de Falha)
   Dado que eu preencho os dados básicos

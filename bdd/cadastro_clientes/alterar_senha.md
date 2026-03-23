@@ -16,5 +16,11 @@ Cenário: Alteração de senha com sucesso (Caminho Feliz)
 Cenário: Senha atual incorreta (Caminho de Falha)
   Dado que eu tento alterar minha senha
   Quando eu informo uma "Senha Atual" equivocada
-  Então o sistema deve exibir "A senha atual informada é inválida"
+  Então o sistema deve exibir "Senha atual incorreta."
   E a nova senha não deve ser salva
+
+Cenário: Nova senha e confirmação não conferem (Caminho de Falha)
+  Dado que eu tenho a "Senha Atual" correta
+  E informo uma "Nova Senha"
+  Mas na "Confirmação da Nova Senha" digito algo diferente
+  Então o sistema deve exibir "Nova senha e confirmação não conferem."
