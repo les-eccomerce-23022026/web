@@ -1,7 +1,8 @@
 import { ProfilePage } from '../../../../support/pages/user/ProfilePage';
+import type { ITestUser } from '../../../../support/interfaces';
 
 describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
-  let testUser: any;
+  let testUser: ITestUser;
 
   before(() => {
     cy.getNewUser().then((user) => {
@@ -109,7 +110,7 @@ describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
       // No reload, o e-mail virá mascarado.
       cy.reload();
       ProfilePage.emailInput.should('not.have.value', '', { timeout: 15000 });
-      ProfilePage.emailInput.invoke('val').then((val: any) => {
+      ProfilePage.emailInput.invoke('val').then((val: string) => {
         expect(val).to.contain('*'); 
         expect(val).to.contain('@teste.com');
       });
@@ -144,7 +145,7 @@ describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
       ProfilePage.nomeInput.should('not.have.value', '', { timeout: 15000 });
       ProfilePage.nomeInput.should('have.value', novoNomeMisto);
       
-      ProfilePage.telInput.invoke('val').then((val: any) => {
+      ProfilePage.telInput.invoke('val').then((val: string) => {
         expect(val).to.contain('*');
       });
       cy.wait(2000);

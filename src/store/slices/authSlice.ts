@@ -13,6 +13,7 @@ export interface AuthUser {
   nome: string;
   cpf?: string;
   role: 'cliente' | 'admin';
+  eAdminMestre?: boolean;
 }
 
 interface AuthState {

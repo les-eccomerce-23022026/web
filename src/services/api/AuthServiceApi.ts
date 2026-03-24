@@ -68,7 +68,7 @@ export class AuthServiceApi implements IAuthService {
     } catch {
       const session = getStoredSession();
       if (!session?.user) return null;
-      return { user: session.user, token: session.token };
+      return { user: session.user, token: session.token ?? undefined };
     }
   }
 }

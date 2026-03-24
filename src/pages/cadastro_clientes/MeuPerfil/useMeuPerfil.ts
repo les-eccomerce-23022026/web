@@ -10,6 +10,7 @@ import {
 } from '@/store/slices/clienteSlice';
 import { ClienteService } from '@/services/ClienteService';
 import type { IAtualizarPerfilPayload, Genero } from '@/interfaces/ICliente';
+import type { IEnderecoCliente } from '@/interfaces/IPagamento';
 
 export const generosDisponiveis = ['Masculino', 'Feminino', 'Outro', 'Prefiro não informar'];
 export const tiposTelefone = ['Celular', 'Residencial', 'Comercial'];
@@ -334,7 +335,7 @@ export function useMeuPerfil() {
     }
   };
 
-  const atualizarListaEnderecos = (novosEnderecos: any, editandoUuid?: string | null) => {
+  const atualizarListaEnderecos = (novosEnderecos: IEnderecoCliente[] | IEnderecoCliente, editandoUuid?: string | null) => {
     if (Array.isArray(novosEnderecos)) {
       dispatch(setEnderecos(novosEnderecos));
       return;

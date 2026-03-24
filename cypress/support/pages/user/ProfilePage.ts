@@ -105,7 +105,7 @@ export class ProfilePage {
     this.modalConfirmButton.click();
   }
 
-  static fillAddress(address: any) {
+  static fillAddress(address: { apelido?: string; logradouro?: string; numero?: string; bairro?: string; cep?: string; cidade?: string; estado?: string }) {
     if (address.apelido) this.addressApelidoInput.clear({ force: true }).type(address.apelido, { force: true });
     if (address.logradouro) this.addressLogradouroInput.clear({ force: true }).type(address.logradouro, { force: true });
     if (address.numero) this.addressNumeroInput.clear({ force: true }).type(address.numero, { force: true });
@@ -115,7 +115,7 @@ export class ProfilePage {
     if (address.estado) this.addressEstadoInput.clear({ force: true }).type(address.estado, { force: true });
   }
 
-  static fillCard(card: any) {
+  static fillCard(card: { numero?: string; nome?: string; bandeira?: string; validade?: string; cvv?: string }) {
     if (card.numero) this.cardNumeroInput.clear({ force: true }).type(card.numero, { force: true });
     if (card.nome) this.cardNomeInput.clear({ force: true }).type(card.nome, { force: true });
     if (card.bandeira) this.cardBandeiraSelect.select(card.bandeira, { force: true });

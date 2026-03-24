@@ -2,6 +2,8 @@ import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, BookOpen, Archive, RefreshCw, Users, Settings, ChevronLeft, Home, Package } from 'lucide-react';
 import styles from './AdminLayout.module.css';
 
+import { useAppSelector } from '@/store/hooks';
+
 interface AdminLayoutProps {
   title: string;
   subtitle?: string;
@@ -10,6 +12,7 @@ interface AdminLayoutProps {
 export function AdminLayout({ title, subtitle }: AdminLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAppSelector((state) => state.auth);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -48,14 +51,16 @@ export function AdminLayout({ title, subtitle }: AdminLayoutProps) {
                 <LayoutDashboard size={18} /> Dashboard Analytics
               </Link>
             </li>
-            <li>
-              <Link
-                to="/admin/administradores"
-                className={`${styles.sidebarLink} ${isActive('/admin/administradores') ? styles.sidebarLinkActive : ''}`}
-              >
-                <Settings size={18} /> Gerenciar Administradores
-              </Link>
-            </li>
+            {user?.eAdminMestre && (
+              <li>
+                <Link
+                  to="/admin/administradores"
+                  className={`${styles.sidebarLink} ${isActive('/admin/administradores') ? styles.sidebarLinkActive : ''}`}
+                >
+                  <Settings size={18} /> Gerenciar Administradores
+                </Link>
+              </li>
+            )}
             <li>
               <Link
                 to="/admin/livros"

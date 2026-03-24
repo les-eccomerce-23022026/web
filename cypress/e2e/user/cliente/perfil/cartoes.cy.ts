@@ -1,7 +1,8 @@
 import { ProfilePage } from '../../../../support/pages/user/ProfilePage';
+import type { ITestUser } from '../../../../support/interfaces';
 
 describe('Cliente - Perfil - Gestão de Cartões', () => {
-  let testUser: any;
+  let testUser: ITestUser;
 
   before(() => {
     cy.getNewUser().then((user) => {

@@ -97,8 +97,8 @@ export class ClienteServiceApi implements IClienteService {
     return ApiClient.patch<IEnderecoCliente[]>(API_ENDPOINTS.editarEndereco(uuid), endereco);
   }
 
-  async removerCartao(uuid: string): Promise<void> {
-    await ApiClient.delete(API_ENDPOINTS.removerCartao(uuid));
+  async removerEndereco(uuid: string): Promise<void> {
+    await ApiClient.delete(API_ENDPOINTS.removerEndereco(uuid));
   }
 
   async listarCartoes(_userUuid: string): Promise<ICartaoCliente[]> {
@@ -161,20 +161,13 @@ export class ClienteServiceApi implements IClienteService {
       validadeIso = `${anoCompleto}-${mes.padStart(2, '0')}-01`;
     }
 
-    const payloadApi: any = {
-      uuidBandeira,
-      nomeImpresso: cartao.nomeImpresso,
-      validade: validadeIso,
-    };
+    const payloadApi = Object.fromEntries(
+      Object.entries({ uuidBandeira, nomeImpresso: cartao.nomeImpresso, validade: validadeIso }).filter(
+        ([, v]) => v !== undefined,
+      ),
+    );
 
-    // Remove undefined fields
-    Object.keys(payloadApi).forEach((key) => {
-      if (payloadApi[key] === undefined) {
-        delete payloadApi[key];
-      }
-    });
-
-    const result = await ApiClient.patch<any>(
+    const result = await ApiClient.patch<ICartaoCliente | ICartaoCliente[]>(
       API_ENDPOINTS.editarCartao(uuid),
       payloadApi,
     );

@@ -13,7 +13,7 @@ export class RegisterPage {
   // Step 2
   static get submitButton() { return cy.getDataCy('register-submit-button'); }
 
-  static fillStep1(user: any) {
+  static fillStep1(user: { nome: string; cpf: string; email: string; senha: string; dataNascimento?: string }) {
     this.nomeInput.clear().type(user.nome);
     this.cpfInput.clear().type(user.cpf);
     this.emailInput.clear().type(user.email);
@@ -30,7 +30,7 @@ export class RegisterPage {
     this.confirmacaoSenhaToggle.click();
   }
 
-  static fillAddress(address: any) {
+  static fillAddress(address: { logradouro: string; numero: string; cep: string; bairro: string; cidade: string; estado: string }) {
     cy.get('input[placeholder="Nome da rua"]').clear().type(address.logradouro);
     cy.get('input[placeholder="123"]').clear().type(address.numero);
     cy.get('input[placeholder="00000-000"]').clear().type(address.cep);

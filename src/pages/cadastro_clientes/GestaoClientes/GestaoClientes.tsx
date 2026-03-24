@@ -1,11 +1,16 @@
-import { Users, Search, Filter, ShieldCheck, Mail, Phone, Calendar, MapPin, X } from 'lucide-react';
+import { Users, Search, Filter, ShieldCheck, Mail, Calendar, X } from 'lucide-react';
 import { useGestaoClientes } from './useGestaoClientes';
 import styles from './GestaoClientes.module.css';
 
 
 function formatarDataDetalhe(isoDate: string) {
-  const [ano, mes, dia] = isoDate.split('-');
-  return `${dia}/${mes}/${ano}`;
+  if (!isoDate) return 'Não informada';
+  try {
+    const data = new Date(isoDate);
+    return new Intl.DateTimeFormat('pt-BR').format(data);
+  } catch {
+    return isoDate;
+  }
 }
 
 export function GestaoClientes() {
@@ -124,7 +129,7 @@ export function GestaoClientes() {
                 <div>
                   <h4 className={styles.nomeDetalhe}>{clienteSelecionado.nome}</h4>
                   <div className={styles.rankingBadge}>
-                    <ShieldCheck size={14} /> Ranking: Nível {clienteSelecionado.ranking}
+                    <Calendar size={14} /> Cadastrado em: {formatarDataDetalhe(clienteSelecionado.criadoEm)}
                   </div>
                 </div>
               </div>
@@ -135,15 +140,6 @@ export function GestaoClientes() {
               <div className={styles.infoLinha}>
                 <Mail size={16} /> <span>{clienteSelecionado.email}</span>
               </div>
-              <div className={styles.infoLinha}>
-                <Phone size={16} /> 
-                <span>
-                  {clienteSelecionado.telefone 
-                    ? `(${clienteSelecionado.telefone.ddd}) ${clienteSelecionado.telefone.numero} — ${clienteSelecionado.telefone.tipo}`
-                    : 'Não informado'
-                  }
-                </span>
-              </div>
             </div>
 
             <div className={styles.infoGroup}>
@@ -152,35 +148,23 @@ export function GestaoClientes() {
                 <span className={styles.infoLabel}>CPF:</span> {clienteSelecionado.cpf}
               </div>
               <div className={styles.infoLinha}>
-                <Calendar size={16} /> <span>Nascimento: {formatarDataDetalhe(clienteSelecionado.dataNascimento)}</span>
-              </div>
-              <div className={styles.infoLinha}>
-                <span className={styles.infoLabel}>Gênero:</span> {clienteSelecionado.genero}
+                <span className={styles.infoLabel}>Status:</span> 
+                <span className={clienteSelecionado.ativo ? styles.badgeSuccess : styles.badgeError}>
+                  {clienteSelecionado.ativo ? ' Ativo' : ' Inativo'}
+                </span>
               </div>
             </div>
 
-            <div className={styles.infoGroup}>
-              <h5 className={styles.grupoTitulo}>Endereços ({clienteSelecionado.enderecosEntrega.length + 1})</h5>
-              
-              <div className={styles.enderecoCard}>
-                <div className={styles.enderecoHeader}>
-                  <MapPin size={14} /> <strong>Cobrança Principal</strong>
-                </div>
-                <div className={styles.enderecoLinhas}>
-                  {clienteSelecionado.enderecoCobranca.logradouro}, {clienteSelecionado.enderecoCobranca.numero}
-                  {clienteSelecionado.enderecoCobranca.complemento && ` - ${clienteSelecionado.enderecoCobranca.complemento}`}
-                  <br />
-                  {clienteSelecionado.enderecoCobranca.bairro} — {clienteSelecionado.enderecoCobranca.cidade}/{clienteSelecionado.enderecoCobranca.estado}
-                  <br />CEP: {clienteSelecionado.enderecoCobranca.cep}
-                </div>
-              </div>
+            <div className={styles.avisoDados}>
+              <ShieldCheck size={16} />
+              <p>Informações detalhadas (endereços, cartões, histórico) requerem acesso ao perfil individual do cliente.</p>
             </div>
 
           </div>
         ) : (
           <div className={styles.painelDetalhesVazio}>
             <Users size={64} opacity={0.2} />
-            <p>Selecione um cliente na lista para ver seus detalhes completos.</p>
+            <p>Selecione um cliente na lista para ver seus detalhes.</p>
           </div>
         )}
       </div>

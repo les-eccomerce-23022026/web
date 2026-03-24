@@ -8,7 +8,12 @@ Cypress.on('command:end', () => {
   });
 });
 
-let testRequests: any[] = [];
+interface ITestRequest {
+  request: { method: string; url: string; body: unknown; query: unknown };
+  response: { statusCode: number; body: unknown };
+}
+
+let testRequests: ITestRequest[] = [];
 
 // Configuração Global para Testes com Backend Real
 beforeEach(() => {

@@ -1,7 +1,8 @@
 import { ProfilePage } from '../../../../support/pages/user/ProfilePage';
+import type { ITestUser } from '../../../../support/interfaces';
 
 describe('Cliente - Perfil - Gestão de Endereços', () => {
-  let testUser: any;
+  let testUser: ITestUser;
 
   before(() => {
     cy.getNewUser().then((user) => {
@@ -38,7 +39,7 @@ describe('Cliente - Perfil - Gestão de Endereços', () => {
       { apelido: 'Apartamento Trabalho', logradouro: 'Av Paulista', numero: '1000', cep: '01310-100', bairro: 'Bela Vista', cidade: 'São Paulo', estado: 'SP', tipoResidencia: 'Apartamento', tipoLogradouro: 'Avenida' }
     ];
 
-    enderecos.forEach((end, index) => {
+    enderecos.forEach((end) => {
       ProfilePage.addAddressButton.click({ force: true });
       ProfilePage.fillAddress(end);
       
