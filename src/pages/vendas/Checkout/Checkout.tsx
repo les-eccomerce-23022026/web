@@ -3,7 +3,7 @@ import { useCheckout } from '@/hooks/useCheckout';
 import { useAppSelector } from '@/store/hooks';
 
 export function Checkout() {
-  const { data, loading, error } = useCheckout();
+  const { data, loading, error, finalizando, handleFinalizarCompra } = useCheckout();
   const carrinho = useAppSelector((state) => state.carrinho.data);
 
   if (loading) return <p className={styles['checkout-status-message']}>Carregando dados de checkout...</p>;
@@ -80,7 +80,14 @@ export function Checkout() {
                 <span className={styles['checkout-total-value']}>R$ {total.toFixed(2).replace('.', ',')}</span>
               </div>
               
-              <button className={`btn-primary ${styles['checkout-btn-finish']}`} onClick={() => alert('Compra Finalizada com Sucesso!')} data-cy="checkout-finish-button">Concluir Pedido</button>
+              <button 
+                className={`btn-primary ${styles['checkout-btn-finish']}`} 
+                onClick={handleFinalizarCompra} 
+                disabled={finalizando}
+                data-cy="checkout-finish-button"
+              >
+                {finalizando ? 'Processando...' : 'Concluir Pedido'}
+              </button>
            </div>
         </div>
       </div>
