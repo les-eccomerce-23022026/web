@@ -1,0 +1,196 @@
+.cupom-container {
+  background: var(--card-background, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+.cupom-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary, #333);
+}
+
+.cupom-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cupons-aplicados {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.cupom-aplicado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--coupon-applied-background, #f0f9f0);
+  border: 1px solid var(--coupon-applied-border, #cfc);
+  border-radius: 6px;
+}
+
+.cupom-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.cupom-codigo {
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  font-size: 0.9375rem;
+}
+
+.cupom-tipo {
+  background: var(--badge-background, #e0e0e0);
+  color: var(--text-secondary, #666);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.cupom-valor {
+  font-weight: 600;
+  color: var(--success-color, #090);
+  font-size: 0.9375rem;
+}
+
+.remover-cupom {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary, #666);
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.remover-cupom:hover {
+  background: var(--delete-background, #fee);
+  color: var(--error-color, #c00);
+}
+
+.cupom-input-wrapper {
+  position: relative;
+}
+
+.cupom-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cupom-input-group input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cupom-input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color, #0066cc);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.cupom-input-group input:disabled {
+  background: var(--disabled-background, #f5f5f5);
+  cursor: not-allowed;
+}
+
+.cupom-limite {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #666);
+  font-style: italic;
+}
+
+.cupom-erro {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--error-color, #c00);
+}
+
+.cupom-sugestoes {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 0.5rem;
+  background: var(--card-background, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 6px;
+  padding: 0.75rem;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sugestoes-titulo {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary, #666);
+  text-transform: uppercase;
+}
+
+.sugestao-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+  text-align: left;
+}
+
+.sugestao-item:hover {
+  background: var(--hover-background, #f5f5f5);
+}
+
+.sugestao-codigo {
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  font-size: 0.875rem;
+}
+
+.sugestao-valor {
+  font-size: 0.8125rem;
+  color: var(--success-color, #090);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .cupom-input-group {
+    flex-direction: column;
+  }
+  
+  .cupom-input-group button {
+    width: 100%;
+  }
+  
+  .cupom-sugestoes {
+    position: relative;
+    box-shadow: none;
+    border: 1px dashed var(--border-color, #e0e0e0);
+  }
+}

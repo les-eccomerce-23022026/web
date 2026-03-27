@@ -14,9 +14,6 @@
       "enderecosEntrega": [
         {
           "uuid": "end-001",
-          "apelido": "Casa",
-          "tipoResidencia": "Casa",
-          "tipoLogradouro": "Rua",
           "logradouro": "Bela Vista",
           "numero": "1234",
           "complemento": "Apto 55",
@@ -24,13 +21,10 @@
           "cep": "01000-000",
           "cidade": "São Paulo",
           "estado": "SP",
-          "pais": "Brasil"
+          "tipo": "entrega"
         },
         {
           "uuid": "end-002",
-          "apelido": "Trabalho",
-          "tipoResidencia": "Apartamento",
-          "tipoLogradouro": "Avenida",
           "logradouro": "Paulista",
           "numero": "1000",
           "complemento": "Sala 2001",
@@ -38,14 +32,11 @@
           "cep": "01310-100",
           "cidade": "São Paulo",
           "estado": "SP",
-          "pais": "Brasil"
+          "tipo": "entrega"
         }
       ],
       "enderecoCobranca": {
         "uuid": "end-001",
-        "apelido": "Casa",
-        "tipoResidencia": "Casa",
-        "tipoLogradouro": "Rua",
         "logradouro": "Bela Vista",
         "numero": "1234",
         "complemento": "Apto 55",
@@ -53,7 +44,7 @@
         "cep": "01000-000",
         "cidade": "São Paulo",
         "estado": "SP",
-        "pais": "Brasil"
+        "tipo": "cobranca"
       },
       "cartoes": [
         {
@@ -87,9 +78,6 @@
       "enderecosEntrega": [
         {
           "uuid": "end-003",
-          "apelido": "Apartamento",
-          "tipoResidencia": "Apartamento",
-          "tipoLogradouro": "Rua",
           "logradouro": "Copacabana",
           "numero": "500",
           "complemento": "Bloco B, Apto 302",
@@ -97,14 +85,11 @@
           "cep": "22070-010",
           "cidade": "Rio de Janeiro",
           "estado": "RJ",
-          "pais": "Brasil"
+          "tipo": "entrega"
         }
       ],
       "enderecoCobranca": {
         "uuid": "end-003",
-        "apelido": "Apartamento",
-        "tipoResidencia": "Apartamento",
-        "tipoLogradouro": "Rua",
         "logradouro": "Copacabana",
         "numero": "500",
         "complemento": "Bloco B, Apto 302",
@@ -112,7 +97,7 @@
         "cep": "22070-010",
         "cidade": "Rio de Janeiro",
         "estado": "RJ",
-        "pais": "Brasil"
+        "tipo": "cobranca"
       },
       "cartoes": [
         {
@@ -128,7 +113,5 @@
   ],
   "bandeirasPermitidas": ["Visa", "Mastercard", "Elo", "American Express", "Hipercard"],
   "generosDisponiveis": ["Masculino", "Feminino", "Outro", "Prefiro não informar"],
-  "tiposTelefone": ["Celular", "Residencial", "Comercial"],
-  "tiposResidencia": ["Casa", "Apartamento", "Comercial", "Outro"],
-  "tiposLogradouro": ["Rua", "Avenida", "Travessa", "Alameda", "Praça", "Rodovia"]
+  "tiposTelefone": ["Celular", "Residencial", "Comercial"]
 }

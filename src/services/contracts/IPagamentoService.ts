@@ -1,20 +1,39 @@
-import type { IPagamentoInfo } from '@/interfaces/IPagamento';
+import type { 
+  IPagamentoInfo, 
+  IPagamentoSelecionado, 
+  IPagamentoDetalhes,
+  IProcessarPagamentoInput,
+  IProcessarPagamentoResultado 
+} from '@/interfaces/IPagamento';
 
-export interface IProcessarPagamentoPayload {
-  enderecoUuid: string;
-  freteUuid: string;
-  cupons: string[];
-  pagamentosCartao: { cartaoUuid: string; valor: number }[];
-  itens: { livroUuid: string; quantidade: number }[];
-}
-
-export interface IProcessarPagamentoResponse {
-  sucesso: boolean;
-  pedidoUuid: string;
-  status: string;
-}
-
+/**
+ * Contrato para o serviço de Pagamento
+ * Define os métodos que devem ser implementados
+ */
 export interface IPagamentoService {
-  getPagamentoInfo(): Promise<IPagamentoInfo>;
-  processarPagamento(payload: IProcessarPagamentoPayload): Promise<IProcessarPagamentoResponse>;
+  /**
+   * Obtém informações necessárias para checkout
+   * (endereços, cartões, cupons, opções de frete)
+   */
+  obterPagamentoInfo(): Promise<IPagamentoInfo>;
+
+  /**
+   * Seleciona forma de pagamento para uma venda
+   */
+  selecionarFormaPagamento(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes>;
+
+  /**
+   * Processa pagamento (integra com gateway)
+   */
+  processarPagamento(pagamentoUuid: string): Promise<IPagamentoDetalhes>;
+
+  /**
+   * Endpoint simplificado para frontend processar pagamento
+   */
+  processarPagamentoFront(dados: IProcessarPagamentoInput): Promise<IProcessarPagamentoResultado>;
+
+  /**
+   * Consulta pagamento por UUID
+   */
+  consultarPagamento(pagamentoUuid: string): Promise<IPagamentoDetalhes>;
 }

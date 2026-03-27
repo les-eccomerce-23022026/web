@@ -1,3 +1,10 @@
+import type {
+  ICupomDisponivel,
+  IFreteOpcao,
+  IEnderecoCliente,
+  ICupomAplicado
+} from './IPagamento';
+
 export interface IEnderecoEntrega {
   logradouro: string;
   numero: string;
@@ -11,7 +18,9 @@ export interface ICartaoSalvo {
   uuid: string;
   final: string;
   nomeCliente: string;
+  nomeImpresso: string;
   bandeira: string;
+  validade: string;
 }
 
 export interface IResumoPedidoCheckout {
@@ -22,8 +31,32 @@ export interface IResumoPedidoCheckout {
   total: number;
 }
 
+/**
+ * Interface completa de Checkout com integração backend
+ * Inclui dados de pagamento, entrega e resumo do pedido
+ */
 export interface ICheckoutInfo {
+  // Endereço de entrega (pode vir do perfil do cliente)
   enderecoEntrega: IEnderecoEntrega;
+  
+  // Endereços disponíveis do cliente
+  enderecosDisponiveis?: IEnderecoCliente[];
+  
+  // Cartões salvos do cliente
   cartoesSalvos: ICartaoSalvo[];
+  
+  // Cupons disponíveis para aplicação
+  cuponsDisponiveis?: ICupomDisponivel[];
+  
+  // Opções de frete disponíveis
+  freteOpcoes?: IFreteOpcao[];
+  
+  // Cupons já aplicados
+  cuponsAplicados?: ICupomAplicado[];
+  
+  // Resumo financeiro do pedido
   resumoPedido: IResumoPedidoCheckout;
+  
+  // Bandeiras de cartão permitidas
+  bandeirasPermitidas?: string[];
 }

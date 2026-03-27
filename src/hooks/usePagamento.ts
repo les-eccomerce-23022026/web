@@ -1,328 +1,330 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { PagamentoService } from '@/services/PagamentoService';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { limparCarrinho } from '@/store/slices/carrinhoSlice';
-import { adicionarPedido } from '@/store/slices/pedidoSlice';
+import { useState, useCallback, useMemo } from 'react';
+import { PagamentoServiceApi } from '@/services/api/PagamentoServiceApi';
 import type {
   IPagamentoInfo,
-  ICupom,
-  IPagamentoCartao,
-  StatusPagamento,
+  IPagamentoSelecionado,
+  IPagamentoDetalhes,
+  ICartaoCreditoInput,
+  ICartaoSalvoPagamento,
+  IProcessarPagamentoInput,
+  IProcessarPagamentoResultado,
+  ICupomAplicado,
+  IFreteOpcao
 } from '@/interfaces/IPagamento';
-import type { IPedido, IFormaPagamentoPedido } from '@/interfaces/IPedido';
 
-const VALOR_MINIMO_CARTAO = 10;
+/**
+ * Valida número de cartão usando Algoritmo de Luhn
+ * @param numero - Número do cartão (apenas dígitos)
+ * @returns true se válido, false se inválido
+ */
+export function validarLuhn(numero: string): boolean {
+  const numeros = numero.replace(/\D/g, '');
+  
+  if (numeros.length < 13 || numeros.length > 19) {
+    return false;
+  }
+  
+  let soma = 0;
+  let alternar = false;
+  
+  for (let i = numeros.length - 1; i >= 0; i--) {
+    let digito = parseInt(numeros.charAt(i), 10);
+    
+    if (alternar) {
+      digito *= 2;
+      if (digito > 9) {
+        digito -= 9;
+      }
+    }
+    
+    soma += digito;
+    alternar = !alternar;
+  }
+  
+  return soma % 10 === 0;
+}
 
+/**
+ * Detecta bandeira do cartão pelo prefixo (BIN)
+ * @param numero - Número do cartão
+ * @returns Nome da bandeira ou null se não identificada
+ */
+export function detectarBandeira(numero: string): string | null {
+  const numeros = numero.replace(/\D/g, '');
+  
+  // Visa: começa com 4
+  if (/^4/.test(numeros)) return 'Visa';
+  
+  // Mastercard: começa com 51-55 ou 2221-2720
+  if (/^5[1-5]/.test(numeros) || /^2(2[2-9][1-9]|[3-6]\d{2}|7[0-1]\d|720)/.test(numeros)) {
+    return 'Mastercard';
+  }
+  
+  // American Express: começa com 34 ou 37
+  if (/^3[47]/.test(numeros)) return 'American Express';
+  
+  // Elo: faixas específicas
+  if (
+    /^4011(78|79)/.test(numeros) ||
+    /^43(1274|8935)/.test(numeros) ||
+    /^45(1274|763(2|3)|769(3|4|5|6|7))/.test(numeros) ||
+    /^50(4175|6699|67[0-6][0-9]|677[0-8]|9[0-8][0-9]{2}|99[0-8][0-9]|999[0-9])/.test(numeros) ||
+    /^627780/.test(numeros) ||
+    /^63(6297|6368)/.test(numeros) ||
+    /^65(0(0(3([1-3][0-9]|4[0-9])|4([2-3][0-9]|4[0-9]|5[0-2])|5([0-2][0-9]|3[0-8])|9([0-2][0-9]|3[0-7]))|[1-8][0-9]{3}|9[0-2][0-9]{2}|93[0-7][0-9])|16(5[2-9][0-9]|6[0-3][0-9])|50(0[0-9]|1[0-8][0-9]|19[0-5]))/.test(numeros)
+  ) {
+    return 'Elo';
+  }
+  
+  // Hipercard: começa com 60
+  if (/^60/.test(numeros)) return 'Hipercard';
+  
+  return null;
+}
+
+/**
+ * Valida dados de cartão de crédito
+ * @param cartao - Dados do cartão
+ * @param bandeirasPermitidas - Lista de bandeiras aceitas
+ * @returns Objeto com validação e mensagens de erro
+ */
+export function validarCartao(
+  cartao: ICartaoCreditoInput,
+  bandeirasPermitidas: string[] = []
+): { valido: boolean; erros: string[] } {
+  const erros: string[] = [];
+  
+  // Validar número
+  const numeroLimpo = cartao.numero.replace(/\D/g, '');
+  if (numeroLimpo.length < 13 || numeroLimpo.length > 19) {
+    erros.push('Número do cartão inválido (13-19 dígitos)');
+  } else if (!validarLuhn(numeroLimpo)) {
+    erros.push('Número do cartão inválido (falha na validação)');
+  }
+  
+  // Validar bandeira
+  const bandeira = detectarBandeira(cartao.numero) || cartao.bandeira;
+  if (bandeirasPermitidas.length > 0 && !bandeirasPermitidas.includes(bandeira)) {
+    erros.push(`Bandeira ${bandeira} não é aceita. Permitidas: ${bandeirasPermitidas.join(', ')}`);
+  }
+  
+  // Validar nome do titular
+  if (!cartao.nomeTitular || cartao.nomeTitular.trim().length < 2) {
+    erros.push('Nome do titular inválido');
+  }
+  
+  // Validar validade (MM/AA)
+  const validadeRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+  if (!validadeRegex.test(cartao.validade)) {
+    erros.push('Validade deve estar no formato MM/AA');
+  } else {
+    const [mes, ano] = cartao.validade.split('/').map(Number);
+    const dataAtual = new Date();
+    const anoAtual = dataAtual.getFullYear() % 100;
+    const mesAtual = dataAtual.getMonth() + 1;
+    
+    if (ano < anoAtual || (ano === anoAtual && mes < mesAtual)) {
+      erros.push('Cartão expirado');
+    }
+  }
+  
+  // Validar CVV (3-4 dígitos)
+  const cvvLimpo = cartao.cvv.replace(/\D/g, '');
+  if (cvvLimpo.length < 3 || cvvLimpo.length > 4) {
+    erros.push('CVV inválido (3-4 dígitos)');
+  }
+  
+  return { valido: erros.length === 0, erros };
+}
+
+/**
+ * Valida valor de pagamento parcial
+ * @param valor - Valor a validar
+ * @param minimo - Valor mínimo (padrão: R$ 10,00)
+ * @returns true se válido
+ */
+export function validarValorParcial(valor: number, minimo: number = 10): boolean {
+  return valor >= minimo;
+}
+
+/**
+ * Hook para gerenciamento de pagamento no checkout
+ */
 export function usePagamento() {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const carrinho = useAppSelector((state) => state.carrinho.data);
-  const user = useAppSelector((state) => state.auth.user);
-
-  // Dados de referência (endereços, cartões, cupons, frete)
   const [info, setInfo] = useState<IPagamentoInfo | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
+  const [processando, setProcessando] = useState<boolean>(false);
+  
+  const [pagamentoSelecionado, setPagamentoSelecionado] = useState<IPagamentoSelecionado | null>(null);
+  const [cuponsAplicados, setCuponsAplicados] = useState<ICupomAplicado[]>([]);
+  const [freteSelecionado, setFreteSelecionado] = useState<IFreteOpcao | null>(null);
+  const [pagamentosParciais, setPagamentosParciais] = useState<{ cartaoUuid: string; valor: number }[]>([]);
 
-  // Estado do wizard (steps)
-  const [stepAtual, setStepAtual] = useState(0);
-  const [tentouAvancarStep0, setTentouAvancarStep0] = useState(false);
-  const [tentouAvancarStep1, setTentouAvancarStep1] = useState(false);
-
-  // Seleções do usuário
-  const [enderecoSelecionadoUuid, setEnderecoSelecionadoUuid] = useState<string | null>(null);
-  const [freteSelecionadoUuid, setFreteSelecionadoUuid] = useState<string | null>(null);
-  const [cuponsAplicados, setCuponsAplicados] = useState<ICupom[]>([]);
-  const [codigoCupom, setCodigoCupom] = useState('');
-  const [erroCupom, setErroCupom] = useState('');
-  const [pagamentosCartao, setPagamentosCartao] = useState<IPagamentoCartao[]>([]);
-  const [cartaoSelecionadoUuid, setCartaoSelecionadoUuid] = useState('');
-  const [valorCartao, setValorCartao] = useState('');
-  const [erroCartao, setErroCartao] = useState('');
-
-  // Status do processamento
-  const [statusPagamento, setStatusPagamento] = useState<StatusPagamento>('idle');
-  const [pedidoUuid, setPedidoUuid] = useState<string | null>(null);
-
-  // Fetch initial data
-  useEffect(() => {
-    PagamentoService.getPagamentoInfo()
-      .then((data) => {
-        setInfo(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
-  }, []);
-
-  // Cálculos derivados
-  const subtotal = carrinho?.resumo.subtotal ?? 0;
-  const freteOpcaoSelecionada = info?.freteOpcoes.find((f) => f.uuid === freteSelecionadoUuid);
-  const valorFrete = freteOpcaoSelecionada?.valor ?? 0;
-
-  // RN0035: Cupons são considerados primeiro
-  const totalCupons = cuponsAplicados.reduce((acc, c) => acc + c.valor, 0);
-  const totalBruto = subtotal + valorFrete;
-  const totalAposCupons = Math.max(0, totalBruto - totalCupons);
-
-  // Valor já alocado em cartões
-  const totalAlocadoCartoes = pagamentosCartao.reduce((acc, p) => acc + p.valor, 0);
-  const valorRestanteCartao = Math.max(0, totalAposCupons - totalAlocadoCartoes);
-
-  // RN0036: Se cupons superam o valor, gera cupom de troca (indicamos isso)
-  const gerarCupomTroca = totalCupons > totalBruto;
-  const valorCupomTroca = gerarCupomTroca ? totalCupons - totalBruto : 0;
-
-  // Validações de step
-  const podeAvancarStep0 = !!enderecoSelecionadoUuid && !!freteSelecionadoUuid;
-  const pagamentoCompleto =
-    totalAposCupons === 0 || Math.abs(totalAlocadoCartoes - totalAposCupons) < 0.01;
-
-  // --- Ações ---
-
-  const avancarStep = useCallback(() => {
-    if (stepAtual === 0) {
-      setTentouAvancarStep0(true);
-      if (!podeAvancarStep0) return;
-    }
-    if (stepAtual === 1) {
-      setTentouAvancarStep1(true);
-      if (!pagamentoCompleto && totalAposCupons > 0) return;
-    }
-    setStepAtual((prev) => Math.min(prev + 1, 2));
-  }, [stepAtual, podeAvancarStep0, pagamentoCompleto, totalAposCupons]);
-
-  const voltarStep = useCallback(() => {
-    setStepAtual((prev) => Math.max(prev - 1, 0));
-  }, []);
-
-  // RN0033: Apenas 1 cupom promocional por compra
-  const aplicarCupom = useCallback(() => {
-    setErroCupom('');
-    if (!codigoCupom.trim()) return;
-
-    const cupom = info?.cuponsDisponiveis.find(
-      (c) => c.codigo.toUpperCase() === codigoCupom.trim().toUpperCase(),
-    );
-
-    if (!cupom) {
-      setErroCupom('Cupom inválido ou não encontrado.');
-      return;
-    }
-
-    if (cuponsAplicados.find((c) => c.uuid === cupom.uuid)) {
-      setErroCupom('Este cupom já foi aplicado.');
-      return;
-    }
-
-    // RN0033: Apenas 1 cupom promocional
-    if (cupom.tipo === 'promocional') {
-      const jaTemPromocional = cuponsAplicados.some((c) => c.tipo === 'promocional');
-      if (jaTemPromocional) {
-        setErroCupom('Apenas 1 cupom promocional é permitido por compra (RN0033).');
-        return;
-      }
-    }
-
-    setCuponsAplicados((prev) => [...prev, cupom]);
-    setCodigoCupom('');
-  }, [codigoCupom, info, cuponsAplicados]);
-
-  const removerCupom = useCallback((cupomUuid: string) => {
-    setCuponsAplicados((prev) => prev.filter((c) => c.uuid !== cupomUuid));
-  }, []);
-
-  // RN0034: Múltiplos cartões, mín R$10 por cartão
-  // RN0035: Se houver cupom, saldo no cartão pode ser < R$10
-  const adicionarPagamentoCartao = useCallback(() => {
-    setErroCartao('');
-
-    if (!cartaoSelecionadoUuid) {
-      setErroCartao('Selecione um cartão.');
-      return;
-    }
-
-    const valor = parseFloat(valorCartao.replace(',', '.'));
-    if (isNaN(valor) || valor <= 0) {
-      setErroCartao('Informe um valor válido.');
-      return;
-    }
-
-    // RN0034: Valor mínimo R$10 por cartão
-    // RN0035: A menos que cupons cubram parte e saldo restante seja < R$10
-    const saldoRestante = totalAposCupons - totalAlocadoCartoes;
-    if (valor < VALOR_MINIMO_CARTAO && saldoRestante >= VALOR_MINIMO_CARTAO) {
-      setErroCartao(`Valor mínimo por cartão: R$ ${VALOR_MINIMO_CARTAO},00 (RN0034).`);
-      return;
-    }
-
-    if (valor > saldoRestante + 0.01) {
-      setErroCartao(`Valor excede o restante de R$ ${saldoRestante.toFixed(2).replace('.', ',')}.`);
-      return;
-    }
-
-    // Verificar se é o mesmo cartão
-    if (pagamentosCartao.find((p) => p.cartaoUuid === cartaoSelecionadoUuid)) {
-      setErroCartao('Este cartão já foi adicionado. Remova-o primeiro para alterar o valor.');
-      return;
-    }
-
-    setPagamentosCartao((prev) => [
-      ...prev,
-      { cartaoUuid: cartaoSelecionadoUuid, valor },
-    ]);
-    setCartaoSelecionadoUuid('');
-    setValorCartao('');
-  }, [cartaoSelecionadoUuid, valorCartao, totalAposCupons, totalAlocadoCartoes, pagamentosCartao]);
-
-  const removerPagamentoCartao = useCallback((cartaoUuid: string) => {
-    setPagamentosCartao((prev) => prev.filter((p) => p.cartaoUuid !== cartaoUuid));
-  }, []);
-
-  // RF0037: Finalizar Compra → Status EM PROCESSAMENTO
-  // RN0037: Validar pagamento final
-  // RN0038: Sucesso → APROVADA, Falha → REPROVADA
-  const finalizarCompra = useCallback(async () => {
-    if (!carrinho || !enderecoSelecionadoUuid || !freteSelecionadoUuid) return;
-    if (!pagamentoCompleto && totalAposCupons > 0) return;
-
-    setStatusPagamento('processando');
-
+  const service = useMemo(() => new PagamentoServiceApi(), []);
+  
+  /**
+   * Carrega informações de pagamento do backend
+   */
+  const carregarInfo = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      // Segue Frontend Responsibility: envia apenas ID do produto + quantidade
-      const resultado = await PagamentoService.processarPagamento({
-        enderecoUuid: enderecoSelecionadoUuid,
-        freteUuid: freteSelecionadoUuid,
-        cupons: cuponsAplicados.map((c) => c.uuid),
-        pagamentosCartao: pagamentosCartao.map((p) => ({
-          cartaoUuid: p.cartaoUuid,
-          valor: p.valor,
-        })),
-        itens: carrinho.itens.map((item) => ({
-          livroUuid: item.uuid,
-          quantidade: item.quantidade,
-        })),
-      });
-
-      if (resultado.sucesso) {
-        setStatusPagamento('aprovada');
-        setPedidoUuid(resultado.pedidoUuid);
-
-        // Montar formas de pagamento para persistir no pedido
-        const formasPagamento: IFormaPagamentoPedido[] = [
-          ...cuponsAplicados.map((c) => ({
-            tipo: 'cupom' as const,
-            codigo: c.codigo,
-            valor: c.valor,
-          })),
-          ...pagamentosCartao.map((p) => {
-            const cartao = info?.cartoesCliente.find((c) => c.uuid === p.cartaoUuid);
-            return {
-              tipo: 'cartao' as const,
-              cartaoFinal: cartao?.final,
-              bandeira: cartao?.bandeira,
-              valor: p.valor,
-            };
-          }),
-        ];
-
-        // Criar pedido completo no Redux (fica disponível em Meus Pedidos)
-        const novoPedido: IPedido = {
-          uuid: resultado.pedidoUuid,
-          data: new Date().toISOString(),
-          clienteUuid: user?.uuid || '',
-          status: 'Em Processamento',
-          total: totalAposCupons,
-          enderecoUuid: enderecoSelecionadoUuid,
-          freteUuid: freteSelecionadoUuid,
-          formaPagamento: formasPagamento,
-          itens: carrinho.itens.map((item) => ({
-            livroUuid: item.uuid,
-            titulo: item.titulo,
-            quantidade: item.quantidade,
-            precoUnitario: item.precoUnitario,
-            categoria: 'Geral',
-          })),
-        };
-
-        dispatch(adicionarPedido(novoPedido));
-        dispatch(limparCarrinho());
-        navigate(`/pedido-confirmado?pedido=${resultado.pedidoUuid}`);
-      }
-    } catch {
-      setStatusPagamento('reprovada');
+      const dados = await service.obterPagamentoInfo();
+      setInfo(dados);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Erro ao carregar informações de pagamento'));
+    } finally {
+      setLoading(false);
     }
-  }, [
-    carrinho,
-    enderecoSelecionadoUuid,
-    freteSelecionadoUuid,
-    cuponsAplicados,
-    pagamentosCartao,
-    pagamentoCompleto,
-    totalAposCupons,
-    info,
-    user,
-    dispatch,
-    navigate,
-  ]);
-
+  }, [service]);
+  
+  /**
+   * Seleciona forma de pagamento
+   */
+  const selecionarPagamento = useCallback(async (dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes | null> => {
+    setError(null);
+    
+    try {
+      const resultado = await service.selecionarFormaPagamento(dados);
+      setPagamentoSelecionado(dados);
+      return resultado;
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Erro ao selecionar forma de pagamento'));
+      return null;
+    }
+  }, [service]);
+  
+  /**
+   * Aplica cupom de desconto
+   */
+  const aplicarCupom = useCallback((cupom: ICupomAplicado) => {
+    // Cupom promocional é único
+    if (cupom.tipo === 'promocional') {
+      const outrosPromocionais = cuponsAplicados.filter(c => c.tipo === 'promocional');
+      if (outrosPromocionais.length > 0) {
+        setError(new Error('Apenas um cupom promocional é permitido por compra'));
+        return false;
+      }
+    }
+    
+    setCuponsAplicados(prev => [...prev, cupom]);
+    return true;
+  }, [cuponsAplicados]);
+  
+  /**
+   * Remove cupom aplicado
+   */
+  const removerCupom = useCallback((cupomUuid: string) => {
+    setCuponsAplicados(prev => prev.filter(c => c.uuid !== cupomUuid));
+  }, []);
+  
+  /**
+   * Seleciona opção de frete
+   */
+  const selecionarFrete = useCallback((frete: IFreteOpcao) => {
+    setFreteSelecionado(frete);
+  }, []);
+  
+  /**
+   * Adiciona pagamento parcial com cartão
+   */
+  const adicionarPagamentoParcial = useCallback((cartaoUuid: string, valor: number) => {
+    if (!validarValorParcial(valor)) {
+      setError(new Error('Valor mínimo por cartão é R$ 10,00'));
+      return false;
+    }
+    
+    setPagamentosParciais(prev => [...prev, { cartaoUuid, valor }]);
+    return true;
+  }, []);
+  
+  /**
+   * Remove pagamento parcial
+   */
+  const removerPagamentoParcial = useCallback((index: number) => {
+    setPagamentosParciais(prev => prev.filter((_, i) => i !== index));
+  }, []);
+  
+  /**
+   * Processa pagamento completo
+   */
+  const processarPagamento = useCallback(async (
+    vendaUuid: string,
+    valorTotal: number
+  ): Promise<IProcessarPagamentoResultado | null> => {
+    setProcessando(true);
+    setError(null);
+    
+    try {
+      // Preparar dados de pagamento
+      const pagamentosCartao = pagamentosParciais.length > 0
+        ? pagamentosParciais
+        : pagamentoSelecionado?.tipo === 'cartao_credito'
+          ? [{ cartaoUuid: 'uuid' in (pagamentoSelecionado.cartao ?? {}) ? (pagamentoSelecionado.cartao as ICartaoSalvoPagamento)?.uuid || 'novo' : 'novo', valor: valorTotal }]
+          : [];
+      
+      const dados: IProcessarPagamentoInput = {
+        vendaUuid,
+        pagamentosCartao,
+        cuponsAplicados,
+        valorTotal
+      };
+      
+      const resultado = await service.processarPagamentoFront(dados);
+      
+      if (resultado.sucesso) {
+        // Limpar pagamentos parciais após sucesso
+        setPagamentosParciais([]);
+      }
+      
+      return resultado;
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Erro ao processar pagamento'));
+      return null;
+    } finally {
+      setProcessando(false);
+    }
+  }, [service, pagamentoSelecionado, cuponsAplicados, pagamentosParciais]);
+  
+  /**
+   * Limpa estado de pagamento
+   */
+  const limpar = useCallback(() => {
+    setInfo(null);
+    setPagamentoSelecionado(null);
+    setCuponsAplicados([]);
+    setFreteSelecionado(null);
+    setPagamentosParciais([]);
+    setError(null);
+  }, []);
+  
   return {
-    // Dados
+    // Estado
     info,
     loading,
     error,
-    carrinho,
-
-    // Steps
-    stepAtual,
-    avancarStep,
-    voltarStep,
-    tentouAvancarStep0,
-    tentouAvancarStep1,
-
-    // Endereço e Frete
-    enderecoSelecionadoUuid,
-    setEnderecoSelecionadoUuid,
-    freteSelecionadoUuid,
-    setFreteSelecionadoUuid,
-    podeAvancarStep0,
-
-    // Cupons
-    codigoCupom,
-    setCodigoCupom,
-    erroCupom,
+    processando,
+    pagamentoSelecionado,
     cuponsAplicados,
+    freteSelecionado,
+    pagamentosParciais,
+    
+    // Ações
+    carregarInfo,
+    selecionarPagamento,
     aplicarCupom,
     removerCupom,
-
-    // Cartões
-    cartaoSelecionadoUuid,
-    setCartaoSelecionadoUuid,
-    valorCartao,
-    setValorCartao,
-    erroCartao,
-    pagamentosCartao,
-    adicionarPagamentoCartao,
-    removerPagamentoCartao,
-    pagamentoCompleto,
-
-    // Cálculos
-    subtotal,
-    valorFrete,
-    totalCupons,
-    totalBruto,
-    totalAposCupons,
-    totalAlocadoCartoes,
-    valorRestanteCartao,
-    gerarCupomTroca,
-    valorCupomTroca,
-
-    // Processar
-    statusPagamento,
-    pedidoUuid,
-    finalizarCompra,
+    selecionarFrete,
+    adicionarPagamentoParcial,
+    removerPagamentoParcial,
+    processarPagamento,
+    limpar,
+    
+    // Utilitários
+    validarCartao,
+    detectarBandeira,
+    validarLuhn
   };
 }

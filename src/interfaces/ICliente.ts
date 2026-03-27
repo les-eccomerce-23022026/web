@@ -1,4 +1,4 @@
-import type { IEnderecoCliente, ICartaoCliente } from './IPagamento';
+import type { IEnderecoCliente, ICartaoSalvoPagamento as ICartaoCliente } from './IPagamento';
 
 export interface ITelefone {
   tipo: 'Celular' | 'Residencial' | 'Comercial';

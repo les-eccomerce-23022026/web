@@ -5,8 +5,16 @@ import type { ICheckoutService, IVendaInput, IVendaResultado } from '@/services/
 export class CheckoutServiceMock implements ICheckoutService {
   async getCheckoutInfo(): Promise<ICheckoutInfo> {
     console.log('[Mock] Buscando dados de checkout.');
+    const normalized = {
+      ...checkoutMock,
+      cartoesSalvos: checkoutMock.cartoesSalvos.map(c => ({
+        ...c,
+        nomeImpresso: c.nomeCliente,
+        validade: '12/2028'
+      }))
+    };
     return new Promise((resolve) =>
-      setTimeout(() => resolve(checkoutMock as ICheckoutInfo), 300),
+      setTimeout(() => resolve(normalized as ICheckoutInfo), 300),
     );
   }
 

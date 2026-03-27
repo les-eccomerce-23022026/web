@@ -6,7 +6,7 @@ import type {
   IAlterarSenhaPayload,
   IRegistroClienteCompletoPayload,
 } from '@/interfaces/ICliente';
-import type { IEnderecoCliente, ICartaoCliente } from '@/interfaces/IPagamento';
+import type { IEnderecoCliente, ICartaoSalvoPagamento as ICartaoCliente } from '@/interfaces/IPagamento';
 import type { IClienteService } from '@/services/contracts/IClienteService';
 
 function delay<T>(data: T, ms = 300): Promise<T> {
@@ -84,7 +84,10 @@ export class ClienteServiceMock implements IClienteService {
     const cliente = clientesMock.clientes.find((c) => c.uuid === userUuid);
     if (!cliente) return Promise.resolve([]);
 
-    return delay(cliente.cartoes as ICartaoCliente[], 200);
+    return delay(cliente.cartoes.map(c => ({
+      ...c,
+      nomeCliente: c.nomeImpresso // Mapeando nomeImpresso para nomeCliente para satisfazer a interface
+    })) as ICartaoCliente[], 200);
   }
 
   async adicionarCartao(cartao: Omit<ICartaoCliente, 'uuid'>): Promise<ICartaoCliente> {

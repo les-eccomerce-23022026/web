@@ -7,14 +7,10 @@ function EnderecoForm({
   titulo,
   endereco,
   onChange,
-  tiposResidencia,
-  tiposLogradouro,
 }: {
   titulo: string;
   endereco: Omit<IEnderecoCliente, 'uuid'>;
   onChange: (e: Omit<IEnderecoCliente, 'uuid'>) => void;
-  tiposResidencia: string[];
-  tiposLogradouro: string[];
 }) {
   const handleField = (campo: string, valor: string) => {
     onChange({ ...endereco, [campo]: valor });
@@ -23,45 +19,6 @@ function EnderecoForm({
   return (
     <fieldset className={styles.fieldset}>
       <legend className={styles.legend}>{titulo}</legend>
-      <div className={styles.formRow}>
-        <div className="form-group">
-          <label>Apelido (ex: Casa, Trabalho)</label>
-          <input
-            type="text"
-            placeholder="Casa"
-            value={endereco.apelido}
-            onChange={(e) => handleField('apelido', e.target.value)}
-          />
-        </div>
-      </div>
-      <div className={styles.formRow}>
-        <div className="form-group">
-          <label>Tipo Residência</label>
-          <select
-            value={endereco.tipoResidencia}
-            onChange={(e) => handleField('tipoResidencia', e.target.value)}
-          >
-            {tiposResidencia.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Tipo Logradouro</label>
-          <select
-            value={endereco.tipoLogradouro}
-            onChange={(e) => handleField('tipoLogradouro', e.target.value)}
-          >
-            {tiposLogradouro.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
       <div className={styles.formRow}>
         <div className={`form-group ${styles.formGroupLarge}`}>
           <label>Logradouro *</label>
@@ -127,14 +84,6 @@ function EnderecoForm({
             maxLength={2}
             value={endereco.estado}
             onChange={(e) => handleField('estado', e.target.value.toUpperCase())}
-          />
-        </div>
-        <div className="form-group">
-          <label>País</label>
-          <input
-            type="text"
-            value={endereco.pais}
-            onChange={(e) => handleField('pais', e.target.value)}
           />
         </div>
       </div>
@@ -474,8 +423,6 @@ export function LoginArea() {
                   titulo="Endereço de Cobrança (obrigatório)"
                   endereco={registerState.regEnderecoCobranca}
                   onChange={registerState.setRegEnderecoCobranca}
-                  tiposResidencia={dominios.tiposResidencia}
-                  tiposLogradouro={dominios.tiposLogradouro}
                 />
 
                 <div className={styles.checkboxRow}>
@@ -497,8 +444,6 @@ export function LoginArea() {
                     titulo="Endereço de Entrega (obrigatório)"
                     endereco={registerState.regEnderecoEntrega}
                     onChange={registerState.setRegEnderecoEntrega}
-                    tiposResidencia={dominios.tiposResidencia}
-                    tiposLogradouro={dominios.tiposLogradouro}
                   />
                 )}
 

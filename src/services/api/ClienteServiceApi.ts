@@ -4,7 +4,7 @@ import type {
   IAlterarSenhaPayload,
   IRegistroClienteCompletoPayload,
 } from '@/interfaces/ICliente';
-import type { IEnderecoCliente, ICartaoCliente } from '@/interfaces/IPagamento';
+import type { IEnderecoCliente, ICartaoSalvoPagamento as ICartaoCliente } from '@/interfaces/IPagamento';
 import { API_ENDPOINTS } from '@/config/apiConfig';
 import { ApiClient } from '@/services/apiClient';
 import type { IClienteService } from '@/services/contracts/IClienteService';
@@ -19,9 +19,6 @@ const PERFIL_PADRAO: Omit<ICliente, 'uuid' | 'nome' | 'email' | 'cpf' | 'enderec
   enderecosEntrega: [],
   enderecoCobranca: {
     uuid: '',
-    apelido: '',
-    tipoResidencia: 'Casa',
-    tipoLogradouro: 'Rua',
     logradouro: '',
     numero: '',
     complemento: '',
@@ -29,7 +26,7 @@ const PERFIL_PADRAO: Omit<ICliente, 'uuid' | 'nome' | 'email' | 'cpf' | 'enderec
     cep: '',
     cidade: '',
     estado: '',
-    pais: 'Brasil',
+    tipo: 'cobranca',
   },
   cartoes: [],
   cartaoPreferencialUuid: null,
@@ -115,8 +112,8 @@ export class ClienteServiceApi implements IClienteService {
     };
     const uuidBandeira = bandeirasMap[cartao.bandeira.toLowerCase()] ?? bandeirasMap.visa;
 
-    let validadeIso = cartao.validade;
-    if (cartao.validade.includes('/')) {
+    let validadeIso = cartao.validade || '';
+    if (cartao.validade && cartao.validade.includes('/')) {
       const [mes, ano] = cartao.validade.split('/');
       const anoCompleto = ano.length === 2 ? `20${ano}` : ano;
       validadeIso = `${anoCompleto}-${mes.padStart(2, '0')}-01`;

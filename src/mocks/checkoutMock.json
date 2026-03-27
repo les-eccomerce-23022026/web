@@ -7,14 +7,78 @@
     "estado": "SP",
     "cep": "01000-000"
   },
+  "enderecosDisponiveis": [
+    {
+      "uuid": "endereco-uuid-1",
+      "logradouro": "Rua Bela Vista",
+      "numero": "1234",
+      "complemento": "Apto 55",
+      "bairro": "Bela Vista",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "cep": "01000-000",
+      "tipo": "entrega",
+      "principal": true
+    }
+  ],
   "cartoesSalvos": [
     {
       "uuid": "c138b1bc-b827-463e-b921-6ed947da7eb9",
       "final": "1234",
       "nomeCliente": "Nome do Cliente",
-      "bandeira": "Mastercard"
+      "bandeira": "Mastercard",
+      "principal": true
+    },
+    {
+      "uuid": "cartao-uuid-2",
+      "final": "5678",
+      "nomeCliente": "Nome do Cliente",
+      "bandeira": "Visa",
+      "principal": false
     }
   ],
+  "cuponsDisponiveis": [
+    {
+      "uuid": "cupom-promo-uuid",
+      "codigo": "DESCONTO10",
+      "tipo": "promocional",
+      "valor": 10,
+      "descricao": "10% de desconto",
+      "valido": true
+    },
+    {
+      "uuid": "cupom-troca-uuid",
+      "codigo": "TROCA50",
+      "tipo": "troca",
+      "valor": 50,
+      "descricao": "Cupom de troca R$50",
+      "valido": true
+    }
+  ],
+  "freteOpcoes": [
+    {
+      "uuid": "frete-pac-uuid",
+      "tipo": "PAC",
+      "valor": 15.00,
+      "prazo": "5-7 dias úteis",
+      "selecionado": false
+    },
+    {
+      "uuid": "frete-sedex-uuid",
+      "tipo": "SEDEX",
+      "valor": 30.00,
+      "prazo": "1-2 dias úteis",
+      "selecionado": false
+    },
+    {
+      "uuid": "frete-loja-uuid",
+      "tipo": "RETIRA_EM_LOJA",
+      "valor": 0.00,
+      "prazo": "Retirar em 24h",
+      "selecionado": false
+    }
+  ],
+  "bandeirasPermitidas": ["Visa", "Mastercard", "Elo", "American Express", "Hipercard"],
   "resumoPedido": {
     "quantidadeItens": 1,
     "subtotal": 79.90,

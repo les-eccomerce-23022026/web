@@ -2,9 +2,6 @@
   "enderecosCliente": [
     {
       "uuid": "end-001",
-      "apelido": "Casa",
-      "tipoResidencia": "Casa",
-      "tipoLogradouro": "Rua",
       "logradouro": "Bela Vista",
       "numero": "1234",
       "complemento": "Apto 55",
@@ -12,13 +9,10 @@
       "cep": "01000-000",
       "cidade": "São Paulo",
       "estado": "SP",
-      "pais": "Brasil"
+      "tipo": "ambos"
     },
     {
       "uuid": "end-002",
-      "apelido": "Trabalho",
-      "tipoResidencia": "Apartamento",
-      "tipoLogradouro": "Avenida",
       "logradouro": "Paulista",
       "numero": "1000",
       "complemento": "Sala 2001",
@@ -26,23 +20,21 @@
       "cep": "01310-100",
       "cidade": "São Paulo",
       "estado": "SP",
-      "pais": "Brasil"
+      "tipo": "ambos"
     }
   ],
   "cartoesCliente": [
     {
       "uuid": "card-001",
       "final": "1234",
-      "nomeImpresso": "JOAO COMPRADOR",
-      "bandeira": "Mastercard",
-      "validade": "12/2028"
+      "nomeCliente": "JOAO COMPRADOR",
+      "bandeira": "Mastercard"
     },
     {
       "uuid": "card-002",
       "final": "5678",
-      "nomeImpresso": "JOAO COMPRADOR",
-      "bandeira": "Visa",
-      "validade": "06/2027"
+      "nomeCliente": "JOAO COMPRADOR",
+      "bandeira": "Visa"
     }
   ],
   "cuponsDisponiveis": [
@@ -65,19 +57,19 @@
   "freteOpcoes": [
     {
       "uuid": "frete-001",
-      "tipo": "Padrão",
+      "tipo": "PAC",
       "valor": 15.00,
       "prazo": "5 a 8 dias úteis"
     },
     {
       "uuid": "frete-002",
-      "tipo": "Expresso",
+      "tipo": "SEDEX",
       "valor": 29.90,
       "prazo": "1 a 3 dias úteis"
     },
     {
       "uuid": "frete-003",
-      "tipo": "Retirada em Loja",
+      "tipo": "RETIRA_EM_LOJA",
       "valor": 0.00,
       "prazo": "Disponível em 2 horas"
     }

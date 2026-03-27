@@ -310,16 +310,13 @@ export function MeuPerfil() {
           <div className={styles.enderecoList}>
             {enderecoState.enderecos.map((end) => (
               <div key={end.uuid} className={styles.enderecoCard} data-cy={`endereco-card-${end.uuid}`}>
-                <div className={styles.enderecoApelido}>
-                  {end.apelido || 'Sem apelido'}
-                </div>
                 <div className={styles.enderecoDetalhe}>
-                  {end.tipoLogradouro} {end.logradouro}, {end.numero}
+                  {end.logradouro}, {end.numero}
                   {end.complemento && ` - ${end.complemento}`}
                   <br />
                   {end.bairro} - {end.cep}
                   <br />
-                  {end.cidade}/{end.estado} - {end.pais}
+                  {end.cidade}/{end.estado}
                 </div>
                 <div className={styles.enderecoActions}>
                   <button
@@ -364,51 +361,6 @@ export function MeuPerfil() {
               <h3 className={styles.novoPanelTitle}>
                 {enderecoState.enderecoEditandoUuid ? 'Editar Endereço' : 'Novo Endereço'}
               </h3>
-              <div className="form-group">
-                <label>Apelido (ex: Casa, Trabalho)</label>
-                <input
-                  data-cy="endereco-apelido-input"
-                  type="text"
-                  value={enderecoState.novoEndApelido}
-                  onChange={(e) =>
-                    enderecoState.setNovoEndApelido(e.target.value)
-                  }
-                />
-              </div>
-              <div className={styles.formRow}>
-                <div className="form-group">
-                  <label>Tipo Residência</label>
-                  <select
-                    data-cy="endereco-tipo-residencia-select"
-                    value={enderecoState.novoEndTipoResidencia}
-                    onChange={(e) =>
-                      enderecoState.setNovoEndTipoResidencia(e.target.value)
-                    }
-                  >
-                    {dominios.tiposResidencia.map((t: string) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Tipo Logradouro</label>
-                  <select
-                    data-cy="endereco-tipo-logradouro-select"
-                    value={enderecoState.novoEndTipoLogradouro}
-                    onChange={(e) =>
-                      enderecoState.setNovoEndTipoLogradouro(e.target.value)
-                    }
-                  >
-                    {dominios.tiposLogradouro.map((t: string) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
               <div className={styles.formRow}>
                 <div className={`form-group ${styles.formGroupLarge}`}>
                   <label>Logradouro *</label>
@@ -491,17 +443,6 @@ export function MeuPerfil() {
                       enderecoState.setNovoEndEstado(
                         e.target.value.toUpperCase(),
                       )
-                    }
-                  />
-                </div>
-                <div className="form-group">
-                  <label>País</label>
-                  <input
-                    data-cy="endereco-pais-input"
-                    type="text"
-                    value={enderecoState.novoEndPais}
-                    onChange={(e) =>
-                      enderecoState.setNovoEndPais(e.target.value)
                     }
                   />
                 </div>

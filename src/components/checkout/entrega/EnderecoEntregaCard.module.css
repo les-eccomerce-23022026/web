@@ -1,0 +1,166 @@
+.enderecos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.endereco-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1rem;
+  border: 2px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--card-background, #fff);
+  text-align: left;
+}
+
+.endereco-item:hover {
+  border-color: var(--border-hover, #ccc);
+  background: var(--hover-background, #f9f9f9);
+}
+
+.endereco-item.selecionado {
+  border-color: var(--primary-color, #0066cc);
+  background: var(--primary-light, rgba(0, 102, 204, 0.05));
+}
+
+.endereco-conteudo {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+}
+
+.endereco-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--icon-background, #f0f0f0);
+  border-radius: 8px;
+  color: var(--text-secondary, #666);
+  flex-shrink: 0;
+}
+
+.endereco-info {
+  flex: 1;
+}
+
+.endereco-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.endereco-tipo {
+  background: var(--badge-background, #f0f0f0);
+  color: var(--text-primary, #333);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.principal-badge {
+  background: var(--primary-color, #0066cc);
+  color: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.endereco-logradouro {
+  margin: 0 0 0.25rem 0;
+  font-weight: 500;
+  color: var(--text-primary, #333);
+  font-size: 0.9375rem;
+}
+
+.endereco-complemento {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #666);
+}
+
+.endereco-cep {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #666);
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.endereco-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.action-btn {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: var(--secondary-background, #f0f0f0);
+  color: var(--text-primary, #333);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: var(--secondary-hover, #e0e0e0);
+}
+
+.sem-enderecos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--text-secondary, #666);
+  border: 2px dashed var(--border-color, #e0e0e0);
+  border-radius: 8px;
+}
+
+.sem-enderecos svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.sem-enderecos p {
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+.sem-enderecos span {
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .endereco-item {
+    flex-direction: column;
+  }
+  
+  .endereco-conteudo {
+    width: 100%;
+  }
+  
+  .endereco-actions {
+    width: 100%;
+    margin-top: 0.75rem;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}

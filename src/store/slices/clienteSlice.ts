@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { ClienteService } from '@/services/ClienteService';
 import type { ICliente, IAtualizarPerfilPayload, Genero, ITelefone } from '@/interfaces/ICliente';
-import type { IEnderecoCliente, ICartaoCliente } from '@/interfaces/IPagamento';
+import type { IEnderecoCliente, ICartaoSalvoPagamento as ICartaoCliente } from '@/interfaces/IPagamento';
 
 interface ClienteState {
   perfil: ICliente | null;

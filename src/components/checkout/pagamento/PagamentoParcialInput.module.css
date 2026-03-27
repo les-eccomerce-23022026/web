@@ -1,0 +1,176 @@
+.pagamento-parcial-container {
+  background: var(--card-background, #fff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-top: 1rem;
+}
+
+.pagamento-parcial-header {
+  margin-bottom: 1rem;
+}
+
+.pagamento-parcial-header h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+.valores-resumo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: var(--summary-background, #f9f9f9);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.valores-resumo span {
+  color: var(--text-secondary, #666);
+}
+
+.valores-resumo strong {
+  color: var(--text-primary, #333);
+}
+
+.valores-resumo .pago {
+  color: var(--success-color, #090);
+}
+
+.valores-resumo .restante {
+  color: var(--primary-color, #0066cc);
+}
+
+.pagamentos-adicionados {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.pagamento-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--payment-item-background, #f0f7ff);
+  border: 1px solid var(--payment-item-border, #cce0ff);
+  border-radius: 6px;
+}
+
+.pagamento-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.cartao-nome {
+  font-weight: 500;
+  color: var(--text-primary, #333);
+  font-size: 0.9375rem;
+}
+
+.pagamento-valor {
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  font-size: 0.9375rem;
+}
+
+.remover-pagamento {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary, #666);
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.remover-pagamento:hover {
+  background: var(--delete-background, #fee);
+  color: var(--error-color, #c00);
+}
+
+.adicionar-pagamento {
+  border-top: 1px solid var(--border-color, #e0e0e0);
+  padding-top: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.select-cartao,
+.input-valor {
+  padding: 0.75rem;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 6px;
+  font-size: 0.9375rem;
+  background: var(--card-background, #fff);
+}
+
+.select-cartao:focus,
+.input-valor:focus {
+  outline: none;
+  border-color: var(--primary-color, #0066cc);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.input-valor {
+  width: 100%;
+}
+
+.cartao-info {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #666);
+}
+
+.erro {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--error-color, #c00);
+}
+
+.observacao {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #666);
+  font-style: italic;
+}
+
+.pagamento-completo {
+  padding: 1rem;
+  text-align: center;
+  background: var(--success-background, #f0f9f0);
+  border: 1px solid var(--success-border, #cfc);
+  border-radius: 6px;
+  margin-top: 1rem;
+}
+
+.sucesso {
+  margin: 0;
+  color: var(--success-color, #090);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .valores-resumo {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}

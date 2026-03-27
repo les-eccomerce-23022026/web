@@ -4,7 +4,7 @@ import type {
   IAlterarSenhaPayload,
   IRegistroClienteCompletoPayload,
 } from '@/interfaces/ICliente';
-import type { IEnderecoCliente, ICartaoCliente } from '@/interfaces/IPagamento';
+import type { IEnderecoCliente, ICartaoSalvoPagamento as ICartaoCliente } from '@/interfaces/IPagamento';
 
 export interface IClienteService {
   obterPerfil(userUuid: string): Promise<ICliente>;

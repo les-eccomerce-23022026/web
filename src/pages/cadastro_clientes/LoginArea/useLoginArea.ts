@@ -13,9 +13,6 @@ const REGEX_CPF_COM_MASCARA = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
 const REGEX_CPF_SEM_MASCARA = /^\d{11}$/;
 
 const ENDERECO_VAZIO: Omit<IEnderecoCliente, 'uuid'> = {
-  apelido: '',
-  tipoResidencia: 'Casa',
-  tipoLogradouro: 'Rua',
   logradouro: '',
   numero: '',
   complemento: '',
@@ -23,7 +20,7 @@ const ENDERECO_VAZIO: Omit<IEnderecoCliente, 'uuid'> = {
   cep: '',
   cidade: '',
   estado: '',
-  pais: 'Brasil',
+  tipo: 'ambos',
 };
 
 const TELEFONE_VAZIO: ITelefone = {
@@ -69,8 +66,6 @@ export function useLoginArea() {
   // --- Domínios do mock ---
   const generosDisponiveis = clientesMock.generosDisponiveis;
   const tiposTelefone = clientesMock.tiposTelefone;
-  const tiposResidencia = clientesMock.tiposResidencia;
-  const tiposLogradouro = clientesMock.tiposLogradouro;
 
   // --- Login ---
   const handleLogin = async () => {
@@ -286,8 +281,6 @@ export function useLoginArea() {
     dominios: {
       generosDisponiveis,
       tiposTelefone,
-      tiposResidencia,
-      tiposLogradouro,
     },
   };
 }

@@ -14,8 +14,6 @@ import type { IEnderecoCliente } from '@/interfaces/IPagamento';
 
 export const generosDisponiveis = ['Masculino', 'Feminino', 'Outro', 'Prefiro não informar'];
 export const tiposTelefone = ['Celular', 'Residencial', 'Comercial'];
-export const tiposResidencia = ['Casa', 'Apartamento', 'Outro'];
-export const tiposLogradouro = ['Rua', 'Avenida', 'Alameda', 'Praça', 'Rodovia'];
 export const bandeirasPermitidas = ['Visa', 'Mastercard', 'Elo', 'American Express'];
 
 export function useMeuPerfil() {
@@ -67,29 +65,6 @@ export function useMeuPerfil() {
   // Loading específico para cartões
   const [isCartaoLoading, setIsCartaoLoading] = useState(false);
 
-  useEffect(() => {
-    if (enderecoEditandoUuid) {
-      const end = enderecos.find((e) => e.uuid === enderecoEditandoUuid);
-      if (end) {
-        setNovoEndApelido(end.apelido || '');
-        setNovoEndTipoResidencia(end.tipoResidencia || 'Casa');
-        setNovoEndTipoLogradouro(end.tipoLogradouro || 'Rua');
-        setNovoEndLogradouro(end.logradouro || '');
-        setNovoEndNumero(end.numero || '');
-        setNovoEndComplemento(end.complemento || '');
-        setNovoEndBairro(end.bairro || '');
-        setNovoEndCep(end.cep || '');
-        setNovoEndCidade(end.cidade || '');
-        setNovoEndEstado(end.estado || '');
-        setNovoEndPais(end.pais || 'Brasil');
-        setShowNovoEndereco(true);
-      }
-    }
-  }, [enderecoEditandoUuid, enderecos]);
-
-  const [novoEndApelido, setNovoEndApelido] = useState('');
-  const [novoEndTipoResidencia, setNovoEndTipoResidencia] = useState('Casa');
-  const [novoEndTipoLogradouro, setNovoEndTipoLogradouro] = useState('Rua');
   const [novoEndLogradouro, setNovoEndLogradouro] = useState('');
   const [novoEndNumero, setNovoEndNumero] = useState('');
   const [novoEndComplemento, setNovoEndComplemento] = useState('');
@@ -97,7 +72,6 @@ export function useMeuPerfil() {
   const [novoEndCep, setNovoEndCep] = useState('');
   const [novoEndCidade, setNovoEndCidade] = useState('');
   const [novoEndEstado, setNovoEndEstado] = useState('');
-  const [novoEndPais, setNovoEndPais] = useState('Brasil');
 
   // Cartões (Form)
   const [cartaoPreferencialUuid, setCartaoPreferencialUuid] = useState<string | null>(null);
@@ -312,10 +286,14 @@ export function useMeuPerfil() {
   const handleAdicionarEndereco = async () => {
     try {
       const payload = {
-        apelido: novoEndApelido, tipoResidencia: novoEndTipoResidencia, 
-        tipoLogradouro: novoEndTipoLogradouro, logradouro: novoEndLogradouro,
-        numero: novoEndNumero, complemento: novoEndComplemento, bairro: novoEndBairro,
-        cep: novoEndCep, cidade: novoEndCidade, estado: novoEndEstado, pais: novoEndPais
+        logradouro: novoEndLogradouro,
+        numero: novoEndNumero,
+        complemento: novoEndComplemento,
+        bairro: novoEndBairro,
+        cep: novoEndCep,
+        cidade: novoEndCidade,
+        estado: novoEndEstado,
+        tipo: 'ambos' as const
       };
 
       if (enderecoEditandoUuid) {
@@ -352,9 +330,13 @@ export function useMeuPerfil() {
   const finalizarFluxoEndereco = () => {
     setShowNovoEndereco(false);
     setEnderecoEditandoUuid(null);
-    setNovoEndApelido(''); setNovoEndLogradouro(''); setNovoEndNumero('');
-    setNovoEndComplemento(''); setNovoEndBairro(''); setNovoEndCep('');
-    setNovoEndCidade(''); setNovoEndEstado('');
+    setNovoEndLogradouro('');
+    setNovoEndNumero('');
+    setNovoEndComplemento('');
+    setNovoEndBairro('');
+    setNovoEndCep('');
+    setNovoEndCidade('');
+    setNovoEndEstado('');
   };
 
   const handleRemoverEndereco = async (uuid: string) => {
@@ -418,6 +400,7 @@ export function useMeuPerfil() {
 
       const novo = await ClienteService.adicionarCartao({
         final: novoCartaoNumero.slice(-4),
+        nomeCliente: novoCartaoNome, // Adicionando nomeCliente que é obrigatório na interface
         nomeImpresso: novoCartaoNome,
         bandeira: novoCartaoBandeira,
         validade: novoCartaoValidade,
@@ -493,14 +476,27 @@ export function useMeuPerfil() {
       senhaError, senhaSuccess, handleChangePassword,
     },
     enderecoState: {
-      enderecos, showNovoEndereco, setShowNovoEndereco,
-      enderecoEditandoUuid, setEnderecoEditandoUuid,
-      novoEndApelido, setNovoEndApelido, novoEndTipoResidencia, setNovoEndTipoResidencia,
-      novoEndTipoLogradouro, setNovoEndTipoLogradouro, novoEndLogradouro, setNovoEndLogradouro,
-      novoEndNumero, setNovoEndNumero, novoEndComplemento, setNovoEndComplemento,
-      novoEndBairro, setNovoEndBairro, novoEndCep, setNovoEndCep,
-      novoEndCidade, setNovoEndCidade, novoEndEstado, setNovoEndEstado, novoEndPais, setNovoEndPais,
-      handleAdicionarEndereco, handleRemoverEndereco,
+      enderecos,
+      showNovoEndereco,
+      setShowNovoEndereco,
+      enderecoEditandoUuid,
+      setEnderecoEditandoUuid,
+      novoEndLogradouro,
+      setNovoEndLogradouro,
+      novoEndNumero,
+      setNovoEndNumero,
+      novoEndComplemento,
+      setNovoEndComplemento,
+      novoEndBairro,
+      setNovoEndBairro,
+      novoEndCep,
+      setNovoEndCep,
+      novoEndCidade,
+      setNovoEndCidade,
+      novoEndEstado,
+      setNovoEndEstado,
+      handleAdicionarEndereco,
+      handleRemoverEndereco,
     },
     cartaoState: {
       cartoes, cartaoPreferencialUuid, showNovoCartao, setShowNovoCartao,
@@ -513,7 +509,7 @@ export function useMeuPerfil() {
       isLoading: isCartaoLoading,
     },
     handleDeleteAccount, secaoAtiva, setSecaoAtiva,
-    dominios: { generosDisponiveis, tiposTelefone, tiposResidencia, tiposLogradouro, bandeirasPermitidas },
+    dominios: { generosDisponiveis, tiposTelefone, bandeirasPermitidas },
     confirmModal: { show: showConfirmModal, config: confirmModalConfig, close: () => setShowConfirmModal(false) }
   };
 }
