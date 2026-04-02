@@ -19,7 +19,8 @@ const INITIAL_FORM: IAdminFormState = {
 export function useGerenciarAdmins() {
   const dispatch = useAppDispatch();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
-  const { admins, isLoading } = useAppSelector((state) => state.admin);
+  const { admins, status } = useAppSelector((state) => state.admin);
+  const isLoading = status === 'loading';
 
   const [editingAdmin, setEditingAdmin] = useState<IAdmin | null>(null);
   const [form, setForm] = useState<IAdminFormState>(INITIAL_FORM);

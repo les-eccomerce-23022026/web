@@ -1,25 +1,41 @@
 import { Link } from 'react-router-dom';
 import styles from './Carrinho.module.css';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { removerItem, atualizarQuantidade } from '@/store/slices/carrinhoSlice';
+import {
+  removerItem,
+  atualizarQuantidade,
+  sincronizarLinhaCarrinho,
+} from '@/store/slices/carrinhoSlice';
+import { USE_MOCK } from '@/config/apiConfig';
 
 export function Carrinho() {
   const dispatch = useAppDispatch();
-  const { data, error, status } = useAppSelector(state => state.carrinho);
+  const { data, error, status } = useAppSelector((state) => state.carrinho);
+  const token = useAppSelector((state) => state.auth.token);
+  const usarCarrinhoLocal = USE_MOCK || !token;
 
   if (status === 'loading') return <p className={styles['carrinho-status-message']}>Carregando carrinho...</p>;
   if (status === 'failed' || error) return <p className={styles['carrinho-status-message']}>Erro ao carregar carrinho.</p>;
-  if (!data) return <p className={styles['carrinho-status-message']}>Carrinho vazio.</p>;
+  if (!data) return <p className={styles['carrinho-status-message']}>Carregando carrinho...</p>;
+  if (data.itens.length === 0) return <p className={styles['carrinho-status-message']}>Carrinho vazio.</p>;
 
   const handleUpdateQuantidade = (uuid: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const qtd = parseInt(event.target.value, 10);
-    if (qtd >= 1) {
+    if (!Number.isFinite(qtd) || qtd < 1) return;
+
+    if (usarCarrinhoLocal) {
       dispatch(atualizarQuantidade({ uuid, quantidade: qtd }));
+    } else {
+      void dispatch(sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: qtd }));
     }
   };
 
   const handleRemover = (uuid: string) => {
-    dispatch(removerItem(uuid));
+    if (usarCarrinhoLocal) {
+      dispatch(removerItem(uuid));
+    } else {
+      void dispatch(sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: 0 }));
+    }
   };
 
   return (
@@ -49,17 +65,17 @@ export function Carrinho() {
               </td>
               <td className={styles['carrinho-td']} data-label="Preço Unit.">R$ {item.precoUnitario.toFixed(2).replace('.', ',')}</td>
               <td className={styles['carrinho-td']} data-label="Quant.">
-                <input 
-                  type="number" 
-                  value={item.quantidade} 
-                  onChange={(e) => handleUpdateQuantidade(item.uuid, e)} 
-                  className={styles['carrinho-input-qty']} 
+                <input
+                  type="number"
+                  value={item.quantidade}
+                  onChange={(e) => handleUpdateQuantidade(item.uuid, e)}
+                  className={styles['carrinho-input-qty']}
                 />
               </td>
               <td className={styles['carrinho-td']} data-label="Subtotal">R$ {item.subtotal.toFixed(2).replace('.', ',')}</td>
               <td className={styles['carrinho-td']} data-label="Ações">
-                <button 
-                  onClick={() => handleRemover(item.uuid)} 
+                <button
+                  onClick={() => handleRemover(item.uuid)}
                   className={`btn-secondary ${styles['carrinho-btn-remove']}`}
                 >
                   Remover
@@ -79,13 +95,13 @@ export function Carrinho() {
           </div>
           <p className={styles['carrinho-frete-result']}>Frete Padrão: R$ {data.fretePadrao.valor.toFixed(2).replace('.', ',')} ({data.fretePadrao.prazo})</p>
         </div>
-        
+
         <div className={`totalizador ${styles['carrinho-totalizador']}`}>
           <p>Subtotal: R$ {data.resumo.subtotal.toFixed(2).replace('.', ',')}</p>
           <p>Frete: R$ {data.resumo.frete.toFixed(2).replace('.', ',')}</p>
           <hr className={styles['carrinho-total-separator']} />
           <h2 className={styles['carrinho-total-header']}>Total: R$ {data.resumo.total.toFixed(2).replace('.', ',')}</h2>
-          
+
           <Link to="/pagamento"><button className={`btn-primary ${styles['carrinho-btn-finalizar']}`}>Finalizar Compra</button></Link>
         </div>
       </div>

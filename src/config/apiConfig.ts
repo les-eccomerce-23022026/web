@@ -10,14 +10,15 @@ if (!USE_MOCK && !BASE_URL) {
 export const API_ENDPOINTS = {
   // Livros
   obterCarrinho: `${BASE_URL}/carrinho`,
+  sincronizarCarrinhoItem: `${BASE_URL}/carrinho/itens`,
   obterLivrosDestaque: `${BASE_URL}/livros/destaques`,
   obterListaLivrosAdmin: `${BASE_URL}/admin/livros`,
   obterCheckoutInfo: `${BASE_URL}/checkout`,
   obterDashboardAdminInfo: `${BASE_URL}/admin/dashboard`,
   obterDetalhesLivro: (uuid: string) => `${BASE_URL}/livros/${uuid}`,
 
-  // Pedidos
-  obterPedidosCliente: `${BASE_URL}/pedidos`,
+  // Pedidos (histórico do cliente — backend: GET /minhas-vendas)
+  obterPedidosCliente: `${BASE_URL}/minhas-vendas`,
   solicitarTroca: (pedidoUuid: string) =>
     `${BASE_URL}/pedidos/${pedidoUuid}/troca`,
 

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useListaLivrosAdmin } from '@/hooks/useLivros';
 import { useAppDispatch } from '@/store/hooks';
-import { alternarStatusLivro } from '@/store/slices/livroSlice';
+import { alternarStatusLivro, fetchLivrosAdmin } from '@/store/slices/livroSlice';
 import styles from './ListaLivrosAdmin.module.css';
 import { LoadingState } from '@/components/comum/LoadingState/LoadingState';
 import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
@@ -12,6 +12,10 @@ import { Modal } from '@/components/comum/Modal';
 export function ListaLivrosAdmin() {
   const { livros, loading, error } = useListaLivrosAdmin();
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchLivrosAdmin());
+  }, [dispatch]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'todos' | 'ativos' | 'inativos'>('todos');
   

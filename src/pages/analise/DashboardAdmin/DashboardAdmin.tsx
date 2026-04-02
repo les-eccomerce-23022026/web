@@ -3,21 +3,28 @@ import { Line, Doughnut } from 'react-chartjs-2';
 import { DollarSign, Percent, Users, Package, AlertTriangle, BookOpen, ShieldCheck } from 'lucide-react';
 import './DashboardAdmin.css';
 import type { ChartData } from 'chart.js';
+import { useEffect } from 'react';
 import { useDashboardAdmin } from '@/hooks/useDashboardAdmin';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchLivrosAdmin } from '@/store/slices/livroSlice';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler);
 
 export function DashboardAdmin() {
+  const dispatch = useAppDispatch();
   const optionsReceita = { responsive: true, plugins: { legend: { position: 'top' as const }, title: { display: true, text: 'Receita Anual Crescente (R$)' } } };
   const optionsStatus = { responsive: true, plugins: { legend: { position: 'right' as const }, title: { display: true, text: 'Status dos Pedidos' } } };
   const optionsCategoria = { responsive: true, plugins: { legend: { position: 'top' as const }, title: { display: true, text: 'Vendas por Categoria (Jan-Mar)' } } };
 
   const { data, loading, error } = useDashboardAdmin();
-  
+
+  useEffect(() => {
+    void dispatch(fetchLivrosAdmin());
+  }, [dispatch]);
+
   // Dados vivos do Redux para interligação real
   const totalAdmins = useAppSelector((state) => state.admin.admins.length);
-  const livros = useAppSelector((state) => state.livro.livros);
+  const livros = useAppSelector((state) => state.livro.livrosAdmin);
   const totalLivros = livros.length;
   const estoqueCriticoCount = livros.filter(l => l.estoque <= 5).length;
 

@@ -1,12 +1,63 @@
-import type { IPedido } from '@/interfaces/IPedido';
+import type { IPedido, StatusPedido } from '@/interfaces/IPedido';
 import type { ICupomTroca } from '@/interfaces/IDevolucao';
 import { API_ENDPOINTS } from '@/config/apiConfig';
 import { ApiClient } from '@/services/apiClient';
 import type { IPedidoService } from '@/services/contracts/IPedidoService';
 
+/** Formato retornado por GET /minhas-vendas (IVenda no backend). */
+interface IVendaApi {
+  id: string;
+  totalItens: number;
+  frete: number;
+  totalVenda: number;
+  status: string;
+  usuarioUuid: string;
+  itens: Array<{
+    id: string;
+    livroUuid: string;
+    quantidade: number;
+    precoUnitario: number;
+  }>;
+  criadoEm: string;
+}
+
+function mapStatusVendaParaPedido(s: string): StatusPedido {
+  const key = s.trim().toUpperCase();
+  const map: Record<string, StatusPedido> = {
+    'EM PROCESSAMENTO': 'Em Processamento',
+    APROVADA: 'Preparando',
+    REPROVADA: 'Cancelado',
+    'EM TRÂNSITO': 'Em Trânsito',
+    ENTREGUE: 'Entregue',
+    'EM TROCA': 'Em Troca',
+    'TROCA AUTORIZADA': 'Troca Autorizada',
+    CONCLUÍDA: 'Trocado',
+  };
+  return map[key] ?? 'Em Processamento';
+}
+
+function vendaApiParaPedido(v: IVendaApi): IPedido {
+  const dataIso =
+    typeof v.criadoEm === 'string' ? v.criadoEm : new Date(v.criadoEm).toISOString();
+  return {
+    uuid: v.id,
+    data: dataIso,
+    clienteUuid: v.usuarioUuid,
+    total: v.totalVenda,
+    status: mapStatusVendaParaPedido(v.status),
+    itens: v.itens.map((i) => ({
+      livroUuid: i.livroUuid,
+      quantidade: i.quantidade,
+      precoUnitario: i.precoUnitario,
+      categoria: 'Livro',
+    })),
+  };
+}
+
 export class PedidoServiceApi implements IPedidoService {
   async getPedidosByCliente(_clienteUuid: string): Promise<IPedido[]> {
-    return ApiClient.get<IPedido[]>(API_ENDPOINTS.obterPedidosCliente);
+    const raw = await ApiClient.get<IVendaApi[]>(API_ENDPOINTS.obterPedidosCliente);
+    return raw.map(vendaApiParaPedido);
   }
 
   async getAllPedidos(_statusFiltro?: string[]): Promise<IPedido[]> {

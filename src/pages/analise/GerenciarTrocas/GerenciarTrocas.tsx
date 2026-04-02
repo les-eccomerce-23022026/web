@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { usePedidosTrocaAdmin } from '@/hooks/usePedidos';
 import { useAppSelector } from '@/store/hooks';
 import { LoadingState } from '@/components/comum/LoadingState/LoadingState';
@@ -7,10 +7,16 @@ import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
 import { Modal } from '@/components/comum/Modal';
 import type { IPedido } from '@/interfaces/IPedido';
 import styles from './GerenciarTrocas.module.css';
+import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 
 export function GerenciarTrocas() {
   const { pedidos, loading, error, autorizarTroca, confirmarRecebimento } = usePedidosTrocaAdmin();
-  const livrosState = useAppSelector((state) => state.livro);
+  const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
+  const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);
+  const livrosParaTitulo = useMemo(
+    () => mergeLivrosDestaqueEAdmin(livrosDestaque, livrosAdmin),
+    [livrosDestaque, livrosAdmin],
+  );
 
   const [modalConfirmar, setModalConfirmar] = useState<IPedido | null>(null);
   const [retornarEstoque, setRetornarEstoque] = useState(true);
@@ -23,7 +29,7 @@ export function GerenciarTrocas() {
   }
 
   const getLivroTitulo = (livroUuid: string): string => {
-    const livro = livrosState.livros.find((l) => l.uuid === livroUuid);
+    const livro = livrosParaTitulo.find((l) => l.uuid === livroUuid);
     return livro?.titulo || livroUuid;
   };
 

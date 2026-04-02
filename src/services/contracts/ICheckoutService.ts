@@ -1,4 +1,10 @@
 import type { ICheckoutInfo } from '@/interfaces/ICheckout';
+import type { ICupomAplicado } from '@/interfaces/IPagamento';
+
+export interface IVendaPagamentoParcial {
+  cartaoUuid: string;
+  valor: number;
+}
 
 export interface IVendaInput {
   usuarioUuid: string;
@@ -10,6 +16,8 @@ export interface IVendaInput {
   valorTotalItens: number;
   valorFrete: number;
   valorTotal: number;
+  cuponsAplicados?: ICupomAplicado[];
+  pagamentos?: IVendaPagamentoParcial[];
 }
 
 export interface IVendaResultado {

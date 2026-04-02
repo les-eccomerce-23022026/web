@@ -1,4 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import type { RootState } from '@/store';
+import { logout } from '@/store/slices/authSlice';
 import { PedidoService } from '@/services/PedidoService';
 import { LivroService } from '@/services/LivroService';
 import type { IPedido, StatusPedido } from '@/interfaces/IPedido';
@@ -47,7 +49,7 @@ export const confirmarEntregaThunk = createAsyncThunk(
 export const darBaixaEstoqueThunk = createAsyncThunk(
   'pedido/darBaixaEstoque',
   async (pedidoUuid: string, { getState }) => {
-    const state = getState() as { pedido: { pedidos: IPedido[] } };
+    const state = getState() as RootState;
     const pedido = state.pedido.pedidos.find((p) => p.uuid === pedidoUuid);
     if (!pedido) throw new Error('Pedido não encontrado para baixa de estoque');
     await LivroService.darBaixaEstoque(pedido.itens.map((i) => ({ livroUuid: i.livroUuid, quantidade: i.quantidade })));
@@ -108,6 +110,7 @@ const pedidoSlice = createSlice({
       .addCase(fetchPedidosCliente.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.pedidos = action.payload;
+        state.error = null;
       })
       .addCase(fetchPedidosCliente.rejected, (state, action) => {
         state.status = 'failed';
@@ -116,16 +119,34 @@ const pedidoSlice = createSlice({
 
     // fetchAllPedidos
     builder
+      .addCase(fetchAllPedidos.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
       .addCase(fetchAllPedidos.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.pedidos = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchAllPedidos.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Erro ao carregar pedidos';
       });
 
     // fetchPedidosEmTroca
     builder
+      .addCase(fetchPedidosEmTroca.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
       .addCase(fetchPedidosEmTroca.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.pedidos = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchPedidosEmTroca.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Erro ao carregar trocas';
       });
 
     // solicitarTroca
@@ -166,7 +187,8 @@ const pedidoSlice = createSlice({
         const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
         if (index === -1) return;
         state.pedidos[index] = action.payload;
-      });
+      })
+      .addCase(logout, () => ({ ...initialState }));
   },
 });
 

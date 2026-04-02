@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { Package, MapPin } from 'lucide-react';
-import { useEntrega } from '@/hooks/useEntrega';
-import type { IFreteOpcao } from '@/interfaces/IEntrega';
+import type { IFreteCalculoOutput, IFreteOpcao } from '@/interfaces/IEntrega';
 import styles from './FreteCalculo.module.css';
 
+/** Estado de cálculo de frete injetado pelo pai (ex.: `useEntrega` em `useCheckout`) — uma única instância por fluxo. */
+export interface FreteCalculoEntregaApi {
+  calcularFrete: (cep: string, peso?: number, valorTotal?: number) => Promise<IFreteCalculoOutput | null>;
+  freteCalculado: IFreteCalculoOutput | null;
+  loading: boolean;
+  error: Error | null;
+  formatarCep: (cep: string) => string;
+  validarCep: (cep: string) => boolean;
+}
+
 interface FreteCalculoProps {
+  entrega: FreteCalculoEntregaApi;
   onFreteSelecionado: (frete: IFreteOpcao) => void;
   freteSelecionado?: IFreteOpcao | null;
   pesoTotal?: number;
@@ -12,20 +22,14 @@ interface FreteCalculoProps {
 }
 
 export function FreteCalculo({
+  entrega,
   onFreteSelecionado,
   freteSelecionado,
   pesoTotal,
-  valorTotal
+  valorTotal,
 }: FreteCalculoProps) {
   const [cep, setCep] = useState('');
-  const { 
-    calcularFrete, 
-    freteCalculado, 
-    loading, 
-    error,
-    formatarCep: formatar,
-    validarCep: validar
-  } = useEntrega();
+  const { calcularFrete, freteCalculado, loading, error, formatarCep: formatar, validarCep: validar } = entrega;
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
@@ -48,7 +52,7 @@ export function FreteCalculo({
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleCalcular();
+      void handleCalcular();
     }
   };
 
@@ -81,7 +85,7 @@ export function FreteCalculo({
           <button
             type="button"
             className="btn-secondary"
-            onClick={handleCalcular}
+            onClick={() => void handleCalcular()}
             disabled={loading}
             data-cy="checkout-freight-calculate-button"
           >
@@ -100,7 +104,7 @@ export function FreteCalculo({
       {freteCalculado && (
         <div className={styles['opcoes-frete']} data-cy="checkout-freight-options">
           <p className={styles['opcoes-titulo']}>Opções de frete disponíveis:</p>
-          
+
           {freteCalculado.opcoes.map((opcao) => (
             <div
               key={opcao.uuid}
@@ -112,11 +116,11 @@ export function FreteCalculo({
                 <div className={styles['opcao-tipo']}>
                   <span className={styles['tipo-badge']}>{opcao.tipo}</span>
                 </div>
-                
+
                 <div className={styles['opcao-info']}>
                   <p className={styles['prazo']}>{opcao.prazo}</p>
                 </div>
-                
+
                 <div className={styles['opcao-valor']}>
                   {opcao.valor === 0 ? (
                     <span className={styles['gratis']}>Grátis</span>
@@ -125,7 +129,7 @@ export function FreteCalculo({
                   )}
                 </div>
               </div>
-              
+
               <div className={styles['opcao-selecao']}>
                 <input
                   type="radio"

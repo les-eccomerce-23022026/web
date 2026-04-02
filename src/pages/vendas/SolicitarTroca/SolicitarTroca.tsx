@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { solicitarTrocaThunk } from '@/store/slices/pedidoSlice';
@@ -6,6 +6,7 @@ import { LoadingState } from '@/components/comum/LoadingState/LoadingState';
 import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
 import type { IItemPedido } from '@/interfaces/IPedido';
 import styles from './SolicitarTroca.module.css';
+import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 
 export function SolicitarTroca() {
   const { uuid } = useParams<{ uuid: string }>();
@@ -13,7 +14,12 @@ export function SolicitarTroca() {
   const dispatch = useAppDispatch();
 
   const { pedidos } = useAppSelector((state) => state.pedido);
-  const livrosState = useAppSelector((state) => state.livro);
+  const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
+  const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);
+  const livrosParaTitulo = useMemo(
+    () => mergeLivrosDestaqueEAdmin(livrosDestaque, livrosAdmin),
+    [livrosDestaque, livrosAdmin],
+  );
 
   const [itensSelecionados, setItensSelecionados] = useState<string[]>([]);
   const [motivo, setMotivo] = useState('');
@@ -29,7 +35,7 @@ export function SolicitarTroca() {
   }
 
   const getLivroTitulo = (livroUuid: string): string => {
-    const livro = livrosState.livros.find((l) => l.uuid === livroUuid);
+    const livro = livrosParaTitulo.find((l) => l.uuid === livroUuid);
     return livro?.titulo || livroUuid;
   };
 

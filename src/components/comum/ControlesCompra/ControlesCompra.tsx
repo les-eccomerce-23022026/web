@@ -2,7 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Plus, Minus } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { adicionarItem, removerItem, atualizarQuantidade } from '@/store/slices/carrinhoSlice';
+import {
+  adicionarItem,
+  removerItem,
+  atualizarQuantidade,
+  sincronizarLinhaCarrinho,
+} from '@/store/slices/carrinhoSlice';
+import { USE_MOCK } from '@/config/apiConfig';
 import type { ILivro } from '@/interfaces/ILivro';
 import './ControlesCompra.css';
 
@@ -13,32 +19,43 @@ interface ControlesCompraProps {
   onAction?: (e: React.MouseEvent) => void;
 }
 
-export const ControlesCompra: React.FC<ControlesCompraProps> = ({ 
-  livro, 
-  variant = 'card', 
+export const ControlesCompra: React.FC<ControlesCompraProps> = ({
+  livro,
+  variant = 'card',
   className = '',
-  onAction 
+  onAction,
 }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const carrinho = useAppSelector((state) => state.carrinho.data);
+  const token = useAppSelector((state) => state.auth.token);
 
-  const itemNoCarrinho = carrinho?.itens.find(i => i.uuid === livro.uuid);
+  const itemNoCarrinho = carrinho?.itens.find((i) => i.uuid === livro.uuid);
   const quantidade = itemNoCarrinho ? itemNoCarrinho.quantidade : 0;
+
+  const usarCarrinhoLocal = USE_MOCK || !token;
 
   const handleAdicionarAoCarrinho = (e: React.MouseEvent, redirect: boolean = false) => {
     e.stopPropagation();
     if (onAction) onAction(e);
 
-    dispatch(adicionarItem({
-      uuid: livro.uuid,
-      imagem: livro.imagem || '',
-      titulo: livro.titulo,
-      isbn: livro.isbn || '',
-      precoUnitario: livro.preco,
-      quantidade: 1,
-      subtotal: livro.preco,
-    }));
+    const novaQtd = quantidade + 1;
+
+    if (usarCarrinhoLocal) {
+      dispatch(
+        adicionarItem({
+          uuid: livro.uuid,
+          imagem: livro.imagem || '',
+          titulo: livro.titulo,
+          isbn: livro.isbn || '',
+          precoUnitario: livro.preco,
+          quantidade: 1,
+          subtotal: livro.preco,
+        }),
+      );
+    } else {
+      void dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: novaQtd }));
+    }
 
     if (redirect) {
       navigate('/carrinho');
@@ -50,11 +67,19 @@ export const ControlesCompra: React.FC<ControlesCompraProps> = ({
     if (onAction) onAction(e);
 
     if (novaQuantidade <= 0) {
-      dispatch(removerItem(livro.uuid));
+      if (usarCarrinhoLocal) {
+        dispatch(removerItem(livro.uuid));
+      } else {
+        void dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: 0 }));
+      }
       return;
     }
 
-    dispatch(atualizarQuantidade({ uuid: livro.uuid, quantidade: novaQuantidade }));
+    if (usarCarrinhoLocal) {
+      dispatch(atualizarQuantidade({ uuid: livro.uuid, quantidade: novaQuantidade }));
+    } else {
+      void dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: novaQuantidade }));
+    }
   };
 
   return (

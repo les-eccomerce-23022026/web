@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@/store/hooks';
 import { usePedidos } from '@/hooks/usePedidos';
@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/comum/EmptyState/EmptyState';
 import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
 import type { StatusPedido, IPedido } from '@/interfaces/IPedido';
 import styles from './MeusPedidos.module.css';
+import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 
 const TABS: { label: string; status: StatusPedido | 'Todos' }[] = [
   { label: 'Todos', status: 'Todos' },
@@ -44,7 +45,12 @@ function getLivroTitulo(item: { livroUuid: string; titulo?: string }, livros: { 
 export function MeusPedidos() {
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
-  const livrosState = useAppSelector((state) => state.livro);
+  const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
+  const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);
+  const livrosParaTitulo = useMemo(
+    () => mergeLivrosDestaqueEAdmin(livrosDestaque, livrosAdmin),
+    [livrosDestaque, livrosAdmin],
+  );
   const { pedidos, loading, error, pedidosPorStatus } = usePedidos(user?.uuid);
   const [abaAtiva, setAbaAtiva] = useState<StatusPedido | 'Todos'>('Todos');
 
@@ -94,7 +100,7 @@ export function MeusPedidos() {
               {pedido.itens.map((item) => (
                 <div key={item.livroUuid} className={styles.itemRow}>
                   <span className={styles.itemTitulo}>
-                    {getLivroTitulo(item, livrosState.livros)}
+                    {getLivroTitulo(item, livrosParaTitulo)}
                   </span>
                   <span className={styles.itemQtd}>Qtd: {item.quantidade}</span>
                   <span className={styles.itemPreco}>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   fetchAllPedidos,
@@ -7,6 +7,7 @@ import {
   darBaixaEstoqueThunk,
 } from '@/store/slices/pedidoSlice';
 import type { IPedido, StatusPedido } from '@/interfaces/IPedido';
+import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 
 const STATUS_APROVADOS: StatusPedido[] = ['Em Processamento'];
 const STATUS_TRANSITO: StatusPedido[] = ['Em Trânsito'];
@@ -15,7 +16,12 @@ const STATUS_GERENCIAVEIS: StatusPedido[] = ['Em Processamento', 'Em Trânsito']
 export function useGerenciarPedidos() {
   const dispatch = useAppDispatch();
   const { pedidos, status, error } = useAppSelector((state) => state.pedido);
-  const livros = useAppSelector((state) => state.livro.livros);
+  const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
+  const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);
+  const livros = useMemo(
+    () => mergeLivrosDestaqueEAdmin(livrosDestaque, livrosAdmin),
+    [livrosDestaque, livrosAdmin],
+  );
 
   const [filtroBusca, setFiltroBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');

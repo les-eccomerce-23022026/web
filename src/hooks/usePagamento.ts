@@ -8,8 +8,7 @@ import type {
   ICartaoSalvoPagamento,
   IProcessarPagamentoInput,
   IProcessarPagamentoResultado,
-  ICupomAplicado,
-  IFreteOpcao
+  ICupomAplicado
 } from '@/interfaces/IPagamento';
 
 /**
@@ -158,7 +157,6 @@ export function usePagamento() {
   
   const [pagamentoSelecionado, setPagamentoSelecionado] = useState<IPagamentoSelecionado | null>(null);
   const [cuponsAplicados, setCuponsAplicados] = useState<ICupomAplicado[]>([]);
-  const [freteSelecionado, setFreteSelecionado] = useState<IFreteOpcao | null>(null);
   const [pagamentosParciais, setPagamentosParciais] = useState<{ cartaoUuid: string; valor: number }[]>([]);
 
   const service = useMemo(() => new PagamentoServiceApi(), []);
@@ -221,13 +219,6 @@ export function usePagamento() {
   }, []);
   
   /**
-   * Seleciona opção de frete
-   */
-  const selecionarFrete = useCallback((frete: IFreteOpcao) => {
-    setFreteSelecionado(frete);
-  }, []);
-  
-  /**
    * Adiciona pagamento parcial com cartão
    */
   const adicionarPagamentoParcial = useCallback((cartaoUuid: string, valor: number) => {
@@ -252,18 +243,30 @@ export function usePagamento() {
    */
   const solicitarAutorizacaoFinanceiraCheckout = useCallback(async (
     vendaUuid: string,
-    valorTotal: number
+    valorTotal: number,
+    pagamentosOverride?: { cartaoUuid: string; valor: number }[],
   ): Promise<IProcessarPagamentoResultado | null> => {
     setProcessando(true);
     setError(null);
     
     try {
-      // Preparar dados de pagamento
-      const pagamentosCartao = pagamentosParciais.length > 0
-        ? pagamentosParciais
-        : pagamentoSelecionado?.tipo === 'cartao_credito'
-          ? [{ cartaoUuid: 'uuid' in (pagamentoSelecionado.cartao ?? {}) ? (pagamentoSelecionado.cartao as ICartaoSalvoPagamento)?.uuid || 'novo' : 'novo', valor: valorTotal }]
-          : [];
+      // Preparar dados de pagamento (override vem do checkout — cartão único / fluxo explícito)
+      const pagamentosCartao =
+        pagamentosOverride && pagamentosOverride.length > 0
+          ? pagamentosOverride
+          : pagamentosParciais.length > 0
+            ? pagamentosParciais
+            : pagamentoSelecionado?.tipo === 'cartao_credito'
+              ? [
+                  {
+                    cartaoUuid:
+                      'uuid' in (pagamentoSelecionado.cartao ?? {})
+                        ? (pagamentoSelecionado.cartao as ICartaoSalvoPagamento)?.uuid || 'novo'
+                        : 'novo',
+                    valor: valorTotal,
+                  },
+                ]
+              : [];
       
       const dados: IProcessarPagamentoInput = {
         vendaUuid,
@@ -295,7 +298,6 @@ export function usePagamento() {
     setInfo(null);
     setPagamentoSelecionado(null);
     setCuponsAplicados([]);
-    setFreteSelecionado(null);
     setPagamentosParciais([]);
     setError(null);
   }, []);
@@ -308,7 +310,6 @@ export function usePagamento() {
     processando,
     pagamentoSelecionado,
     cuponsAplicados,
-    freteSelecionado,
     pagamentosParciais,
     
     // Ações
@@ -316,7 +317,6 @@ export function usePagamento() {
     selecionarPagamento,
     aplicarCupom,
     removerCupom,
-    selecionarFrete,
     adicionarPagamentoParcial,
     removerPagamentoParcial,
     solicitarAutorizacaoFinanceiraCheckout,

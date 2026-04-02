@@ -1,7 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import { logout } from '@/store/slices/authSlice';
 import { ClienteService } from '@/services/ClienteService';
-import type { ICliente, IAtualizarPerfilPayload, Genero, ITelefone } from '@/interfaces/ICliente';
+import type {
+  ICliente,
+  IAtualizarPerfilPayload,
+  Genero,
+  ITelefone,
+} from '@/interfaces/ICliente';
 import type { IEnderecoCliente, ICartaoSalvoPagamento as ICartaoCliente } from '@/interfaces/IPagamento';
 
 interface ClienteState {
@@ -23,34 +29,35 @@ const initialState: ClienteState = {
 /**
  * Busca o perfil completo do cliente logado.
  */
-export const fetchPerfilCompleto = createAsyncThunk(
-  'cliente/fetchPerfil',
-  async (uuid: string, { rejectWithValue }) => {
-    try {
-      const perfil = await ClienteService.obterPerfil(uuid);
-      const cartoes = await ClienteService.listarCartoes(uuid);
-      return { perfil, cartoes };
-    } catch (error: unknown) {
-      return rejectWithValue((error as Error).message || 'Erro ao carregar perfil');
-    }
+export const fetchPerfilCompleto = createAsyncThunk<
+  { perfil: ICliente; cartoes: ICartaoCliente[] },
+  string,
+  { rejectValue: string }
+>('cliente/fetchPerfil', async (uuid, { rejectWithValue }) => {
+  try {
+    const perfil = await ClienteService.obterPerfil(uuid);
+    const cartoes = await ClienteService.listarCartoes(uuid);
+    return { perfil, cartoes };
+  } catch (error: unknown) {
+    return rejectWithValue((error as Error).message || 'Erro ao carregar perfil');
   }
-);
+});
 
 /**
  * Atualiza dados básicos do perfil.
  */
-export const updatePerfilAction = createAsyncThunk(
-  'cliente/updatePerfil',
-  async (payload: IAtualizarPerfilPayload, { rejectWithValue }) => {
-    try {
-      await ClienteService.atualizarPerfil(payload);
-      // Retornamos o que mudou para atualizar o estado local se necessário
-      return payload;
-    } catch (error: unknown) {
-      return rejectWithValue((error as Error).message || 'Erro ao atualizar perfil');
-    }
+export const updatePerfilAction = createAsyncThunk<
+  IAtualizarPerfilPayload,
+  IAtualizarPerfilPayload,
+  { rejectValue: string }
+>('cliente/updatePerfil', async (payload, { rejectWithValue }) => {
+  try {
+    await ClienteService.atualizarPerfil(payload);
+    return payload;
+  } catch (error: unknown) {
+    return rejectWithValue((error as Error).message || 'Erro ao atualizar perfil');
   }
-);
+});
 
 const clienteSlice = createSlice({
   name: 'cliente',
@@ -60,6 +67,7 @@ const clienteSlice = createSlice({
       state.perfil = null;
       state.enderecos = [];
       state.cartoes = [];
+      state.isLoading = false;
       state.error = null;
     },
     setEnderecos: (state, action: PayloadAction<IEnderecoCliente[]>) => {
@@ -83,7 +91,10 @@ const clienteSlice = createSlice({
       })
       .addCase(fetchPerfilCompleto.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as string;
+        state.error =
+          typeof action.payload === 'string'
+            ? action.payload
+            : action.error.message || 'Erro ao carregar perfil';
       })
       // Atualização de Perfil
       .addCase(updatePerfilAction.fulfilled, (state, action) => {
@@ -97,7 +108,8 @@ const clienteSlice = createSlice({
               : state.perfil.telefone
           };
         }
-      });
+      })
+      .addCase(logout, () => ({ ...initialState }));
   },
 });
 

@@ -23,6 +23,7 @@ export function Checkout() {
     removerPagamentoParcial,
     freteSelecionado,
     selecionarFrete,
+    entregaParaFreteCalculo,
   } = useCheckout();
   
   const carrinho = useAppSelector((state) => state.carrinho.data);
@@ -131,6 +132,7 @@ export function Checkout() {
           <div className={`card ${styles['checkout-card-spaced']}`}>
              <h3 className={styles['checkout-section-title']}>Frete</h3>
              <FreteCalculo
+               entrega={entregaParaFreteCalculo}
                onFreteSelecionado={selecionarFrete}
                freteSelecionado={freteSelecionado}
                pesoTotal={1}
@@ -245,7 +247,12 @@ export function Checkout() {
 
               <button
                 className={`btn-primary ${styles['checkout-btn-finish']}`}
-                onClick={handleFinalizarCompra}
+                onClick={() =>
+                  void handleFinalizarCompra({
+                    cartaoSalvoUuid: cartaoSelecionado,
+                    novoCartao: novoCartao ?? undefined,
+                  })
+                }
                 disabled={finalizando || !enderecoSelecionado || !freteSelecionado || !temFormaPagamento}
                 data-cy="checkout-finish-button"
               >

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginSuccess, setAuthError } from '@/store/slices/authSlice';
+import { fetchCarrinho } from '@/store/slices/carrinhoSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { AuthService } from '@/services/AuthService';
 import { ClienteService } from '@/services/ClienteService';
@@ -77,6 +78,7 @@ export function useLoginArea() {
     try {
       const data = await AuthService.login({ email: email.trim(), senha });
       dispatch(loginSuccess({ token: data.token, user: data.user }));
+      void dispatch(fetchCarrinho());
 
       if (data.user.role === 'admin') {
         navigate('/admin');

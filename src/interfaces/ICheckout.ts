@@ -21,6 +21,7 @@ export interface ICartaoSalvo {
   nomeImpresso: string;
   bandeira: string;
   validade: string;
+  principal?: boolean;
 }
 
 export interface IResumoPedidoCheckout {

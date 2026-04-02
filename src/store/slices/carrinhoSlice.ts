@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { CarrinhoService } from '@/services/CarrinhoService';
 import type { ICarrinho, IItemCarrinho } from '@/interfaces/ICarrinho';
+import type { RootState } from '@/store';
+import { criarCarrinhoVazio } from '@/utils/carrinhoVazio';
+import { logout } from '@/store/slices/authSlice';
 
 interface CarrinhoState {
   data: ICarrinho | null;
@@ -16,64 +19,81 @@ const initialState: CarrinhoState = {
 
 export const fetchCarrinho = createAsyncThunk(
   'carrinho/fetchCarrinho',
-  async () => {
-    const response = await CarrinhoService.getCarrinho();
-    return response;
-  }
+  async (_, { getState }) => {
+    const token = (getState() as RootState).auth.token;
+    if (!token) {
+      return criarCarrinhoVazio();
+    }
+    return CarrinhoService.getCarrinho();
+  },
+);
+
+export const sincronizarLinhaCarrinho = createAsyncThunk(
+  'carrinho/sincronizarLinhaCarrinho',
+  async (payload: { livroUuid: string; quantidade: number }) => {
+    return CarrinhoService.sincronizarItem(payload);
+  },
+);
+
+export const limparCarrinhoRemoto = createAsyncThunk(
+  'carrinho/limparCarrinhoRemoto',
+  async (_, { getState }) => {
+    const token = (getState() as RootState).auth.token;
+    if (!token) {
+      return criarCarrinhoVazio();
+    }
+    return CarrinhoService.limparCarrinhoRemoto();
+  },
 );
 
 const carrinhoSlice = createSlice({
   name: 'carrinho',
   initialState,
   reducers: {
-    // Adicionar ao carrinho
     adicionarItem: (state, action: PayloadAction<IItemCarrinho>) => {
       if (!state.data) return;
 
-      const existe = state.data.itens.find(i => i.uuid === action.payload.uuid);
+      const existe = state.data.itens.find((i) => i.uuid === action.payload.uuid);
       if (existe) {
         existe.quantidade += action.payload.quantidade;
         existe.subtotal = existe.quantidade * existe.precoUnitario;
-        
-        // Recalcular resumo base (Shared logic after either modification)
+
         const subtotal = state.data.itens.reduce((acc, item) => acc + item.subtotal, 0);
         state.data.resumo.subtotal = subtotal;
+        state.data.resumo.frete = state.data.itens.length ? state.data.fretePadrao.valor : 0;
         state.data.resumo.total = subtotal + state.data.resumo.frete;
         return;
       }
-      
+
       state.data.itens.push(action.payload);
-      
-      // Recalcular resumo base
+
       const subtotal = state.data.itens.reduce((acc, item) => acc + item.subtotal, 0);
       state.data.resumo.subtotal = subtotal;
+      state.data.resumo.frete = state.data.itens.length ? state.data.fretePadrao.valor : 0;
       state.data.resumo.total = subtotal + state.data.resumo.frete;
     },
-    // Remover do carrinho
     removerItem: (state, action: PayloadAction<string>) => {
       if (state.data) {
-        state.data.itens = state.data.itens.filter(i => i.uuid !== action.payload);
-        // Recalcular resumo base
+        state.data.itens = state.data.itens.filter((i) => i.uuid !== action.payload);
         const subtotal = state.data.itens.reduce((acc, item) => acc + item.subtotal, 0);
         state.data.resumo.subtotal = subtotal;
+        state.data.resumo.frete = state.data.itens.length ? state.data.fretePadrao.valor : 0;
         state.data.resumo.total = subtotal + state.data.resumo.frete;
       }
     },
-    // Atualizar quantidade
     atualizarQuantidade: (state, action: PayloadAction<{ uuid: string; quantidade: number }>) => {
       if (state.data) {
-        const item = state.data.itens.find(i => i.uuid === action.payload.uuid);
+        const item = state.data.itens.find((i) => i.uuid === action.payload.uuid);
         if (item && action.payload.quantidade > 0) {
           item.quantidade = action.payload.quantidade;
           item.subtotal = item.quantidade * item.precoUnitario;
-          // Recalcular resumo base
-          const subtotal = state.data.itens.reduce((acc, item) => acc + item.subtotal, 0);
+          const subtotal = state.data.itens.reduce((acc, i) => acc + i.subtotal, 0);
           state.data.resumo.subtotal = subtotal;
+          state.data.resumo.frete = state.data.itens.length ? state.data.fretePadrao.valor : 0;
           state.data.resumo.total = subtotal + state.data.resumo.frete;
         }
       }
     },
-    // Limpar carrinho após compra finalizada (RF0037)
     limparCarrinho: (state) => {
       if (state.data) {
         state.data.itens = [];
@@ -81,7 +101,7 @@ const carrinhoSlice = createSlice({
         state.data.resumo.frete = 0;
         state.data.resumo.total = 0;
       }
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -91,10 +111,28 @@ const carrinhoSlice = createSlice({
       .addCase(fetchCarrinho.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.data = action.payload;
+        state.error = null;
       })
       .addCase(fetchCarrinho.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Erro ao carregar o carrinho';
+      })
+      .addCase(sincronizarLinhaCarrinho.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.data = action.payload;
+        state.error = null;
+      })
+      .addCase(sincronizarLinhaCarrinho.rejected, (state, action) => {
+        state.error = action.error.message || 'Erro ao atualizar o carrinho';
+      })
+      .addCase(limparCarrinhoRemoto.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.error = null;
+      })
+      .addCase(logout, (state) => {
+        state.data = criarCarrinhoVazio();
+        state.status = 'succeeded';
+        state.error = null;
       });
   },
 });
