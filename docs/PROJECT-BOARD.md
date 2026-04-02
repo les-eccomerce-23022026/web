@@ -1,13 +1,13 @@
 # Project Board — LES Frontend React
 
-> Atualizado em: 18 de março de 2026  
+> Atualizado em: 2 de abril de 2026  
 > Status: Gestão local das atividades do projeto.
 
 ---
 
 ## Board Kanban
 
-| 📋 Todo (0)                                 | 🔄 In Progress (0)                         | ✅ Done (34)                                            |
+| 📋 Todo (0)                                 | 🔄 In Progress (0)                         | ✅ Done (35)                                            |
 | ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
 |                                             |                                            | A1 · [FRONTEND] Configurar GIT e Repositório Remoto     |
 |                                             |                                            | A2 · [FRONTEND] Configurar Redux para Auth              |
@@ -42,6 +42,7 @@
 |                                             |                                            | A31 · [FRONTEND] Estabilização de Testes e UX no Perfil |
 |                                             |                                            | A32 · [FRONTEND] Alinhamento de Documentação de Entrega |
 |                                             |                                            | A33 · [FRONTEND] Atualização de BDD e Artefatos de Governança |
+|                                             |                                            | A34 · [FRONTEND] Alinhamento checkout ↔ intenção/venda (API) |
 
 ---
 
@@ -86,3 +87,4 @@
 | A31 | FRONTEND | Estabilização de Testes e UX no Perfil | **Contexto:** Testes E2E quebravam com mudanças de CSS/Design; faltavam confirmações de segurança. **Arquivos alterados:** `MeuPerfil.tsx`, `useMeuPerfil.ts`, `ProfilePage.ts`, `perfil_*.cy.ts`. **Detalhes:** - Injeção de `data-cy` em todo o módulo de Perfil. - Refatoração para Page Object Model (POM) centralizado. - Implementação de modais de confirmação para remoção de endereço/cartão. - Confirmação por senha para alteração de dados críticos (RN0078). |
 | A32 | FRONTEND | Alinhamento de Documentação de Entrega | **Contexto:** Sincronização dos documentos oficiais com a realidade técnica após sprint de segurança e testes. **Arquivos alterados:** `ESTIMATIVAS.md`, `REGRAS-NEGOCIOS.md`, `REQUISITOS-FUNCIONAIS.md`, `REQUISITOS-NAO-FUNCIONAIS.md`. **Detalhes:** - Registro de RN0078 e RN0079. - Atualização de RFs para incluir mascaramento e feedbacks de UX. - Atualização de RNFs para BCrypt e seletores estáveis. |
 | A33 | FRONTEND | Atualização de BDD e Artefatos de Governança | **Contexto:** Garantir que as especificações de comportamento reflitam as novas regras de segurança. **Arquivos alterados:** `cenarios-felizes.md`, \`cenarios-falhas.md`, `PROJECT-BOARD.md`. **Detalhes:** - Inclusão de cenários de sucesso e falha para RN0078. - Atualização dos endpoints de PUT para PATCH nos documentos. - Sincronização final dos Boards de Projeto Backend e Frontend. |
+| A34 | FRONTEND | Alinhamento checkout ↔ intenção/venda (API) | **Contexto:** O backend expõe `POST /pagamentos/intencao-pagamento`, `PATCH /pagamentos/intencao-pagamento/:inpUuid/venda` e `vendaUuid` opcional em `POST /pagamento/processar` (resposta pode incluir `pagamentoUuid`). **Evolução:** Ajustar `PagamentoServiceApi` e o fluxo do checkout para intenção → (opcional) vínculo com venda → confirmação com `vendaUuid` quando aplicável (**RF0081**, **RN0080**). **Status:** documentação alinhada; implementação de chamadas no cliente é incremental. |
