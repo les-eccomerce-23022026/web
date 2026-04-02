@@ -3,7 +3,7 @@ import { Header } from '@/components/comum/Header/Header';
 import { Footer } from '@/components/comum/Footer/Footer';
 import './BaseLayout.css';
 
-export function BaseLayout() {
+export const BaseLayout = () => {
   return (
     <div className="base-layout">
       <Header />

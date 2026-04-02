@@ -13,8 +13,8 @@ describe('Administrador - Perfil - Troca de Senha', () => {
         headers: { 'x-use-test-db': 'true' },
         body: { email: email, senha: senhaAtual }
       }).then((response) => {
-        const { token, user: userData } = response.body.dados;
-        window.sessionStorage.setItem('les_auth_session', JSON.stringify({ token, user: userData }));
+        expect(response.status).to.eq(200);
+        expect(response.body?.dados?.user).to.exist;
       });
     });
     cy.visit('/perfil');

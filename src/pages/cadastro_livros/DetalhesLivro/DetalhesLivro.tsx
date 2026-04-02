@@ -6,7 +6,7 @@ import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
 import { CapaLivro } from '@/components/comum/CapaLivro/CapaLivro';
 import { ControlesCompra } from '@/components/comum/ControlesCompra/ControlesCompra';
 
-export function DetalhesLivro() {
+export const DetalhesLivro = () => {
   const { uuid = '' } = useParams<{ uuid: string }>();
   const { livro: data, loading, error } = useDetalhesLivro(uuid);
 

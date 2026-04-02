@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Search, User, LogOut, ShoppingCart, ShieldCheck, Package } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { logout } from "@/store/slices/authSlice";
+import { logoutSession } from "@/store/slices/authSlice";
 import { setTermoBusca } from "@/store/slices/livroSlice";
 import styles from "./Header.module.css";
 
-export function Header() {
+export const Header = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -75,7 +75,8 @@ export function Header() {
                 </Link>
                 <button 
                   className={`${styles['action-icon']} ${styles['logout-btn']}`} 
-                  onClick={() => dispatch(logout())} 
+                  type="button"
+                  onClick={() => void dispatch(logoutSession())} 
                   data-cy="header-logout-button"
                   title="Sair"
                 >

@@ -8,7 +8,8 @@ export default defineConfig({
     env: {
       /** Só injeta `x-use-test-db` no browser quando `true` (suítes que usam Postgres de teste). */
       injectTestDbHeader: false,
-      apiUrl: "http://localhost:3000/api",
+      /** Mesma origem do Vite (proxy `/api` → backend) para cookie HttpOnly. */
+      apiUrl: "http://localhost:5173/api",
       admin: {
         email: "admin@livraria.com.br",
         senha: "Admin@123"

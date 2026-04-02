@@ -21,7 +21,7 @@ export interface FormFieldProps {
  * Agrupa label + controle (children) + mensagem de erro opcional.
  * Apresentação apenas; estado e validação ficam no componente pai.
  */
-export function FormField({
+export const FormField = ({
   label,
   htmlFor,
   error,
@@ -29,7 +29,7 @@ export function FormField({
   dataCy,
   children,
   required,
-}: FormFieldProps) {
+}: FormFieldProps) => {
   const fallbackErrorId = useId();
   const errorMessageId = htmlFor ? `${htmlFor}-error` : fallbackErrorId;
 

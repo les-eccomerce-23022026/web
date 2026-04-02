@@ -79,8 +79,8 @@ describe('Cliente - Segurança e Acesso (Integração Real)', () => {
         headers: { 'x-use-test-db': 'true' },
         body: { email: testUser.email, senha: testUser.senha }
       }).then((response) => {
-        const { token, user: userData } = response.body.dados;
-        window.sessionStorage.setItem('les_auth_session', JSON.stringify({ token, user: userData }));
+        expect(response.status).to.eq(200);
+        expect(response.body?.dados?.user).to.exist;
       });
     });
 

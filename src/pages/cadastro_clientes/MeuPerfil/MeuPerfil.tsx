@@ -6,7 +6,7 @@ import type { Genero } from '@/interfaces/ICliente';
 import { Modal } from '@/components/comum/Modal/Modal';
 import { useMaskedField } from '@/hooks/useMaskedField';
 
-export function MeuPerfil() {
+export const MeuPerfil = () => {
   const {
     user,
     isLoading,

@@ -8,7 +8,7 @@ import type { IItemPedido } from '@/interfaces/IPedido';
 import styles from './SolicitarTroca.module.css';
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 
-export function SolicitarTroca() {
+export const SolicitarTroca = () => {
   const { uuid } = useParams<{ uuid: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();

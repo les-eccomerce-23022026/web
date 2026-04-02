@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
  * ProtectedRoute - Regra #1: Early Returns e OCP.
  * Protege rotas baseadas em capacidades (actions) ao invés de papéis fixos.
  */
-export function ProtectedRoute({ requireAction }: ProtectedRouteProps) {
+export const ProtectedRoute = ({ requireAction }: ProtectedRouteProps) => {
   const { isAuthenticated, sessionLoading } = useAppSelector((state) => state.auth);
   const { hasPermission } = useAuthorization();
 

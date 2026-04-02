@@ -5,7 +5,7 @@ interface LoadingStateProps {
   className?: string;
 }
 
-export function LoadingState({ message = 'Carregando...', className = '' }: LoadingStateProps) {
+export const LoadingState = ({ message = 'Carregando...', className = '' }: LoadingStateProps) => {
   return (
     <div className={`loading-state-container ${className}`} data-cy="loading-state">
       <div className="loading-state-spinner"></div>

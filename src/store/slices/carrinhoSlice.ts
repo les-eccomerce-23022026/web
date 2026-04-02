@@ -20,8 +20,8 @@ const initialState: CarrinhoState = {
 export const fetchCarrinho = createAsyncThunk(
   'carrinho/fetchCarrinho',
   async (_, { getState }) => {
-    const token = (getState() as RootState).auth.token;
-    if (!token) {
+    const { isAuthenticated } = (getState() as RootState).auth;
+    if (!isAuthenticated) {
       return criarCarrinhoVazio();
     }
     return CarrinhoService.getCarrinho();
@@ -38,8 +38,8 @@ export const sincronizarLinhaCarrinho = createAsyncThunk(
 export const limparCarrinhoRemoto = createAsyncThunk(
   'carrinho/limparCarrinhoRemoto',
   async (_, { getState }) => {
-    const token = (getState() as RootState).auth.token;
-    if (!token) {
+    const { isAuthenticated } = (getState() as RootState).auth;
+    if (!isAuthenticated) {
       return criarCarrinhoVazio();
     }
     return CarrinhoService.limparCarrinhoRemoto();

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AdminClienteService } from '@/services/AdminClienteService';
 import type { IClienteAdminItem } from '@/services/contracts/IAdminClienteService';
+import { clientePassaFiltros } from './gestaoClientesFiltro';
 
 export function useGestaoClientes() {
   const [clientes, setClientes] = useState<IClienteAdminItem[]>([]);
@@ -27,21 +28,9 @@ export function useGestaoClientes() {
     carregarClientes();
   }, []);
 
-  const clientesFiltrados = clientes.filter((c) => {
-    const busca = filtroBusca.toLowerCase();
-    const matchBusca =
-      !filtroBusca ||
-      c.nome.toLowerCase().includes(busca) ||
-      c.email.toLowerCase().includes(busca) ||
-      c.cpf.replace(/\D/g, '').includes(busca.replace(/\D/g, ''));
-
-    const matchAtivo =
-      filtroAtivo === 'todos' ||
-      (filtroAtivo === 'ativo' && c.ativo) ||
-      (filtroAtivo === 'inativo' && !c.ativo);
-
-    return matchBusca && matchAtivo;
-  });
+  const clientesFiltrados = clientes.filter((c) =>
+    clientePassaFiltros(c, filtroBusca, filtroAtivo),
+  );
 
   return {
     clientesFiltrados,

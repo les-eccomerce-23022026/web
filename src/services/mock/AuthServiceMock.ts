@@ -81,6 +81,10 @@ export class AuthServiceMock implements IAuthService {
     return delay(undefined as unknown as void, 200);
   }
 
+  async logout(): Promise<void> {
+    return delay(undefined as unknown as void, 0);
+  }
+
   async me(): Promise<ILoginResponse | null> {
     const session = getStoredSession();
     if (!session?.user) return null;

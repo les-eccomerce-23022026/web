@@ -10,7 +10,7 @@ import { ShoppingCart, AlertCircle, X, Search } from 'lucide-react';
 import { CapaLivro } from '@/components/comum/CapaLivro/CapaLivro';
 import { ControlesCompra } from '@/components/comum/ControlesCompra/ControlesCompra';
 
-export function HomeCatalogo() {
+export const HomeCatalogo = () => {
   const { destaques, loading, error } = useLivrosDestaque();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -52,7 +52,9 @@ export function HomeCatalogo() {
       <div className="catalogo-header">
         {termoBusca ? (
           <div className="search-results-info">
-            <h3>Resultados para: <span>"{termoBusca}"</span></h3>
+            <h3>
+              Resultados para: <span>&quot;{termoBusca}&quot;</span>
+            </h3>
             <button className="btn-clear-search" onClick={handleLimparBusca} title="Limpar busca">
               <X size={16} /> Limpar Filtros
             </button>
@@ -66,7 +68,7 @@ export function HomeCatalogo() {
         <EmptyState 
           title="Nenhum livro por aqui?" 
           message={termoBusca 
-            ? `Não encontramos resultados para "${termoBusca}". Tente termos mais genéricos ou verifique a ortografia.`
+            ? `Não encontramos resultados para o termo ${termoBusca}. Tente termos mais genéricos ou verifique a ortografia.`
             : "No momento não temos livros cadastrados nesta categoria. Volte em breve para novos lançamentos!"
           }
           icon={<Search size={80} strokeWidth={1} color="var(--bn-primary)" />}

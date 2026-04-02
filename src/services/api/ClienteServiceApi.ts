@@ -1,59 +1,11 @@
-import type {
-  ICliente,
-  IAtualizarPerfilPayload,
-  IAlterarSenhaPayload,
-  IRegistroClienteCompletoPayload,
-} from '@/interfaces/ICliente';
+import type { IAtualizarPerfilPayload, IAlterarSenhaPayload, IRegistroClienteCompletoPayload } from '@/interfaces/ICliente';
+import type { ICliente } from '@/interfaces/ICliente';
 import type { IEnderecoCliente, ICartaoSalvoPagamento as ICartaoCliente } from '@/interfaces/IPagamento';
 import { API_ENDPOINTS } from '@/config/apiConfig';
 import { ApiClient } from '@/services/apiClient';
 import type { IClienteService } from '@/services/contracts/IClienteService';
-
-const PERFIL_PADRAO: Omit<ICliente, 'uuid' | 'nome' | 'email' | 'cpf' | 'enderecos'> = {
-  genero: 'Prefiro não informar',
-  dataNascimento: '',
-  telefone: undefined,
-  ranking: 0,
-  ativo: true,
-  role: 'cliente',
-  enderecosEntrega: [],
-  enderecoCobranca: {
-    uuid: '',
-    logradouro: '',
-    numero: '',
-    complemento: '',
-    bairro: '',
-    cep: '',
-    cidade: '',
-    estado: '',
-    tipo: 'cobranca',
-  },
-  cartoes: [],
-  cartaoPreferencialUuid: null,
-};
-
-const normalizarPerfilCliente = (perfil: Partial<ICliente>): ICliente => {
-  const enderecos = perfil.enderecos ?? [];
-  return {
-    ...PERFIL_PADRAO,
-    ...perfil,
-    uuid: perfil.uuid ?? '',
-    nome: perfil.nome ?? '',
-    email: perfil.email ?? '',
-    cpf: perfil.cpf ?? '',
-    genero: perfil.genero ?? PERFIL_PADRAO.genero,
-    dataNascimento: perfil.dataNascimento ?? '',
-    telefone: perfil.telefone,
-    enderecos,
-    enderecosEntrega: perfil.enderecosEntrega ?? enderecos,
-    enderecoCobranca: perfil.enderecoCobranca ?? enderecos[0] ?? PERFIL_PADRAO.enderecoCobranca,
-    cartoes: perfil.cartoes ?? [],
-    cartaoPreferencialUuid: perfil.cartaoPreferencialUuid ?? null,
-    role: perfil.role ?? 'cliente',
-    ranking: perfil.ranking ?? 0,
-    ativo: perfil.ativo ?? true,
-  };
-};
+import { uuidBandeiraParaNome, validadeMmAaParaIso } from '@/services/api/clienteCartaoApiHelpers';
+import { normalizarPerfilCliente } from '@/services/api/clienteNormalizarPerfil';
 
 export class ClienteServiceApi implements IClienteService {
   async obterPerfil(_userUuid: string): Promise<ICliente> {
@@ -103,21 +55,11 @@ export class ClienteServiceApi implements IClienteService {
   }
 
   async adicionarCartao(cartao: Omit<ICartaoCliente, 'uuid'>): Promise<ICartaoCliente> {
-    const bandeirasMap: Record<string, string> = {
-      visa: 'd30d587f-8140-469d-a5fc-8e0c998c72f4',
-      mastercard: 'd6eac520-7651-4ae9-84d5-b0bbf269be2e',
-      elo: '21317eba-311d-4bb8-9054-6debff64f2da',
-      'american express': '01fd90d0-0c72-4787-8667-965b2c39f75f',
-      hipercard: '02cacd79-1ec5-44c5-9142-486cb4bc82f1',
-    };
-    const uuidBandeira = bandeirasMap[cartao.bandeira.toLowerCase()] ?? bandeirasMap.visa;
-
-    let validadeIso = cartao.validade || '';
-    if (cartao.validade && cartao.validade.includes('/')) {
-      const [mes, ano] = cartao.validade.split('/');
-      const anoCompleto = ano.length === 2 ? `20${ano}` : ano;
-      validadeIso = `${anoCompleto}-${mes.padStart(2, '0')}-01`;
-    }
+    const uuidBandeira = uuidBandeiraParaNome(cartao.bandeira);
+    const validadeIso =
+      cartao.validade && cartao.validade.includes('/')
+        ? validadeMmAaParaIso(cartao.validade) ?? cartao.validade
+        : cartao.validade || '';
 
     const payloadApi = {
       uuidBandeira,
@@ -139,24 +81,11 @@ export class ClienteServiceApi implements IClienteService {
     uuid: string,
     cartao: Partial<ICartaoCliente>,
   ): Promise<ICartaoCliente[]> {
-    const bandeirasMap: Record<string, string> = {
-      visa: 'd30d587f-8140-469d-a5fc-8e0c998c72f4',
-      mastercard: 'd6eac520-7651-4ae9-84d5-b0bbf269be2e',
-      elo: '21317eba-311d-4bb8-9054-6debff64f2da',
-      'american express': '01fd90d0-0c72-4787-8667-965b2c39f75f',
-      hipercard: '02cacd79-1ec5-44c5-9142-486cb4bc82f1',
-    };
-    
-    const uuidBandeira = cartao.bandeira 
-      ? (bandeirasMap[cartao.bandeira.toLowerCase()] ?? bandeirasMap.visa)
-      : undefined;
-
-    let validadeIso = cartao.validade;
-    if (cartao.validade && cartao.validade.includes('/')) {
-      const [mes, ano] = cartao.validade.split('/');
-      const anoCompleto = ano.length === 2 ? `20${ano}` : ano;
-      validadeIso = `${anoCompleto}-${mes.padStart(2, '0')}-01`;
-    }
+    const uuidBandeira = cartao.bandeira ? uuidBandeiraParaNome(cartao.bandeira) : undefined;
+    const validadeIso =
+      cartao.validade && cartao.validade.includes('/')
+        ? validadeMmAaParaIso(cartao.validade)
+        : cartao.validade;
 
     const payloadApi = Object.fromEntries(
       Object.entries({ uuidBandeira, nomeImpresso: cartao.nomeImpresso, validade: validadeIso }).filter(

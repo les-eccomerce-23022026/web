@@ -2,10 +2,14 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '@/store/hooks';
 import { adicionarLivro } from '@/store/slices/livroSlice';
-import type { ILivro } from '@/interfaces/ILivro';
 import './CadastrarLivroAdmin.css';
+import {
+  calcularPrecoVenda,
+  mensagemErroSalvarLivro,
+  buildNovoLivroFromForm,
+} from './cadastrarLivroValidacao';
 
-export function CadastrarLivroAdmin() {
+export const CadastrarLivroAdmin = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -23,68 +27,18 @@ export function CadastrarLivroAdmin() {
     dataEntrada: new Date().toISOString().split('T')[0], // RN0064
   });
 
-  const getMargemByGrupo = (grupo: string): number => {
-    switch (grupo) {
-      case 'Lançamento': return 0.50; // 50%
-      case 'Padrão': return 0.35;    // 35%
-      case 'Promoção': return 0.15;  // 15%
-      default: return 0;
-    }
-  };
-
-  const calcularPrecoVenda = (custoBase: string, grupo: string) => {
-    const c = parseFloat(custoBase);
-    if (isNaN(c) || !grupo) return '';
-    const margem = getMargemByGrupo(grupo);
-    return (c + (c * margem)).toFixed(2);
-  };
-
   const handleFieldChange = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
     const precoVendaCalculado = calcularPrecoVenda(form.custo, form.grupoPrecificacao);
-
-    // Validação básica de livro
-    if (!form.titulo || !form.autor || !form.isbn || !precoVendaCalculado) {
-      alert('Por favor, preencha todos os campos obrigatórios (*)');
+    const erro = mensagemErroSalvarLivro(form, precoVendaCalculado);
+    if (erro) {
+      alert(erro);
       return;
     }
-
-    // RN0051, RN0062, RN0064 — Validar dados de estoque
-    if (!form.fornecedor || !form.custo || !form.dataEntrada || !form.grupoPrecificacao) {
-      alert('Grupo de precificação, fornecedor, custo e data de entrada são obrigatórios.');
-      return;
-    }
-
-    // RN0061 — Quantidade mínima > 0 ao entrar em estoque
-    const qtdEstoque = parseInt(form.estoque, 10);
-    if (isNaN(qtdEstoque) || qtdEstoque <= 0) {
-      alert('A quantidade em estoque deve ser maior que zero (0).');
-      return;
-    }
-
-    const valorCusto = parseFloat(form.custo);
-    const valorPreco = parseFloat(precoVendaCalculado);
-    if (valorCusto >= valorPreco) {
-      alert('O valor de venda deve ser maior que o valor de custo para gerar margem de lucro.');
-      return;
-    }
-
-    const novoLivro: ILivro = {
-      uuid: `book-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      titulo: form.titulo,
-      autor: form.autor,
-      isbn: form.isbn,
-      preco: valorPreco,
-      estoque: qtdEstoque,
-      sinopse: form.sinopse,
-      status: 'Ativo',
-      categoria: form.categoria || 'Geral',
-      imagem: 'https://via.placeholder.com/400x600?text=Capa+Indisponivel'
-    };
-
+    const novoLivro = buildNovoLivroFromForm(form, precoVendaCalculado);
     dispatch(adicionarLivro(novoLivro));
     navigate('/admin/livros');
   };

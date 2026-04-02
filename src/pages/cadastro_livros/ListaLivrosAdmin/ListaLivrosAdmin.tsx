@@ -8,8 +8,9 @@ import { LoadingState } from '@/components/comum/LoadingState/LoadingState';
 import { ErrorState } from '@/components/comum/ErrorState/ErrorState';
 import { EmptyState } from '@/components/comum/EmptyState/EmptyState';
 import { Modal } from '@/components/comum/Modal';
+import { livroPassaFiltrosLista } from './listaLivrosFiltros';
 
-export function ListaLivrosAdmin() {
+export const ListaLivrosAdmin = () => {
   const { livros, loading, error } = useListaLivrosAdmin();
   const dispatch = useAppDispatch();
 
@@ -57,21 +58,9 @@ export function ListaLivrosAdmin() {
     setLivroPendenteStatus(null);
   };
 
-  const filteredLivros = livros.filter(livro => {
-    const term = searchTerm.toLowerCase();
-    const matchesSearch = 
-      livro.titulo.toLowerCase().includes(term) ||
-      livro.autor.toLowerCase().includes(term) ||
-      livro.isbn.toLowerCase().includes(term) ||
-      livro.sinopse?.toLowerCase().includes(term);
-
-    const matchesStatus = 
-      statusFilter === 'todos' ||
-      (statusFilter === 'ativos' && livro.status === 'Ativo') ||
-      (statusFilter === 'inativos' && livro.status === 'Inativo');
-
-    return matchesSearch && matchesStatus;
-  });
+  const filteredLivros = livros.filter((livro) =>
+    livroPassaFiltrosLista(livro, searchTerm, statusFilter),
+  );
 
   return (
     <div className={styles.pageContent}>

@@ -39,6 +39,7 @@ export class PagamentoServiceMock implements IPagamentoService {
         codigo: string;
         tipo: 'promocional' | 'troca';
         valor: number;
+        descricao?: string;
       }>;
       bandeirasPermitidas: string[];
       freteOpcoes: Array<{
@@ -63,7 +64,7 @@ export class PagamentoServiceMock implements IPagamentoService {
       })),
       cuponsDisponiveis: mockData.cuponsDisponiveis.map(cupom => ({
         ...cupom,
-        descricao: (cupom as any).descricao || 'Cupom de desconto',
+        descricao: cupom.descricao ?? 'Cupom de desconto',
         valido: true
       })),
       bandeirasPermitidas: mockData.bandeirasPermitidas,

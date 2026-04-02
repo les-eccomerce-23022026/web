@@ -10,13 +10,13 @@ interface CartoesSalvosListProps {
   onDelete?: (cartaoUuid: string) => void;
 }
 
-export function CartoesSalvosList({
+export const CartoesSalvosList = ({
   cartoes,
   selecionado,
   onSelect,
   onEdit,
   onDelete
-}: CartoesSalvosListProps) {
+}: CartoesSalvosListProps) => {
   if (cartoes.length === 0) {
     return (
       <div className={styles['sem-cartoes']}>

@@ -1,10 +1,10 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { USE_MOCK } from '@/config/apiConfig';
 
 export const SESSION_STORAGE_KEY = 'les_auth_session';
 
 interface IStoredSession {
   user: AuthUser;
-  token?: string | null;
 }
 
 export interface AuthUser {
@@ -18,6 +18,7 @@ export interface AuthUser {
 
 interface AuthState {
   isAuthenticated: boolean;
+  /** Apenas ambiente mock: prefixo mock-token (não é JWT). API real usa cookie HttpOnly. */
   token: string | null;
   user: AuthUser | null;
   authError: string | null;
@@ -30,7 +31,9 @@ const getStoredSession = (): IStoredSession | null => {
   const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw) as { user?: AuthUser; token?: unknown };
+    if (!parsed?.user) return null;
+    return { user: parsed.user };
   } catch {
     return null;
   }
@@ -40,16 +43,16 @@ const stored = getStoredSession();
 
 const initialState: AuthState = {
   isAuthenticated: !!stored,
-  token: stored?.token ?? null,
+  token: null,
   user: stored?.user ?? null,
   authError: null,
   sessionLoading: true,
 };
 
 /**
- * Restaura a sessão do usuário ao iniciar a aplicação.
- * - Mock: lê de sessionStorage (limpo ao fechar a aba; não é localStorage, U7 seguro).
- * - Real backend: chama GET /auth/me — o cookie HttpOnly é enviado automaticamente.
+ * Restaura a sessão ao iniciar.
+ * - Mock: snapshot do `user` em sessionStorage.
+ * - API real: GET /auth/me com `credentials: 'include'` (JWT em cookie HttpOnly).
  */
 export const restoreSession = createAsyncThunk(
   'auth/restoreSession',
@@ -60,7 +63,7 @@ export const restoreSession = createAsyncThunk(
     } catch {
       return rejectWithValue(null);
     }
-  }
+  },
 );
 
 const authSlice = createSlice({
@@ -80,7 +83,6 @@ const authSlice = createSlice({
 
       const storedSession: IStoredSession = {
         user: action.payload.user,
-        token: action.payload.token,
       };
 
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(storedSession));
@@ -104,6 +106,12 @@ const authSlice = createSlice({
           state.isAuthenticated = true;
           state.token = action.payload.token ?? null;
           state.user = action.payload.user;
+          if (action.payload.user) {
+            sessionStorage.setItem(
+              SESSION_STORAGE_KEY,
+              JSON.stringify({ user: action.payload.user }),
+            );
+          }
         }
         state.sessionLoading = false;
       })
@@ -118,5 +126,23 @@ const authSlice = createSlice({
 });
 
 export const { loginSuccess, logout, setAuthError } = authSlice.actions;
+
+/**
+ * Encerra sessão no servidor (limpa cookie) e no cliente (Redux + storage).
+ */
+export const logoutSession = createAsyncThunk(
+  'auth/logoutSession',
+  async (_, { dispatch }) => {
+    if (!USE_MOCK) {
+      try {
+        const { AuthService } = await import('@/services/AuthService');
+        await AuthService.logout();
+      } catch {
+        /* ignore */
+      }
+    }
+    dispatch(logout());
+  },
+);
 
 export default authSlice.reducer;

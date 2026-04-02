@@ -6,6 +6,7 @@ import {
   updateAdmin,
 }  from '@/store/slices/adminSlice';
 import { AuthService } from '@/services/AuthService';
+import { mensagemSeSalvarInvalido } from './gerenciarAdminsValidacao';
 
 const INITIAL_FORM: IAdminFormState = { 
   nome: '', 
@@ -103,27 +104,15 @@ export function useGerenciarAdmins() {
   }
 
   function triggerSaveConfirm() {
-    if (!isAuthenticated || user?.role !== 'admin') {
-      showModalFeedback('Você precisa estar autenticado para gerenciar administradores.', 'error');
+    const msg = mensagemSeSalvarInvalido({
+      isAuthenticated,
+      userRole: user?.role,
+      editingAdmin,
+      form,
+    });
+    if (msg) {
+      showModalFeedback(msg, 'error');
       return;
-    }
-
-    if (!editingAdmin) {
-      if (!form.nome || !form.cpf || !form.email) {
-        showModalFeedback('Por favor, preencha todos os campos obrigatórios.', 'error');
-        return;
-      }
-
-      if (!form.usarMesmaSenha) {
-        if (!form.senha) {
-          showModalFeedback('Por favor, defina uma senha para o administrador.', 'error');
-          return;
-        }
-        if (form.senha !== form.confirmacaoSenha) {
-          showModalFeedback('As senhas não conferem.', 'error');
-          return;
-        }
-      }
     }
 
     clearModalFeedback();

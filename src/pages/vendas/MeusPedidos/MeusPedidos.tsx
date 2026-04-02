@@ -42,7 +42,7 @@ function getLivroTitulo(item: { livroUuid: string; titulo?: string }, livros: { 
   return livro?.titulo || item.livroUuid;
 }
 
-export function MeusPedidos() {
+export const MeusPedidos = () => {
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
   const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);

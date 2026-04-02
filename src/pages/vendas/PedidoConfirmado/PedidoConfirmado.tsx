@@ -5,7 +5,7 @@ import styles from './PedidoConfirmado.module.css';
  * RF0037: Após finalização, status EM PROCESSAMENTO.
  * RN0038: Sucesso → APROVADA (simulado como EM PROCESSAMENTO até admin aprovar).
  */
-export function PedidoConfirmado() {
+export const PedidoConfirmado = () => {
   const [searchParams] = useSearchParams();
   const pedidoUuid = searchParams.get('pedido');
 

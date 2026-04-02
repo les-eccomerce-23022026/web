@@ -1,5 +1,11 @@
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+
+/** Base da API. Use `/api` (padrão) com proxy do Vite para cookie HttpOnly na mesma origem. */
+const envBase = import.meta.env.VITE_API_BASE_URL;
+export const BASE_URL =
+  envBase !== undefined && String(envBase).trim() !== ""
+    ? String(envBase).replace(/\/$/, "")
+    : "/api";
 
 if (!USE_MOCK && !BASE_URL) {
   throw new Error(
@@ -45,7 +51,8 @@ export const API_ENDPOINTS = {
 
   // Autenticação
   login: `${BASE_URL}/auth/login`,
-  /** Verifica a sessão atual e retorna o usuário autenticado (HttpOnly cookie) */
+  logout: `${BASE_URL}/auth/logout`,
+  /** GET /auth/me — cookie HttpOnly ou Bearer (testes); devolve o usuário autenticado. */
   me: `${BASE_URL}/auth/me`,
   registrarCliente: `${BASE_URL}/clientes/registro`,
   

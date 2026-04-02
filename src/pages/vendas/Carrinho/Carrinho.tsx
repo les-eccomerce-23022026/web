@@ -8,11 +8,11 @@ import {
 } from '@/store/slices/carrinhoSlice';
 import { USE_MOCK } from '@/config/apiConfig';
 
-export function Carrinho() {
+export const Carrinho = () => {
   const dispatch = useAppDispatch();
   const { data, error, status } = useAppSelector((state) => state.carrinho);
-  const token = useAppSelector((state) => state.auth.token);
-  const usarCarrinhoLocal = USE_MOCK || !token;
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const usarCarrinhoLocal = USE_MOCK || !isAuthenticated;
 
   if (status === 'loading') return <p className={styles['carrinho-status-message']}>Carregando carrinho...</p>;
   if (status === 'failed' || error) return <p className={styles['carrinho-status-message']}>Erro ao carregar carrinho.</p>;

@@ -26,7 +26,7 @@ import { GerenciarPedidos } from '@/pages/analise/GerenciarPedidos/GerenciarPedi
 import { ProtectedRoute } from '@/components/comum/ProtectedRoute/ProtectedRoute';
 import { MeuPerfil } from '@/pages/cadastro_clientes/MeuPerfil/MeuPerfil';
 
-function App() {
+const App = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {

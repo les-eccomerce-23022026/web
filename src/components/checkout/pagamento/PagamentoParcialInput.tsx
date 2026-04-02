@@ -12,14 +12,14 @@ interface PagamentoParcialInputProps {
   pagamentosParciais: { cartaoUuid: string; valor: number; nomeCartao?: string }[];
 }
 
-export function PagamentoParcialInput({
+export const PagamentoParcialInput = ({
   cartoesSalvos,
   valorTotal,
   valorJaPago,
   onAdicionar,
   onRemover,
   pagamentosParciais
-}: PagamentoParcialInputProps) {
+}: PagamentoParcialInputProps) => {
   const [cartaoSelecionado, setCartaoSelecionado] = useState('');
   const [valorParcial, setValorParcial] = useState('');
   const [erro, setErro] = useState<string | null>(null);

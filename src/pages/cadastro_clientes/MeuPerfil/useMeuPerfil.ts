@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { logout } from '@/store/slices/authSlice';
+import { logoutSession } from '@/store/slices/authSlice';
 import { 
   fetchPerfilCompleto, 
   updatePerfilAction, 
@@ -275,7 +275,7 @@ export function useMeuPerfil() {
       message: 'Tem certeza?',
       onConfirm: async () => {
         await ClienteService.inativarConta();
-        dispatch(logout());
+        await dispatch(logoutSession());
         navigate('/');
       },
       variant: 'danger'

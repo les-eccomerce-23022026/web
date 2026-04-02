@@ -10,12 +10,12 @@ interface CupomInputProps {
   onRemover: (cupomUuid: string) => void;
 }
 
-export function CupomInput({
+export const CupomInput = ({
   cuponsDisponiveis = [],
   cuponsAplicados,
   onAplicar,
   onRemover
-}: CupomInputProps) {
+}: CupomInputProps) => {
   const [codigo, setCodigo] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false);

@@ -7,12 +7,12 @@ interface EmptyStateProps {
   icon?: React.ReactNode;
 }
 
-export function EmptyState({ 
+export const EmptyState = ({ 
   title = 'Nenhum resultado', 
   message = 'Não encontramos dados para exibir no momento.', 
   className = '',
   icon
-}: EmptyStateProps) {
+}: EmptyStateProps) => {
   return (
     <div className={`empty-state-container ${className}`}>
       <div className="empty-state-icon">

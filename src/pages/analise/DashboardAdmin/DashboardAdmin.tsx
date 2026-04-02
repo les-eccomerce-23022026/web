@@ -10,7 +10,7 @@ import { fetchLivrosAdmin } from '@/store/slices/livroSlice';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler);
 
-export function DashboardAdmin() {
+export const DashboardAdmin = () => {
   const dispatch = useAppDispatch();
   const optionsReceita = { responsive: true, plugins: { legend: { position: 'top' as const }, title: { display: true, text: 'Receita Anual Crescente (R$)' } } };
   const optionsStatus = { responsive: true, plugins: { legend: { position: 'right' as const }, title: { display: true, text: 'Status dos Pedidos' } } };

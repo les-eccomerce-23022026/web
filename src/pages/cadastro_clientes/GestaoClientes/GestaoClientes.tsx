@@ -13,7 +13,7 @@ function formatarDataDetalhe(isoDate: string) {
   }
 }
 
-export function GestaoClientes() {
+export const GestaoClientes = () => {
   const {
     clientesFiltrados,
     loading,

@@ -8,12 +8,12 @@ interface ErrorStateProps {
   title?: string;
 }
 
-export function ErrorState({ 
+export const ErrorState = ({ 
   title = 'Algo deu errado',
   message = 'Não foi possível carregar os dados. Tente novamente mais tarde.', 
   onRetry,
   className = '' 
-}: ErrorStateProps) {
+}: ErrorStateProps) => {
   return (
     <div className={`error-state-container ${className}`}>
       <div className="error-state-icon">

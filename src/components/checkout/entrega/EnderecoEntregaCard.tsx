@@ -10,13 +10,13 @@ interface EnderecoEntregaCardProps {
   onAdd?: () => void;
 }
 
-export function EnderecoEntregaCard({
+export const EnderecoEntregaCard = ({
   enderecos,
   selecionado,
   onSelect,
   onEdit,
   onAdd
-}: EnderecoEntregaCardProps) {
+}: EnderecoEntregaCardProps) => {
   if (enderecos.length === 0) {
     return (
       <div className={styles['sem-enderecos']}>

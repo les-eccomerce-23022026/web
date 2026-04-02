@@ -21,13 +21,13 @@ interface FreteCalculoProps {
   valorTotal?: number;
 }
 
-export function FreteCalculo({
+export const FreteCalculo = ({
   entrega,
   onFreteSelecionado,
   freteSelecionado,
   pesoTotal,
   valorTotal,
-}: FreteCalculoProps) {
+}: FreteCalculoProps) => {
   const [cep, setCep] = useState('');
   const { calcularFrete, freteCalculado, loading, error, formatarCep: formatar, validarCep: validar } = entrega;
 

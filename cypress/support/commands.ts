@@ -64,7 +64,7 @@ Cypress.Commands.add('loginCliente', () => {
 });
 
 Cypress.Commands.add('loginClienteSeed', () => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3000/api';
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   /** Mesmas credenciais do `005_seed_usuarios_teste.sql` (senha com Ç como U+00C7). */
   const email =
     (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com';
@@ -79,16 +79,11 @@ Cypress.Commands.add('loginClienteSeed', () => {
     encoding: 'utf8',
     failOnStatusCode: false,
   }).then((res) => {
-    if (res.status !== 200 || !res.body?.dados?.token) {
+    if (res.status !== 200 || !res.body?.dados?.user) {
       throw new Error(
         `Login seed falhou (${res.status}): ${JSON.stringify(res.body)} — rode o seed 005 no Postgres do backend.`,
       );
     }
-    const { token, user: userData } = res.body.dados;
-    window.sessionStorage.setItem(
-      'les_auth_session',
-      JSON.stringify({ token, user: userData }),
-    );
   });
 });
 
@@ -104,9 +99,10 @@ Cypress.Commands.add('login', (email, password) => {
 /**
  * Registra um usuário dinamicamente via API e realiza o login programático.
  * Extremamente rápido e isola o estado entre os testes usando cy.session.
+ * Sessão via cookie HttpOnly (mesma origem `apiUrl` = Vite + proxy).
  */
 Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3000/api';
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
 
   if (userType === 'cliente') {
     cy.getNewUser().then((newUser) => {
@@ -132,7 +128,7 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
             throw new Error(`Falha no registro programático: ${registroResponse.body.mensagem || 'Erro desconhecido'}`);
           }
 
-          // Passo 2: Fazer o login via API usando a conta recém-criada
+          // Passo 2: Login — cookie HttpOnly associado à origem do Vite
           cy.request({
             method: 'POST',
             url: `${apiUrl}/auth/login`,
@@ -140,17 +136,9 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
             body: { email: newUser.email, senha: newUser.senha },
             failOnStatusCode: false
           }).then((loginResponse) => {
-            if (loginResponse.status !== 200) {
-              throw new Error(`Falha no login programático (cliente): ${loginResponse.body.mensagem || 'Erro desconhecido'}`);
+            if (loginResponse.status !== 200 || !loginResponse.body?.dados?.user) {
+              throw new Error(`Falha no login programático (cliente): ${loginResponse.body?.mensagem || 'Erro desconhecido'}`);
             }
-
-            const { token, user: userData } = loginResponse.body.dados;
-            
-            // Passo 3: Persistir a sessão no frontend
-            window.sessionStorage.setItem('les_auth_session', JSON.stringify({
-              token,
-              user: userData
-            }));
           });
         });
       }, {
@@ -158,8 +146,6 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
       });
     });
   } else {
-    // Para o administrador, chamamos a rota Sandbox de Bootstrap
-    // para garantir o setup limpo via código seguro sem seeds manuais.
     const user = Cypress.env('admin') || { email: 'admin@livraria.com.br', senha: 'Admin@123' };
     
     cy.session(`session-admin`, () => {
@@ -173,7 +159,6 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
           throw new Error(`Falha no bootstrap do admin: ${bootstrapResponse.body?.mensagem || 'Erro'}`);
         }
 
-        // Após garantir o admin de testes, fazemos o login
         cy.request({
           method: 'POST',
           url: `${apiUrl}/auth/login`,
@@ -181,15 +166,9 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
           body: { email: user.email, senha: user.senha },
           failOnStatusCode: false
         }).then((response) => {
-          if (response.status !== 200) {
+          if (response.status !== 200 || !response.body?.dados?.user) {
             throw new Error(`Falha no login programático (admin): ${response.body?.mensagem || 'Erro desconhecido'}`);
           }
-
-          const { token, user: userData } = response.body.dados;
-          window.sessionStorage.setItem('les_auth_session', JSON.stringify({
-            token,
-            user: userData
-          }));
         });
       });
     }, {

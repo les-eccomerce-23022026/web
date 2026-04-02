@@ -29,7 +29,7 @@ function formatarData(iso: string) {
   return new Date(iso).toLocaleDateString('pt-BR');
 }
 
-export function GerenciarPedidos() {
+export const GerenciarPedidos = () => {
   const {
     pedidosFiltrados,
     loading,

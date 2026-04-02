@@ -9,7 +9,7 @@ import type { IPedido } from '@/interfaces/IPedido';
 import styles from './GerenciarTrocas.module.css';
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 
-export function GerenciarTrocas() {
+export const GerenciarTrocas = () => {
   const { pedidos, loading, error, autorizarTroca, confirmarRecebimento } = usePedidosTrocaAdmin();
   const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
   const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);

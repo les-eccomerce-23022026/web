@@ -1,4 +1,12 @@
-# React + TypeScript + Vite
+# React + TypeScript + Vite (LES — frontend)
+
+## Sessão e API
+
+- Por padrão `VITE_API_BASE_URL` é `/api`: o Vite faz **proxy** para `http://localhost:3000` (ver `vite.config.ts`), mantendo a **mesma origem** que o app (`localhost:5173`) para o cookie de sessão HttpOnly.
+- O cliente HTTP usa `credentials: 'include'`. O JWT **não** fica em `sessionStorage`; apenas um snapshot de `user` pode ser guardado para UX.
+- Com backend em outra origem (ex.: URL absoluta em `VITE_API_BASE_URL`), cookies exigem `SameSite=None; Secure` e HTTPS — prefira proxy ou mesmo host em produção.
+
+---
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

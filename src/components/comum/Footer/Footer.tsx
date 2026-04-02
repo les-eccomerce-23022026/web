@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import './Footer.css';
 
-export function Footer() {
+export const Footer = () => {
   return (
     <footer className="footer">
       <div className="container footer-content">

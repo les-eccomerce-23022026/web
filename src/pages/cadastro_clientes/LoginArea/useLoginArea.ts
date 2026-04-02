@@ -4,14 +4,15 @@ import { loginSuccess, setAuthError } from '@/store/slices/authSlice';
 import { fetchCarrinho } from '@/store/slices/carrinhoSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { AuthService } from '@/services/AuthService';
+import { USE_MOCK } from '@/config/apiConfig';
 import { ClienteService } from '@/services/ClienteService';
 import clientesMock from '@/mocks/clientesMock.json';
 import type { Genero, ITelefone } from '@/interfaces/ICliente';
 import type { IEnderecoCliente } from '@/interfaces/IPagamento';
-
-const REGEX_SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
-const REGEX_CPF_COM_MASCARA = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-const REGEX_CPF_SEM_MASCARA = /^\d{11}$/;
+import {
+  mensagemErroCadastroStep1,
+  mensagemErroEnderecoObrigatorio,
+} from './loginAreaValidacao';
 
 const ENDERECO_VAZIO: Omit<IEnderecoCliente, 'uuid'> = {
   logradouro: '',
@@ -77,7 +78,12 @@ export function useLoginArea() {
 
     try {
       const data = await AuthService.login({ email: email.trim(), senha });
-      dispatch(loginSuccess({ token: data.token, user: data.user }));
+      dispatch(
+        loginSuccess({
+          user: data.user,
+          token: USE_MOCK ? data.token : undefined,
+        }),
+      );
       void dispatch(fetchCarrinho());
 
       if (data.user.role === 'admin') {
@@ -91,52 +97,22 @@ export function useLoginArea() {
     }
   };
 
-  // --- Register Step 1 Validation ---
   const validateStep1 = (): boolean => {
     setRegError('');
-
-    if (!regNome.trim()) {
-      setRegError('Nome é obrigatório.');
+    const msg = mensagemErroCadastroStep1({
+      regNome,
+      regCpf,
+      regEmail,
+      regSenha,
+      regConfirmaSenha,
+      regDataNascimento,
+      regGenero,
+      regTelefone,
+    });
+    if (msg) {
+      setRegError(msg);
       return false;
     }
-
-    const cpfLimpo = regCpf.trim();
-    const isFormatOk =
-      REGEX_CPF_COM_MASCARA.test(cpfLimpo) ||
-      REGEX_CPF_SEM_MASCARA.test(cpfLimpo);
-
-    if (!isFormatOk) {
-      setRegError('CPF inválido. Use 000.000.000-00 ou apenas 11 números.');
-      return false;
-    }
-
-    if (!regEmail.trim() || !regEmail.includes('@')) {
-      setRegError('Informe um e-mail válido.');
-      return false;
-    }
-
-    if (!REGEX_SENHA_FORTE.test(regSenha)) {
-      setRegError(
-        'A senha deve conter pelo menos 8 caracteres, maiúsculas, minúsculas, números e especiais.',
-      );
-      return false;
-    }
-
-    if (regSenha !== regConfirmaSenha) {
-      setRegError('As senhas não coincidem.');
-      return false;
-    }
-
-    if (!regDataNascimento) {
-      setRegError('Data de nascimento é obrigatória.');
-      return false;
-    }
-
-    if (!regTelefone.ddd || !regTelefone.numero) {
-      setRegError('Telefone (DDD e Número) é obrigatório.');
-      return false;
-    }
-
     return true;
   };
 
@@ -150,33 +126,13 @@ export function useLoginArea() {
     setRegStep(1);
   };
 
-  // --- Register Step 2 Validation ---
   const validateEndereco = (
     endereco: Omit<IEnderecoCliente, 'uuid'>,
     label: string,
   ): boolean => {
-    if (!endereco.logradouro.trim()) {
-      setRegError(`${label}: Logradouro é obrigatório.`);
-      return false;
-    }
-    if (!endereco.numero.trim()) {
-      setRegError(`${label}: Número é obrigatório.`);
-      return false;
-    }
-    if (!endereco.bairro.trim()) {
-      setRegError(`${label}: Bairro é obrigatório.`);
-      return false;
-    }
-    if (!endereco.cep.trim()) {
-      setRegError(`${label}: CEP é obrigatório.`);
-      return false;
-    }
-    if (!endereco.cidade.trim()) {
-      setRegError(`${label}: Cidade é obrigatório.`);
-      return false;
-    }
-    if (!endereco.estado.trim()) {
-      setRegError(`${label}: Estado é obrigatório.`);
+    const msg = mensagemErroEnderecoObrigatorio(endereco, label);
+    if (msg) {
+      setRegError(msg);
       return false;
     }
     return true;

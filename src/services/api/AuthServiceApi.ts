@@ -1,5 +1,4 @@
 import type {
-  IUsuario,
   ILoginPayload,
   ILoginResponse,
   IRegistroClientePayload,
@@ -7,26 +6,8 @@ import type {
 } from '@/interfaces/IAuth';
 import type { IAdmin } from '@/interfaces/IAdmin';
 import { API_ENDPOINTS } from '@/config/apiConfig';
-import { SESSION_STORAGE_KEY } from '@/store/slices/authSlice';
 import { ApiClient } from '@/services/apiClient';
 import type { IAuthService } from '@/services/contracts/IAuthService';
-
-interface IStoredSession {
-  user: IUsuario;
-  token?: string | null;
-}
-
-const getStoredSession = (): IStoredSession | null => {
-  const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
-  if (!raw) return null;
-
-  try {
-    return JSON.parse(raw) as IStoredSession;
-  } catch {
-    sessionStorage.removeItem(SESSION_STORAGE_KEY);
-    return null;
-  }
-};
 
 export class AuthServiceApi implements IAuthService {
   async login(payload: ILoginPayload): Promise<ILoginResponse> {
@@ -35,6 +16,10 @@ export class AuthServiceApi implements IAuthService {
       token: responseData.token,
       user: responseData.user,
     };
+  }
+
+  async logout(): Promise<void> {
+    await ApiClient.post(API_ENDPOINTS.logout, {});
   }
 
   async getAdmins(): Promise<IAdmin[]> {
@@ -58,17 +43,10 @@ export class AuthServiceApi implements IAuthService {
   }
 
   /**
-   * Restaura a sessão via GET /auth/me (cookie HttpOnly enviado automaticamente).
-   * Fallback para sessionStorage caso o endpoint falhe.
+   * Restaura a sessão via GET /auth/me com cookie HttpOnly (credentials).
    */
   async me(): Promise<ILoginResponse | null> {
-    try {
-      const data = await ApiClient.get<ILoginResponse>(API_ENDPOINTS.me);
-      return data;
-    } catch {
-      const session = getStoredSession();
-      if (!session?.user) return null;
-      return { user: session.user, token: session.token ?? undefined };
-    }
+    const data = await ApiClient.get<ILoginResponse>(API_ENDPOINTS.me);
+    return data;
   }
 }
