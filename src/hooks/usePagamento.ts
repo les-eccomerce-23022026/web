@@ -113,11 +113,14 @@ export function usePagamento() {
           pagamentoSelecionado,
           valorTotal,
         );
+        const intencao = await service.registrarIntencaoPagamento(valorTotal);
         const dados: IProcessarPagamentoInput = {
           vendaUuid,
           pagamentosCartao,
           cuponsAplicados,
           valorTotal,
+          idIntencao: intencao.idIntencao,
+          segredoConfirmacao: intencao.segredoConfirmacao,
         };
         const resultado = await service.solicitarAutorizacaoFinanceiraCheckout(dados);
         if (resultado.sucesso) {

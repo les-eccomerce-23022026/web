@@ -4,7 +4,8 @@ import type {
   IPagamentoSelecionado,
   IPagamentoDetalhes,
   IProcessarPagamentoInput,
-  IProcessarPagamentoResultado
+  IProcessarPagamentoResultado,
+  IIntencaoPagamentoResultado,
 } from '@/interfaces/pagamento';
 import type { IPagamentoService } from '@/services/contracts/pagamentoService';
 
@@ -75,6 +76,14 @@ export class PagamentoServiceMock implements IPagamentoService {
     };
 
     return delay(normalizedData);
+  }
+
+  async registrarIntencaoPagamento(valorTotal: number): Promise<IIntencaoPagamentoResultado> {
+    console.log('[Mock] Intenção de pagamento:', valorTotal);
+    return delay({
+      idIntencao: `mock-intent-${crypto.randomUUID()}`,
+      segredoConfirmacao: `mock-secret-${crypto.randomUUID()}`,
+    });
   }
 
   async definirMetodoLiquidacao(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes> {

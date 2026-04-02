@@ -43,6 +43,7 @@ export const API_ENDPOINTS = {
 
   // Pagamento
   obterPagamentoInfo: `${BASE_URL}/pagamento/info`,
+  registrarIntencaoPagamento: `${BASE_URL}/pagamentos/intencao-pagamento`,
   selecionarPagamento: `${BASE_URL}/pagamentos/selecionar`,
   solicitarAutorizacaoFinanceira: (uuid: string) =>
     `${BASE_URL}/pagamentos/${uuid}/processar`,

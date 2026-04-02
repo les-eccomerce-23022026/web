@@ -1,9 +1,10 @@
-import type { 
-  IPagamentoInfo, 
-  IPagamentoSelecionado, 
+import type {
+  IPagamentoInfo,
+  IPagamentoSelecionado,
   IPagamentoDetalhes,
   IProcessarPagamentoInput,
-  IProcessarPagamentoResultado 
+  IProcessarPagamentoResultado,
+  IIntencaoPagamentoResultado,
 } from '@/interfaces/pagamento';
 import type { IPagamentoService } from '@/services/contracts/pagamentoService';
 import { API_ENDPOINTS } from '@/config/apiConfig';
@@ -20,6 +21,15 @@ export class PagamentoServiceApi implements IPagamentoService {
    */
   async obterPagamentoInfo(): Promise<IPagamentoInfo> {
     return ApiClient.get<IPagamentoInfo>(API_ENDPOINTS.obterPagamentoInfo);
+  }
+
+  /**
+   * POST /api/pagamentos/intencao-pagamento
+   */
+  async registrarIntencaoPagamento(valorTotal: number): Promise<IIntencaoPagamentoResultado> {
+    return ApiClient.post<IIntencaoPagamentoResultado>(API_ENDPOINTS.registrarIntencaoPagamento, {
+      valorTotal,
+    });
   }
 
   /**

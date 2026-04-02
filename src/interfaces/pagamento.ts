@@ -87,11 +87,19 @@ export interface IPagamentoParcial {
   valor: number;
 }
 
+/** Resposta de POST /pagamentos/intencao-pagamento — valor travado no provedor. */
+export interface IIntencaoPagamentoResultado {
+  idIntencao: string;
+  segredoConfirmacao: string;
+}
+
 export interface IProcessarPagamentoInput {
   vendaUuid: string;
   pagamentosCartao: IPagamentoParcial[];
   cuponsAplicados: ICupomAplicado[];
   valorTotal: number;
+  idIntencao: string;
+  segredoConfirmacao: string;
 }
 
 export interface IProcessarPagamentoResultado {

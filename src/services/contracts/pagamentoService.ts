@@ -1,9 +1,10 @@
-import type { 
-  IPagamentoInfo, 
-  IPagamentoSelecionado, 
+import type {
+  IPagamentoInfo,
+  IPagamentoSelecionado,
   IPagamentoDetalhes,
   IProcessarPagamentoInput,
-  IProcessarPagamentoResultado 
+  IProcessarPagamentoResultado,
+  IIntencaoPagamentoResultado,
 } from '@/interfaces/pagamento';
 
 /**
@@ -16,6 +17,11 @@ export interface IPagamentoService {
    * (endereços, cartões, cupons, opções de frete)
    */
   obterPagamentoInfo(): Promise<IPagamentoInfo>;
+
+  /**
+   * Registra intenção de pagamento no provedor (valor travado antes da confirmação).
+   */
+  registrarIntencaoPagamento(valorTotal: number): Promise<IIntencaoPagamentoResultado>;
 
   /**
    * Define método de liquidação para uma venda
