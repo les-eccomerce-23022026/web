@@ -6,15 +6,18 @@ export default defineConfig({
     baseUrl: "http://localhost:5173",
     allowCypressEnv: true, // Reativado para permitir acesso síncrono via Cypress.env() necessário para cy.session
     env: {
+      /** Só injeta `x-use-test-db` no browser quando `true` (suítes que usam Postgres de teste). */
+      injectTestDbHeader: false,
       apiUrl: "http://localhost:3000/api",
       admin: {
         email: "admin@livraria.com.br",
         senha: "Admin@123"
       },
+      /** Alinhado ao seed `005_seed_usuarios_teste.sql` (banco de testes). */
       cliente: {
-        email: "email.teste@gmail.com",
-        senha: "@asdfJKLÇ123"
-      }
+        email: "clientetest@email.com",
+        senha: "@asdfJKLÇ123",
+      },
     },
     setupNodeEvents(on, _config) {
       on('task', {

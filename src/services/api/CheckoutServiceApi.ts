@@ -9,6 +9,6 @@ export class CheckoutServiceApi implements ICheckoutService {
   }
 
   async finalizarCompra(dados: IVendaInput): Promise<IVendaResultado> {
-    return ApiClient.post('/vendas', dados);
+    return ApiClient.post<IVendaResultado>(API_ENDPOINTS.criarVenda, dados);
   }
 }

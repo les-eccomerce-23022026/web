@@ -1,8 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './Checkout.module.css';
 import { useCheckout } from '@/hooks/useCheckout';
-import { usePagamento } from '@/hooks/usePagamento';
-import { useEntrega } from '@/hooks/useEntrega';
 import { useAppSelector } from '@/store/hooks';
 import { CartaoCreditoForm, CartoesSalvosList, CupomInput, PagamentoParcialInput } from '@/components/checkout/pagamento';
 import { FreteCalculo, EnderecoEntregaCard } from '@/components/checkout/entrega';
@@ -11,26 +9,34 @@ import type { ICartaoCreditoInput } from '@/interfaces/IPagamento';
 import type { ICupomAplicado } from '@/interfaces/IPagamento';
 
 export function Checkout() {
-  const { data, loading, error, finalizando, handleFinalizarCompra } = useCheckout();
   const {
+    data,
+    loading,
+    error,
+    finalizando,
+    handleFinalizarCompra,
     cuponsAplicados,
     aplicarCupom,
     removerCupom,
     pagamentosParciais,
     adicionarPagamentoParcial,
-    removerPagamentoParcial
-  } = usePagamento();
-
-  const {
+    removerPagamentoParcial,
     freteSelecionado,
-    selecionarFrete
-  } = useEntrega();
+    selecionarFrete,
+  } = useCheckout();
   
   const carrinho = useAppSelector((state) => state.carrinho.data);
   const [mostrarNovoCartao, setMostrarNovoCartao] = useState(false);
   const [cartaoSelecionado, setCartaoSelecionado] = useState<string | null>(null);
   const [novoCartao, setNovoCartao] = useState<ICartaoCreditoInput | null>(null);
   const [enderecoSelecionado, setEnderecoSelecionado] = useState<string | null>(null);
+
+  /** API pode retornar lista vazia; o layout usa endereço mock e ainda exige seleção para habilitar o botão. */
+  useEffect(() => {
+    if (data && (!data.enderecosDisponiveis || data.enderecosDisponiveis.length === 0)) {
+      setEnderecoSelecionado((prev) => (prev ? prev : 'fallback'));
+    }
+  }, [data]);
 
   if (loading) return <p className={styles['checkout-status-message']}>Carregando dados de checkout...</p>;
   if (error) return <p className={styles['checkout-status-message']}>Erro ao carregar checkout.</p>;
@@ -54,6 +60,13 @@ export function Checkout() {
 
   const total = subtotal + frete - descontoCupons;
   const valorPagoParcialmente = pagamentosParciais.reduce((acc, p) => acc + p.valor, 0);
+
+  /** Alinhado ao handleFinalizarCompra: cupom, cartão (UI) ou pagamento parcial. */
+  const temFormaPagamento =
+    cuponsAplicados.length > 0 ||
+    pagamentosParciais.length > 0 ||
+    Boolean(cartaoSelecionado) ||
+    Boolean(novoCartao);
 
   const handleAplicarCupom = (cupom: ICupomAplicado) => {
     aplicarCupom({
@@ -233,7 +246,7 @@ export function Checkout() {
               <button
                 className={`btn-primary ${styles['checkout-btn-finish']}`}
                 onClick={handleFinalizarCompra}
-                disabled={finalizando || !enderecoSelecionado || !freteSelecionado || (total - valorPagoParcialmente <= 0 && !cartaoSelecionado && !novoCartao)}
+                disabled={finalizando || !enderecoSelecionado || !freteSelecionado || !temFormaPagamento}
                 data-cy="checkout-finish-button"
               >
                 {finalizando ? 'Processando...' : 'Concluir Pedido'}
@@ -245,7 +258,7 @@ export function Checkout() {
                 </p>
               )}
               
-              {(cartaoSelecionado || novoCartao || valorPagoParcialmente > 0) && (
+              {(temFormaPagamento) && (
                 <p className={styles['checkout-pagamento-info']}>
                   ✓ Pagamento pronto para processamento
                 </p>

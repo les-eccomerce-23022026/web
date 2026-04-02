@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "cypress:run": "cypress run",
     "cypress:run:cliente": "cypress run --spec \"cypress/e2e/user/cliente/**/*.cy.ts\"",
+    "cypress:run:fluxo-login-compra": "cypress run --spec \"cypress/e2e/fluxo/cliente-login-compra-feliz.cy.ts\"",
     "cypress:open": "cypress open"
   },
   "dependencies": {

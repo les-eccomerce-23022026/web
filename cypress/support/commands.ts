@@ -16,6 +16,8 @@ declare global {
       loginProgramatico(userType: 'admin' | 'cliente'): Chainable<void>;
       /** Sessão de cliente via API real (banco de testes) — uso em checkout e fluxos autenticados. */
       loginCliente(): Chainable<void>;
+      /** Login via API com credenciais de `Cypress.env('cliente')` (seed do banco de testes). */
+      loginClienteSeed(): Chainable<void>;
       getDataCy(value: string): Chainable<JQuery<HTMLElement>>;
       getNewUser(): Chainable<{ nome: string, cpf: string, email: string, senha: string }>;
     }
@@ -25,14 +27,32 @@ declare global {
 /**
  * Gera um usuário dinâmico para testes de registro e perfil.
  */
+/** CPFs com dígitos verificadores válidos (backend/README — cadastro de cliente). */
+const CPFS_CADASTRO_VALIDOS = [
+  '245.699.622-46',
+  '019.364.721-47',
+  '747.200.643-29',
+  '371.568.753-37',
+  '497.592.260-65',
+  '283.323.987-46',
+  '206.903.522-04',
+  '824.477.504-12',
+  '989.888.819-90',
+  '267.905.031-29',
+  '684.262.887-31',
+  '802.563.243-10',
+  '087.098.018-12',
+  '707.848.056-28',
+  '952.426.835-38',
+];
+
 Cypress.Commands.add('getNewUser', () => {
-  const n = () => Math.floor(Math.random() * 10).toString();
-  const cpf = `${n()}${n()}${n()}.${n()}${n()}${n()}.${n()}${n()}${n()}-${n()}${n()}`;
+  const cpf = CPFS_CADASTRO_VALIDOS[Math.floor(Math.random() * CPFS_CADASTRO_VALIDOS.length)];
   return cy.wrap({
     nome: 'João Silva Teste',
-    cpf: cpf,
+    cpf,
     email: `teste.${Date.now()}.${Math.floor(Math.random() * 1000)}@email.com`,
-    senha: 'StrongPass@2026'
+    senha: 'StrongPass@2026',
   });
 });
 
@@ -41,6 +61,35 @@ Cypress.Commands.add('getNewUser', () => {
  */
 Cypress.Commands.add('loginCliente', () => {
   cy.loginProgramatico('cliente');
+});
+
+Cypress.Commands.add('loginClienteSeed', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3000/api';
+  /** Mesmas credenciais do `005_seed_usuarios_teste.sql` (senha com Ç como U+00C7). */
+  const email =
+    (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com';
+  const senha =
+    (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKL\u00C7123';
+
+  cy.request({
+    method: 'POST',
+    url: `${apiUrl}/auth/login`,
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: { email, senha },
+    encoding: 'utf8',
+    failOnStatusCode: false,
+  }).then((res) => {
+    if (res.status !== 200 || !res.body?.dados?.token) {
+      throw new Error(
+        `Login seed falhou (${res.status}): ${JSON.stringify(res.body)} — rode o seed 005 no Postgres do backend.`,
+      );
+    }
+    const { token, user: userData } = res.body.dados;
+    window.sessionStorage.setItem(
+      'les_auth_session',
+      JSON.stringify({ token, user: userData }),
+    );
+  });
 });
 
 Cypress.Commands.add('login', (email, password) => {

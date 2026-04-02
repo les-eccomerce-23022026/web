@@ -31,6 +31,9 @@ export const API_ENDPOINTS = {
   // Cupons de troca
   obterCuponsCliente: `${BASE_URL}/cupons/troca`,
 
+  // Vendas (pedido — backend retorna JSON direto, sem envelope { sucesso, dados })
+  criarVenda: `${BASE_URL}/vendas`,
+
   // Pagamento
   obterPagamentoInfo: `${BASE_URL}/pagamento/info`,
   selecionarPagamento: `${BASE_URL}/pagamentos/selecionar`,

@@ -76,8 +76,15 @@ export class ApiClient {
       }
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.mensagem || `Erro na requisição: ${response.status}`);
+        const errorData = await response.json().catch(() => ({})) as {
+          mensagem?: string;
+          erro?: string;
+        };
+        const msg =
+          errorData.mensagem ||
+          errorData.erro ||
+          `Erro na requisição: ${response.status}`;
+        throw new Error(msg);
       }
 
       // Evita tentar parsear JSON em respostas vazias (204 No Content)

@@ -1,0 +1,22 @@
+{
+  "itens": [
+    {
+      "uuid": "550e8400-e29b-41d4-a716-446655440000",
+      "imagem": "/placeholder.svg",
+      "titulo": "Livro teste integração",
+      "isbn": "978-0000000000",
+      "precoUnitario": 50,
+      "quantidade": 1,
+      "subtotal": 50
+    }
+  ],
+  "fretePadrao": {
+    "valor": 15,
+    "prazo": "5 dias úteis"
+  },
+  "resumo": {
+    "subtotal": 50,
+    "frete": 15,
+    "total": 65
+  }
+}

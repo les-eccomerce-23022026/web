@@ -7,10 +7,13 @@ import { limparCarrinho } from '@/store/slices/carrinhoSlice';
 import type { ICheckoutInfo } from '@/interfaces/ICheckout';
 import type { IVendaResultado } from '@/services/contracts/ICheckoutService';
 import { usePagamento } from './usePagamento';
+import { useEntrega } from './useEntrega';
 
 /**
  * Hook atualizado para checkout com integração real de pagamento
  * Sprint 2 - User Story 3 e 4
+ *
+ * usePagamento e useEntrega ficam aqui para compartilhar estado com handleFinalizarCompra.
  */
 export function useCheckout() {
   const navigate = useNavigate();
@@ -23,7 +26,9 @@ export function useCheckout() {
   const carrinho = useAppSelector((state) => state.carrinho.data);
   const usuario = useAppSelector((state) => state.auth.user);
 
-  // Hook de pagamento
+  const { freteSelecionado, selecionarFrete } = useEntrega();
+
+  // Hook de pagamento (única instância — também usada na UI via retorno)
   const {
     cuponsAplicados,
     pagamentosParciais,
@@ -105,9 +110,9 @@ export function useCheckout() {
     setError(null);
     
     try {
-      // Calcular totais
+      // Calcular totais (frete escolhido na UI tem prioridade sobre o resumo do carrinho)
       const subtotal = carrinho.resumo.subtotal;
-      const frete = carrinho.resumo.frete;
+      const frete = freteSelecionado?.valor ?? carrinho.resumo.frete;
       
       // Calcular desconto dos cupons
       const descontoCupons = cuponsAplicados.reduce((acc, cupom) => {
@@ -168,7 +173,16 @@ export function useCheckout() {
     } finally {
       setFinalizando(false);
     }
-  }, [carrinho, usuario, cuponsAplicados, pagamentosParciais, solicitarAutorizacaoFinanceiraCheckout, dispatch, navigate]);
+  }, [
+    carrinho,
+    usuario,
+    cuponsAplicados,
+    pagamentosParciais,
+    freteSelecionado,
+    solicitarAutorizacaoFinanceiraCheckout,
+    dispatch,
+    navigate,
+  ]);
 
   return {
     data,
@@ -177,12 +191,13 @@ export function useCheckout() {
     finalizando,
     handleFinalizarCompra,
     recarregar: carregarCheckoutInfo,
-    // Expor funções de pagamento para o componente
     cuponsAplicados,
     pagamentosParciais,
     aplicarCupom,
     removerCupom,
     adicionarPagamentoParcial,
-    removerPagamentoParcial
+    removerPagamentoParcial,
+    freteSelecionado,
+    selecionarFrete,
   };
 }
