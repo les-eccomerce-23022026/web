@@ -1,12 +1,12 @@
 import { useState, useCallback, useMemo } from 'react';
-import { EntregaServiceApi } from '@/services/api/EntregaServiceApi';
+import { EntregaServiceApi } from '@/services/api/entregaServiceApi';
 import type { 
   IEntregaInputDto,
   IEntregaOutputDto,
   IFreteCalculoInput,
   IFreteCalculoOutput,
   IFreteOpcao
-} from '@/interfaces/IEntrega';
+} from '@/interfaces/entrega';
 
 /**
  * Valida CEP (deve ter 8 dígitos)

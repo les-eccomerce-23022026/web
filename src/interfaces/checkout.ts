@@ -3,7 +3,7 @@ import type {
   IFreteOpcao,
   IEnderecoCliente,
   ICupomAplicado
-} from './IPagamento';
+} from './pagamento';
 
 export interface IEnderecoEntrega {
   logradouro: string;

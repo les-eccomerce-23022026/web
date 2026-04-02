@@ -7,7 +7,7 @@ import {
   autorizarTrocaThunk,
   confirmarRecebimentoTrocaThunk,
 } from '@/store/slices/pedidoSlice';
-import type { StatusPedido } from '@/interfaces/IPedido';
+import type { StatusPedido } from '@/interfaces/pedido';
 
 export function usePedidos(clienteUuid?: string) {
   const dispatch = useAppDispatch();

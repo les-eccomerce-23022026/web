@@ -1,14 +1,14 @@
 import type { NavigateFunction } from 'react-router-dom';
 import type { AppDispatch } from '@/store';
 import type { AuthUser } from '@/store/slices/authSlice';
-import type { ICarrinho } from '@/interfaces/ICarrinho';
-import type { ICupomAplicado } from '@/interfaces/IPagamento';
-import { CheckoutService } from '@/services/CheckoutService';
+import type { ICarrinho } from '@/interfaces/carrinho';
+import type { ICupomAplicado } from '@/interfaces/pagamento';
+import { CheckoutService } from '@/services/checkoutService';
 import { limparCarrinhoAposPedido, montarPayloadVenda } from '@/utils/checkoutFinalizarPedido';
 import { totaisCheckoutComFrete, montarPagamentosEfetivosCheckout } from '@/utils/checkoutFinalizeHelpers';
 import { garantirAutorizacaoPagamentoSeNecessario } from '@/utils/checkoutFinalizarFluxo';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
-import type { IProcessarPagamentoResultado } from '@/interfaces/IPagamento';
+import type { IProcessarPagamentoResultado } from '@/interfaces/pagamento';
 
 type FreteSelecionado = { valor: number } | null | undefined;
 

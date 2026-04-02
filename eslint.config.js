@@ -56,7 +56,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/pages/cadastro_clientes/MeuPerfil/**/*.{ts,tsx}'],
+    files: ['src/pages/CadastroClientes/MeuPerfil/**/*.{ts,tsx}'],
     rules: {
       complexity: ['error', { max: 45 }],
       'max-lines': [

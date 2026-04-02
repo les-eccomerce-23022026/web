@@ -1,6 +1,6 @@
 describe('Estilo da Home do Catálogo - Fidelidade ao Protótipo', () => {
   beforeEach(() => {
-    // Acessa a página principal (HomeCatalogo)
+    // Acessa a página principal (CatalogoLivros)
     cy.visit('/');
   });
 

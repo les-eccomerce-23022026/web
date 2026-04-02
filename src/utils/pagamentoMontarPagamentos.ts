@@ -1,4 +1,4 @@
-import type { IPagamentoSelecionado, ICartaoSalvoPagamento } from '@/interfaces/IPagamento';
+import type { IPagamentoSelecionado, ICartaoSalvoPagamento } from '@/interfaces/pagamento';
 
 export type PagamentoCartaoLinha = { cartaoUuid: string; valor: number };
 

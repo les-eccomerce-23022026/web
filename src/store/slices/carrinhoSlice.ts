@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import { CarrinhoService } from '@/services/CarrinhoService';
-import type { ICarrinho, IItemCarrinho } from '@/interfaces/ICarrinho';
+import { CarrinhoService } from '@/services/carrinhoService';
+import type { ICarrinho, IItemCarrinho } from '@/interfaces/carrinho';
 import type { RootState } from '@/store';
 import { criarCarrinhoVazio } from '@/utils/carrinhoVazio';
 import { logout } from '@/store/slices/authSlice';

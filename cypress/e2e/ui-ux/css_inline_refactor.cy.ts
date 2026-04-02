@@ -61,7 +61,7 @@ describe('Refatoração de CSS Inline - TDD', () => {
     cy.get('[class*="admin-message-success"]').should('have.css', 'background-color', 'rgb(224, 255, 224)'); // #e0ffe0
   });
 
-  it('Verificar estilos em LoginArea.tsx', () => {
+  it('Verificar estilos em AutenticacaoCliente.tsx', () => {
     cy.visit('/minha-conta');
     
     // Abrir formulário de registro
@@ -109,7 +109,7 @@ describe('Refatoração de CSS Inline - TDD', () => {
     cy.url().should('eq', Cypress.config().baseUrl + '/');
   };
 
-  it('Verificar estilos em Checkout.tsx', () => {
+  it('Verificar estilos em FinalizarCompra.tsx', () => {
     loginAsClient();
     
     // Ir pro carrinho usando link do Header e então pro checkout

@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { PagamentoServiceApi } from '@/services/api/PagamentoServiceApi';
+import { PagamentoServiceApi } from '@/services/api/pagamentoServiceApi';
 import type {
   IPagamentoInfo,
   IPagamentoSelecionado,
@@ -7,7 +7,7 @@ import type {
   ICupomAplicado,
   IProcessarPagamentoInput,
   IProcessarPagamentoResultado,
-} from '@/interfaces/IPagamento';
+} from '@/interfaces/pagamento';
 import {
   validarCartao,
   detectarBandeira,

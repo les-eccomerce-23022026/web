@@ -1,5 +1,5 @@
-import type { IFiltrosListaClientes } from '@/services/contracts/IAdminClienteService';
-import type { IClienteAdminItem } from '@/services/contracts/IAdminClienteService';
+import type { IFiltrosListaClientes } from '@/services/contracts/adminClienteService';
+import type { IClienteAdminItem } from '@/services/contracts/adminClienteService';
 
 export function aplicarFiltrosListaClientes(
   lista: IClienteAdminItem[],

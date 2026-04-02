@@ -1,6 +1,6 @@
-import type { IPagamentoInfo, IEnderecoCliente, ICartaoSalvoPagamento } from '@/interfaces/IPagamento';
-import type { ICheckoutInfo, IEnderecoEntrega, ICartaoSalvo } from '@/interfaces/ICheckout';
-import type { ICarrinho } from '@/interfaces/ICarrinho';
+import type { IPagamentoInfo, IEnderecoCliente, ICartaoSalvoPagamento } from '@/interfaces/pagamento';
+import type { ICheckoutInfo, IEnderecoEntrega, ICartaoSalvo } from '@/interfaces/checkout';
+import type { ICarrinho } from '@/interfaces/carrinho';
 
 const ENDERECO_FALLBACK: IEnderecoEntrega = {
   logradouro: 'Rua Bela Vista',

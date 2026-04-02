@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { DashboardAdminService } from '@/services/DashboardAdminService';
-import type { IDashboardAdminInfo } from '@/interfaces/IDashboardAdmin';
+import { DashboardAdminService } from '@/services/dashboardAdminService';
+import type { IDashboardAdminInfo } from '@/interfaces/dashboardAdmin';
 
 export function useDashboardAdmin() {
   const [data, setData] = useState<IDashboardAdminInfo | null>(null);

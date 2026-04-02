@@ -1,4 +1,4 @@
-import type { ICartaoCreditoInput } from '@/interfaces/IPagamento';
+import type { ICartaoCreditoInput } from '@/interfaces/pagamento';
 
 export type OpcoesFinalizarCheckout = {
   cartaoSalvoUuid?: string | null;

@@ -1,4 +1,4 @@
-import type { ICartaoCreditoInput } from '@/interfaces/IPagamento';
+import type { ICartaoCreditoInput } from '@/interfaces/pagamento';
 
 /** Algoritmo de Luhn — número apenas com dígitos. */
 export function validarLuhn(numero: string): boolean {

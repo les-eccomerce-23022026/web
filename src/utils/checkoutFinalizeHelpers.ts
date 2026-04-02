@@ -1,5 +1,5 @@
-import type { ICarrinho } from '@/interfaces/ICarrinho';
-import type { ICupomAplicado } from '@/interfaces/IPagamento';
+import type { ICarrinho } from '@/interfaces/carrinho';
+import type { ICupomAplicado } from '@/interfaces/pagamento';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
 import { calcularDescontoCupons } from '@/utils/checkoutCupomTotais';
 

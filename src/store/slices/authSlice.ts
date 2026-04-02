@@ -58,7 +58,7 @@ export const restoreSession = createAsyncThunk(
   'auth/restoreSession',
   async (_, { rejectWithValue }) => {
     try {
-      const { AuthService } = await import('@/services/AuthService');
+      const { AuthService } = await import('@/services/authService');
       return await AuthService.me();
     } catch {
       return rejectWithValue(null);
@@ -135,7 +135,7 @@ export const logoutSession = createAsyncThunk(
   async (_, { dispatch }) => {
     if (!USE_MOCK) {
       try {
-        const { AuthService } = await import('@/services/AuthService');
+        const { AuthService } = await import('@/services/authService');
         await AuthService.logout();
       } catch {
         /* ignore */

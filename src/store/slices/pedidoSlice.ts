@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '@/store';
 import { logout } from '@/store/slices/authSlice';
-import { PedidoService } from '@/services/PedidoService';
-import { LivroService } from '@/services/LivroService';
-import type { IPedido, StatusPedido } from '@/interfaces/IPedido';
+import { PedidoService } from '@/services/pedidoService';
+import { LivroService } from '@/services/livroService';
+import type { IPedido, StatusPedido } from '@/interfaces/pedido';
 
 interface PedidoState {
   pedidos: IPedido[];

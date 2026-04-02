@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { LivroService } from '@/services/LivroService';
-import type { ILivro } from '@/interfaces/ILivro';
+import { LivroService } from '@/services/livroService';
+import type { ILivro } from '@/interfaces/livro';
 import { useAppSelector } from '@/store/hooks';
 
 export function useLivrosDestaque() {

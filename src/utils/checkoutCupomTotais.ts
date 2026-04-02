@@ -1,4 +1,4 @@
-import type { ICupomAplicado } from '@/interfaces/IPagamento';
+import type { ICupomAplicado } from '@/interfaces/pagamento';
 
 export function calcularDescontoCupons(subtotal: number, cupons: ICupomAplicado[]): number {
   return cupons.reduce((acc, cupom) => {

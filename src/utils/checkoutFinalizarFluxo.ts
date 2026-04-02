@@ -1,4 +1,4 @@
-import type { IProcessarPagamentoResultado } from '@/interfaces/IPagamento';
+import type { IProcessarPagamentoResultado } from '@/interfaces/pagamento';
 
 type SolicitarAutorizacao = (
   vendaUuid: string,

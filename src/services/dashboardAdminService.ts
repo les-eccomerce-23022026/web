@@ -1,0 +1,17 @@
+/**
+ * Factory de DashboardAdminService.
+ *
+ * Seleciona automaticamente a implementação correta:
+ * - VITE_USE_MOCK=true  → DashboardAdminServiceMock
+ * - VITE_USE_MOCK=false → DashboardAdminServiceApi
+ */
+import { USE_MOCK } from '@/config/apiConfig';
+import { DashboardAdminServiceMock } from '@/services/mock/dashboardAdminServiceMock';
+import { DashboardAdminServiceApi } from '@/services/api/dashboardAdminServiceApi';
+import type { IDashboardAdminService } from '@/services/contracts/dashboardAdminService';
+
+export const DashboardAdminService: IDashboardAdminService = USE_MOCK
+  ? new DashboardAdminServiceMock()
+  : new DashboardAdminServiceApi();
+
+export type { IDashboardAdminService };

@@ -5,26 +5,26 @@ import { fetchCarrinho } from './store/slices/carrinhoSlice';
 import { fetchLivros } from './store/slices/livroSlice';
 import { fetchAdmins } from './store/slices/adminSlice';
 import { restoreSession } from './store/slices/authSlice';
-import { BaseLayout } from '@/components/comum/BaseLayout/BaseLayout';
-import { AdminLayout } from '@/components/comum/AdminLayout/AdminLayout';
-import { HomeCatalogo } from '@/pages/cadastro_livros/HomeCatalogo/HomeCatalogo';
-import { DetalhesLivro } from '@/pages/cadastro_livros/DetalhesLivro/DetalhesLivro';
-import { Carrinho } from '@/pages/vendas/Carrinho/Carrinho';
-import { Checkout } from '@/pages/vendas/Checkout/Checkout';
-import { Pagamento } from '@/pages/vendas/Pagamento/Pagamento';
-import { PedidoConfirmado } from '@/pages/vendas/PedidoConfirmado/PedidoConfirmado';
-import { MeusPedidos } from '@/pages/vendas/MeusPedidos/MeusPedidos';
-import { SolicitarTroca } from '@/pages/vendas/SolicitarTroca/SolicitarTroca';
-import { LoginArea } from '@/pages/cadastro_clientes/LoginArea/LoginArea';
-import { DashboardAdmin } from '@/pages/analise/DashboardAdmin/DashboardAdmin';
-import { GerenciarAdmins } from '@/pages/analise/DashboardAdmin/GerenciarAdmins';
-import { GerenciarTrocas } from '@/pages/analise/GerenciarTrocas/GerenciarTrocas';
-import { ListaLivrosAdmin } from '@/pages/cadastro_livros/ListaLivrosAdmin/ListaLivrosAdmin';
-import { CadastrarLivroAdmin } from '@/pages/cadastro_livros/CadastrarLivroAdmin/CadastrarLivroAdmin';
-import { GestaoClientes } from '@/pages/cadastro_clientes/GestaoClientes/GestaoClientes';
-import { GerenciarPedidos } from '@/pages/analise/GerenciarPedidos/GerenciarPedidos';
-import { ProtectedRoute } from '@/components/comum/ProtectedRoute/ProtectedRoute';
-import { MeuPerfil } from '@/pages/cadastro_clientes/MeuPerfil/MeuPerfil';
+import { BaseLayout } from '@/components/Comum/BaseLayout/BaseLayout';
+import { AdminLayout } from '@/components/Comum/AdminLayout/AdminLayout';
+import { CatalogoLivros } from '@/pages/CadastroLivros/CatalogoLivros/CatalogoLivros';
+import { DetalhesLivro } from '@/pages/CadastroLivros/DetalhesLivro/DetalhesLivro';
+import { Carrinho } from '@/pages/Vendas/Carrinho/Carrinho';
+import { FinalizarCompra } from '@/pages/Vendas/FinalizarCompra/FinalizarCompra';
+import { PagamentoRedirecionaFinalizarCompra } from '@/pages/Vendas/Pagamento/Pagamento';
+import { PedidoConfirmado } from '@/pages/Vendas/PedidoConfirmado/PedidoConfirmado';
+import { MeusPedidos } from '@/pages/Vendas/MeusPedidos/MeusPedidos';
+import { SolicitarTroca } from '@/pages/Vendas/SolicitarTroca/SolicitarTroca';
+import { AutenticacaoCliente } from '@/pages/CadastroClientes/AutenticacaoCliente/AutenticacaoCliente';
+import { DashboardAdmin } from '@/pages/PainelAdmin/DashboardAdmin/DashboardAdmin';
+import { GerenciarAdmins } from '@/pages/PainelAdmin/DashboardAdmin/GerenciarAdmins';
+import { GerenciarTrocas } from '@/pages/PainelAdmin/GerenciarTrocas/GerenciarTrocas';
+import { ListaLivrosAdmin } from '@/pages/CadastroLivros/ListaLivrosAdmin/ListaLivrosAdmin';
+import { CadastrarLivroAdmin } from '@/pages/CadastroLivros/CadastrarLivroAdmin/CadastrarLivroAdmin';
+import { GestaoClientes } from '@/pages/CadastroClientes/GestaoClientes/GestaoClientes';
+import { GerenciarPedidos } from '@/pages/PainelAdmin/GerenciarPedidos/GerenciarPedidos';
+import { ProtectedRoute } from '@/components/Comum/ProtectedRoute/ProtectedRoute';
+import { MeuPerfil } from '@/pages/CadastroClientes/MeuPerfil/MeuPerfil';
 
 const App = () => {
   const dispatch = useAppDispatch();
@@ -42,14 +42,14 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<BaseLayout />}>
-          <Route index element={<HomeCatalogo />} />
+          <Route index element={<CatalogoLivros />} />
           <Route path="livro/:uuid" element={<DetalhesLivro />} />
           <Route path="carrinho" element={<Carrinho />} />
-          <Route path="minha-conta" element={<LoginArea />} />
+          <Route path="minha-conta" element={<AutenticacaoCliente />} />
 
           <Route element={<ProtectedRoute />}>
-            <Route path="checkout" element={<Checkout />} />
-            <Route path="pagamento" element={<Pagamento />} />
+            <Route path="checkout" element={<FinalizarCompra />} />
+            <Route path="pagamento" element={<PagamentoRedirecionaFinalizarCompra />} />
             <Route path="pedido-confirmado" element={<PedidoConfirmado />} />
             <Route path="perfil" element={<MeuPerfil />} />
             <Route path="pedidos" element={<MeusPedidos />} />

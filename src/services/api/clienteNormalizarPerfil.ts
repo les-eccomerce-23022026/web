@@ -1,4 +1,4 @@
-import type { ICliente } from '@/interfaces/ICliente';
+import type { ICliente } from '@/interfaces/cliente';
 
 const PERFIL_PADRAO: Omit<ICliente, 'uuid' | 'nome' | 'email' | 'cpf' | 'enderecos'> = {
   genero: 'Prefiro não informar',

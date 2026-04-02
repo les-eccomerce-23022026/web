@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { logout } from '@/store/slices/authSlice';
-import { LivroService } from '@/services/LivroService';
-import type { ILivro } from '@/interfaces/ILivro';
+import { LivroService } from '@/services/livroService';
+import type { ILivro } from '@/interfaces/livro';
 
 type LoadStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 

@@ -10,7 +10,7 @@ Quando o usuário tenta se logar ou acessar o sistema, a comunicação entre o f
 
 ### Passo A: Frontend envia Credenciais para o Backend
 
-O cliente irá inserir o e-mail (ou CPF) e a senha na tela (`LoginArea.tsx`).
+O cliente irá inserir o e-mail (ou CPF) e a senha na tela (`AutenticacaoCliente.tsx`).
 
 **JSON de Envio (Request)**
 `POST /api/auth/login`
@@ -104,7 +104,7 @@ Quando um usuário comprador finaliza o formulário público de cadastro, o Reac
 }
 ```
 
-**Observação (protótipo atual do frontend):** a tela `LoginArea` hoje envia um payload reduzido para `POST /api/clientes/registro`:
+**Observação (protótipo atual do frontend):** a tela `AutenticacaoCliente` hoje envia um payload reduzido para `POST /api/clientes/registro`:
 
 ```json
 {
