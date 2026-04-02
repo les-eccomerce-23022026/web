@@ -41,6 +41,10 @@ export const API_ENDPOINTS = {
   // Vendas (pedido — backend retorna JSON direto, sem envelope { sucesso, dados })
   criarVenda: `${BASE_URL}/vendas`,
 
+  // Frete / entrega
+  cotarFrete: `${BASE_URL}/frete/cotar`,
+  entregas: `${BASE_URL}/entregas`,
+
   // Pagamento
   obterPagamentoInfo: `${BASE_URL}/pagamento/info`,
   registrarIntencaoPagamento: `${BASE_URL}/pagamentos/intencao-pagamento`,

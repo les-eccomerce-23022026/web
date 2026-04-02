@@ -16,6 +16,8 @@ export interface IVendaInput {
   valorTotalItens: number;
   valorFrete: number;
   valorTotal: number;
+  /** UUID da cotação persistida no backend (preferencial). */
+  cotacaoUuid?: string;
   cuponsAplicados?: ICupomAplicado[];
   pagamentos?: IVendaPagamentoParcial[];
 }

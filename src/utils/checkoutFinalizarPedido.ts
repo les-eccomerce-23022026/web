@@ -5,6 +5,7 @@ import type { AuthUser } from '@/store/slices/authSlice';
 import type { ICarrinho } from '@/interfaces/carrinho';
 import type { ICupomAplicado } from '@/interfaces/pagamento';
 import type { IVendaInput } from '@/services/contracts/checkoutService';
+import type { IFreteOpcao } from '@/interfaces/entrega';
 
 export async function limparCarrinhoAposPedido(dispatch: AppDispatch): Promise<void> {
   if (USE_MOCK) {
@@ -26,6 +27,7 @@ export function montarPayloadVenda(
   total: number,
   cuponsAplicados: ICupomAplicado[],
   pagamentosEfetivos: { cartaoUuid: string; valor: number }[],
+  freteOpcaoSelecionada?: IFreteOpcao | null,
 ): IVendaInput {
   return {
     usuarioUuid: usuario.uuid,
@@ -37,6 +39,9 @@ export function montarPayloadVenda(
     valorTotalItens: subtotal,
     valorFrete: frete,
     valorTotal: total,
+    ...(freteOpcaoSelecionada?.uuid
+      ? { cotacaoUuid: freteOpcaoSelecionada.uuid }
+      : {}),
     cuponsAplicados,
     pagamentos: pagamentosEfetivos,
   };

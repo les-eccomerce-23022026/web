@@ -9,8 +9,9 @@ import { totaisCheckoutComFrete, montarPagamentosEfetivosCheckout } from '@/util
 import { garantirAutorizacaoPagamentoSeNecessario } from '@/utils/checkoutFinalizarFluxo';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
 import type { IProcessarPagamentoResultado } from '@/interfaces/pagamento';
+import type { IFreteOpcao } from '@/interfaces/entrega';
 
-type FreteSelecionado = { valor: number } | null | undefined;
+type FreteSelecionado = IFreteOpcao | null | undefined;
 
 type SolicitarAutorizacao = (
   vendaUuid: string,
@@ -66,6 +67,7 @@ export async function executarFinalizarCheckout(params: {
     total,
     cuponsAplicados,
     pagamentosEfetivos,
+    freteSelecionado ?? null,
   );
 
   const resultado = await CheckoutService.finalizarCompra(payload);
