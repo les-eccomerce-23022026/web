@@ -154,7 +154,7 @@ export function Checkout() {
              {/* Cartão selecionado ou novo cartão */}
              {cartaoSelecionado && (
                <div className={styles['cartao-selecionado-info']}>
-                 <p>✓ Cartão selecionado: {data.cartoesSalvos.find(c => c.uuid === cartaoSelecionado)?.bandeira} final {data.cartoesSalvos.find(c => c.uuid === cartaoSelecionado)?.final}</p>
+                 <p>✓ Cartão selecionado: {data.cartoesSalvos.find(c => c.uuid === cartaoSelecionado)?.bandeira} · últimos dígitos {data.cartoesSalvos.find(c => c.uuid === cartaoSelecionado)?.ultimosDigitosCartao}</p>
                </div>
              )}
 

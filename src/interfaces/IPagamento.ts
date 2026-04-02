@@ -14,7 +14,7 @@ export interface IBandeiraCartao {
 
 export interface ICartaoSalvoPagamento {
   uuid: string;
-  final: string;
+  ultimosDigitosCartao: string;
   nomeCliente: string;
   nomeImpresso: string;
   bandeira: string;

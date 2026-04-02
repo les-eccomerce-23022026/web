@@ -34,7 +34,7 @@ export function CartoesSalvosList({
           key={cartao.uuid}
           className={`${styles['cartao-item']} ${selecionado === cartao.uuid ? styles['selecionado'] : ''}`}
           onClick={() => onSelect(cartao.uuid)}
-          data-cy={`checkout-card-item-${cartao.final}`}
+          data-cy={`checkout-card-item-${cartao.ultimosDigitosCartao}`}
         >
           <div className={styles['cartao-conteudo']}>
             <div className={styles['cartao-icon']}>
@@ -44,7 +44,7 @@ export function CartoesSalvosList({
             <div className={styles['cartao-info']}>
               <div className={styles['cartao-nome']}>
                 <span className={styles['bandeira']}>{cartao.bandeira}</span>
-                <span className={styles['final']}>•••• {cartao.final}</span>
+                <span className={styles['final']}>•••• {cartao.ultimosDigitosCartao}</span>
               </div>
               <p className={styles['titular']}>{cartao.nomeCliente}</p>
             </div>
@@ -64,7 +64,7 @@ export function CartoesSalvosList({
                   e.stopPropagation();
                   onEdit(cartao.uuid);
                 }}
-                data-cy={`checkout-card-edit-${cartao.final}`}
+                data-cy={`checkout-card-edit-${cartao.ultimosDigitosCartao}`}
               >
                 Editar
               </button>
@@ -76,7 +76,7 @@ export function CartoesSalvosList({
                   e.stopPropagation();
                   onDelete(cartao.uuid);
                 }}
-                data-cy={`checkout-card-delete-${cartao.final}`}
+                data-cy={`checkout-card-delete-${cartao.ultimosDigitosCartao}`}
               >
                 Remover
               </button>

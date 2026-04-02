@@ -26,25 +26,28 @@ export class PagamentoServiceApi implements IPagamentoService {
    * Seleciona forma de pagamento para uma venda
    * POST /api/pagamentos/selecionar
    */
-  async selecionarFormaPagamento(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes> {
+  async definirMetodoLiquidacao(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes> {
     return ApiClient.post<IPagamentoDetalhes>(API_ENDPOINTS.selecionarPagamento, dados);
   }
 
   /**
-   * Processa pagamento (integra com gateway)
    * POST /api/pagamentos/:uuid/processar
    */
-  async processarPagamento(pagamentoUuid: string): Promise<IPagamentoDetalhes> {
-    const endpoint = API_ENDPOINTS.processarPagamento(pagamentoUuid);
+  async solicitarAutorizacaoFinanceira(pagamentoUuid: string): Promise<IPagamentoDetalhes> {
+    const endpoint = API_ENDPOINTS.solicitarAutorizacaoFinanceira(pagamentoUuid);
     return ApiClient.post<IPagamentoDetalhes>(endpoint, {});
   }
 
   /**
-   * Endpoint simplificado para frontend processar pagamento
    * POST /api/pagamento/processar
    */
-  async processarPagamentoFront(dados: IProcessarPagamentoInput): Promise<IProcessarPagamentoResultado> {
-    return ApiClient.post<IProcessarPagamentoResultado>(API_ENDPOINTS.processarPagamentoFront, dados);
+  async solicitarAutorizacaoFinanceiraCheckout(
+    dados: IProcessarPagamentoInput,
+  ): Promise<IProcessarPagamentoResultado> {
+    return ApiClient.post<IProcessarPagamentoResultado>(
+      API_ENDPOINTS.solicitarAutorizacaoFinanceiraCheckout,
+      dados,
+    );
   }
 
   /**

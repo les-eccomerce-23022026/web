@@ -18,19 +18,19 @@ export interface IPagamentoService {
   obterPagamentoInfo(): Promise<IPagamentoInfo>;
 
   /**
-   * Seleciona forma de pagamento para uma venda
+   * Define método de liquidação para uma venda
    */
-  selecionarFormaPagamento(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes>;
+  definirMetodoLiquidacao(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes>;
 
   /**
-   * Processa pagamento (integra com gateway)
+   * Solicita autorização financeira ao gateway (pagamento já registrado)
    */
-  processarPagamento(pagamentoUuid: string): Promise<IPagamentoDetalhes>;
+  solicitarAutorizacaoFinanceira(pagamentoUuid: string): Promise<IPagamentoDetalhes>;
 
   /**
-   * Endpoint simplificado para frontend processar pagamento
+   * Fluxo de checkout: autorização financeira simplificada (payload agregado)
    */
-  processarPagamentoFront(dados: IProcessarPagamentoInput): Promise<IProcessarPagamentoResultado>;
+  solicitarAutorizacaoFinanceiraCheckout(dados: IProcessarPagamentoInput): Promise<IProcessarPagamentoResultado>;
 
   /**
    * Consulta pagamento por UUID

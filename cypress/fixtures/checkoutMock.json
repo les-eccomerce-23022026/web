@@ -10,7 +10,7 @@
   "cartoesSalvos": [
     {
       "uuid": "uuid-cartao-1",
-      "final": "4444",
+      "ultimosDigitosCartao": "4444",
       "nomeCliente": "JOAO DA SILVA"
     }
   ],

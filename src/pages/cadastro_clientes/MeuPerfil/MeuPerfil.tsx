@@ -489,7 +489,7 @@ export function MeuPerfil() {
               >
                 <div className={styles.cartaoBandeira}>{cartao.bandeira}</div>
                 <div className={styles.cartaoFinal}>
-                  •••• •••• •••• {cartao.final}
+                  •••• •••• •••• {cartao.ultimosDigitosCartao}
                 </div>
                 <div className={styles.cartaoNome}>{cartao.nomeImpresso}</div>
                 <div className={styles.cartaoValidade}>

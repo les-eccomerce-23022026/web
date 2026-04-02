@@ -187,7 +187,7 @@ export function usePagamento() {
     setError(null);
     
     try {
-      const resultado = await service.selecionarFormaPagamento(dados);
+      const resultado = await service.definirMetodoLiquidacao(dados);
       setPagamentoSelecionado(dados);
       return resultado;
     } catch (err) {
@@ -250,7 +250,7 @@ export function usePagamento() {
   /**
    * Processa pagamento completo
    */
-  const processarPagamento = useCallback(async (
+  const solicitarAutorizacaoFinanceiraCheckout = useCallback(async (
     vendaUuid: string,
     valorTotal: number
   ): Promise<IProcessarPagamentoResultado | null> => {
@@ -272,7 +272,7 @@ export function usePagamento() {
         valorTotal
       };
       
-      const resultado = await service.processarPagamentoFront(dados);
+      const resultado = await service.solicitarAutorizacaoFinanceiraCheckout(dados);
       
       if (resultado.sucesso) {
         // Limpar pagamentos parciais após sucesso
@@ -319,7 +319,7 @@ export function usePagamento() {
     selecionarFrete,
     adicionarPagamentoParcial,
     removerPagamentoParcial,
-    processarPagamento,
+    solicitarAutorizacaoFinanceiraCheckout,
     limpar,
     
     // Utilitários

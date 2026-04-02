@@ -128,7 +128,7 @@ export function useMeuPerfil() {
     if (cartaoEditandoUuid) {
       const c = cartoes.find((c) => c.uuid === cartaoEditandoUuid);
       if (c) {
-        setNovoCartaoNumero(`**** **** **** ${c.final}`);
+        setNovoCartaoNumero(`**** **** **** ${c.ultimosDigitosCartao}`);
         setNovoCartaoNome(c.nomeImpresso);
         setNovoCartaoBandeira(c.bandeira);
         
@@ -399,7 +399,7 @@ export function useMeuPerfil() {
       }
 
       const novo = await ClienteService.adicionarCartao({
-        final: novoCartaoNumero.slice(-4),
+        ultimosDigitosCartao: novoCartaoNumero.slice(-4),
         nomeCliente: novoCartaoNome, // Adicionando nomeCliente que é obrigatório na interface
         nomeImpresso: novoCartaoNome,
         bandeira: novoCartaoBandeira,

@@ -16,9 +16,22 @@ Cenário: Realizar compra com sucesso usando um cartão e cupom (Caminho Feliz)
 
 Cenário: Pagamento com múltiplos cartões - valor mínimo (RN0034)
   Dado que o total da minha compra é R$ 50,00
-  Quando eu tento pagar R$ 5,00 no Cartão A
-  E R$ 45,00 no Cartão B
-  Então o sistema deve exibir erro "O valor mínimo por cartão é R$ 10,00"
+  Quando eu tento adicionar um pagamento de R$ 5,00 no Cartão A
+  Então o sistema deve exibir erro "Valor mínimo por cartão é R$ 10,00"
+  E não deve permitir a adição do cartão ao pagamento parcial
+
+Cenário: Limite de cupom promocional (RN0033)
+  Dado que eu já apliquei o cupom promocional "DESCONTO10"
+  Quando eu tento aplicar um segundo cupom promocional "MAISDESCONTO"
+  Então o sistema deve exibir erro "Apenas um cupom promocional é permitido por compra"
+  E o segundo cupom não deve ser aplicado
+
+Cenário: Botão de finalizar compra desabilitado sem frete ou endereço
+  Dado que eu tenho itens no carrinho
+  Mas eu ainda não selecionei um endereço de entrega
+  Ou ainda não selecionei o tipo de frete
+  Então o botão "Concluir Pedido" deve permanecer desabilitado
+  E uma mensagem informativa deve orientar o usuário a configurar a entrega
 
 Cenário: Gerar cupom de troca por resíduo de pagamento (RN0036)
   Dado que eu uso um cupom de troca de R$ 200,00 em uma compra de R$ 150,00

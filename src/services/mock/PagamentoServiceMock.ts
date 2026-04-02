@@ -30,7 +30,7 @@ export class PagamentoServiceMock implements IPagamentoService {
       }>;
       cartoesCliente: Array<{
         uuid: string;
-        final: string;
+        ultimosDigitosCartao: string;
         nomeCliente: string;
         bandeira: string;
       }>;
@@ -76,7 +76,7 @@ export class PagamentoServiceMock implements IPagamentoService {
     return delay(normalizedData);
   }
 
-  async selecionarFormaPagamento(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes> {
+  async definirMetodoLiquidacao(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes> {
     console.log('[Mock] Selecionando forma de pagamento:', dados);
     return delay({
       id: crypto.randomUUID(),
@@ -91,7 +91,7 @@ export class PagamentoServiceMock implements IPagamentoService {
     });
   }
 
-  async processarPagamento(pagamentoUuid: string): Promise<IPagamentoDetalhes> {
+  async solicitarAutorizacaoFinanceira(pagamentoUuid: string): Promise<IPagamentoDetalhes> {
     console.log('[Mock] Processando pagamento:', pagamentoUuid);
     return delay({
       id: pagamentoUuid,
@@ -107,7 +107,7 @@ export class PagamentoServiceMock implements IPagamentoService {
     });
   }
 
-  async processarPagamentoFront(dados: IProcessarPagamentoInput): Promise<IProcessarPagamentoResultado> {
+  async solicitarAutorizacaoFinanceiraCheckout(dados: IProcessarPagamentoInput): Promise<IProcessarPagamentoResultado> {
     console.log('[Mock] Processando pagamento (frontend):', dados);
     return delay({
       sucesso: true,

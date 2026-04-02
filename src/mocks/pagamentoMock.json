@@ -26,13 +26,13 @@
   "cartoesCliente": [
     {
       "uuid": "card-001",
-      "final": "1234",
+      "ultimosDigitosCartao": "1234",
       "nomeCliente": "JOAO COMPRADOR",
       "bandeira": "Mastercard"
     },
     {
       "uuid": "card-002",
-      "final": "5678",
+      "ultimosDigitosCartao": "5678",
       "nomeCliente": "JOAO COMPRADOR",
       "bandeira": "Visa"
     }

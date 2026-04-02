@@ -16,7 +16,7 @@ export interface IEnderecoEntrega {
 
 export interface ICartaoSalvo {
   uuid: string;
-  final: string;
+  ultimosDigitosCartao: string;
   nomeCliente: string;
   nomeImpresso: string;
   bandeira: string;

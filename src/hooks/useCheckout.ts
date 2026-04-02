@@ -27,7 +27,7 @@ export function useCheckout() {
   const {
     cuponsAplicados,
     pagamentosParciais,
-    processarPagamento,
+    solicitarAutorizacaoFinanceiraCheckout,
     aplicarCupom,
     removerCupom,
     adicionarPagamentoParcial,
@@ -61,7 +61,7 @@ export function useCheckout() {
         enderecosDisponiveis: infoPagamento.enderecosCliente,
         cartoesSalvos: infoPagamento.cartoesCliente.map(c => ({
           uuid: c.uuid,
-          final: c.final,
+          ultimosDigitosCartao: c.ultimosDigitosCartao,
           nomeCliente: c.nomeCliente,
           nomeImpresso: c.nomeImpresso,
           bandeira: c.bandeira,
@@ -131,7 +131,7 @@ export function useCheckout() {
       
       // Processar pagamento se houver valor a pagar
       if (total - valorPagoCartoes > 0 || pagamentosParciais.length > 0) {
-        const resultadoPagamento = await processarPagamento(vendaUuid, total);
+        const resultadoPagamento = await solicitarAutorizacaoFinanceiraCheckout(vendaUuid, total);
         
         if (!resultadoPagamento || !resultadoPagamento.sucesso) {
           throw new Error('Pagamento não aprovado. Verifique os dados do cartão.');
@@ -168,7 +168,7 @@ export function useCheckout() {
     } finally {
       setFinalizando(false);
     }
-  }, [carrinho, usuario, cuponsAplicados, pagamentosParciais, processarPagamento, dispatch, navigate]);
+  }, [carrinho, usuario, cuponsAplicados, pagamentosParciais, solicitarAutorizacaoFinanceiraCheckout, dispatch, navigate]);
 
   return {
     data,

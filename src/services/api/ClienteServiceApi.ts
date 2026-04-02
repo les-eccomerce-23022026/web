@@ -122,7 +122,7 @@ export class ClienteServiceApi implements IClienteService {
     const payloadApi = {
       uuidBandeira,
       token: `tok_sim_${Date.now()}`,
-      final: cartao.final,
+      ultimosDigitosCartao: cartao.ultimosDigitosCartao,
       nomeImpresso: cartao.nomeImpresso,
       validade: validadeIso,
       principal: false,

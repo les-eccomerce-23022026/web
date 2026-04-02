@@ -49,14 +49,14 @@
       "cartoes": [
         {
           "uuid": "card-001",
-          "final": "1234",
+          "ultimosDigitosCartao": "1234",
           "nomeImpresso": "JOAO COMPRADOR",
           "bandeira": "Mastercard",
           "validade": "12/2028"
         },
         {
           "uuid": "card-002",
-          "final": "5678",
+          "ultimosDigitosCartao": "5678",
           "nomeImpresso": "JOAO COMPRADOR",
           "bandeira": "Visa",
           "validade": "06/2027"
@@ -102,7 +102,7 @@
       "cartoes": [
         {
           "uuid": "card-003",
-          "final": "9012",
+          "ultimosDigitosCartao": "9012",
           "nomeImpresso": "MARIA LEITORA",
           "bandeira": "Elo",
           "validade": "03/2029"

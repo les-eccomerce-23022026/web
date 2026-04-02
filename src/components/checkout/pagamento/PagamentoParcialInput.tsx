@@ -118,7 +118,7 @@ export function PagamentoParcialInput({
               <option value="">Selecionar Cartão</option>
               {cartoesSalvos.map((cartao) => (
                 <option key={cartao.uuid} value={cartao.uuid}>
-                  {cartao.bandeira} •••• {cartao.final} - {cartao.nomeCliente}
+                  {cartao.bandeira} •••• {cartao.ultimosDigitosCartao} - {cartao.nomeCliente}
                 </option>
               ))}
             </select>
@@ -148,7 +148,7 @@ export function PagamentoParcialInput({
 
           {cartaoSelecionadoInfo && (
             <p className={styles['cartao-info']}>
-              Cartão selecionado: {cartaoSelecionadoInfo.bandeira} final {cartaoSelecionadoInfo.final}
+              Cartão selecionado: {cartaoSelecionadoInfo.bandeira} · últimos dígitos {cartaoSelecionadoInfo.ultimosDigitosCartao}
             </p>
           )}
 

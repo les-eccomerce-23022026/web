@@ -34,8 +34,9 @@ export const API_ENDPOINTS = {
   // Pagamento
   obterPagamentoInfo: `${BASE_URL}/pagamento/info`,
   selecionarPagamento: `${BASE_URL}/pagamentos/selecionar`,
-  processarPagamento: (uuid: string) => `${BASE_URL}/pagamentos/${uuid}/processar`,
-  processarPagamentoFront: `${BASE_URL}/pagamento/processar`,
+  solicitarAutorizacaoFinanceira: (uuid: string) =>
+    `${BASE_URL}/pagamentos/${uuid}/processar`,
+  solicitarAutorizacaoFinanceiraCheckout: `${BASE_URL}/pagamento/processar`,
   consultarPagamento: (uuid: string) => `${BASE_URL}/pagamentos/${uuid}`,
 
   // Autenticação
