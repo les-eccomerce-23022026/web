@@ -14,6 +14,8 @@ declare global {
     interface Chainable {
       login(email: string, password: string): Chainable<void>;
       loginProgramatico(userType: 'admin' | 'cliente'): Chainable<void>;
+      /** Sessão de cliente via API real (banco de testes) — uso em checkout e fluxos autenticados. */
+      loginCliente(): Chainable<void>;
       getDataCy(value: string): Chainable<JQuery<HTMLElement>>;
       getNewUser(): Chainable<{ nome: string, cpf: string, email: string, senha: string }>;
     }
@@ -37,6 +39,10 @@ Cypress.Commands.add('getNewUser', () => {
 /**
  * Login via UI - Útil para testar o fluxo completo de login e feedbacks visuais.
  */
+Cypress.Commands.add('loginCliente', () => {
+  cy.loginProgramatico('cliente');
+});
+
 Cypress.Commands.add('login', (email, password) => {
   cy.visit('/minha-conta');
   cy.getDataCy('login-email-input').type(email);

@@ -40,3 +40,5 @@ playwright-report
 test-results
 videos
 .vscode
+cypress/screenshots/
+cypress/videos/
