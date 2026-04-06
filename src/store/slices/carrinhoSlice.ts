@@ -102,6 +102,13 @@ const carrinhoSlice = createSlice({
         state.data.resumo.total = 0;
       }
     },
+    /** Atualiza frete e total após seleção de opção em `POST /frete/cotar` (ex.: carrinho). */
+    definirFreteResumoCarrinho: (state, action: PayloadAction<{ frete: number }>) => {
+      if (!state.data) return;
+      const { frete } = action.payload;
+      state.data.resumo.frete = frete;
+      state.data.resumo.total = state.data.resumo.subtotal + frete;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -137,6 +144,12 @@ const carrinhoSlice = createSlice({
   },
 });
 
-export const { adicionarItem, removerItem, atualizarQuantidade, limparCarrinho } = carrinhoSlice.actions;
+export const {
+  adicionarItem,
+  removerItem,
+  atualizarQuantidade,
+  limparCarrinho,
+  definirFreteResumoCarrinho,
+} = carrinhoSlice.actions;
 
 export default carrinhoSlice.reducer;

@@ -1,14 +1,14 @@
-import type { IProcessarPagamentoResultado } from '@/interfaces/pagamento';
+import type { IProcessarPagamentoResultado, IPagamentoParcial } from '@/interfaces/pagamento';
 
 type SolicitarAutorizacao = (
   vendaUuid: string,
   valorTotal: number,
-  pagamentosOverride?: { cartaoUuid: string; valor: number }[],
+  pagamentosOverride?: IPagamentoParcial[],
 ) => Promise<IProcessarPagamentoResultado | null>;
 
 export async function garantirAutorizacaoPagamentoSeNecessario(
   total: number,
-  pagamentosEfetivos: { cartaoUuid: string; valor: number }[],
+  pagamentosEfetivos: IPagamentoParcial[],
   vendaUuid: string,
   solicitarAutorizacaoFinanceiraCheckout: SolicitarAutorizacao,
 ): Promise<void> {

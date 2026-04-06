@@ -25,6 +25,7 @@ function mapStatusVendaParaPedido(s: string): StatusPedido {
   const key = s.trim().toUpperCase();
   const map: Record<string, StatusPedido> = {
     'EM PROCESSAMENTO': 'Em Processamento',
+    'AGUARDANDO PAGAMENTO': 'Aguardando Pagamento',
     APROVADA: 'Preparando',
     REPROVADA: 'Cancelado',
     'EM TRÂNSITO': 'Em Trânsito',

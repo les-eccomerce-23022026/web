@@ -16,6 +16,7 @@ export const Header = () => {
   
   const quantidadeItens = carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) || 0;
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
+  const categoriasMenu = useAppSelector((state) => state.livro.categoriasMenu);
 
   // Sincroniza o input com o store caso mude externamente (ex: limpando pesquisa)
   useEffect(() => {
@@ -108,17 +109,14 @@ export const Header = () => {
       {/* Navegação Secundária - Categorias */}
       <nav className={styles['header-nav']}>
         <div className={`container ${styles['nav-links']}`}>
-          <Link to="/categoria/ficcao">Ficção</Link>
-          <Link to="/categoria/nao-ficcao">Não-Ficção</Link>
-          <Link to="/categoria/romance">Romance</Link>
-          <Link to="/categoria/fantasia">Fantasia</Link>
-          <Link to="/categoria/suspense">Suspense</Link>
-          <Link to="/categoria/terror">Terror</Link>
-          <Link to="/categoria/biografias">Biografias</Link>
-          <Link to="/categoria/autoajuda">Autoajuda</Link>
-          <Link to="/categoria/tecnico">Técnico e Científico</Link>
-          <Link to="/categoria/infantil">Infantil</Link>
-          <Link to="/mais-vendidos" className={styles['nav-link-highlight']}>🔥 Mais Vendidos</Link>
+          {categoriasMenu.map((c) => (
+            <Link key={c.slug} to={`/categoria/${c.slug}`}>
+              {c.nome}
+            </Link>
+          ))}
+          <Link to="/mais-vendidos" className={styles['nav-link-highlight']}>
+            🔥 Mais Vendidos
+          </Link>
         </div>
       </nav>
     </header>

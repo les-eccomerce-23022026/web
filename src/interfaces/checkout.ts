@@ -2,7 +2,8 @@ import type {
   ICupomDisponivel,
   IFreteOpcao,
   IEnderecoCliente,
-  ICupomAplicado
+  ICupomAplicado,
+  IPoliticaParcelamentoCartao,
 } from './pagamento';
 
 export interface IEnderecoEntrega {
@@ -37,8 +38,8 @@ export interface IResumoPedidoCheckout {
  * Inclui dados de pagamento, entrega e resumo do pedido
  */
 export interface ICheckoutInfo {
-  // Endereço de entrega (pode vir do perfil do cliente)
-  enderecoEntrega: IEnderecoEntrega;
+  /** Espelho do primeiro endereço quando há lista; `null` se o cliente não tiver endereços cadastrados. */
+  enderecoEntrega: IEnderecoEntrega | null;
   
   // Endereços disponíveis do cliente
   enderecosDisponiveis?: IEnderecoCliente[];
@@ -60,4 +61,7 @@ export interface ICheckoutInfo {
   
   // Bandeiras de cartão permitidas
   bandeirasPermitidas?: string[];
+
+  /** Política de parcelamento (até Nx sem juros / com juros) vinda de `GET /pagamento/info`. */
+  politicaParcelamentoCartao?: IPoliticaParcelamentoCartao;
 }

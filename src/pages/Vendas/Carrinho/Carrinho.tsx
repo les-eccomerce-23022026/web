@@ -1,13 +1,23 @@
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import styles from './Carrinho.module.css';
 import { EmptyState } from '@/components/Comum/EmptyState/EmptyState';
+import { FreteCalculo, type FreteCalculoEntregaApi } from '@/components/FinalizarCompra/Entrega';
+import { useEntrega } from '@/hooks/useEntrega';
+import type { IFreteOpcao } from '@/interfaces/entrega';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
   removerItem,
   atualizarQuantidade,
   sincronizarLinhaCarrinho,
+  definirFreteResumoCarrinho,
 } from '@/store/slices/carrinhoSlice';
+import {
+  persistirCotacaoFreteCarrinho,
+  limparCotacaoFreteCarrinho,
+} from '@/store/slices/cotacaoFreteSlice';
+import { assinaturaItensCarrinho } from '@/utils/carrinhoAssinatura';
 import { USE_MOCK } from '@/config/apiConfig';
 
 export const Carrinho = () => {
@@ -15,6 +25,74 @@ export const Carrinho = () => {
   const { data, error, status } = useAppSelector((state) => state.carrinho);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const usarCarrinhoLocal = USE_MOCK || !isAuthenticated;
+
+  const entrega = useEntrega();
+  const {
+    freteSelecionado,
+    selecionarFrete,
+    calcularFrete,
+    freteCalculado,
+    loading: entregaLoading,
+    error: entregaError,
+    formatarCep,
+    validarCep,
+    limparFrete,
+    cepDestino,
+  } = entrega;
+
+  const entregaParaFreteCalculo: FreteCalculoEntregaApi = useMemo(
+    () => ({
+      calcularFrete,
+      freteCalculado,
+      loading: entregaLoading,
+      error: entregaError,
+      formatarCep,
+      validarCep,
+    }),
+    [calcularFrete, freteCalculado, entregaLoading, entregaError, formatarCep, validarCep],
+  );
+
+  const carrinhoAssinatura = useMemo(() => assinaturaItensCarrinho(data), [data]);
+
+  const prevCarrinhoAssinaturaRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!carrinhoAssinatura) {
+      prevCarrinhoAssinaturaRef.current = null;
+      return;
+    }
+    if (prevCarrinhoAssinaturaRef.current === carrinhoAssinatura) return;
+    if (prevCarrinhoAssinaturaRef.current !== null) {
+      limparFrete();
+      dispatch(limparCotacaoFreteCarrinho());
+    }
+    prevCarrinhoAssinaturaRef.current = carrinhoAssinatura;
+  }, [carrinhoAssinatura, limparFrete, dispatch]);
+
+  const handleFreteSelecionado = useCallback(
+    (opcao: IFreteOpcao) => {
+      selecionarFrete(opcao);
+      dispatch(definirFreteResumoCarrinho({ frete: opcao.valor }));
+      if (!data || !freteCalculado || !carrinhoAssinatura) return;
+      dispatch(
+        persistirCotacaoFreteCarrinho({
+          opcaoSelecionada: opcao,
+          freteCalculado,
+          cepDestino: cepDestino.replace(/\D/g, ''),
+          assinaturaItens: carrinhoAssinatura,
+          subtotalCotado: data.resumo.subtotal,
+        }),
+      );
+    },
+    [
+      dispatch,
+      selecionarFrete,
+      data,
+      freteCalculado,
+      carrinhoAssinatura,
+      cepDestino,
+    ],
+  );
 
   if (status === 'loading') return <p className={styles['carrinho-status-message']}>Carregando carrinho...</p>;
   if (status === 'failed' || error) return <p className={styles['carrinho-status-message']}>Erro ao carregar carrinho.</p>;
@@ -111,12 +189,19 @@ export const Carrinho = () => {
 
       <div className={`resumo ${styles['carrinho-resumo']}`}>
         <div className={`frete ${styles['carrinho-frete']}`}>
-          <h4>Calcular Frete</h4>
-          <div className={styles['carrinho-frete-input-group']}>
-            <input type="text" placeholder="CEP (00000-000)" />
-            <button className={`btn-secondary ${styles['carrinho-btn-frete']}`}>Calcular Frete</button>
-          </div>
-          <p className={styles['carrinho-frete-result']}>Frete Padrão: R$ {data.fretePadrao.valor.toFixed(2).replace('.', ',')} ({data.fretePadrao.prazo})</p>
+          <FreteCalculo
+            entrega={entregaParaFreteCalculo}
+            onFreteSelecionado={handleFreteSelecionado}
+            freteSelecionado={freteSelecionado}
+            pesoTotal={1}
+            valorTotal={data.resumo.subtotal}
+          />
+          {freteSelecionado && (
+            <p className={styles['carrinho-frete-selecionado']}>
+              ✓ Frete {freteSelecionado.tipo} selecionado: R${' '}
+              {freteSelecionado.valor.toFixed(2).replace('.', ',')} — {freteSelecionado.prazo}
+            </p>
+          )}
         </div>
 
         <div className={`totalizador ${styles['carrinho-totalizador']}`}>
@@ -130,4 +215,4 @@ export const Carrinho = () => {
       </div>
     </div>
   );
-}
+};

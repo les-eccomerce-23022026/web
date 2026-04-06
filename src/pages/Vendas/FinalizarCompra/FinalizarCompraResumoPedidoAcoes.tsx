@@ -40,19 +40,36 @@ export const FinalizarCompraResumoPedidoAcoes = ({
     saldoPagamentoOk,
   );
 
+  const coberto = saldoPagamentoOk;
+
   return (
     <>
       <hr className={styles['checkout-summary-divider']} />
 
       <div className={styles['checkout-total-row']}>
-        <span className={styles['checkout-total-label']}>Total a Pagar:</span>
-        <span className={styles['checkout-total-value']}>
+        <span
+          className={
+            coberto
+              ? `${styles['checkout-total-label']} ${styles['checkout-total-label-coberto']}`
+              : `${styles['checkout-total-label']} ${styles['checkout-total-label-saldo']}`
+          }
+        >
+          {coberto ? 'Coberto' : 'Saldo a definir'}
+        </span>
+        <span
+          className={
+            coberto
+              ? `${styles['checkout-total-value']} ${styles['checkout-total-value-coberto']}`
+              : `${styles['checkout-total-value']} ${styles['checkout-total-value-saldo']}`
+          }
+          data-cy="checkout-total-value"
+        >
           R$ {totalMenosParcial.toFixed(2).replace('.', ',')}
         </span>
       </div>
 
       <button
-        className={`btn-primary ${styles['checkout-btn-finish']}`}
+        className={`btn-primary ${styles['checkout-btn-finish']} ${!disabled ? styles['checkout-btn-finish-ready'] : ''}`}
         onClick={onFinalizar}
         disabled={disabled}
         data-cy="checkout-finish-button"

@@ -1,16 +1,12 @@
-import type { IPagamentoInfo, IEnderecoCliente, ICartaoSalvoPagamento } from '@/interfaces/pagamento';
+import {
+  POLITICA_PARCELAMENTO_CARTAO_PADRAO,
+  type IPagamentoInfo,
+  type IEnderecoCliente,
+  type ICartaoSalvoPagamento,
+} from '@/interfaces/pagamento';
 import type { ICheckoutInfo, IEnderecoEntrega, ICartaoSalvo } from '@/interfaces/checkout';
 import type { ICarrinho } from '@/interfaces/carrinho';
-import { normalizarBandeiraCartao } from '@/utils/checkoutLiquidacaoPagamentos';
-
-const ENDERECO_FALLBACK: IEnderecoEntrega = {
-  logradouro: 'Rua Bela Vista',
-  numero: '1234',
-  complemento: 'Apto 55',
-  cidade: 'São Paulo',
-  estado: 'SP',
-  cep: '01000-000',
-};
+import { normalizarBandeiraCartao } from '@/utils/finalizarCompraLiquidacaoPagamentos';
 
 function enderecoEntregaDeCliente(primeiro: IEnderecoCliente): IEnderecoEntrega {
   return {
@@ -53,7 +49,7 @@ export function buildCheckoutInfoFromPagamento(
   carrinho: ICarrinho | null,
 ): ICheckoutInfo {
   const primeiro = infoPagamento.enderecosCliente?.[0];
-  const enderecoEntrega = primeiro ? enderecoEntregaDeCliente(primeiro) : ENDERECO_FALLBACK;
+  const enderecoEntrega = primeiro ? enderecoEntregaDeCliente(primeiro) : null;
 
   return {
     enderecoEntrega,
@@ -63,5 +59,7 @@ export function buildCheckoutInfoFromPagamento(
     freteOpcoes: infoPagamento.freteOpcoes,
     bandeirasPermitidas: infoPagamento.bandeirasPermitidas.map((b) => normalizarBandeiraCartao(b)),
     resumoPedido: resumoPedidoDeCarrinho(carrinho),
+    politicaParcelamentoCartao:
+      infoPagamento.politicaParcelamentoCartao ?? POLITICA_PARCELAMENTO_CARTAO_PADRAO,
   };
 }

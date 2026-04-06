@@ -6,6 +6,12 @@
 - O cliente HTTP usa `credentials: 'include'`. O JWT **não** fica em `sessionStorage`; apenas um snapshot de `user` pode ser guardado para UX.
 - Com backend em outra origem (ex.: URL absoluta em `VITE_API_BASE_URL`), cookies exigem `SameSite=None; Secure` e HTTPS — prefira proxy ou mesmo host em produção.
 
+## Documentação (SSoT e quadro local)
+
+- Especificação e ADRs: [`../documentacao-exigida/README.md`](../documentacao-exigida/README.md)
+- Kanban frontend: [`docs/PROJECT-BOARD.md`](docs/PROJECT-BOARD.md)
+- Diretrizes de agente: [`AGENTS.md`](AGENTS.md)
+
 ---
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

@@ -8,6 +8,7 @@ const STATUS_LABELS: Record<StatusPedido, string> = {
   'Em Trânsito': 'Em Trânsito',
   Entregue: 'Entregue',
   Pendentes: 'Pendente',
+  'Aguardando Pagamento': 'Aguardando Pagamento',
   Preparando: 'Preparando',
   Cancelado: 'Cancelado',
   'Em Troca': 'Em Troca',

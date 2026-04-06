@@ -17,7 +17,8 @@ export const API_ENDPOINTS = {
   // Livros
   obterCarrinho: `${BASE_URL}/carrinho`,
   sincronizarCarrinhoItem: `${BASE_URL}/carrinho/itens`,
-  obterLivrosDestaque: `${BASE_URL}/livros/destaques`,
+  obterLivrosCatalogo: `${BASE_URL}/livros`,
+  categoriasCatalogo: `${BASE_URL}/categorias/catalogo`,
   obterListaLivrosAdmin: `${BASE_URL}/admin/livros`,
   /** Legado / mock: o fluxo real de checkout usa `GET /pagamento/info` via `PagamentoService.obterPagamentoInfo`. */
   obterCheckoutInfo: `${BASE_URL}/checkout`,
@@ -54,6 +55,9 @@ export const API_ENDPOINTS = {
     `${BASE_URL}/pagamentos/${uuid}/processar`,
   solicitarAutorizacaoFinanceiraCheckout: `${BASE_URL}/pagamento/processar`,
   consultarPagamento: (uuid: string) => `${BASE_URL}/pagamentos/${uuid}`,
+  resumoPagamentosVenda: (vendaUuid: string) =>
+    `${BASE_URL}/pagamentos/venda/${vendaUuid}/resumo`,
+  webhookPagamentoPixSimulado: `${BASE_URL}/webhooks/pagamento-pix-simulado`,
 
   // Autenticação
   login: `${BASE_URL}/auth/login`,

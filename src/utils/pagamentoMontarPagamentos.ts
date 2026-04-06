@@ -1,6 +1,4 @@
-import type { IPagamentoSelecionado, ICartaoSalvoPagamento } from '@/interfaces/pagamento';
-
-export type PagamentoCartaoLinha = { cartaoUuid: string; valor: number };
+import type { IPagamentoSelecionado, ICartaoSalvoPagamento, IPagamentoParcial } from '@/interfaces/pagamento';
 
 function uuidCartaoDoSelecionado(pagamentoSelecionado: IPagamentoSelecionado | null): string | null {
   if (!pagamentoSelecionado || pagamentoSelecionado.tipo !== 'cartao_credito') {
@@ -14,20 +12,20 @@ function uuidCartaoDoSelecionado(pagamentoSelecionado: IPagamentoSelecionado | n
 }
 
 export function montarPagamentosCartaoParaAutorizacao(
-  pagamentosOverride: PagamentoCartaoLinha[] | undefined,
-  pagamentosParciais: PagamentoCartaoLinha[],
+  pagamentosOverride: IPagamentoParcial[] | undefined,
+  parcelasLiquidacao: IPagamentoParcial[],
   pagamentoSelecionado: IPagamentoSelecionado | null,
   valorTotal: number,
-): PagamentoCartaoLinha[] {
+): IPagamentoParcial[] {
   if (pagamentosOverride && pagamentosOverride.length > 0) {
     return pagamentosOverride;
   }
-  if (pagamentosParciais.length > 0) {
-    return pagamentosParciais;
+  if (parcelasLiquidacao.length > 0) {
+    return parcelasLiquidacao;
   }
   const uuid = uuidCartaoDoSelecionado(pagamentoSelecionado);
   if (uuid === null) {
     return [];
   }
-  return [{ cartaoUuid: uuid, valor: valorTotal }];
+  return [{ referenciaMeioPagamento: uuid, valor: valorTotal, parcelasCartao: 1 }];
 }

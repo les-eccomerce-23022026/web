@@ -1,10 +1,10 @@
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICupomAplicado } from '@/interfaces/pagamento';
-import type { ICartaoCreditoInput } from '@/interfaces/pagamento';
+import type { ICupomAplicado, ICartaoCreditoInput, IPagamentoParcial } from '@/interfaces/pagamento';
+import { linhaPagamentoProntaParaLiquidacao } from '@/utils/finalizarCompraLinhasPagamento';
 import type { IFreteOpcao } from '@/interfaces/entrega';
 import type { IEnderecoEntregaInput } from '@/interfaces/entrega';
-import { calcularDescontoCupons } from '@/utils/checkoutCupomTotais';
+import { calcularDescontoCupons } from '@/utils/finalizarCompraCupomTotais';
 
 export function enderecoFinalizarCompraDerivado(
   data: ICheckoutInfo,
@@ -12,7 +12,8 @@ export function enderecoFinalizarCompraDerivado(
 ): string | null {
   const semLista =
     !data.enderecosDisponiveis || data.enderecosDisponiveis.length === 0;
-  return enderecoSelecionado ?? (semLista ? 'fallback' : null);
+  if (semLista) return null;
+  return enderecoSelecionado;
 }
 
 /** Monta o corpo de endereço para `POST /entregas` a partir do checkout. */
@@ -20,30 +21,20 @@ export function enderecoEntregaInputDeCheckout(
   data: ICheckoutInfo,
   enderecoSelecionadoUuid: string | null,
 ): IEnderecoEntregaInput | null {
-  if (data.enderecosDisponiveis && data.enderecosDisponiveis.length > 0) {
-    if (!enderecoSelecionadoUuid) return null;
-    const cliente = data.enderecosDisponiveis.find((e) => e.uuid === enderecoSelecionadoUuid);
-    if (!cliente) return null;
-    return {
-      rua: cliente.logradouro,
-      numero: cliente.numero,
-      complemento: cliente.complemento,
-      bairro: cliente.bairro,
-      cidade: cliente.cidade,
-      estado: cliente.estado,
-      cep: cliente.cep.replace(/\D/g, ''),
-    };
+  if (!data.enderecosDisponiveis || data.enderecosDisponiveis.length === 0) {
+    return null;
   }
-  const e = data.enderecoEntrega;
-  if (!e) return null;
+  if (!enderecoSelecionadoUuid) return null;
+  const cliente = data.enderecosDisponiveis.find((e) => e.uuid === enderecoSelecionadoUuid);
+  if (!cliente) return null;
   return {
-    rua: e.logradouro,
-    numero: e.numero ?? 'S/N',
-    complemento: e.complemento ?? '',
-    bairro: 'Centro',
-    cidade: e.cidade,
-    estado: e.estado,
-    cep: e.cep.replace(/\D/g, ''),
+    rua: cliente.logradouro,
+    numero: cliente.numero,
+    complemento: cliente.complemento,
+    bairro: cliente.bairro,
+    cidade: cliente.cidade,
+    estado: cliente.estado,
+    cep: cliente.cep.replace(/\D/g, ''),
   };
 }
 
@@ -60,7 +51,7 @@ export function calcularResumoPedidoFinalizarCompra(
   data: ICheckoutInfo,
   freteSelecionado: IFreteOpcao | null,
   cuponsAplicados: ICupomAplicado[],
-  pagamentosParciais: { cartaoUuid: string; valor: number }[],
+  parcelasLiquidacao: IPagamentoParcial[],
 ) {
   const quantidadeItens =
     carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) ?? 0;
@@ -68,7 +59,7 @@ export function calcularResumoPedidoFinalizarCompra(
   const frete = valorFretePedido(freteSelecionado, carrinho, data.resumoPedido.frete);
   const descontoCupons = calcularDescontoCupons(subtotal, cuponsAplicados);
   const total = subtotal + frete - descontoCupons;
-  const valorPagoParcialmente = pagamentosParciais.reduce((acc, p) => acc + p.valor, 0);
+  const valorPagoParcialmente = parcelasLiquidacao.reduce((acc, p) => acc + p.valor, 0);
   return {
     quantidadeItens,
     subtotal,
@@ -81,16 +72,16 @@ export function calcularResumoPedidoFinalizarCompra(
 
 export function temFormaPagamentoFinalizarCompra(
   cuponsLen: number,
-  pagParciaisLen: number,
+  parcelasLiquidacao: IPagamentoParcial[],
+  novosCartoesPorLinha: Record<string, ICartaoCreditoInput>,
   cartaoSel: string | null,
   novoCart: ICartaoCreditoInput | null,
 ): boolean {
-  return (
-    cuponsLen > 0 ||
-    pagParciaisLen > 0 ||
-    Boolean(cartaoSel) ||
-    Boolean(novoCart)
-  );
+  if (cuponsLen > 0) return true;
+  if (parcelasLiquidacao.length > 0) {
+    return parcelasLiquidacao.every((p) => linhaPagamentoProntaParaLiquidacao(p, novosCartoesPorLinha));
+  }
+  return Boolean(cartaoSel) || Boolean(novoCart);
 }
 
 /** Tolerância para considerar saldo zerado (cupons cobriram o pedido). */
@@ -99,23 +90,24 @@ const EPS_PARCIAL = 0.021;
 
 /**
  * O total do pedido (após cupons) está coberto por liquidações?
- * Alinhado a `montarPagamentosEfetivosCheckout` + validação em `executarFinalizarCheckout`.
+ * Alinhado a `montarLiquidaçõesEfetivasFinalizarCompra` + validação em `executarFinalizarCheckout`.
  */
 export function pagamentoCobreSaldoFinalizarCompra(
   totalAposCupons: number,
-  pagamentosParciais: { cartaoUuid: string; valor: number }[],
+  parcelasLiquidacao: IPagamentoParcial[],
+  novosCartoesPorLinha: Record<string, ICartaoCreditoInput>,
   cartaoSelecionado: string | null,
   novoCartao: ICartaoCreditoInput | null,
 ): boolean {
   if (totalAposCupons <= EPS_SALDO_ZERADO) {
     return true;
   }
-  const somaParciais = pagamentosParciais.reduce((s, p) => s + p.valor, 0);
-  if (pagamentosParciais.length === 0) {
+  const somaParciais = parcelasLiquidacao.reduce((s, p) => s + p.valor, 0);
+  if (parcelasLiquidacao.length === 0) {
     return Boolean(cartaoSelecionado || novoCartao);
   }
-  if (totalAposCupons - somaParciais <= EPS_PARCIAL) {
-    return true;
+  if (Math.abs(totalAposCupons - somaParciais) > EPS_PARCIAL) {
+    return false;
   }
-  return Boolean(cartaoSelecionado || novoCartao);
+  return parcelasLiquidacao.every((p) => linhaPagamentoProntaParaLiquidacao(p, novosCartoesPorLinha));
 }

@@ -1,0 +1,204 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Termômetro de cobertura */
+.coverageWrap {
+  margin: 0 0 1rem 0;
+}
+
+.coverageTrack {
+  --checkout-coverage-warn: #f9a825;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.coverageTrackDone {
+  border-color: rgba(46, 125, 50, 0.35);
+}
+
+.coverageFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffb74d, var(--checkout-coverage-warn));
+  transition: width 0.35s ease, background 0.35s ease;
+  min-width: 0;
+}
+
+.coverageFillDone {
+  background: linear-gradient(90deg, var(--bn-primary, #2e7d32), #43a047);
+}
+
+.coverageCaptionOk {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--bn-primary, #2e7d32);
+}
+
+.coverageCaptionWarn {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #e65100;
+}
+
+.restanteSr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.restanteAviso {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bn-error, #c62828);
+}
+
+.linha {
+  border-radius: 10px;
+  padding: 1rem;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.linhaPendente {
+  border: 1px solid rgba(198, 40, 40, 0.35);
+  background: var(--bn-bg-secondary, #fafafa);
+}
+
+.linhaValidada {
+  border: 1px solid rgba(46, 125, 50, 0.45);
+  background: rgba(232, 245, 233, 0.85);
+}
+
+.linhaHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.linhaCheck {
+  display: inline-flex;
+  color: var(--bn-primary, #2e7d32);
+}
+
+.tipoLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary, #555);
+}
+
+.valorRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.valorRow label {
+  font-size: 0.9375rem;
+}
+
+.valorInputWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.valorInput {
+  width: 8rem;
+  min-height: 44px;
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--bn-border, #ccc);
+}
+
+.valorInputErro {
+  border-color: var(--bn-error, #c62828);
+  outline: 1px solid rgba(198, 40, 40, 0.25);
+}
+
+.valorErroIcon {
+  display: inline-flex;
+  color: var(--bn-error, #c62828);
+  flex-shrink: 0;
+}
+
+.removerBtn {
+  margin-left: auto;
+  min-height: 40px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.875rem;
+  border: none;
+  background: transparent;
+  color: var(--bn-error, #c62828);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.removerBtn:hover {
+  color: #a00;
+}
+
+.selectCartao {
+  width: 100%;
+  max-width: 320px;
+  min-height: 44px;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.novoCartaoEscolha {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 0.5rem;
+}
+
+.novoCartaoEscolha .selectCartao {
+  margin-bottom: 0;
+}
+
+.pixInfo {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9375rem;
+  color: var(--text-secondary, #555);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coverageFill {
+    transition: none;
+  }
+}

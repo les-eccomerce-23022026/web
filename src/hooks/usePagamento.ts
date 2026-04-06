@@ -1,10 +1,11 @@
-import { useState, useCallback, useMemo } from 'react';
-import { PagamentoServiceApi } from '@/services/api/pagamentoServiceApi';
+import { useState, useCallback } from 'react';
+import { PagamentoService } from '@/services/pagamentoService';
 import type {
   IPagamentoInfo,
   IPagamentoSelecionado,
   IPagamentoDetalhes,
   ICupomAplicado,
+  IPagamentoParcial,
   IProcessarPagamentoInput,
   IProcessarPagamentoResultado,
 } from '@/interfaces/pagamento';
@@ -34,28 +35,26 @@ export function usePagamento() {
 
   const [pagamentoSelecionado, setPagamentoSelecionado] = useState<IPagamentoSelecionado | null>(null);
   const [cuponsAplicados, setCuponsAplicados] = useState<ICupomAplicado[]>([]);
-  const [pagamentosParciais, setPagamentosParciais] = useState<{ cartaoUuid: string; valor: number }[]>([]);
-
-  const service = useMemo(() => new PagamentoServiceApi(), []);
+  const [parcelasLiquidacao, setParcelasLiquidacao] = useState<IPagamentoParcial[]>([]);
 
   const carregarInfo = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const dados = await service.obterPagamentoInfo();
+      const dados = await PagamentoService.obterPagamentoInfo();
       setInfo(dados);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Erro ao carregar informações de pagamento'));
     } finally {
       setLoading(false);
     }
-  }, [service]);
+  }, []);
 
   const selecionarPagamento = useCallback(
     async (dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes | null> => {
       setError(null);
       try {
-        const resultado = await service.definirMetodoLiquidacao(dados);
+        const resultado = await PagamentoService.definirMetodoLiquidacao(dados);
         setPagamentoSelecionado(dados);
         return resultado;
       } catch (err) {
@@ -63,7 +62,7 @@ export function usePagamento() {
         return null;
       }
     },
-    [service],
+    [],
   );
 
   const aplicarCupom = useCallback(
@@ -85,35 +84,39 @@ export function usePagamento() {
     setCuponsAplicados((prev) => prev.filter((c) => c.uuid !== cupomUuid));
   }, []);
 
-  const adicionarPagamentoParcial = useCallback((cartaoUuid: string, valor: number) => {
+  const adicionarParcelaLiquidacao = useCallback((referenciaMeioPagamento: string, valor: number) => {
     if (!validarValorParcial(valor)) {
       setError(new Error('Valor mínimo por cartão é R$ 10,00'));
       return false;
     }
-    setPagamentosParciais((prev) => [...prev, { cartaoUuid, valor }]);
+    setParcelasLiquidacao((prev) => [...prev, { referenciaMeioPagamento, valor }]);
     return true;
   }, []);
 
-  const removerPagamentoParcial = useCallback((index: number) => {
-    setPagamentosParciais((prev) => prev.filter((_, i) => i !== index));
+  const removerParcelaLiquidacao = useCallback((index: number) => {
+    setParcelasLiquidacao((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const definirParcelasLiquidacao = useCallback((lista: IPagamentoParcial[]) => {
+    setParcelasLiquidacao(lista);
   }, []);
 
   const solicitarAutorizacaoFinanceiraCheckout = useCallback(
     async (
       vendaUuid: string,
       valorTotal: number,
-      pagamentosOverride?: { cartaoUuid: string; valor: number }[],
+      pagamentosOverride?: IPagamentoParcial[],
     ): Promise<IProcessarPagamentoResultado | null> => {
       setProcessando(true);
       setError(null);
       try {
         const pagamentosCartao = montarPagamentosCartaoParaAutorizacao(
           pagamentosOverride,
-          pagamentosParciais,
+          parcelasLiquidacao,
           pagamentoSelecionado,
           valorTotal,
         );
-        const intencao = await service.registrarIntencaoPagamento(valorTotal);
+        const intencao = await PagamentoService.registrarIntencaoPagamento(valorTotal);
         const dados: IProcessarPagamentoInput = {
           vendaUuid,
           pagamentosCartao,
@@ -122,9 +125,9 @@ export function usePagamento() {
           idIntencao: intencao.idIntencao,
           segredoConfirmacao: intencao.segredoConfirmacao,
         };
-        const resultado = await service.solicitarAutorizacaoFinanceiraCheckout(dados);
+        const resultado = await PagamentoService.solicitarAutorizacaoFinanceiraCheckout(dados);
         if (resultado.sucesso) {
-          setPagamentosParciais([]);
+          setParcelasLiquidacao([]);
         }
         return resultado;
       } catch (err) {
@@ -134,14 +137,14 @@ export function usePagamento() {
         setProcessando(false);
       }
     },
-    [service, pagamentoSelecionado, cuponsAplicados, pagamentosParciais],
+    [pagamentoSelecionado, cuponsAplicados, parcelasLiquidacao],
   );
 
   const limpar = useCallback(() => {
     setInfo(null);
     setPagamentoSelecionado(null);
     setCuponsAplicados([]);
-    setPagamentosParciais([]);
+    setParcelasLiquidacao([]);
     setError(null);
   }, []);
 
@@ -152,13 +155,14 @@ export function usePagamento() {
     processando,
     pagamentoSelecionado,
     cuponsAplicados,
-    pagamentosParciais,
+    parcelasLiquidacao,
     carregarInfo,
     selecionarPagamento,
     aplicarCupom,
     removerCupom,
-    adicionarPagamentoParcial,
-    removerPagamentoParcial,
+    adicionarParcelaLiquidacao,
+    removerParcelaLiquidacao,
+    definirParcelasLiquidacao,
     solicitarAutorizacaoFinanceiraCheckout,
     limpar,
     validarCartao,

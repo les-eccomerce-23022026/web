@@ -101,5 +101,9 @@
       "valor": 0.00,
       "prazo": "Disponível em 2 horas"
     }
-  ]
+  ],
+  "politicaParcelamentoCartao": {
+    "parcelasMaximas": 12,
+    "parcelasSemJuros": 6
+  }
 }

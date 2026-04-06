@@ -1,4 +1,5 @@
 import pagamentoMock from '@/mocks/pagamentoMock.json';
+import { POLITICA_PARCELAMENTO_CARTAO_PADRAO } from '@/interfaces/pagamento';
 import type {
   IPagamentoInfo,
   IPagamentoSelecionado,
@@ -7,6 +8,7 @@ import type {
   IProcessarPagamentoResultado,
   IIntencaoPagamentoResultado,
   ISelecionarPagamentoLiquidaBody,
+  IResumoPagamentosVenda,
 } from '@/interfaces/pagamento';
 import type { IPagamentoService } from '@/services/contracts/pagamentoService';
 
@@ -53,6 +55,9 @@ export class PagamentoServiceMock implements IPagamentoService {
     };
 
     const normalizedData: IPagamentoInfo = {
+      politicaParcelamentoCartao:
+        (pagamentoMock as unknown as IPagamentoInfo).politicaParcelamentoCartao ??
+        POLITICA_PARCELAMENTO_CARTAO_PADRAO,
       enderecosCliente: mockData.enderecosCliente.map(end => ({
         ...end,
         tipo: end.tipo || 'ambos',
@@ -104,8 +109,9 @@ export class PagamentoServiceMock implements IPagamentoService {
 
   async selecionarPagamentoLiquida(dados: ISelecionarPagamentoLiquidaBody): Promise<IPagamentoDetalhes> {
     console.log('[Mock] Liquidação por venda:', dados);
-    return delay({
-      id: crypto.randomUUID(),
+    const id = crypto.randomUUID();
+    const base: IPagamentoDetalhes = {
+      id,
       vendaUuid: dados.vendaUuid,
       valor: dados.valor,
       formaPagamento: {
@@ -114,7 +120,21 @@ export class PagamentoServiceMock implements IPagamentoService {
       },
       status: 'pendente',
       criadoEm: new Date(),
-    });
+    };
+    if (dados.tipoPagamento === 'pix') {
+      const exp = new Date(Date.now() + 30 * 60 * 1000);
+      return delay({
+        ...base,
+        pixCobranca: {
+          copiaCola: `00020126mock-pix-${id.slice(0, 8)}`,
+          qrCodeBase64:
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+          expiraEm: exp.toISOString(),
+          segredoConfirmacao: `mock-secret-${crypto.randomUUID()}`,
+        },
+      });
+    }
+    return delay(base);
   }
 
   async solicitarAutorizacaoFinanceira(pagamentoUuid: string): Promise<IPagamentoDetalhes> {
@@ -156,5 +176,22 @@ export class PagamentoServiceMock implements IPagamentoService {
       criadoEm: new Date(),
       processadoEm: new Date()
     });
+  }
+
+  async obterResumoPagamentosVenda(vendaUuid: string): Promise<IResumoPagamentosVenda> {
+    console.log('[Mock] Resumo pagamentos venda:', vendaUuid);
+    return delay({
+      vendaStatus: 'APROVADA',
+      aguardandoPix: false,
+      pagamentos: [],
+    });
+  }
+
+  async confirmarWebhookPixSimulado(payload: {
+    pagamentoUuid: string;
+    segredoConfirmacao: string;
+  }): Promise<void> {
+    console.log('[Mock] Webhook PIX simulado:', payload);
+    await delay(undefined);
   }
 }

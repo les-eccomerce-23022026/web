@@ -1,4 +1,7 @@
+import { Link } from 'react-router-dom';
+import { MapPin } from 'lucide-react';
 import styles from './FinalizarCompra.module.css';
+import enderecoStyles from '@/components/FinalizarCompra/Entrega/EnderecoEntregaCard.module.css';
 import { EnderecoEntregaCard } from '@/components/FinalizarCompra/Entrega';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 
@@ -36,17 +39,18 @@ export const FinalizarCompraEnderecoCard = ({
   return (
     <div className={`card ${styles['checkout-card-spaced']}`}>
       <h3>Endereço de Entrega</h3>
-      <p>
-        {data.enderecoEntrega.logradouro}, {data.enderecoEntrega.numero},{' '}
-        {data.enderecoEntrega.complemento}
-      </p>
-      <p>
-        {data.enderecoEntrega.cidade} - {data.enderecoEntrega.estado}, CEP:{' '}
-        {data.enderecoEntrega.cep}
-      </p>
-      <a href="#" className={styles['checkout-link-alt']}>
-        Alterar endereço
-      </a>
+      <div className={enderecoStyles['sem-enderecos']} data-cy="checkout-no-addresses">
+        <MapPin size={48} strokeWidth={1.5} />
+        <p>Nenhum endereço cadastrado</p>
+        <span>É necessário cadastrar um endereço para continuar a compra.</span>
+        <Link
+          to="/perfil"
+          className="btn-secondary"
+          data-cy="checkout-add-address-link"
+        >
+          Ir ao perfil para cadastrar endereço
+        </Link>
+      </div>
     </div>
   );
 };

@@ -110,5 +110,13 @@
       "estoque": 10,
       "sinopse": "A Menina que Roubava Livros, de Markus Zusak, é narrado pela Morte e conta a história de Liesel Meminger, uma menina que vive na Alemanha Nazista durante a Segunda Guerra Mundial e encontra nos livros roubados e nas palavras uma forma de resistência e redenção em meio ao horror da guerra."
     }
+  ],
+  "categoriasMenu": [
+    { "slug": "fantasia", "nome": "Fantasia" },
+    { "slug": "ficcao-cientifica", "nome": "Ficção Científica" },
+    { "slug": "classicos", "nome": "Clássicos" },
+    { "slug": "distopia", "nome": "Distopia" },
+    { "slug": "literatura-brasileira", "nome": "Literatura Brasileira" },
+    { "slug": "tecnologia", "nome": "Tecnologia" }
   ]
 }

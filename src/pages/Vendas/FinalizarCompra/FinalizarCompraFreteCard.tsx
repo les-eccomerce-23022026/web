@@ -8,6 +8,7 @@ type Props = {
   freteSelecionado: IFreteOpcao | null;
   onFreteSelecionado: (frete: IFreteOpcao) => void;
   subtotal: number;
+  initialCep?: string;
 };
 
 export const FinalizarCompraFreteCard = ({
@@ -15,6 +16,7 @@ export const FinalizarCompraFreteCard = ({
   freteSelecionado,
   onFreteSelecionado,
   subtotal,
+  initialCep,
 }: Props) => (
   <div className={`card ${styles['checkout-card-spaced']}`}>
     <h3 className={styles['checkout-section-title']}>Frete</h3>
@@ -24,6 +26,7 @@ export const FinalizarCompraFreteCard = ({
       freteSelecionado={freteSelecionado}
       pesoTotal={1}
       valorTotal={subtotal}
+      initialCep={initialCep}
     />
     {freteSelecionado && (
       <p className={styles['frete-selecionado-info']}>

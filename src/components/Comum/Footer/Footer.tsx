@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useAppSelector } from '@/store/hooks';
 import './Footer.css';
 
 export const Footer = () => {
+  const categoriasMenu = useAppSelector((state) => state.livro.categoriasMenu);
+
   return (
     <footer className="footer">
       <div className="container footer-content">
@@ -15,8 +18,11 @@ export const Footer = () => {
           <ul>
             <li><Link to="/">Início</Link></li>
             <li><Link to="/mais-vendidos">Mais Vendidos</Link></li>
-            <li><Link to="/categoria/ficcao">Ficção</Link></li>
-            <li><Link to="/categoria/nao-ficcao">Não-Ficção</Link></li>
+            {categoriasMenu.slice(0, 6).map((c) => (
+              <li key={c.slug}>
+                <Link to={`/categoria/${c.slug}`}>{c.nome}</Link>
+              </li>
+            ))}
           </ul>
         </div>
 

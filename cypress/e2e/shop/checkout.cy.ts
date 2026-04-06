@@ -33,14 +33,14 @@ describe('Checkout (Finalização de Compra)', () => {
   });
 
   it('deve listar o endereço de entrega do mock', () => {
-    // Baseado no checkoutMock.json ("Rua Bela Vista")
+    // Baseado no checkoutMock.json (lista em EnderecoEntregaCard)
     cy.contains('Endereço de Entrega').should('be.visible');
+    cy.get('[data-cy="checkout-addresses"]').should('be.visible');
     cy.contains('Rua Bela Vista').should('exist');
-    cy.contains('a', 'Alterar endereço').should('be.visible');
   });
 
   it('deve oferecer componentes para a etapa de pagamento (múltiplos cartões, cupons)', () => {
-    cy.getDataCy('checkout-payment-section-title').should('be.visible').and('contain', 'Como você prefere pagar');
+    cy.getDataCy('checkout-payment-section-title').should('be.visible').and('contain', 'Como você quer pagar');
     cy.getDataCy('checkout-saved-cards').should('exist');
     cy.getDataCy('checkout-add-card-button').should('be.visible');
     

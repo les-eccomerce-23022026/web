@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAppDispatch } from './store/hooks';
+import { store } from './store';
 import { fetchCarrinho } from './store/slices/carrinhoSlice';
-import { fetchLivros } from './store/slices/livroSlice';
+import { fetchCategoriasCatalogo } from './store/slices/livroSlice';
 import { fetchAdmins } from './store/slices/adminSlice';
 import { restoreSession } from './store/slices/authSlice';
 import { BaseLayout } from '@/components/Comum/BaseLayout/BaseLayout';
@@ -13,6 +14,7 @@ import { Carrinho } from '@/pages/Vendas/Carrinho/Carrinho';
 import { FinalizarCompra } from '@/pages/Vendas/FinalizarCompra/FinalizarCompra';
 import { PagamentoRedirecionaFinalizarCompra } from '@/pages/Vendas/Pagamento/Pagamento';
 import { PedidoConfirmado } from '@/pages/Vendas/PedidoConfirmado/PedidoConfirmado';
+import { PagamentoPix } from '@/pages/Vendas/PagamentoPix/PagamentoPix';
 import { MeusPedidos } from '@/pages/Vendas/MeusPedidos/MeusPedidos';
 import { SolicitarTroca } from '@/pages/Vendas/SolicitarTroca/SolicitarTroca';
 import { AutenticacaoCliente } from '@/pages/CadastroClientes/AutenticacaoCliente/AutenticacaoCliente';
@@ -33,8 +35,11 @@ const App = () => {
     // Restaura a sessão antes de qualquer outra busca para evitar redirect prematuro
     dispatch(restoreSession()).finally(() => {
       dispatch(fetchCarrinho());
-      dispatch(fetchLivros());
-      dispatch(fetchAdmins());
+      dispatch(fetchCategoriasCatalogo());
+      const role = store.getState().auth.user?.role;
+      if (role === 'admin') {
+        dispatch(fetchAdmins());
+      }
     });
   }, [dispatch]);
 
@@ -53,6 +58,7 @@ const App = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="checkout" element={<FinalizarCompra />} />
             <Route path="pagamento" element={<PagamentoRedirecionaFinalizarCompra />} />
+            <Route path="pagamento-pix" element={<PagamentoPix />} />
             <Route path="pedido-confirmado" element={<PedidoConfirmado />} />
             <Route path="perfil" element={<MeuPerfil />} />
             <Route path="pedidos" element={<MeusPedidos />} />

@@ -14,13 +14,23 @@ function preencherEntregaCheckoutMinimo() {
   cy.get('[data-cy="checkout-freight-option-PAC"]').click({ force: true });
 }
 
-function selecionarPrimeiroCartaoPagamentoParcial() {
-  cy.get('[data-cy="checkout-partial-card-select"]')
-    .find('option')
-    .eq(1)
-    .then((o) => {
-      cy.get('[data-cy="checkout-partial-card-select"]').select(o.val() as string);
-    });
+/** Split: segunda linha com cartão salvo (fixture card-002) e valores que fecham o total (~94,90). */
+function configurarSplitDoisCartoesSalvos() {
+  cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('50');
+  cy.get('[data-cy="checkout-split-add-saved-card"]').click();
+  cy.get('[data-cy="checkout-split-line-card-select"]').eq(1).select('card-002');
+  cy.get('[data-cy="checkout-split-line-value"]').eq(1).clear().type('44.90');
+}
+
+function abrirModalNovoCartaoNaSegundaLinha() {
+  cy.get('[data-cy="checkout-split-add-new-card"]').click();
+  cy.get('body').then(($body) => {
+    if ($body.find('[data-cy="checkout-split-inform-new-card"]').length) {
+      cy.get('[data-cy="checkout-split-inform-new-card"]').click();
+    } else {
+      cy.get('[data-cy="checkout-add-card-button"]').click();
+    }
+  });
 }
 
 describe('Pagamento - Checkout', () => {
@@ -56,15 +66,12 @@ describe('Pagamento - Checkout', () => {
     });
 
     it('deve abrir modal para novo cartão', () => {
-      cy.get('[data-cy="checkout-add-card-button"]')
-        .click();
-      
-      cy.get('[data-cy="checkout-new-card-form"]')
-        .should('be.visible');
+      abrirModalNovoCartaoNaSegundaLinha();
+      cy.get('[data-cy="checkout-new-card-form"]').should('be.visible');
     });
 
     it('deve preencher e validar novo cartão', () => {
-      cy.get('[data-cy="checkout-add-card-button"]').click();
+      abrirModalNovoCartaoNaSegundaLinha();
       
       // Preencher dados do cartão Visa válido (número de teste)
       cy.get('[data-cy="checkout-card-number-input"]')
@@ -96,7 +103,7 @@ describe('Pagamento - Checkout', () => {
     });
 
     it('deve validar número de cartão com Luhn', () => {
-      cy.get('[data-cy="checkout-add-card-button"]').click();
+      abrirModalNovoCartaoNaSegundaLinha();
       
       // Número inválido (falha no Luhn)
       cy.get('[data-cy="checkout-card-number-input"]')
@@ -121,7 +128,7 @@ describe('Pagamento - Checkout', () => {
     });
 
     it('deve validar cartão expirado', () => {
-      cy.get('[data-cy="checkout-add-card-button"]').click();
+      abrirModalNovoCartaoNaSegundaLinha();
       
       cy.get('[data-cy="checkout-card-number-input"]')
         .type('4111111111111111');
@@ -145,7 +152,7 @@ describe('Pagamento - Checkout', () => {
     });
 
     it('deve detectar bandeira American Express e validar CVV de 4 dígitos', () => {
-      cy.get('[data-cy="checkout-add-card-button"]').click();
+      abrirModalNovoCartaoNaSegundaLinha();
       
       // Amex número
       cy.get('[data-cy="checkout-card-number-input"]')
@@ -274,86 +281,50 @@ describe('Pagamento - Checkout', () => {
 
   describe('Pagamento Parcial (Múltiplos Cartões)', () => {
     it('deve exibir opção de pagamento parcial', () => {
-      cy.get('[data-cy="checkout-partial-payment"]')
-        .should('exist');
+      cy.get('[data-cy="checkout-partial-payment"]').should('exist');
+      cy.get('[data-cy="checkout-split-payment"]').should('exist');
     });
 
     it('deve adicionar pagamento parcial com cartão', () => {
-      // Selecionar cartão
-      selecionarPrimeiroCartaoPagamentoParcial();
-      
-      // Digitar valor
-      cy.get('[data-cy="checkout-partial-value-input"]')
-        .type('50');
-      
-      // Adicionar
-      cy.get('[data-cy="checkout-add-partial-payment-button"]')
-        .click();
-      
-      cy.get('[data-cy="checkout-partial-payments-list"]')
-        .should('exist')
-        .should('contain', 'R$ 50,00');
+      configurarSplitDoisCartoesSalvos();
+      cy.get('[data-cy="checkout-split-restante"]').should('contain', 'OK');
     });
 
-    it('deve validar valor mínimo de R$ 10,00 por cartão', () => {
-      selecionarPrimeiroCartaoPagamentoParcial();
-      
-      cy.get('[data-cy="checkout-partial-value-input"]')
-        .type('5');
-      
-      cy.get('[data-cy="checkout-add-partial-payment-button"]')
-        .click();
-      
-      cy.get('[data-cy="checkout-partial-payment-error"]')
-        .should('exist')
-        .should('contain', 'mínimo');
+    it('deve exibir valor por parcela e rótulo sem juros ou com juros no select', () => {
+      cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('100');
+      cy.get('[data-cy="checkout-split-line-parcelas"]')
+        .first()
+        .find('option[value="3"]')
+        .should('contain', '3x de R$ 33,33')
+        .should('contain', 'sem juros');
+      cy.get('[data-cy="checkout-split-line-parcelas"]')
+        .first()
+        .find('option[value="10"]')
+        .should('contain', '10x de R$ 10,00')
+        .should('contain', 'com juros');
     });
 
-    it('deve remover pagamento parcial', () => {
-      // Adicionar pagamento
-      selecionarPrimeiroCartaoPagamentoParcial();
-      
-      cy.get('[data-cy="checkout-partial-value-input"]')
-        .type('50');
-      
-      cy.get('[data-cy="checkout-add-partial-payment-button"]')
-        .click();
-      
-      // Remover
-      cy.get('[data-cy="checkout-partial-payment-remove-0"]')
-        .click();
-      
-      cy.get('[data-cy="checkout-partial-payments-list"]')
-        .should('not.exist');
+    it('deve validar valor mínimo de R$ 10,00 por cartão no split (RN0034)', () => {
+      cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('85');
+      cy.get('[data-cy="checkout-split-add-saved-card"]').click();
+      cy.get('[data-cy="checkout-split-line-card-select"]').eq(1).select('card-002');
+      cy.get('[data-cy="checkout-split-line-value"]').eq(1).clear().type('5');
+      cy.get('[data-cy="checkout-split-rn34-error"]').should('exist').should('contain', 'mínimo');
     });
 
-    it('deve validar valor não excedente', () => {
-      // Tentar adicionar valor maior que o total
-      selecionarPrimeiroCartaoPagamentoParcial();
-      
-      cy.get('[data-cy="checkout-partial-value-input"]')
-        .type('9999');
-      
-      cy.get('[data-cy="checkout-add-partial-payment-button"]')
-        .click();
-      
-      cy.get('[data-cy="checkout-partial-payment-error"]')
-        .should('exist')
-        .should('contain', 'exceder');
+    it('deve remover linha de pagamento parcial', () => {
+      configurarSplitDoisCartoesSalvos();
+      cy.get('[data-cy="checkout-split-remove-line-1"]').click();
+      cy.get('[data-cy="checkout-split-line-1"]').should('not.exist');
     });
 
-    it('deve mostrar pagamento completo quando valor total coberto', () => {
-      // Adicionar pagamento igual ao total
-      selecionarPrimeiroCartaoPagamentoParcial();
-      
-      cy.get('[data-cy="checkout-partial-value-input"]')
-        .type('94.90');
-      
-      cy.get('[data-cy="checkout-add-partial-payment-button"]')
-        .click();
-      
-      cy.get('[data-cy="checkout-partial-payment"]')
-        .should('contain', 'Pagamento completo');
+    it('deve indicar ajuste quando soma das linhas não fecha o total', () => {
+      cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('9999');
+      cy.get('[data-cy="checkout-split-restante"]').should('contain', 'Ajuste');
+    });
+
+    it('deve mostrar OK no restante quando valor total coberto nas linhas', () => {
+      cy.get('[data-cy="checkout-split-restante"]').should('contain', 'OK');
     });
   });
 
@@ -453,7 +424,7 @@ describe('Pagamento - Checkout', () => {
       }).as('salvarCartaoPerfilCheckout');
 
       preencherEntregaCheckoutMinimo();
-      cy.get('[data-cy="checkout-add-card-button"]').click();
+      abrirModalNovoCartaoNaSegundaLinha();
       cy.get('[data-cy="checkout-card-number-input"]').type('4111111111111111');
       cy.get('[data-cy="checkout-card-name-input"]').type('JOAO DA SILVA');
       cy.get('[data-cy="checkout-card-expiry-input"]').type('12/30');
@@ -479,7 +450,7 @@ describe('Pagamento - Checkout', () => {
       });
 
       preencherEntregaCheckoutMinimo();
-      cy.get('[data-cy="checkout-add-card-button"]').click();
+      abrirModalNovoCartaoNaSegundaLinha();
       cy.get('[data-cy="checkout-card-number-input"]').type('4111111111111111');
       cy.get('[data-cy="checkout-card-name-input"]').type('JOAO DA SILVA');
       cy.get('[data-cy="checkout-card-expiry-input"]').type('12/30');
@@ -509,18 +480,31 @@ describe('Pagamento - Checkout', () => {
 
     it('deve finalizar compra com pagamento parcial', () => {
       preencherEntregaCheckoutMinimo();
-      selecionarPrimeiroCartaoPagamentoParcial();
-      cy.get('[data-cy="checkout-partial-value-input"]').type('50');
-      cy.get('[data-cy="checkout-add-partial-payment-button"]').click();
-
-      cy.get('[data-cy="checkout-card-item-5678"]').click();
+      configurarSplitDoisCartoesSalvos();
+      cy.get('[data-cy="checkout-split-restante"]').should('contain', 'OK');
 
       cy.get('[data-cy="checkout-finish-button"]').click();
 
       cy.url().should('include', '/pedido-confirmado');
     });
 
+    it('deve finalizar compra com split cartão + PIX', () => {
+      preencherEntregaCheckoutMinimo();
+      cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('50');
+      cy.get('[data-cy="checkout-split-add-pix"]').click();
+      cy.get('[data-cy="checkout-split-line-value"]').eq(1).clear().type('44.90');
+      cy.get('[data-cy="checkout-split-restante"]').should('contain', 'OK');
+      cy.get('[data-cy="checkout-finish-button"]').click();
+      cy.url().should('include', '/pagamento-pix');
+      cy.get('[data-cy="pagamento-pix-page"]').should('be.visible');
+      cy.get('[data-cy="pagamento-pix-simular-webhook"]').click();
+      cy.url({ timeout: 20000 }).should('include', '/pedido-confirmado');
+    });
+
     it('deve manter botão desabilitado sem forma de pagamento (com entrega ok)', () => {
+      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      cy.intercept('GET', `${apiUrl}/pagamento/info`, { fixture: 'pagamento-info-checkout-sem-cartoes.json' });
+      cy.visit('/checkout');
       preencherEntregaCheckoutMinimo();
       cy.get('[data-cy="checkout-finish-button"]').should('be.disabled');
     });
@@ -533,11 +517,7 @@ describe('Pagamento - Checkout', () => {
     });
 
     it('deve atualizar resumo com pagamento parcial', () => {
-      selecionarPrimeiroCartaoPagamentoParcial();
-
-      cy.get('[data-cy="checkout-partial-value-input"]').type('50');
-
-      cy.get('[data-cy="checkout-add-partial-payment-button"]').click();
+      cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('50');
 
       cy.get('[data-cy="checkout-summary-list"]')
         .should('contain', 'Pago com Cartões')
@@ -582,9 +562,7 @@ describe('Pagamento - Checkout', () => {
     it('deve manter botão desabilitado quando saldo não está coberto (parcial sem cartão do restante)', () => {
       cy.visit('/checkout');
       preencherEntregaCheckoutMinimo();
-      selecionarPrimeiroCartaoPagamentoParcial();
-      cy.get('[data-cy="checkout-partial-value-input"]').type('10');
-      cy.get('[data-cy="checkout-add-partial-payment-button"]').click();
+      cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('10');
       cy.get('[data-cy="checkout-finish-button"]').should('be.disabled');
       cy.contains('cubram o total restante').should('exist');
     });
@@ -616,7 +594,7 @@ describe('Pagamento - Checkout', () => {
     });
 
     it('deve permitir visualizar CVV', () => {
-      cy.get('[data-cy="checkout-add-card-button"]').click();
+      abrirModalNovoCartaoNaSegundaLinha();
       
       cy.get('[data-cy="checkout-card-cvv-input"]')
         .type('123');
@@ -633,7 +611,7 @@ describe('Pagamento - Checkout', () => {
     });
 
     it('deve validar bandeiras permitidas', () => {
-      cy.get('[data-cy="checkout-add-card-button"]').click();
+      abrirModalNovoCartaoNaSegundaLinha();
       
       // Tentar cartão com bandeira não suportada
       cy.get('[data-cy="checkout-card-number-input"]')

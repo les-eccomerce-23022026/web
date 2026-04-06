@@ -20,16 +20,22 @@ type AdicionarCartaoFn = (cartao: Omit<ICartaoCliente, 'uuid'>) => Promise<ICart
 /**
  * Se o usuário marcou "Salvar cartão para compras futuras", persiste no perfil após o pedido.
  * Falhas são tratadas pelo caller (ex.: aviso sem desfazer o pedido).
- * `usuarioUuid` é repassado ao serviço (ex.: mock em memória por usuário).
  */
-export async function salvarCartaoPerfilSeSolicitado(
-  novoCartao: ICartaoCreditoInput | undefined | null,
+export async function salvarCartoesPerfilSeSolicitado(
+  novosCartoesPorLinha: Record<string, ICartaoCreditoInput> | undefined,
+  novoCartaoFallback: ICartaoCreditoInput | undefined | null,
   usuarioUuid?: string,
   adicionarCartao: AdicionarCartaoFn = (c) =>
     ClienteService.adicionarCartao(c, usuarioUuid ? { userUuid: usuarioUuid } : undefined),
 ): Promise<void> {
-  if (!novoCartao?.salvarCartao) {
+  const porLinha = novosCartoesPorLinha ? Object.values(novosCartoesPorLinha).filter((c) => c.salvarCartao) : [];
+  if (porLinha.length > 0) {
+    for (const c of porLinha) {
+      await adicionarCartao(montarPayloadAdicionarCartaoCheckout(c));
+    }
     return;
   }
-  await adicionarCartao(montarPayloadAdicionarCartaoCheckout(novoCartao));
+  if (novoCartaoFallback?.salvarCartao) {
+    await adicionarCartao(montarPayloadAdicionarCartaoCheckout(novoCartaoFallback));
+  }
 }

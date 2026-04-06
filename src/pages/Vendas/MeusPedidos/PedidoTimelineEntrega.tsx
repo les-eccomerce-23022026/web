@@ -1,35 +1,8 @@
 import type { StatusPedido } from '@/interfaces/pedido';
+import { statusParaEtapaConcluida } from './pedidoEntregaEtapas';
 import styles from './PedidoTimelineEntrega.module.css';
 
-const LABELS = [
-  'Pedido realizado',
-  'Preparando',
-  'Em trânsito',
-  'Entregue',
-];
-
-/** Maior etapa concluída (1–4). Troca pós-entrega = 4. Cancelado = 0. */
-function statusParaEtapaConcluida(status: StatusPedido): number | 'cancelado' {
-  switch (status) {
-    case 'Cancelado':
-      return 'cancelado';
-    case 'Pendentes':
-    case 'Em Processamento':
-      return 1;
-    case 'Preparando':
-    case 'Devoluções':
-      return 2;
-    case 'Em Trânsito':
-      return 3;
-    case 'Entregue':
-    case 'Em Troca':
-    case 'Troca Autorizada':
-    case 'Trocado':
-      return 4;
-    default:
-      return 1;
-  }
-}
+const LABELS = ['Pedido realizado', 'Preparando', 'Em trânsito', 'Entregue'];
 
 function ariaLabel(etapa: number | 'cancelado'): string {
   if (etapa === 'cancelado') return 'Pedido cancelado. Entrega não aplicável.';

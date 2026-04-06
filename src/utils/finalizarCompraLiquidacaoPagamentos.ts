@@ -2,7 +2,14 @@ import type { ICartaoSalvo } from '@/interfaces/checkout';
 import type { ICupomAplicado } from '@/interfaces/pagamento';
 import type { IPagamentoService } from '@/services/contracts/pagamentoService';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
-import { calcularDescontoCupons } from '@/utils/checkoutCupomTotais';
+import type { IPagamentoParcial } from '@/interfaces/pagamento';
+import type { IPixCobrancaSimulada } from '@/interfaces/pagamento';
+import { calcularDescontoCupons } from '@/utils/finalizarCompraCupomTotais';
+import {
+  idDePrefixoNovo,
+  isLinhaNovoCartao,
+  isLinhaPix,
+} from '@/utils/finalizarCompraLinhasPagamento';
 
 /** Bandeiras aceitas pelo backend (`CartaoCredito`). */
 export function normalizarBandeiraCartao(bandeira: string): string {
@@ -45,11 +52,15 @@ export function cartaoTesteParaBandeira(bandeira: string): {
 }
 
 function resolverCartaoParaSelecionar(
-  linha: { cartaoUuid: string; valor: number },
+  linha: IPagamentoParcial,
   opcoes: OpcoesFinalizarCheckout | undefined,
   cartoesSalvos: ICartaoSalvo[],
 ): { numero: string; nomeTitular: string; validade: string; bandeira: string } {
-  if (linha.cartaoUuid === 'novo' && opcoes?.novoCartao) {
+  const ref = linha.referenciaMeioPagamento;
+  if (isLinhaPix(ref)) {
+    throw new Error('PIX não utiliza dados de cartão');
+  }
+  if (ref === 'novo' && opcoes?.novoCartao) {
     const c = opcoes.novoCartao;
     return {
       numero: c.numero.replace(/\s/g, ''),
@@ -58,7 +69,20 @@ function resolverCartaoParaSelecionar(
       bandeira: normalizarBandeiraCartao(c.bandeira),
     };
   }
-  const salvo = cartoesSalvos.find((c) => c.uuid === linha.cartaoUuid);
+  if (isLinhaNovoCartao(ref)) {
+    const id = idDePrefixoNovo(ref);
+    const c = opcoes?.novosCartoesPorLinha?.[id] ?? opcoes?.novoCartao;
+    if (!c) {
+      throw new Error('Dados do novo cartão não encontrados para a liquidação.');
+    }
+    return {
+      numero: c.numero.replace(/\s/g, ''),
+      nomeTitular: c.nomeTitular,
+      validade: c.validade,
+      bandeira: normalizarBandeiraCartao(c.bandeira),
+    };
+  }
+  const salvo = cartoesSalvos.find((c) => c.uuid === ref);
   if (!salvo) {
     throw new Error('Cartão não encontrado para a liquidação.');
   }
@@ -95,16 +119,50 @@ export function validarSomaPagamentosVsPedido(
   }
 }
 
+/** Linha PIX pendente de liquidação via webhook (após POST /pagamentos/selecionar). */
+export type PixPendenteInfo = {
+  pagamentoUuid: string;
+  copiaCola: string;
+  qrCodeBase64: string | null;
+  expiraEm: string;
+  segredoConfirmacao: string;
+  valor: number;
+};
+
+export type ResultadoLiquidacaoPagamentos = {
+  pixPendente: boolean;
+  pixPendentes: PixPendenteInfo[];
+};
+
+function montarPixPendente(
+  pagamentoUuid: string,
+  valor: number,
+  pix: IPixCobrancaSimulada,
+): PixPendenteInfo {
+  return {
+    pagamentoUuid,
+    copiaCola: pix.copiaCola,
+    qrCodeBase64: pix.qrCodeBase64,
+    expiraEm: pix.expiraEm,
+    segredoConfirmacao: pix.segredoConfirmacao,
+    valor,
+  };
+}
+
+/**
+ * Registra cupons, processa cartões (síncrono) e cria cobranças PIX (assíncrono — sem POST .../processar).
+ * Cartões são processados antes das linhas PIX para manter o status da venda coerente.
+ */
 export async function executarPagamentosAposCriarVenda(params: {
   pagamentoService: IPagamentoService;
   vendaUuid: string;
   subtotal: number;
   frete: number;
   cuponsAplicados: ICupomAplicado[];
-  pagamentosEfetivos: { cartaoUuid: string; valor: number }[];
+  pagamentosEfetivos: IPagamentoParcial[];
   opcoesOpcional?: OpcoesFinalizarCheckout;
   cartoesSalvos: ICartaoSalvo[];
-}): Promise<void> {
+}): Promise<ResultadoLiquidacaoPagamentos> {
   const {
     pagamentoService,
     vendaUuid,
@@ -140,14 +198,37 @@ export async function executarPagamentosAposCriarVenda(params: {
   const somaCartoes = pagamentosEfetivos.reduce((s, p) => s + p.valor, 0);
   validarSomaPagamentosVsPedido(totalPedido, cuponsAplicados, subtotal, somaCartoes);
 
-  for (const linha of pagamentosEfetivos) {
+  const linhasCartao = pagamentosEfetivos.filter((l) => !isLinhaPix(l.referenciaMeioPagamento));
+  const linhasPix = pagamentosEfetivos.filter((l) => isLinhaPix(l.referenciaMeioPagamento));
+  const pixPendentes: PixPendenteInfo[] = [];
+
+  for (const linha of linhasCartao) {
     const cartao = resolverCartaoParaSelecionar(linha, opcoesOpcional, cartoesSalvos);
     const resposta = await pagamentoService.selecionarPagamentoLiquida({
       vendaUuid,
       valor: linha.valor,
       tipoPagamento: 'cartao_credito',
+      parcelasCartao: linha.parcelasCartao ?? 1,
       cartao,
     });
     await pagamentoService.solicitarAutorizacaoFinanceira(resposta.id);
   }
+
+  for (const linha of linhasPix) {
+    const resposta = await pagamentoService.selecionarPagamentoLiquida({
+      vendaUuid,
+      valor: linha.valor,
+      tipoPagamento: 'pix',
+    });
+    const pix = resposta.pixCobranca;
+    if (!pix) {
+      throw new Error('Resposta PIX sem dados de cobrança (copia-e-cola).');
+    }
+    pixPendentes.push(montarPixPendente(resposta.id, linha.valor, pix));
+  }
+
+  return {
+    pixPendente: pixPendentes.length > 0,
+    pixPendentes,
+  };
 }

@@ -125,6 +125,18 @@ export function useEntrega() {
     setError(null);
   }, []);
 
+  /** Restaura cotação vinda do carrinho (Redux) no checkout. */
+  const hidratarFrete = useCallback(
+    (payload: { freteCalculado: IFreteCalculoOutput; opcao: IFreteOpcao; cep: string }) => {
+      setFreteCalculado(payload.freteCalculado);
+      setFreteSelecionado(payload.opcao);
+      const cepLimpo = payload.cep.replace(/\D/g, '');
+      setCepDestino(cepLimpo.length === 8 ? cepLimpo : payload.cep);
+      setError(null);
+    },
+    [],
+  );
+
   return {
     // Estado
     freteCalculado,
@@ -139,7 +151,8 @@ export function useEntrega() {
     selecionarFrete,
     cadastrarEntrega,
     limparFrete,
-    
+    hidratarFrete,
+
     // Utilitários
     validarCep,
     formatarCep

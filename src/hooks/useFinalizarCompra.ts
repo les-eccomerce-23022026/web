@@ -1,16 +1,18 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PagamentoService } from '@/services/pagamentoService';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { limparCotacaoFreteCarrinho } from '@/store/slices/cotacaoFreteSlice';
+import { assinaturaItensCarrinho } from '@/utils/carrinhoAssinatura';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import { usePagamento } from './usePagamento';
 import { useEntrega } from './useEntrega';
 import type { FreteCalculoEntregaApi } from '@/components/FinalizarCompra/Entrega';
-import { buildCheckoutInfoFromPagamento } from '@/utils/checkoutFromPagamentoInfo';
+import { buildCheckoutInfoFromPagamento } from '@/utils/finalizarCompraFromPagamentoInfo';
 import {
   executarFinalizarCheckout,
   tratarErroFinalizarCheckout,
-} from '@/utils/checkoutExecutarFinalizar';
+} from '@/utils/executarFinalizacaoCompra';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
 
 export type { OpcoesFinalizarCheckout } from '@/types/checkout';
@@ -29,6 +31,7 @@ export function useFinalizarCompra() {
 
   const carrinho = useAppSelector((state) => state.carrinho.data);
   const usuario = useAppSelector((state) => state.auth.user);
+  const cotacaoPersistida = useAppSelector((state) => state.cotacaoFrete.cotacao);
 
   const entrega = useEntrega();
   const {
@@ -41,7 +44,40 @@ export function useFinalizarCompra() {
     formatarCep,
     validarCep,
     cadastrarEntrega,
+    hidratarFrete,
+    cepDestino,
   } = entrega;
+
+  const freteHidratacaoRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!carrinho || !cotacaoPersistida) {
+      freteHidratacaoRef.current = null;
+      return;
+    }
+    const assinatura = assinaturaItensCarrinho(carrinho);
+    const EPS = 0.005;
+    const subtotalOk =
+      Math.abs(cotacaoPersistida.subtotalCotado - carrinho.resumo.subtotal) < EPS;
+    const assinaturaOk =
+      cotacaoPersistida.assinaturaItens === assinatura && assinatura.length > 0;
+
+    if (!assinaturaOk || !subtotalOk) {
+      freteHidratacaoRef.current = null;
+      dispatch(limparCotacaoFreteCarrinho());
+      return;
+    }
+
+    const chave = `${cotacaoPersistida.opcaoSelecionada.uuid}:${assinatura}:${cotacaoPersistida.subtotalCotado}`;
+    if (freteHidratacaoRef.current === chave) return;
+    freteHidratacaoRef.current = chave;
+
+    hidratarFrete({
+      freteCalculado: cotacaoPersistida.freteCalculado,
+      opcao: cotacaoPersistida.opcaoSelecionada,
+      cep: cotacaoPersistida.cepDestino,
+    });
+  }, [carrinho, cotacaoPersistida, dispatch, hidratarFrete]);
 
   const entregaParaFreteCalculo: FreteCalculoEntregaApi = useMemo(
     () => ({
@@ -57,11 +93,12 @@ export function useFinalizarCompra() {
 
   const {
     cuponsAplicados,
-    pagamentosParciais,
+    parcelasLiquidacao,
     aplicarCupom,
     removerCupom,
-    adicionarPagamentoParcial,
-    removerPagamentoParcial,
+    adicionarParcelaLiquidacao,
+    removerParcelaLiquidacao,
+    definirParcelasLiquidacao,
   } = usePagamento();
 
   const carregarInformacoesFinalizarCompra = useCallback(async () => {
@@ -96,7 +133,7 @@ export function useFinalizarCompra() {
           carrinho,
           usuario,
           cuponsAplicados,
-          pagamentosParciais,
+          parcelasLiquidacao,
           freteSelecionado,
           opcoes,
           dispatch,
@@ -120,7 +157,7 @@ export function useFinalizarCompra() {
       carrinho,
       usuario,
       cuponsAplicados,
-      pagamentosParciais,
+      parcelasLiquidacao,
       freteSelecionado,
       dispatch,
       navigate,
@@ -137,13 +174,15 @@ export function useFinalizarCompra() {
     handleFinalizarCompra,
     recarregar: carregarInformacoesFinalizarCompra,
     cuponsAplicados,
-    pagamentosParciais,
+    parcelasLiquidacao,
     aplicarCupom,
     removerCupom,
-    adicionarPagamentoParcial,
-    removerPagamentoParcial,
+    adicionarParcelaLiquidacao,
+    removerParcelaLiquidacao,
+    definirParcelasLiquidacao,
     freteSelecionado,
     selecionarFrete,
     entregaParaFreteCalculo,
+    cepDestinoFrete: cepDestino,
   };
 }

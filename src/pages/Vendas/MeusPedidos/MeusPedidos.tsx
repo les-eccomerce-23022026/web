@@ -13,11 +13,14 @@ import type { ILivro } from '@/interfaces/livro';
 import styles from './MeusPedidos.module.css';
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 import { PedidoTimelineEntrega } from './PedidoTimelineEntrega';
+import { percentualBarraEntrega } from './pedidoEntregaEtapas';
+import { getPedidoStatusVisual, type PedidoStatusVariant } from './pedidoStatusVisual';
 
 type AbaGrupo = 'todos' | 'aberto' | 'finalizados';
 
 const STATUS_EM_ABERTO: StatusPedido[] = [
   'Pendentes',
+  'Aguardando Pagamento',
   'Em Processamento',
   'Preparando',
   'Em Trânsito',
@@ -27,9 +30,6 @@ const STATUS_EM_ABERTO: StatusPedido[] = [
 ];
 
 const STATUS_FINALIZADOS: StatusPedido[] = ['Entregue', 'Trocado', 'Cancelado'];
-
-/** Valor do select para “sem refinamento”. Evita outro `value=""` nas opções dinâmicas. */
-const FILTRO_STATUS_TODOS = '__mp_todos__';
 
 function passaAbaGrupo(p: IPedido, aba: AbaGrupo): boolean {
   if (aba === 'todos') return true;
@@ -47,6 +47,7 @@ function getStatusClass(status: StatusPedido): string {
     'Em Trânsito': styles.statusTransito,
     Preparando: styles.statusPreparando,
     Pendentes: styles.statusPendente,
+    'Aguardando Pagamento': styles.statusAguardandoPagamento,
     'Em Processamento': styles.statusProcessamento,
     'Em Troca': styles.statusEmTroca,
     'Troca Autorizada': styles.statusTrocaAutorizada,
@@ -61,6 +62,14 @@ function tituloItem(item: IItemPedido, livrosMap: Map<string, ILivro>): string {
   if (item.titulo) return item.titulo;
   return livrosMap.get(item.livroUuid)?.titulo ?? item.livroUuid;
 }
+
+const itemBarFillByVariant: Record<PedidoStatusVariant, string> = {
+  entregue: styles.itemBarraFillEntregue,
+  transito: styles.itemBarraFillTransito,
+  preparando: styles.itemBarraFillPreparando,
+  processamento: styles.itemBarraFillProcessamento,
+  problema: styles.itemBarraFillProblema,
+};
 
 export const MeusPedidos = () => {
   const navigate = useNavigate();
@@ -140,56 +149,65 @@ export const MeusPedidos = () => {
       <h1 className="page-title">Meus Pedidos</h1>
 
       <div className={styles.filtrosBar}>
-        <div className={styles.tabs} data-cy="pedidos-tabs">
+        <div className={styles.stepper} data-cy="pedidos-tabs">
           <button
             type="button"
-            className={`${styles.tab} ${abaGrupo === 'todos' ? styles.tabAtiva : ''}`}
+            className={`${styles.stepperStep} ${abaGrupo === 'todos' ? styles.stepperStepAtiva : ''}`}
             onClick={() => setAbaGrupo('todos')}
             data-cy="tab-todos"
           >
+            <span className={styles.stepperIndex} aria-hidden>
+              1
+            </span>
             Todos
           </button>
+          <span className={styles.stepperConnector} aria-hidden />
           <button
             type="button"
-            className={`${styles.tab} ${abaGrupo === 'aberto' ? styles.tabAtiva : ''}`}
+            className={`${styles.stepperStep} ${abaGrupo === 'aberto' ? styles.stepperStepAtiva : ''}`}
             onClick={() => setAbaGrupo('aberto')}
             data-cy="tab-aberto"
           >
+            <span className={styles.stepperIndex} aria-hidden>
+              2
+            </span>
             Em aberto
           </button>
+          <span className={styles.stepperConnector} aria-hidden />
           <button
             type="button"
-            className={`${styles.tab} ${abaGrupo === 'finalizados' ? styles.tabAtiva : ''}`}
+            className={`${styles.stepperStep} ${abaGrupo === 'finalizados' ? styles.stepperStepAtiva : ''}`}
             onClick={() => setAbaGrupo('finalizados')}
             data-cy="tab-finalizados"
           >
+            <span className={styles.stepperIndex} aria-hidden>
+              3
+            </span>
             Finalizados
           </button>
         </div>
 
-        <div className={styles.refinamento}>
-          <label htmlFor="pedidos-filtro-status" className={styles.refinamentoLabel}>
-            Filtrar por status
-          </label>
-          <select
-            id="pedidos-filtro-status"
-            className={styles.refinamentoSelect}
-            data-cy="pedidos-filtro-status"
-            value={statusDetalhe || FILTRO_STATUS_TODOS}
-            onChange={(e) => {
-              const v = e.target.value;
-              setStatusDetalhe(
-                v === FILTRO_STATUS_TODOS ? '' : (v as StatusPedido),
-              );
-            }}
-          >
-            <option value={FILTRO_STATUS_TODOS}>Todos os status</option>
+        <div className={styles.chipsBlock}>
+          <p className={styles.chipsLabel}>Filtrar por status</p>
+          <div className={styles.chipsRow} data-cy="pedidos-filtro-status">
+            <button
+              type="button"
+              className={`${styles.chip} ${statusDetalhe === '' ? styles.chipAtivo : ''}`}
+              onClick={() => setStatusDetalhe('')}
+            >
+              Todos os status
+            </button>
             {opcoesRefinamento.map((s) => (
-              <option key={s} value={s}>
+              <button
+                key={s}
+                type="button"
+                className={`${styles.chip} ${statusDetalhe === s ? styles.chipAtivo : ''}`}
+                onClick={() => setStatusDetalhe(s)}
+              >
                 {s}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
       </div>
 
@@ -198,7 +216,13 @@ export const MeusPedidos = () => {
       )}
 
       <div className={styles.lista} data-cy="pedidos-lista">
-        {pedidosFiltrados.map((pedido) => (
+        {pedidosFiltrados.map((pedido) => {
+          const statusVisual = getPedidoStatusVisual(pedido.status);
+          const StatusIcon = statusVisual.Icon;
+          const pctEntrega = percentualBarraEntrega(pedido.status);
+          const barFill = itemBarFillByVariant[statusVisual.variant];
+
+          return (
           <div
             key={pedido.uuid}
             className={styles.pedidoCard}
@@ -218,6 +242,7 @@ export const MeusPedidos = () => {
               <span
                 className={`${styles.statusBadge} ${getStatusClass(pedido.status)}`}
               >
+                <StatusIcon className={styles.statusBadgeIcon} size={14} strokeWidth={2.25} aria-hidden />
                 {pedido.status}
               </span>
             </div>
@@ -242,6 +267,16 @@ export const MeusPedidos = () => {
                     <span className={styles.itemTitulo}>
                       {tituloItem(item, livrosMap)}
                     </span>
+                    <div
+                      className={styles.itemBarraTrack}
+                      role="presentation"
+                      aria-hidden
+                    >
+                      <div
+                        className={`${styles.itemBarraFill} ${barFill}`}
+                        style={{ width: `${pctEntrega}%` }}
+                      />
+                    </div>
                     <span className={styles.itemLinhaPreco}>
                       {item.quantidade}{' '}
                       {item.quantidade === 1 ? 'unidade' : 'unidades'} ×{' '}
@@ -290,7 +325,7 @@ export const MeusPedidos = () => {
                 )}
                 <button
                   type="button"
-                  className={`btn-secondary ${styles.btnAcao}`}
+                  className={`btn-secondary ${styles.btnAcao} ${styles.btnAcaoNeutra}`}
                   onClick={() => setModalDetalhes(pedido)}
                   data-cy={`btn-detalhes-${pedido.uuid}`}
                 >
@@ -299,7 +334,7 @@ export const MeusPedidos = () => {
                 {pedido.status === 'Entregue' && (
                   <button
                     type="button"
-                    className={`btn-secondary ${styles.btnAcao}`}
+                    className={`btn-secondary ${styles.btnAcao} ${styles.btnAcaoNeutra}`}
                     onClick={() => navigate(`/pedidos/${pedido.uuid}/troca`)}
                     data-cy={`btn-solicitar-troca-${pedido.uuid}`}
                   >
@@ -309,7 +344,8 @@ export const MeusPedidos = () => {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <Modal

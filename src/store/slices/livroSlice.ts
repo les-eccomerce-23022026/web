@@ -1,15 +1,22 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { logout } from '@/store/slices/authSlice';
 import { LivroService } from '@/services/livroService';
+import type { ICategoriaMenu, IFiltroCatalogoLivros } from '@/interfaces/catalogoLivros';
 import type { ILivro } from '@/interfaces/livro';
 
 type LoadStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 
 interface LivroState {
-  /** Catálogo público — destaques (GET /livros/destaques). */
+  /** Página atual do catálogo público (GET /livros). */
   livrosDestaque: ILivro[];
+  totalCatalogo: number;
+  paginaCatalogo: number;
+  itensPorPaginaCatalogo: number;
   statusDestaque: LoadStatus;
   errorDestaque: string | null;
+  categoriasMenu: ICategoriaMenu[];
+  statusCategoriasMenu: LoadStatus;
+  errorCategoriasMenu: string | null;
   /** Lista administrativa (GET /admin/livros). */
   livrosAdmin: ILivro[];
   statusAdmin: LoadStatus;
@@ -19,19 +26,35 @@ interface LivroState {
 
 const initialState: LivroState = {
   livrosDestaque: [],
+  totalCatalogo: 0,
+  paginaCatalogo: 1,
+  itensPorPaginaCatalogo: 10,
   statusDestaque: 'idle',
   errorDestaque: null,
+  categoriasMenu: [],
+  statusCategoriasMenu: 'idle',
+  errorCategoriasMenu: null,
   livrosAdmin: [],
   statusAdmin: 'idle',
   errorAdmin: null,
   termoBusca: '',
 };
 
-/** Catálogo da home — destaques (GET /livros/destaques). */
-export const fetchLivros = createAsyncThunk('livro/fetchLivros', async () => {
-  const raw = await LivroService.getDestaques();
-  return Array.isArray(raw) ? raw : [];
+/** Catálogo (GET /livros) com paginação e filtros. */
+export const fetchLivros = createAsyncThunk('livro/fetchLivros', async (filtro?: IFiltroCatalogoLivros) => {
+  return LivroService.getCatalogo({
+    pagina: filtro?.pagina ?? 1,
+    itensPorPagina: filtro?.itensPorPagina ?? 10,
+    categoria: filtro?.categoria,
+    ordenacao: filtro?.ordenacao ?? 'recentes',
+  });
 });
+
+/** Categorias com livros no catálogo (GET /categorias/catalogo). */
+export const fetchCategoriasCatalogo = createAsyncThunk(
+  'livro/fetchCategoriasCatalogo',
+  async () => LivroService.getCategoriasMenu(),
+);
 
 /** Lista administrativa (GET /admin/livros). */
 export const fetchLivrosAdmin = createAsyncThunk('livro/fetchLivrosAdmin', async () => {
@@ -81,12 +104,27 @@ const livroSlice = createSlice({
       })
       .addCase(fetchLivros.fulfilled, (state, action) => {
         state.statusDestaque = 'succeeded';
-        state.livrosDestaque = Array.isArray(action.payload) ? action.payload : [];
+        state.livrosDestaque = action.payload.livros;
+        state.totalCatalogo = action.payload.total;
+        state.paginaCatalogo = action.payload.pagina;
+        state.itensPorPaginaCatalogo = action.payload.itensPorPagina;
         state.errorDestaque = null;
       })
       .addCase(fetchLivros.rejected, (state, action) => {
         state.statusDestaque = 'failed';
         state.errorDestaque = action.error.message || 'Erro ao carregar livros';
+      })
+      .addCase(fetchCategoriasCatalogo.pending, (state) => {
+        state.statusCategoriasMenu = 'loading';
+      })
+      .addCase(fetchCategoriasCatalogo.fulfilled, (state, action) => {
+        state.statusCategoriasMenu = 'succeeded';
+        state.categoriasMenu = action.payload;
+        state.errorCategoriasMenu = null;
+      })
+      .addCase(fetchCategoriasCatalogo.rejected, (state, action) => {
+        state.statusCategoriasMenu = 'failed';
+        state.errorCategoriasMenu = action.error.message || 'Erro ao carregar categorias';
       })
       .addCase(fetchLivrosAdmin.pending, (state) => {
         state.statusAdmin = 'loading';

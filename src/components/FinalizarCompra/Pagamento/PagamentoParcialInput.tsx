@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import type { ICartaoSalvoPagamento } from '@/interfaces/pagamento';
+import type { ICartaoSalvoPagamento, IPagamentoParcial } from '@/interfaces/pagamento';
 import styles from './PagamentoParcialInput.module.css';
+
+type ParcelaComNome = IPagamentoParcial & { nomeCartao?: string };
 
 interface PagamentoParcialInputProps {
   cartoesSalvos: ICartaoSalvoPagamento[];
   valorTotal: number;
   valorJaPago: number;
-  onAdicionar: (cartaoUuid: string, valor: number) => boolean;
+  onAdicionar: (referenciaMeioPagamento: string, valor: number) => boolean;
   onRemover: (index: number) => void;
-  pagamentosParciais: { cartaoUuid: string; valor: number; nomeCartao?: string }[];
+  parcelasLiquidacao: ParcelaComNome[];
 }
 
 export const PagamentoParcialInput = ({
@@ -18,7 +20,7 @@ export const PagamentoParcialInput = ({
   valorJaPago,
   onAdicionar,
   onRemover,
-  pagamentosParciais
+  parcelasLiquidacao
 }: PagamentoParcialInputProps) => {
   const [cartaoSelecionado, setCartaoSelecionado] = useState('');
   const [valorParcial, setValorParcial] = useState('');
@@ -76,9 +78,9 @@ export const PagamentoParcialInput = ({
       </div>
 
       {/* Pagamentos já adicionados */}
-      {pagamentosParciais.length > 0 && (
+      {parcelasLiquidacao.length > 0 && (
         <div className={styles['pagamentos-adicionados']} data-cy="checkout-partial-payments-list">
-          {pagamentosParciais.map((pagamento, index) => (
+          {parcelasLiquidacao.map((pagamento, index) => (
             <div
               key={index}
               className={styles['pagamento-item']}
@@ -86,7 +88,7 @@ export const PagamentoParcialInput = ({
             >
               <div className={styles['pagamento-info']}>
                 <span className={styles['cartao-nome']}>
-                  {pagamento.nomeCartao || `Cartão ${pagamento.cartaoUuid.slice(0, 8)}...`}
+                  {pagamento.nomeCartao || `Cartão ${pagamento.referenciaMeioPagamento.slice(0, 8)}...`}
                 </span>
                 <span className={styles['pagamento-valor']}>
                   R$ {pagamento.valor.toFixed(2).replace('.', ',')}

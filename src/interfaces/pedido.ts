@@ -3,6 +3,7 @@ export type StatusPedido =
   | 'Em Trânsito'
   | 'Preparando'
   | 'Pendentes'
+  | 'Aguardando Pagamento'
   | 'Em Processamento'
   | 'Em Troca'
   | 'Troca Autorizada'

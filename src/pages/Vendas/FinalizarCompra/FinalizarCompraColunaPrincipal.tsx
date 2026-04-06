@@ -6,6 +6,7 @@ import type { ICheckoutInfo } from '@/interfaces/checkout';
 import type { FreteCalculoEntregaApi } from '@/components/FinalizarCompra/Entrega';
 import type { ICartaoCreditoInput, ICupomAplicado } from '@/interfaces/pagamento';
 import type { IFreteOpcao } from '@/interfaces/pagamento';
+import type { LinhaPagamentoCheckout } from '@/types/checkout';
 
 type Props = {
   data: ICheckoutInfo;
@@ -15,19 +16,17 @@ type Props = {
   freteSelecionado: IFreteOpcao | null;
   onFreteSelecionado: (frete: IFreteOpcao) => void;
   subtotal: number;
-  cartaoSelecionado: string | null;
-  novoCartao: ICartaoCreditoInput | null;
   total: number;
-  valorPagoParcialmente: number;
-  pagamentosParciais: { cartaoUuid: string; valor: number }[];
   cuponsAplicados: ICupomAplicado[];
-  onCartaoSelecionado: (uuid: string) => void;
-  onNovoCartaoLimpar: () => void;
-  onAbrirNovoCartao: () => void;
-  onAdicionarPagamentoParcial: (cartaoUuid: string, valor: number) => boolean;
-  onRemoverPagamentoParcial: (index: number) => void;
+  linhasPagamento: LinhaPagamentoCheckout[];
+  novosCartoesPorLinha: Record<string, ICartaoCreditoInput>;
+  onLinhasChange: (linhas: LinhaPagamentoCheckout[]) => void;
+  onAbrirModalCartao: (linhaId: string) => void;
+  onSelecionarCartaoSalvoNaLista: (uuid: string) => void;
   onAplicarCupom: (cupom: ICupomAplicado) => void;
   onRemoverCupom: (uuid: string) => void;
+  /** CEP da cotação reutilizada do carrinho */
+  freteInitialCep?: string;
 };
 
 export const FinalizarCompraColunaPrincipal = (p: Props) => (
@@ -42,20 +41,17 @@ export const FinalizarCompraColunaPrincipal = (p: Props) => (
       freteSelecionado={p.freteSelecionado}
       onFreteSelecionado={p.onFreteSelecionado}
       subtotal={p.subtotal}
+      initialCep={p.freteInitialCep}
     />
     <FinalizarCompraPagamentoCard
       data={p.data}
-      cartaoSelecionado={p.cartaoSelecionado}
-      novoCartao={p.novoCartao}
       total={p.total}
-      valorPagoParcialmente={p.valorPagoParcialmente}
-      pagamentosParciais={p.pagamentosParciais}
       cuponsAplicados={p.cuponsAplicados}
-      onCartaoSelecionado={p.onCartaoSelecionado}
-      onNovoCartaoLimpar={p.onNovoCartaoLimpar}
-      onAbrirNovoCartao={p.onAbrirNovoCartao}
-      onAdicionarPagamentoParcial={p.onAdicionarPagamentoParcial}
-      onRemoverPagamentoParcial={p.onRemoverPagamentoParcial}
+      linhasPagamento={p.linhasPagamento}
+      novosCartoesPorLinha={p.novosCartoesPorLinha}
+      onLinhasChange={p.onLinhasChange}
+      onAbrirModalCartao={p.onAbrirModalCartao}
+      onSelecionarCartaoSalvoNaLista={p.onSelecionarCartaoSalvoNaLista}
       onAplicarCupom={p.onAplicarCupom}
       onRemoverCupom={p.onRemoverCupom}
     />

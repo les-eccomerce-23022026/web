@@ -113,6 +113,12 @@
   color: var(--bn-success);
 }
 
+.carrinho-frete-selecionado {
+  margin-top: 12px;
+  font-size: 0.95rem;
+  color: var(--bn-success);
+}
+
 .carrinho-totalizador {
   width: 40%;
   text-align: right;

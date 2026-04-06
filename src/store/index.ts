@@ -5,10 +5,12 @@ import adminReducer from './slices/adminSlice';
 import livroReducer from './slices/livroSlice';
 import pedidoReducer from './slices/pedidoSlice';
 import clienteReducer from './slices/clienteSlice';
+import cotacaoFreteReducer from './slices/cotacaoFreteSlice';
 
 export const store = configureStore({
   reducer: {
     carrinho: carrinhoReducer,
+    cotacaoFrete: cotacaoFreteReducer,
     auth: authReducer,
     admin: adminReducer,
     livro: livroReducer,

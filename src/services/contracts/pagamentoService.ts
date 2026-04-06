@@ -6,6 +6,7 @@ import type {
   IProcessarPagamentoResultado,
   IIntencaoPagamentoResultado,
   ISelecionarPagamentoLiquidaBody,
+  IResumoPagamentosVenda,
 } from '@/interfaces/pagamento';
 
 /**
@@ -48,4 +49,13 @@ export interface IPagamentoService {
    * Consulta pagamento por UUID
    */
   consultarPagamento(pagamentoUuid: string): Promise<IPagamentoDetalhes>;
+
+  /** Polling: status da venda e PIX pendentes. */
+  obterResumoPagamentosVenda(vendaUuid: string): Promise<IResumoPagamentosVenda>;
+
+  /** Simula webhook do PSP confirmando PIX (sem JWT). */
+  confirmarWebhookPixSimulado(payload: {
+    pagamentoUuid: string;
+    segredoConfirmacao: string;
+  }): Promise<void>;
 }

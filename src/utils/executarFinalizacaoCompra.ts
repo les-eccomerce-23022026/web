@@ -2,24 +2,32 @@ import type { NavigateFunction } from 'react-router-dom';
 import type { AppDispatch } from '@/store';
 import type { AuthUser } from '@/store/slices/authSlice';
 import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICupomAplicado } from '@/interfaces/pagamento';
+import type { ICupomAplicado, IPagamentoParcial } from '@/interfaces/pagamento';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import type { IEnderecoEntregaInput, IEntregaInputDto } from '@/interfaces/entrega';
 import { CheckoutService } from '@/services/checkoutService';
-import { limparCarrinhoAposPedido, montarPayloadVenda } from '@/utils/checkoutFinalizarPedido';
-import { totaisCheckoutComFrete, montarPagamentosEfetivosCheckout } from '@/utils/checkoutFinalizeHelpers';
-import { executarPagamentosAposCriarVenda, valorTotalPedidoSemCupons } from '@/utils/checkoutLiquidacaoPagamentos';
+import { limparCarrinhoAposPedido, montarPayloadVenda } from '@/utils/finalizarCompraPedido';
+import {
+  montarLiquidaçõesEfetivasFinalizarCompra,
+  totaisFinalizarCompraComFrete,
+} from '@/utils/finalizarCompraTotais';
+import {
+  executarPagamentosAposCriarVenda,
+  valorTotalPedidoSemCupons,
+  type ResultadoLiquidacaoPagamentos,
+} from '@/utils/finalizarCompraLiquidacaoPagamentos';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
 import type { IPagamentoService } from '@/services/contracts/pagamentoService';
 import { USE_MOCK } from '@/config/apiConfig';
 import type { IFreteOpcao } from '@/interfaces/entrega';
-import { salvarCartaoPerfilSeSolicitado } from '@/utils/checkoutSalvarCartaoPerfil';
+import { salvarCartoesPerfilSeSolicitado } from '@/utils/finalizarCompraSalvarCartaoPerfil';
+import { salvarCheckoutPixPendente } from '@/utils/checkoutPixPendente';
 
 type FreteSelecionado = IFreteOpcao | null | undefined;
 
 function validarFormaPagamentoETotais(
   total: number,
-  pagamentosEfetivos: { cartaoUuid: string; valor: number }[],
+  pagamentosEfetivos: IPagamentoParcial[],
 ): void {
   if (total > 0 && pagamentosEfetivos.length === 0) {
     throw new Error('Selecione uma forma de pagamento');
@@ -44,7 +52,7 @@ async function liquidarPagamentosEEntregaNaApi(params: {
   subtotal: number;
   frete: number;
   cuponsAplicados: ICupomAplicado[];
-  pagamentosEfetivos: { cartaoUuid: string; valor: number }[];
+  pagamentosEfetivos: IPagamentoParcial[];
   opcoes: OpcoesFinalizarCheckout | undefined;
   checkoutData: ICheckoutInfo | null;
   enderecoEntrega: IEnderecoEntregaInput;
@@ -52,7 +60,7 @@ async function liquidarPagamentosEEntregaNaApi(params: {
     vendaUuid: string,
     endereco: IEntregaInputDto['endereco'],
   ) => Promise<unknown>;
-}): Promise<void> {
+}): Promise<ResultadoLiquidacaoPagamentos> {
   const {
     pagamentoService,
     vendaUuid,
@@ -66,7 +74,7 @@ async function liquidarPagamentosEEntregaNaApi(params: {
     cadastrarEntrega,
   } = params;
 
-  await executarPagamentosAposCriarVenda({
+  const liquidacao = await executarPagamentosAposCriarVenda({
     pagamentoService,
     vendaUuid,
     subtotal,
@@ -77,19 +85,24 @@ async function liquidarPagamentosEEntregaNaApi(params: {
     cartoesSalvos: checkoutData?.cartoesSalvos ?? [],
   });
 
+  if (liquidacao.pixPendente) {
+    return liquidacao;
+  }
+
   const entregaResult = await cadastrarEntrega(vendaUuid, enderecoEntrega);
   if (!entregaResult) {
     throw new Error('Não foi possível registrar a entrega.');
   }
+  return liquidacao;
 }
 
-/** Orquestra validação, criação de venda, liquidação e navegação; lógica auxiliar em helpers no mesmo arquivo. */
+/** Orquestra validação, criação de venda, liquidação e navegação. */
 // eslint-disable-next-line complexity -- fluxo de checkout integrado em um único ponto de entrada
 export async function executarFinalizarCheckout(params: {
   carrinho: ICarrinho;
   usuario: AuthUser;
   cuponsAplicados: ICupomAplicado[];
-  pagamentosParciais: { cartaoUuid: string; valor: number }[];
+  parcelasLiquidacao: IPagamentoParcial[];
   freteSelecionado: FreteSelecionado;
   opcoes?: OpcoesFinalizarCheckout;
   dispatch: AppDispatch;
@@ -107,7 +120,7 @@ export async function executarFinalizarCheckout(params: {
     carrinho,
     usuario,
     cuponsAplicados,
-    pagamentosParciais,
+    parcelasLiquidacao,
     freteSelecionado,
     opcoes,
     dispatch,
@@ -119,8 +132,8 @@ export async function executarFinalizarCheckout(params: {
   } = params;
 
   const frete = freteSelecionado?.valor ?? carrinho.resumo.frete;
-  const { subtotal, total } = totaisCheckoutComFrete(carrinho, frete, cuponsAplicados);
-  const pagamentosEfetivos = montarPagamentosEfetivosCheckout(opcoes, total, pagamentosParciais);
+  const { subtotal, total } = totaisFinalizarCompraComFrete(carrinho, frete, cuponsAplicados);
+  const pagamentosEfetivos = montarLiquidaçõesEfetivasFinalizarCompra(opcoes, total, parcelasLiquidacao);
 
   validarFormaPagamentoETotais(total, pagamentosEfetivos);
 
@@ -147,8 +160,9 @@ export async function executarFinalizarCheckout(params: {
     throw new Error('Resposta da venda sem identificador.');
   }
 
+  let liquidacaoPix: ResultadoLiquidacaoPagamentos | null = null;
   if (!USE_MOCK) {
-    await liquidarPagamentosEEntregaNaApi({
+    liquidacaoPix = await liquidarPagamentosEEntregaNaApi({
       pagamentoService,
       vendaUuid,
       subtotal,
@@ -163,7 +177,7 @@ export async function executarFinalizarCheckout(params: {
   }
 
   try {
-    await salvarCartaoPerfilSeSolicitado(opcoes?.novoCartao, usuario.uuid);
+    await salvarCartoesPerfilSeSolicitado(opcoes?.novosCartoesPorLinha, opcoes?.novoCartao, usuario.uuid);
   } catch (e) {
     const err = e instanceof Error ? e : new Error(String(e));
     if (onSalvarCartaoCheckoutFalhou) {
@@ -174,6 +188,21 @@ export async function executarFinalizarCheckout(params: {
   }
 
   await limparCarrinhoAposPedido(dispatch);
+
+  if (!USE_MOCK && liquidacaoPix?.pixPendente && freteSelecionado && enderecoEntrega) {
+    salvarCheckoutPixPendente({
+      vendaUuid,
+      pixPendentes: liquidacaoPix.pixPendentes,
+      entrega: {
+        endereco: enderecoEntrega,
+        tipoFrete: freteSelecionado.tipo,
+        custoFrete: freteSelecionado.valor,
+      },
+    });
+    navigate(`/pagamento-pix?venda=${encodeURIComponent(vendaUuid)}`);
+    return;
+  }
+
   navigate(`/pedido-confirmado?pedido=${vendaUuid}`);
 }
 

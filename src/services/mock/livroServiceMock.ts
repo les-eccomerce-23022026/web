@@ -1,23 +1,33 @@
 import homeCatalogoMock from '@/mocks/homeCatalogoMock.json';
 import detalhesLivroMock from '@/mocks/detalhesLivroMock.json';
 import listaLivrosAdminMock from '@/mocks/listaLivrosAdminMock.json';
+import type { ICatalogoLivrosResposta, ICategoriaMenu, IFiltroCatalogoLivros } from '@/interfaces/catalogoLivros';
 import type { ILivro } from '@/interfaces/livro';
 import type { ILivroService } from '@/services/contracts/livroService';
 
 /** Store em memória compartilhado por toda a sessão (mock apenas) */
 const livrosMemoria: ILivro[] = [...(listaLivrosAdminMock.livros as ILivro[])];
 
+type HomeMock = {
+  destaques: ILivro[];
+  categoriasMenu: ICategoriaMenu[];
+};
+
+const homeData = homeCatalogoMock as unknown as HomeMock;
+
 function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
 }
 
 export class LivroServiceMock implements ILivroService {
-  async getDestaques(): Promise<ILivro[]> {
+  async getCatalogo(filtro: IFiltroCatalogoLivros = {}): Promise<ICatalogoLivrosResposta> {
     if (typeof window !== 'undefined' && window.location.search.includes('forceError=true')) {
       return Promise.reject(new Error('Simulated Error'));
     }
     if (typeof window !== 'undefined' && window.location.search.includes('forceEmpty=true')) {
-      return Promise.resolve([]);
+      const pagina = filtro.pagina ?? 1;
+      const itensPorPagina = filtro.itensPorPagina ?? 10;
+      return Promise.resolve({ livros: [], total: 0, pagina, itensPorPagina });
     }
 
     let delayMs = 300;
@@ -26,10 +36,22 @@ export class LivroServiceMock implements ILivroService {
       if (match) delayMs = parseInt(match[1], 10);
     }
 
-    console.log('[Mock] Buscando destaques.');
-    return new Promise((resolve) =>
-      setTimeout(() => resolve(homeCatalogoMock.destaques as ILivro[]), delayMs),
-    );
+    console.log('[Mock] Buscando catálogo de livros.');
+    const all = [...homeData.destaques];
+    let data = [...all];
+    if (filtro.ordenacao === 'mais-vendidos') {
+      data.sort((a, b) => (b.estoque ?? 0) - (a.estoque ?? 0));
+    }
+    const pagina = filtro.pagina ?? 1;
+    const itensPorPagina = filtro.itensPorPagina ?? 10;
+    const total = data.length;
+    const start = (pagina - 1) * itensPorPagina;
+    const livros = data.slice(start, start + itensPorPagina);
+    return delay({ livros, total, pagina, itensPorPagina }, delayMs);
+  }
+
+  async getCategoriasMenu(): Promise<ICategoriaMenu[]> {
+    return delay([...homeData.categoriasMenu], 200);
   }
 
   async getDetalhes(uuid: string): Promise<ILivro> {
@@ -37,8 +59,7 @@ export class LivroServiceMock implements ILivroService {
     return new Promise((resolve) => {
       setTimeout(() => {
         const livroBase =
-          livrosMemoria.find((l) => l.uuid === uuid) ??
-          (homeCatalogoMock.destaques as ILivro[]).find((l) => l.uuid === uuid);
+          livrosMemoria.find((l) => l.uuid === uuid) ?? homeData.destaques.find((l) => l.uuid === uuid);
 
         if (livroBase) {
           resolve({ ...detalhesLivroMock, ...livroBase } as ILivro);

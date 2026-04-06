@@ -1,0 +1,39 @@
+{
+  "enderecosCliente": [
+    {
+      "uuid": "end-001",
+      "logradouro": "Bela Vista",
+      "numero": "1234",
+      "complemento": "Apto 55",
+      "bairro": "Centro",
+      "cep": "01000-000",
+      "cidade": "São Paulo",
+      "estado": "SP",
+      "tipo": "ambos"
+    }
+  ],
+  "cartoesCliente": [],
+  "cuponsDisponiveis": [
+    {
+      "uuid": "cup-promo-desconto10",
+      "codigo": "DESCONTO10",
+      "tipo": "promocional",
+      "valor": 10.0,
+      "descricao": "10% de desconto"
+    }
+  ],
+  "bandeirasPermitidas": ["Visa", "Mastercard", "Elo", "American Express", "Hipercard"],
+  "freteOpcoes": [
+    {
+      "uuid": "frete-001",
+      "cotacaoUuid": "cot-pac-1",
+      "tipo": "PAC",
+      "valor": 15.0,
+      "prazo": "5 a 8 dias úteis"
+    }
+  ],
+  "politicaParcelamentoCartao": {
+    "parcelasMaximas": 12,
+    "parcelasSemJuros": 6
+  }
+}

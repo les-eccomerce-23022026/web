@@ -1,9 +1,9 @@
 import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICupomAplicado } from '@/interfaces/pagamento';
+import type { ICupomAplicado, IPagamentoParcial } from '@/interfaces/pagamento';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
-import { calcularDescontoCupons } from '@/utils/checkoutCupomTotais';
+import { calcularDescontoCupons } from '@/utils/finalizarCompraCupomTotais';
 
-export function totaisCheckoutComFrete(
+export function totaisFinalizarCompraComFrete(
   carrinho: ICarrinho,
   freteValor: number,
   cupons: ICupomAplicado[],
@@ -14,17 +14,19 @@ export function totaisCheckoutComFrete(
   return { subtotal, frete: freteValor, descontoCupons, total };
 }
 
-export function montarPagamentosEfetivosCheckout(
+export function montarLiquidaçõesEfetivasFinalizarCompra(
   opcoes: OpcoesFinalizarCheckout | undefined,
   total: number,
-  pagamentosParciais: { cartaoUuid: string; valor: number }[],
-): { cartaoUuid: string; valor: number }[] {
-  let pagamentosEfetivos = [...pagamentosParciais];
+  parcelasLiquidacao: IPagamentoParcial[],
+): IPagamentoParcial[] {
+  let pagamentosEfetivos = [...parcelasLiquidacao];
   if (pagamentosEfetivos.length === 0 && total > 0) {
     if (opcoes?.cartaoSalvoUuid) {
-      pagamentosEfetivos = [{ cartaoUuid: opcoes.cartaoSalvoUuid, valor: total }];
+      pagamentosEfetivos = [
+        { referenciaMeioPagamento: opcoes.cartaoSalvoUuid, valor: total, parcelasCartao: 1 },
+      ];
     } else if (opcoes?.novoCartao) {
-      pagamentosEfetivos = [{ cartaoUuid: 'novo', valor: total }];
+      pagamentosEfetivos = [{ referenciaMeioPagamento: 'novo', valor: total, parcelasCartao: 1 }];
     }
   }
   return pagamentosEfetivos;
