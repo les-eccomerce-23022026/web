@@ -1,10 +1,4 @@
 import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { ICupomAplicado } from '@/interfaces/pagamento';
-
-export interface IVendaPagamentoParcial {
-  cartaoUuid: string;
-  valor: number;
-}
 
 export interface IVendaInput {
   usuarioUuid: string;
@@ -15,11 +9,10 @@ export interface IVendaInput {
   }[];
   valorTotalItens: number;
   valorFrete: number;
+  /** Deve ser `valorTotalItens + valorFrete` (sem desconto de cupom — cupons são liquidados em `/pagamentos/selecionar`). */
   valorTotal: number;
   /** UUID da cotação persistida no backend (preferencial). */
   cotacaoUuid?: string;
-  cuponsAplicados?: ICupomAplicado[];
-  pagamentos?: IVendaPagamentoParcial[];
 }
 
 export interface IVendaResultado {

@@ -1,6 +1,7 @@
 import type { IPagamentoInfo, IEnderecoCliente, ICartaoSalvoPagamento } from '@/interfaces/pagamento';
 import type { ICheckoutInfo, IEnderecoEntrega, ICartaoSalvo } from '@/interfaces/checkout';
 import type { ICarrinho } from '@/interfaces/carrinho';
+import { normalizarBandeiraCartao } from '@/utils/checkoutLiquidacaoPagamentos';
 
 const ENDERECO_FALLBACK: IEnderecoEntrega = {
   logradouro: 'Rua Bela Vista',
@@ -60,7 +61,7 @@ export function buildCheckoutInfoFromPagamento(
     cartoesSalvos: mapCartoesCheckout(infoPagamento.cartoesCliente),
     cuponsDisponiveis: infoPagamento.cuponsDisponiveis,
     freteOpcoes: infoPagamento.freteOpcoes,
-    bandeirasPermitidas: infoPagamento.bandeirasPermitidas,
+    bandeirasPermitidas: infoPagamento.bandeirasPermitidas.map((b) => normalizarBandeiraCartao(b)),
     resumoPedido: resumoPedidoDeCarrinho(carrinho),
   };
 }

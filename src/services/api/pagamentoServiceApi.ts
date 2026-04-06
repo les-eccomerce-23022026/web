@@ -5,6 +5,7 @@ import type {
   IProcessarPagamentoInput,
   IProcessarPagamentoResultado,
   IIntencaoPagamentoResultado,
+  ISelecionarPagamentoLiquidaBody,
 } from '@/interfaces/pagamento';
 import type { IPagamentoService } from '@/services/contracts/pagamentoService';
 import { API_ENDPOINTS } from '@/config/apiConfig';
@@ -37,6 +38,10 @@ export class PagamentoServiceApi implements IPagamentoService {
    * POST /api/pagamentos/selecionar
    */
   async definirMetodoLiquidacao(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes> {
+    return ApiClient.post<IPagamentoDetalhes>(API_ENDPOINTS.selecionarPagamento, dados);
+  }
+
+  async selecionarPagamentoLiquida(dados: ISelecionarPagamentoLiquidaBody): Promise<IPagamentoDetalhes> {
     return ApiClient.post<IPagamentoDetalhes>(API_ENDPOINTS.selecionarPagamento, dados);
   }
 

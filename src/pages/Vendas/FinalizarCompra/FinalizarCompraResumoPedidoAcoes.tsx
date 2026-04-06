@@ -6,6 +6,7 @@ type Props = {
   enderecoOk: boolean;
   freteSelecionado: boolean;
   temFormaPagamento: boolean;
+  saldoPagamentoOk: boolean;
   onFinalizar: () => void;
 };
 
@@ -14,8 +15,13 @@ const podeFinalizar = (
   enderecoOk: boolean,
   freteSelecionado: boolean,
   temFormaPagamento: boolean,
+  saldoPagamentoOk: boolean,
 ): boolean =>
-  !finalizando && enderecoOk && freteSelecionado && temFormaPagamento;
+  !finalizando &&
+  enderecoOk &&
+  freteSelecionado &&
+  temFormaPagamento &&
+  saldoPagamentoOk;
 
 export const FinalizarCompraResumoPedidoAcoes = ({
   totalMenosParcial,
@@ -23,6 +29,7 @@ export const FinalizarCompraResumoPedidoAcoes = ({
   enderecoOk,
   freteSelecionado,
   temFormaPagamento,
+  saldoPagamentoOk,
   onFinalizar,
 }: Props) => {
   const disabled = !podeFinalizar(
@@ -30,6 +37,7 @@ export const FinalizarCompraResumoPedidoAcoes = ({
     enderecoOk,
     freteSelecionado,
     temFormaPagamento,
+    saldoPagamentoOk,
   );
 
   return (
@@ -56,8 +64,14 @@ export const FinalizarCompraResumoPedidoAcoes = ({
         <p className={styles['checkout-entrega-info']}>✓ Entrega e frete configurados</p>
       )}
 
-      {temFormaPagamento && (
+      {temFormaPagamento && saldoPagamentoOk && (
         <p className={styles['checkout-pagamento-info']}>✓ Pagamento pronto para processamento</p>
+      )}
+
+      {temFormaPagamento && !saldoPagamentoOk && (
+        <p className={styles['checkout-pagamento-aviso']}>
+          Informe cartão ou pagamentos parciais que cubram o total restante.
+        </p>
       )}
     </>
   );

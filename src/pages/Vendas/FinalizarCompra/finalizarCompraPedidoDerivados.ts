@@ -2,7 +2,8 @@ import type { ICheckoutInfo } from '@/interfaces/checkout';
 import type { ICarrinho } from '@/interfaces/carrinho';
 import type { ICupomAplicado } from '@/interfaces/pagamento';
 import type { ICartaoCreditoInput } from '@/interfaces/pagamento';
-import type { IFreteOpcao } from '@/interfaces/pagamento';
+import type { IFreteOpcao } from '@/interfaces/entrega';
+import type { IEnderecoEntregaInput } from '@/interfaces/entrega';
 import { calcularDescontoCupons } from '@/utils/checkoutCupomTotais';
 
 export function enderecoFinalizarCompraDerivado(
@@ -12,6 +13,38 @@ export function enderecoFinalizarCompraDerivado(
   const semLista =
     !data.enderecosDisponiveis || data.enderecosDisponiveis.length === 0;
   return enderecoSelecionado ?? (semLista ? 'fallback' : null);
+}
+
+/** Monta o corpo de endereço para `POST /entregas` a partir do checkout. */
+export function enderecoEntregaInputDeCheckout(
+  data: ICheckoutInfo,
+  enderecoSelecionadoUuid: string | null,
+): IEnderecoEntregaInput | null {
+  if (data.enderecosDisponiveis && data.enderecosDisponiveis.length > 0) {
+    if (!enderecoSelecionadoUuid) return null;
+    const cliente = data.enderecosDisponiveis.find((e) => e.uuid === enderecoSelecionadoUuid);
+    if (!cliente) return null;
+    return {
+      rua: cliente.logradouro,
+      numero: cliente.numero,
+      complemento: cliente.complemento,
+      bairro: cliente.bairro,
+      cidade: cliente.cidade,
+      estado: cliente.estado,
+      cep: cliente.cep.replace(/\D/g, ''),
+    };
+  }
+  const e = data.enderecoEntrega;
+  if (!e) return null;
+  return {
+    rua: e.logradouro,
+    numero: e.numero ?? 'S/N',
+    complemento: e.complemento ?? '',
+    bairro: 'Centro',
+    cidade: e.cidade,
+    estado: e.estado,
+    cep: e.cep.replace(/\D/g, ''),
+  };
 }
 
 function valorFretePedido(
@@ -58,4 +91,31 @@ export function temFormaPagamentoFinalizarCompra(
     Boolean(cartaoSel) ||
     Boolean(novoCart)
   );
+}
+
+/** Tolerância para considerar saldo zerado (cupons cobriram o pedido). */
+const EPS_SALDO_ZERADO = 0.005;
+const EPS_PARCIAL = 0.021;
+
+/**
+ * O total do pedido (após cupons) está coberto por liquidações?
+ * Alinhado a `montarPagamentosEfetivosCheckout` + validação em `executarFinalizarCheckout`.
+ */
+export function pagamentoCobreSaldoFinalizarCompra(
+  totalAposCupons: number,
+  pagamentosParciais: { cartaoUuid: string; valor: number }[],
+  cartaoSelecionado: string | null,
+  novoCartao: ICartaoCreditoInput | null,
+): boolean {
+  if (totalAposCupons <= EPS_SALDO_ZERADO) {
+    return true;
+  }
+  const somaParciais = pagamentosParciais.reduce((s, p) => s + p.valor, 0);
+  if (pagamentosParciais.length === 0) {
+    return Boolean(cartaoSelecionado || novoCartao);
+  }
+  if (totalAposCupons - somaParciais <= EPS_PARCIAL) {
+    return true;
+  }
+  return Boolean(cartaoSelecionado || novoCartao);
 }

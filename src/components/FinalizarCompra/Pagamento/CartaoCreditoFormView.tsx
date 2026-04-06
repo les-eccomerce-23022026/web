@@ -11,6 +11,7 @@ type Props = {
   salvar: boolean;
   mostrarCvv: boolean;
   bandeiraDetectada: string | null;
+  dicaSalvarCartaoOpcional?: string;
   onNomeChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onSalvarChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onToggleCvv: () => void;
@@ -22,6 +23,33 @@ type Props = {
 
 const isAmex = (b: string | null) => b === 'American Express';
 
+const SalvarCartaoCheckboxBlock = ({
+  salvar,
+  dicaSalvarCartaoOpcional,
+  onSalvarChange,
+}: {
+  salvar: boolean;
+  dicaSalvarCartaoOpcional?: string;
+  onSalvarChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}) => (
+  <div className={styles['form-group-checkbox']}>
+    <label className={styles['checkbox-label']}>
+      <input
+        type="checkbox"
+        checked={salvar}
+        onChange={onSalvarChange}
+        data-cy="checkout-save-card-checkbox"
+      />
+      <span>Salvar cartão para compras futuras</span>
+    </label>
+    {dicaSalvarCartaoOpcional ? (
+      <p className={styles['cartao-form-hint']} data-cy="checkout-save-card-hint">
+        {dicaSalvarCartaoOpcional}
+      </p>
+    ) : null}
+  </div>
+);
+
 export const CartaoCreditoFormView = ({
   erros,
   numero,
@@ -31,6 +59,7 @@ export const CartaoCreditoFormView = ({
   salvar,
   mostrarCvv,
   bandeiraDetectada,
+  dicaSalvarCartaoOpcional,
   onNomeChange,
   onSalvarChange,
   onToggleCvv,
@@ -132,17 +161,11 @@ export const CartaoCreditoFormView = ({
         </div>
       </div>
 
-      <div className={styles['form-group-checkbox']}>
-        <label className={styles['checkbox-label']}>
-          <input
-            type="checkbox"
-            checked={salvar}
-            onChange={onSalvarChange}
-            data-cy="checkout-save-card-checkbox"
-          />
-          <span>Salvar cartão para compras futuras</span>
-        </label>
-      </div>
+      <SalvarCartaoCheckboxBlock
+        salvar={salvar}
+        dicaSalvarCartaoOpcional={dicaSalvarCartaoOpcional}
+        onSalvarChange={onSalvarChange}
+      />
 
       <div className={styles['form-actions']}>
         {onCancel && (

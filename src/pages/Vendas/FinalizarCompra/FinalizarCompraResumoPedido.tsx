@@ -13,6 +13,7 @@ type Props = {
   enderecoOk: boolean;
   freteSelecionado: boolean;
   temFormaPagamento: boolean;
+  saldoPagamentoOk: boolean;
   onFinalizar: () => void;
 };
 
@@ -33,6 +34,7 @@ export const FinalizarCompraResumoPedido = (props: Props) => (
         enderecoOk={props.enderecoOk}
         freteSelecionado={props.freteSelecionado}
         temFormaPagamento={props.temFormaPagamento}
+        saldoPagamentoOk={props.saldoPagamentoOk}
         onFinalizar={props.onFinalizar}
       />
     </div>

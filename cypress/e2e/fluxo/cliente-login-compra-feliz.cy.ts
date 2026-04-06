@@ -37,11 +37,73 @@ describe('Fluxo cliente — login e compra feliz', () => {
       cy.intercept('GET', `${apiUrl}/carrinho`, { fixture: 'carrinho-com-livro-teste.json' }).as(
         'carrinhoFixture',
       );
+      cy.intercept('GET', `${apiUrl}/pagamento/info`, { fixture: 'pagamento-info-checkout.json' }).as(
+        'pagamentoInfo',
+      );
+      cy.intercept('POST', `${apiUrl}/frete/cotar`, { fixture: 'frete-cotar-checkout.json' }).as('freteCotar');
       /** O UUID do item pode não existir no catálogo local; o E2E valida o fluxo de tela + APIs de pagamento. */
       cy.intercept('POST', `${apiUrl}/vendas`, {
         statusCode: 201,
         fixture: 'venda-criada-resposta.json',
       }).as('criarVenda');
+
+      let selecionarCount = 0;
+      cy.intercept('POST', `${apiUrl}/pagamentos/selecionar`, (req) => {
+        selecionarCount += 1;
+        const raw = req.body as unknown;
+        const body =
+          typeof raw === 'string' ? (JSON.parse(raw) as Record<string, unknown>) : (raw as Record<string, unknown>);
+        const tipo = (body?.tipoPagamento as string) ?? 'cupom_promocional';
+        const valor = typeof body?.valor === 'number' ? body.valor : 0;
+        req.reply({
+          statusCode: 201,
+          body: {
+            id: `pay-selecionar-${selecionarCount}`,
+            vendaUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+            valor,
+            formaPagamento: {
+              tipo,
+              detalhes: tipo === 'cupom_promocional' ? 'DESCONTO10' : 'cartão',
+            },
+            status: 'pendente',
+            criadoEm: new Date().toISOString(),
+          },
+        });
+      }).as('selecionarPagamento');
+
+      cy.intercept('POST', '**/pagamentos/*/processar', (req) => {
+        const id = req.url.split('/pagamentos/')[1]?.split('/')[0] ?? 'pay-processado';
+        req.reply({
+          statusCode: 200,
+          body: {
+            id,
+            vendaUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+            valor: 60,
+            formaPagamento: { tipo: 'cartao_credito' },
+            status: 'aprovado',
+            criadoEm: new Date().toISOString(),
+            processadoEm: new Date().toISOString(),
+          },
+        });
+      }).as('processarPagamento');
+
+      cy.intercept('POST', `${apiUrl}/entregas`, {
+        statusCode: 201,
+        body: {
+          id: 'entrega-mock-1',
+          vendaUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+          tipoFrete: 'PAC',
+          custo: 15,
+          endereco: {
+            rua: 'Bela Vista',
+            bairro: 'Centro',
+            cidade: 'São Paulo',
+            estado: 'SP',
+            cep: '01000000',
+          },
+          criadoEm: new Date().toISOString(),
+        },
+      }).as('cadastrarEntrega');
     });
 
     it('deve registrar sessão, carregar checkout, aplicar cupom e concluir pedido', () => {
@@ -55,12 +117,15 @@ describe('Fluxo cliente — login e compra feliz', () => {
       cy.visit('/checkout');
       cy.contains('h1', 'Finalizar Compra', { timeout: 20000 }).should('be.visible');
 
+      cy.get('[data-cy^="checkout-address-item-"]', { timeout: 20000 }).first().click({ force: true });
+
       cy.get('[data-cy="checkout-freight-zip-input"]', { timeout: 20000 }).should('be.visible');
       cy.get('[data-cy="checkout-freight-zip-input"]').clear({ force: true });
       cy.get('[data-cy="checkout-freight-zip-input"]').type('01310100', { force: true });
       cy.get('[data-cy="checkout-freight-calculate-button"]').click();
+      cy.wait('@freteCotar', { timeout: 15000 });
       cy.get('[data-cy="checkout-freight-options"]', { timeout: 10000 }).should('be.visible');
-      cy.get('[data-cy="checkout-freight-option-PAC"]').click();
+      cy.get('[data-cy="checkout-freight-option-PAC"]').click({ force: true });
 
       cy.get('[data-cy="checkout-coupon-input"]').should('be.visible');
       cy.get('[data-cy="checkout-coupon-input"]').clear({ force: true });

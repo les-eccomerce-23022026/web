@@ -3,7 +3,6 @@ import { limparCarrinho, limparCarrinhoRemoto } from '@/store/slices/carrinhoSli
 import { USE_MOCK } from '@/config/apiConfig';
 import type { AuthUser } from '@/store/slices/authSlice';
 import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICupomAplicado } from '@/interfaces/pagamento';
 import type { IVendaInput } from '@/services/contracts/checkoutService';
 import type { IFreteOpcao } from '@/interfaces/entrega';
 
@@ -24,9 +23,8 @@ export function montarPayloadVenda(
   carrinho: ICarrinho,
   frete: number,
   subtotal: number,
-  total: number,
-  cuponsAplicados: ICupomAplicado[],
-  pagamentosEfetivos: { cartaoUuid: string; valor: number }[],
+  /** Total do pedido sem desconto de cupom: `subtotal + frete` (regra do backend). */
+  valorTotalPedidoSemCupons: number,
   freteOpcaoSelecionada?: IFreteOpcao | null,
 ): IVendaInput {
   return {
@@ -38,11 +36,12 @@ export function montarPayloadVenda(
     })),
     valorTotalItens: subtotal,
     valorFrete: frete,
-    valorTotal: total,
-    ...(freteOpcaoSelecionada?.uuid
-      ? { cotacaoUuid: freteOpcaoSelecionada.uuid }
+    valorTotal: valorTotalPedidoSemCupons,
+    ...(freteOpcaoSelecionada?.cotacaoUuid ?? freteOpcaoSelecionada?.uuid
+      ? {
+          cotacaoUuid:
+            freteOpcaoSelecionada.cotacaoUuid ?? freteOpcaoSelecionada.uuid,
+        }
       : {}),
-    cuponsAplicados,
-    pagamentos: pagamentosEfetivos,
   };
 }

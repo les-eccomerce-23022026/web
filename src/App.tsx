@@ -43,6 +43,9 @@ const App = () => {
       <Routes>
         <Route path="/" element={<BaseLayout />}>
           <Route index element={<CatalogoLivros />} />
+          {/* Header navega para /categoria/* e /mais-vendidos — sem rota o Outlet ficava vazio */}
+          <Route path="categoria/:slug" element={<CatalogoLivros />} />
+          <Route path="mais-vendidos" element={<CatalogoLivros />} />
           <Route path="livro/:uuid" element={<DetalhesLivro />} />
           <Route path="carrinho" element={<Carrinho />} />
           <Route path="minha-conta" element={<AutenticacaoCliente />} />

@@ -1,0 +1,118 @@
+.wrap {
+  margin: 12px 0 16px;
+}
+
+.cancelledWrap {
+  margin: 12px 0 16px;
+}
+
+.cancelledText {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--bn-text-muted);
+}
+
+.track,
+.trackMuted {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.trackMuted {
+  flex-wrap: nowrap;
+}
+
+.nodeGroup {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.nodeGroup:last-child {
+  flex: 0;
+}
+
+.dotFilled,
+.dotEmpty,
+.dotMuted {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dotFilled {
+  background: var(--bn-primary);
+  box-shadow: 0 0 0 3px rgba(15, 76, 58, 0.2);
+}
+
+.dotEmpty {
+  background: #fff;
+  border: 2px solid var(--bn-border-light);
+}
+
+.dotMuted {
+  background: var(--bn-border-light);
+  border: 2px solid var(--bn-border-light);
+}
+
+.lineGreen,
+.lineGrey,
+.lineMuted {
+  flex: 1;
+  height: 3px;
+  margin: 0 4px;
+  border-radius: 2px;
+  min-width: 8px;
+}
+
+.lineGreen {
+  background: var(--bn-primary);
+}
+
+.lineGrey {
+  background: var(--bn-border-light);
+}
+
+.lineMuted {
+  background: #e8e8e8;
+}
+
+.labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.labelActive,
+.labelInactive,
+.labelMuted {
+  flex: 1;
+  font-size: 10px;
+  line-height: 1.2;
+  text-align: center;
+  min-width: 0;
+}
+
+.labelActive {
+  color: var(--bn-text-title);
+  font-weight: 600;
+}
+
+.labelInactive {
+  color: var(--bn-text-muted);
+  font-weight: 500;
+}
+
+.labelMuted {
+  color: #bbb;
+}
+
+@media (max-width: 520px) {
+  .labels {
+    display: none;
+  }
+}

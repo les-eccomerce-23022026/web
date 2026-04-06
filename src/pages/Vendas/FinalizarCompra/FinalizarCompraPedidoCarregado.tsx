@@ -6,7 +6,9 @@ import { FinalizarCompraResumoPedido } from './FinalizarCompraResumoPedido';
 import { FinalizarCompraColunaPrincipal } from './FinalizarCompraColunaPrincipal';
 import {
   calcularResumoPedidoFinalizarCompra,
+  enderecoEntregaInputDeCheckout,
   enderecoFinalizarCompraDerivado,
+  pagamentoCobreSaldoFinalizarCompra,
   temFormaPagamentoFinalizarCompra,
 } from './finalizarCompraPedidoDerivados';
 import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
@@ -68,6 +70,13 @@ export const FinalizarCompraPedidoCarregado = ({
   const temFormaPagamento = temFormaPagamentoFinalizarCompra(
     cuponsAplicados.length,
     pagamentosParciais.length,
+    cartaoSelecionado,
+    novoCartao,
+  );
+
+  const saldoPagamentoOk = pagamentoCobreSaldoFinalizarCompra(
+    resumo.total,
+    pagamentosParciais,
     cartaoSelecionado,
     novoCartao,
   );
@@ -135,10 +144,12 @@ export const FinalizarCompraPedidoCarregado = ({
           enderecoOk={Boolean(enderecoParaFinalizarCompra)}
           freteSelecionado={Boolean(freteSelecionado)}
           temFormaPagamento={temFormaPagamento}
+          saldoPagamentoOk={saldoPagamentoOk}
           onFinalizar={() =>
             void handleFinalizarCompra({
               cartaoSalvoUuid: cartaoSelecionado,
               novoCartao: novoCartao ?? undefined,
+              enderecoEntrega: enderecoEntregaInputDeCheckout(data, enderecoSelecionado) ?? undefined,
             })
           }
         />
@@ -153,6 +164,8 @@ export const FinalizarCompraPedidoCarregado = ({
           bandeirasPermitidas={data.bandeirasPermitidas}
           onSubmit={handleNovoCartao}
           onCancel={() => setMostrarNovoCartao(false)}
+          salvarCartao
+          dicaSalvarCartaoOpcional="Com esta opção marcada, o cartão é gravado no seu perfil após você concluir o pedido (não ao clicar em Adicionar cartão)."
         />
       </Modal>
     </div>

@@ -1,5 +1,6 @@
 import styles from './FinalizarCompra.module.css';
 import {
+  CartaoCheckoutResumo,
   CartoesSalvosList,
   CupomInput,
   PagamentoParcialInput,
@@ -40,48 +41,69 @@ export const FinalizarCompraPagamentoCard = ({
   onAplicarCupom,
   onRemoverCupom,
 }: Props) => {
-  const cartaoInfo = cartaoSelecionado
-    ? data.cartoesSalvos.find((c) => c.uuid === cartaoSelecionado)
-    : undefined;
+  const temCartoesSalvos = data.cartoesSalvos.length > 0;
+
+  const handleTrocarNovoCartao = () => {
+    onNovoCartaoLimpar();
+    onAbrirNovoCartao();
+  };
 
   return (
     <>
       <div className={`card ${styles['checkout-card-spaced']}`}>
-        <h3 className={styles['checkout-section-title']}>Forma de Pagamento</h3>
-        <CartoesSalvosList
-          cartoes={data.cartoesSalvos}
-          selecionado={cartaoSelecionado}
-          onSelect={onCartaoSelecionado}
-        />
-        <div className={styles['checkout-form-row']}>
-          <span className={styles['checkout-text-nowrap']}>ou</span>
-          <button
-            className={`btn-secondary ${styles['checkout-text-nowrap']}`}
-            onClick={onAbrirNovoCartao}
-            data-cy="checkout-add-card-button"
-          >
-            + Novo Cartão
-          </button>
-        </div>
-        {cartaoSelecionado && cartaoInfo && (
-          <div className={styles['cartao-selecionado-info']}>
-            <p>
-              ✓ Cartão selecionado: {cartaoInfo.bandeira} · últimos dígitos{' '}
-              {cartaoInfo.ultimosDigitosCartao}
+        <h3 className={styles['checkout-section-title']} data-cy="checkout-payment-section-title">
+          Como você prefere pagar?
+        </h3>
+        <p className={styles['checkout-payment-subtitle']}>Use seu cartão de crédito nesta etapa.</p>
+
+        {temCartoesSalvos ? (
+          <CartoesSalvosList
+            cartoes={data.cartoesSalvos}
+            selecionado={cartaoSelecionado}
+            onSelect={onCartaoSelecionado}
+          />
+        ) : null}
+
+        {!temCartoesSalvos && !novoCartao ? (
+          <div className={styles['checkout-empty-pagamento']}>
+            <p className={styles['checkout-empty-pagamento-text']}>
+              Você ainda não tem cartões salvos. Adicione um cartão para continuar.
             </p>
-          </div>
-        )}
-        {novoCartao && (
-          <div className={styles['novo-cartao-info']}>
-            <p>
-              ✓ Novo cartão: {novoCartao.bandeira} final {novoCartao.numero.slice(-4)}
-            </p>
-            <button className={styles['btn-alterar']} onClick={onNovoCartaoLimpar}>
-              Alterar
+            <button
+              type="button"
+              className={`btn-primary ${styles['checkout-btn-add-card-full']}`}
+              onClick={onAbrirNovoCartao}
+              data-cy="checkout-add-card-button"
+            >
+              + Adicionar cartão
             </button>
           </div>
-        )}
-        {data.cartoesSalvos.length > 0 && (
+        ) : null}
+
+        {temCartoesSalvos ? (
+          <div className={styles['checkout-ou-novo']}>
+            <span className={styles['checkout-ou-text']}>ou</span>
+            <button
+              type="button"
+              className={`btn-secondary ${styles['checkout-btn-novo-cartao']}`}
+              onClick={onAbrirNovoCartao}
+              data-cy="checkout-add-card-button"
+            >
+              + Novo cartão
+            </button>
+          </div>
+        ) : null}
+
+        {novoCartao ? (
+          <CartaoCheckoutResumo
+            bandeira={novoCartao.bandeira}
+            ultimosDigitos={novoCartao.numero.replace(/\D/g, '').slice(-4)}
+            nomeTitular={novoCartao.nomeTitular}
+            onTrocar={handleTrocarNovoCartao}
+          />
+        ) : null}
+
+        {temCartoesSalvos ? (
           <PagamentoParcialInput
             cartoesSalvos={data.cartoesSalvos}
             valorTotal={total}
@@ -90,10 +112,10 @@ export const FinalizarCompraPagamentoCard = ({
             onRemover={onRemoverPagamentoParcial}
             pagamentosParciais={pagamentosParciais}
           />
-        )}
+        ) : null}
       </div>
 
-      <div className="card">
+      <div className={`card ${styles['checkout-cupom-card']}`}>
         <CupomInput
           cuponsDisponiveis={data.cuponsDisponiveis}
           cuponsAplicados={cuponsAplicados}

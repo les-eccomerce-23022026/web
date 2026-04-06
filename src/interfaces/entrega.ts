@@ -32,8 +32,11 @@ export interface IEnderecoEntregaOutput {
   criadoEm: Date;
 }
 
+/** Opção de frete: `uuid` identifica a linha da cotação; `cotacaoUuid` é o id persistido para `POST /vendas`. */
 export interface IFreteOpcao {
   uuid: string;
+  /** Retornado por `POST /frete/cotar` — deve ser enviado em `cotacaoUuid` na venda. */
+  cotacaoUuid?: string;
   tipo: 'PAC' | 'SEDEX' | 'RETIRA_EM_LOJA';
   valor: number;
   prazo: string;

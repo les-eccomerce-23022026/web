@@ -43,6 +43,7 @@ export class EntregaServiceApi implements IEntregaService {
 
     const opcoes: IFreteOpcao[] = res.opcoes.map((o) => ({
       uuid: o.uuid,
+      cotacaoUuid: o.cotacaoUuid,
       tipo: o.tipo,
       valor: o.valor,
       prazo: o.prazo,

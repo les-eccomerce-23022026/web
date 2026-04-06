@@ -18,13 +18,65 @@
   margin-bottom: 20px;
 }
 
+.checkout-cupom-card {
+  margin-top: 28px;
+}
+
 .checkout-link-alt {
   font-size: 13px;
   text-decoration: underline;
 }
 
 .checkout-section-title {
-  margin-bottom: 15px;
+  margin-bottom: 8px;
+}
+
+.checkout-payment-subtitle {
+  margin: 0 0 18px 0;
+  font-size: 1rem;
+  color: var(--bn-text-secondary, #555);
+  line-height: 1.5;
+}
+
+.checkout-empty-pagamento {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.checkout-empty-pagamento-text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.checkout-btn-add-card-full {
+  width: 100%;
+  min-height: 48px;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+}
+
+.checkout-ou-novo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-top: 1rem;
+}
+
+.checkout-ou-text {
+  font-size: 1rem;
+  color: var(--bn-text-secondary, #666);
+}
+
+.checkout-btn-novo-cartao {
+  min-height: 44px;
+  padding: 0.65rem 1.25rem;
+  font-size: 1rem;
 }
 
 .checkout-form-row {
@@ -104,11 +156,33 @@
   font-size: 18px;
 }
 
+.checkout-entrega-info,
+.checkout-pagamento-info {
+  font-size: 13px;
+  margin-top: 10px;
+  color: var(--bn-success, #2e7d32);
+}
+
+.checkout-pagamento-aviso {
+  font-size: 13px;
+  margin-top: 10px;
+  color: var(--bn-warning, #c62828);
+}
+
 /* --- Responsividade --- */
 @media (max-width: 768px) {
   .checkout-grid {
     display: flex;
     flex-direction: column;
+  }
+
+  .checkout-ou-novo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .checkout-btn-novo-cartao {
+    width: 100%;
   }
 
   .checkout-form-row {

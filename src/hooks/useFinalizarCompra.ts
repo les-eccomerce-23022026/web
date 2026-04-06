@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PagamentoServiceApi } from '@/services/api/pagamentoServiceApi';
+import { PagamentoService } from '@/services/pagamentoService';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import { usePagamento } from './usePagamento';
@@ -40,6 +40,7 @@ export function useFinalizarCompra() {
     error: entregaError,
     formatarCep,
     validarCep,
+    cadastrarEntrega,
   } = entrega;
 
   const entregaParaFreteCalculo: FreteCalculoEntregaApi = useMemo(
@@ -57,27 +58,24 @@ export function useFinalizarCompra() {
   const {
     cuponsAplicados,
     pagamentosParciais,
-    solicitarAutorizacaoFinanceiraCheckout,
     aplicarCupom,
     removerCupom,
     adicionarPagamentoParcial,
     removerPagamentoParcial,
   } = usePagamento();
 
-  const pagamentoService = useMemo(() => new PagamentoServiceApi(), []);
-
   const carregarInformacoesFinalizarCompra = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const infoPagamento = await pagamentoService.obterPagamentoInfo();
+      const infoPagamento = await PagamentoService.obterPagamentoInfo();
       setData(buildCheckoutInfoFromPagamento(infoPagamento, carrinho));
       setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Erro ao carregar informações de checkout'));
       setLoading(false);
     }
-  }, [carrinho, pagamentoService]);
+  }, [carrinho]);
 
   useEffect(() => {
     void carregarInformacoesFinalizarCompra();
@@ -101,9 +99,16 @@ export function useFinalizarCompra() {
           pagamentosParciais,
           freteSelecionado,
           opcoes,
-          solicitarAutorizacaoFinanceiraCheckout,
           dispatch,
           navigate,
+          pagamentoService: PagamentoService,
+          checkoutData: data,
+          cadastrarEntrega,
+          onSalvarCartaoCheckoutFalhou: (erro) => {
+            alert(
+              `Pedido concluído com sucesso, mas o cartão não foi salvo no perfil: ${erro.message}. Você pode cadastrar o cartão em Meu Perfil.`,
+            );
+          },
         });
       } catch (err: unknown) {
         tratarErroFinalizarCheckout(err, setError);
@@ -117,9 +122,10 @@ export function useFinalizarCompra() {
       cuponsAplicados,
       pagamentosParciais,
       freteSelecionado,
-      solicitarAutorizacaoFinanceiraCheckout,
       dispatch,
       navigate,
+      data,
+      cadastrarEntrega,
     ],
   );
 

@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
+import { ShoppingCart } from 'lucide-react';
 import styles from './Carrinho.module.css';
+import { EmptyState } from '@/components/Comum/EmptyState/EmptyState';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
   removerItem,
@@ -17,7 +19,28 @@ export const Carrinho = () => {
   if (status === 'loading') return <p className={styles['carrinho-status-message']}>Carregando carrinho...</p>;
   if (status === 'failed' || error) return <p className={styles['carrinho-status-message']}>Erro ao carregar carrinho.</p>;
   if (!data) return <p className={styles['carrinho-status-message']}>Carregando carrinho...</p>;
-  if (data.itens.length === 0) return <p className={styles['carrinho-status-message']}>Carrinho vazio.</p>;
+  if (data.itens.length === 0) {
+    return (
+      <div className={`${styles['carrinho-page']} page-transition-enter`} data-cy="carrinho-vazio">
+        <h1 className="page-title">Carrinho de Compras</h1>
+        <hr className={styles['carrinho-separator']} />
+
+        <EmptyState
+          title="Seu carrinho está vazio"
+          message="Explore nosso catálogo e adicione livros que deseja levar para casa."
+          icon={<ShoppingCart size={80} strokeWidth={1} color="var(--bn-primary)" />}
+        />
+
+        <div className={styles['carrinho-empty-actions']}>
+          <Link to="/" className={styles['carrinho-empty-link']}>
+            <button type="button" className={styles['carrinho-empty-cta']}>
+              Continuar comprando
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleUpdateQuantidade = (uuid: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const qtd = parseInt(event.target.value, 10);

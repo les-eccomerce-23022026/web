@@ -11,10 +11,9 @@ export function useLivrosDestaque() {
     state.livro.statusDestaque === 'failed' ? new Error(state.livro.errorDestaque || 'Erro') : null,
   );
 
-  // Consideramos como "destaques" os livros que estão Ativos no catálogo centralizado
-  // E filtramos pelo termo de busca dinâmico (título, autor ou sinopse)
+  // Ocultamos apenas livros explicitamente inativos; ausência de `status` (ex.: mock legado) conta como ativo
   const destaques = livros
-    .filter(l => l.status === 'Ativo')
+    .filter((l) => l.status !== 'Inativo')
     .filter(l => {
       if (!termoBusca) return true;
       

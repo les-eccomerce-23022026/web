@@ -40,8 +40,8 @@ describe('Checkout (Finalização de Compra)', () => {
   });
 
   it('deve oferecer componentes para a etapa de pagamento (múltiplos cartões, cupons)', () => {
-    cy.contains('Forma de Pagamento (Cartões)').should('be.visible');
-    cy.getDataCy('checkout-card-select').find('option').contains('Selecionar Cartão Salvo').should('exist');
+    cy.getDataCy('checkout-payment-section-title').should('be.visible').and('contain', 'Como você prefere pagar');
+    cy.getDataCy('checkout-saved-cards').should('exist');
     cy.getDataCy('checkout-add-card-button').should('be.visible');
     
     // Pagamento com múltiplos cartões
@@ -49,7 +49,7 @@ describe('Checkout (Finalização de Compra)', () => {
     cy.getDataCy('checkout-add-payment-button').should('exist');
     
     // Cupons promocionais
-    cy.contains('Cupons de Troca / Promocional').should('be.visible');
+    cy.contains('Cupons de Desconto').should('be.visible');
     cy.getDataCy('checkout-coupon-input').should('exist');
     cy.getDataCy('checkout-apply-coupon-button').should('be.visible');
   });

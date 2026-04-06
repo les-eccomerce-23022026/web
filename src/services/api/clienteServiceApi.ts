@@ -54,7 +54,10 @@ export class ClienteServiceApi implements IClienteService {
     return ApiClient.get<ICartaoCliente[]>(API_ENDPOINTS.listarCartoes);
   }
 
-  async adicionarCartao(cartao: Omit<ICartaoCliente, 'uuid'>): Promise<ICartaoCliente> {
+  async adicionarCartao(
+    cartao: Omit<ICartaoCliente, 'uuid'>,
+    _opcoes?: { userUuid?: string },
+  ): Promise<ICartaoCliente> {
     const uuidBandeira = uuidBandeiraParaNome(cartao.bandeira);
     const validadeIso =
       cartao.validade && cartao.validade.includes('/')

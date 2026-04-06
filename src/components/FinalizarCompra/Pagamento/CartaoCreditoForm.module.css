@@ -130,6 +130,13 @@
   cursor: pointer;
 }
 
+.cartao-form-hint {
+  margin: 0.5rem 0 0 1.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--text-secondary, #666);
+}
+
 .form-actions {
   display: flex;
   gap: 0.75rem;

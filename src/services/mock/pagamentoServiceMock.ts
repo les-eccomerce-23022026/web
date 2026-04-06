@@ -6,6 +6,7 @@ import type {
   IProcessarPagamentoInput,
   IProcessarPagamentoResultado,
   IIntencaoPagamentoResultado,
+  ISelecionarPagamentoLiquidaBody,
 } from '@/interfaces/pagamento';
 import type { IPagamentoService } from '@/services/contracts/pagamentoService';
 
@@ -98,6 +99,21 @@ export class PagamentoServiceMock implements IPagamentoService {
       },
       status: 'pendente',
       criadoEm: new Date()
+    });
+  }
+
+  async selecionarPagamentoLiquida(dados: ISelecionarPagamentoLiquidaBody): Promise<IPagamentoDetalhes> {
+    console.log('[Mock] Liquidação por venda:', dados);
+    return delay({
+      id: crypto.randomUUID(),
+      vendaUuid: dados.vendaUuid,
+      valor: dados.valor,
+      formaPagamento: {
+        tipo: dados.tipoPagamento,
+        detalhes: dados.detalhesCupom,
+      },
+      status: 'pendente',
+      criadoEm: new Date(),
     });
   }
 

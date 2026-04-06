@@ -16,7 +16,7 @@ export function livroPassaStatus(
   statusFilter: 'todos' | 'ativos' | 'inativos',
 ): boolean {
   if (statusFilter === 'todos') return true;
-  if (statusFilter === 'ativos') return livro.status === 'Ativo';
+  if (statusFilter === 'ativos') return livro.status !== 'Inativo';
   return livro.status === 'Inativo';
 }
 

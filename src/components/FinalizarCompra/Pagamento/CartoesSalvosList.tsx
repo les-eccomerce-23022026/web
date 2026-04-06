@@ -1,4 +1,5 @@
-import { CreditCard, Star } from 'lucide-react';
+import type { KeyboardEvent } from 'react';
+import { Check, CreditCard, Star } from 'lucide-react';
 import type { ICartaoSalvoPagamento } from '@/interfaces/pagamento';
 import styles from './CartoesSalvosList.module.css';
 
@@ -10,6 +11,17 @@ interface CartoesSalvosListProps {
   onDelete?: (cartaoUuid: string) => void;
 }
 
+function handleCartaoKeyDown(
+  e: KeyboardEvent,
+  cartaoUuid: string,
+  onSelect: (uuid: string) => void,
+) {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    onSelect(cartaoUuid);
+  }
+}
+
 export const CartoesSalvosList = ({
   cartoes,
   selecionado,
@@ -18,22 +30,23 @@ export const CartoesSalvosList = ({
   onDelete
 }: CartoesSalvosListProps) => {
   if (cartoes.length === 0) {
-    return (
-      <div className={styles['sem-cartoes']}>
-        <CreditCard size={48} strokeWidth={1.5} />
-        <p>Nenhum cartão salvo</p>
-        <span>Adicione um novo cartão para comprar mais rápido</span>
-      </div>
-    );
+    return null;
   }
 
   return (
     <div className={styles['cartoes-list']} data-cy="checkout-saved-cards">
-      {cartoes.map((cartao) => (
+      {cartoes.map((cartao) => {
+        const isSel = selecionado === cartao.uuid;
+        return (
         <div
           key={cartao.uuid}
-          className={`${styles['cartao-item']} ${selecionado === cartao.uuid ? styles['selecionado'] : ''}`}
+          role="button"
+          tabIndex={0}
+          aria-pressed={isSel}
+          aria-label={`Cartão ${cartao.bandeira} final ${cartao.ultimosDigitosCartao}. ${isSel ? 'Selecionado.' : 'Selecionar este cartão.'}`}
+          className={`${styles['cartao-item']} ${isSel ? styles['selecionado'] : ''}`}
           onClick={() => onSelect(cartao.uuid)}
+          onKeyDown={(e) => handleCartaoKeyDown(e, cartao.uuid, onSelect)}
           data-cy={`checkout-card-item-${cartao.ultimosDigitosCartao}`}
         >
           <div className={styles['cartao-conteudo']}>
@@ -54,6 +67,12 @@ export const CartoesSalvosList = ({
                 <Star size={16} fill="currentColor" />
               </div>
             )}
+
+            {isSel ? (
+              <div className={styles['check-wrap']} aria-hidden>
+                <Check className={styles['check-icon']} size={22} strokeWidth={2.5} />
+              </div>
+            ) : null}
           </div>
           
           <div className={styles['cartao-actions']}>
@@ -83,7 +102,8 @@ export const CartoesSalvosList = ({
             )}
           </div>
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

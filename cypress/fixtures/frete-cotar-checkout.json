@@ -1,0 +1,29 @@
+{
+  "provedor": "sim",
+  "cepOrigem": "01000000",
+  "cepDestino": "01310100",
+  "pesoTotal": 1,
+  "opcoes": [
+    {
+      "uuid": "op-pac",
+      "cotacaoUuid": "cot-pac-1",
+      "tipo": "PAC",
+      "valor": 15,
+      "prazo": "5-7 dias"
+    },
+    {
+      "uuid": "op-sedex",
+      "cotacaoUuid": "cot-sedex-1",
+      "tipo": "SEDEX",
+      "valor": 30,
+      "prazo": "1-2 dias"
+    },
+    {
+      "uuid": "op-loja",
+      "cotacaoUuid": "cot-loja-1",
+      "tipo": "RETIRA_EM_LOJA",
+      "valor": 0,
+      "prazo": "2h"
+    }
+  ]
+}

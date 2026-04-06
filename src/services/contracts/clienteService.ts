@@ -16,7 +16,10 @@ export interface IClienteService {
   editarEndereco(uuid: string, endereco: Partial<IEnderecoCliente>): Promise<IEnderecoCliente[]>;
   removerEndereco(uuid: string): Promise<void>;
   listarCartoes(userUuid: string): Promise<ICartaoCliente[]>;
-  adicionarCartao(cartao: Omit<ICartaoCliente, 'uuid'>): Promise<ICartaoCliente>;
+  adicionarCartao(
+    cartao: Omit<ICartaoCliente, 'uuid'>,
+    opcoes?: { userUuid?: string },
+  ): Promise<ICartaoCliente>;
   editarCartao(uuid: string, cartao: Partial<ICartaoCliente>): Promise<ICartaoCliente[]>;
   removerCartao(uuid: string): Promise<void>;
   definirCartaoPreferencial(cartaoUuid: string): Promise<void>;

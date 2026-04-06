@@ -5,6 +5,7 @@ import type {
   IProcessarPagamentoInput,
   IProcessarPagamentoResultado,
   IIntencaoPagamentoResultado,
+  ISelecionarPagamentoLiquidaBody,
 } from '@/interfaces/pagamento';
 
 /**
@@ -27,6 +28,11 @@ export interface IPagamentoService {
    * Define método de liquidação para uma venda
    */
   definirMetodoLiquidacao(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes>;
+
+  /**
+   * Liquidação explícita por venda (corpo compatível com `POST /pagamentos/selecionar`).
+   */
+  selecionarPagamentoLiquida(dados: ISelecionarPagamentoLiquidaBody): Promise<IPagamentoDetalhes>;
 
   /**
    * Solicita autorização financeira ao gateway (pagamento já registrado)

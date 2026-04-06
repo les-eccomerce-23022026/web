@@ -22,8 +22,24 @@
 }
 
 .cartao-item.selecionado {
-  border-color: var(--primary-color, #0066cc);
-  background: var(--primary-light, rgba(0, 102, 204, 0.05));
+  border-color: var(--bn-primary, #2e7d32);
+  background: color-mix(in srgb, var(--bn-primary, #2e7d32) 8%, #fff);
+}
+
+.check-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--bn-primary, #2e7d32);
+  color: #fff;
+}
+
+.check-icon {
+  display: block;
 }
 
 .cartao-conteudo {
@@ -122,33 +138,6 @@
 
 .action-btn-delete:hover {
   background: var(--delete-hover, #fcc);
-}
-
-.sem-cartoes {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1.5rem;
-  text-align: center;
-  color: var(--text-secondary, #666);
-  border: 2px dashed var(--border-color, #e0e0e0);
-  border-radius: 8px;
-}
-
-.sem-cartoes svg {
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
-
-.sem-cartoes p {
-  margin: 0 0 0.25rem 0;
-  font-weight: 600;
-  color: var(--text-primary, #333);
-}
-
-.sem-cartoes span {
-  font-size: 0.875rem;
 }
 
 @media (max-width: 640px) {

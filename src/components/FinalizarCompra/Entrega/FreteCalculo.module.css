@@ -158,16 +158,6 @@
   font-weight: 700;
 }
 
-.opcao-selecao {
-  margin-left: 1rem;
-}
-
-.opcao-selecao input[type="radio"] {
-  width: 1.25rem;
-  height: 1.25rem;
-  cursor: pointer;
-}
-
 .frete-info-adicional {
   margin-top: 1rem;
   padding-top: 1rem;
@@ -192,11 +182,5 @@
   .opcao-conteudo {
     flex: 1 1 100%;
     margin-bottom: 0.5rem;
-  }
-  
-  .opcao-selecao {
-    margin-left: 0;
-    width: 100%;
-    text-align: center;
   }
 }

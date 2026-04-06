@@ -129,16 +129,6 @@ export const FreteCalculo = ({
                   )}
                 </div>
               </div>
-
-              <div className={styles['opcao-selecao']}>
-                <input
-                  type="radio"
-                  name="frete"
-                  checked={freteSelecionado?.uuid === opcao.uuid}
-                  onChange={() => handleSelecionar(opcao)}
-                  data-cy={`checkout-freight-radio-${opcao.tipo}`}
-                />
-              </div>
             </div>
           ))}
         </div>

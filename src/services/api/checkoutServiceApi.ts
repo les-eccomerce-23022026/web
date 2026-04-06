@@ -4,6 +4,10 @@ import { ApiClient } from '@/services/apiClient';
 import type { ICheckoutService, IVendaInput, IVendaResultado } from '@/services/contracts/checkoutService';
 
 export class CheckoutServiceApi implements ICheckoutService {
+  /**
+   * Endpoint `/checkout` (legado). Na tela de finalizar compra, prefira
+   * `PagamentoServiceApi.obterPagamentoInfo` + `buildCheckoutInfoFromPagamento`.
+   */
   async getCheckoutInfo(): Promise<ICheckoutInfo> {
     return ApiClient.get<ICheckoutInfo>(API_ENDPOINTS.obterCheckoutInfo);
   }

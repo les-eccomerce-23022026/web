@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
   sincronizarCarrinhoItem: `${BASE_URL}/carrinho/itens`,
   obterLivrosDestaque: `${BASE_URL}/livros/destaques`,
   obterListaLivrosAdmin: `${BASE_URL}/admin/livros`,
+  /** Legado / mock: o fluxo real de checkout usa `GET /pagamento/info` via `PagamentoService.obterPagamentoInfo`. */
   obterCheckoutInfo: `${BASE_URL}/checkout`,
   obterDashboardAdminInfo: `${BASE_URL}/admin/dashboard`,
   obterDetalhesLivro: (uuid: string) => `${BASE_URL}/livros/${uuid}`,

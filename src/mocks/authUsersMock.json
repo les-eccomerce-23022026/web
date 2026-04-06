@@ -13,6 +13,18 @@
       "ativo": true
     },
     {
+      "uuid": "uuid-cliente-seed-005",
+      "nome": "Cliente Teste",
+      "email": "clientetest@email.com",
+      "cpf": "222.222.222-22",
+      "senha": "@asdfJKLÇ123",
+      "role": "cliente",
+      "genero": "Masculino",
+      "dataNascimento": "1990-01-01",
+      "telefone": { "tipo": "Celular", "ddd": "11", "numero": "988887766" },
+      "ativo": true
+    },
+    {
       "uuid": "uuid-cliente-joao-002",
       "nome": "Maria Leitora",
       "email": "joao.comprador@email.com",

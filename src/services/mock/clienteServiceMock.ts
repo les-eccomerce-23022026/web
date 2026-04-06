@@ -13,6 +13,9 @@ function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
 }
 
+/** Cartões adicionados em sessão (checkout / perfil) — mescla com `clientesMock.json` em `listarCartoes`. */
+const cartoesExtrasPorUsuario: Record<string, ICartaoCliente[]> = {};
+
 export class ClienteServiceMock implements IClienteService {
   async obterPerfil(userUuid: string): Promise<ICliente> {
     console.log('[Mock] Buscando perfil do cliente:', userUuid);
@@ -82,20 +85,32 @@ export class ClienteServiceMock implements IClienteService {
 
   async listarCartoes(userUuid: string): Promise<ICartaoCliente[]> {
     const cliente = clientesMock.clientes.find((c) => c.uuid === userUuid);
-    if (!cliente) return Promise.resolve([]);
-
-    return delay(cliente.cartoes.map(c => ({
-      ...c,
-      nomeCliente: c.nomeImpresso // Mapeando nomeImpresso para nomeCliente para satisfazer a interface
-    })) as ICartaoCliente[], 200);
+    const base =
+      cliente?.cartoes.map((c) => ({
+        ...c,
+        nomeCliente: c.nomeImpresso,
+      })) ?? [];
+    const extras = cartoesExtrasPorUsuario[userUuid] ?? [];
+    return delay([...(base as ICartaoCliente[]), ...extras], 200);
   }
 
-  async adicionarCartao(cartao: Omit<ICartaoCliente, 'uuid'>): Promise<ICartaoCliente> {
-    console.log('[Mock] Adicionando cartão:', cartao);
+  async adicionarCartao(
+    cartao: Omit<ICartaoCliente, 'uuid'>,
+    opcoes?: { userUuid?: string },
+  ): Promise<ICartaoCliente> {
+    console.log('[Mock] Adicionando cartão:', cartao, opcoes);
     const novoCartao: ICartaoCliente = {
       ...cartao,
+      nomeCliente: cartao.nomeCliente ?? cartao.nomeImpresso,
       uuid: `card-${Date.now()}`,
     };
+    const uid = opcoes?.userUuid;
+    if (uid) {
+      if (!cartoesExtrasPorUsuario[uid]) {
+        cartoesExtrasPorUsuario[uid] = [];
+      }
+      cartoesExtrasPorUsuario[uid].push(novoCartao);
+    }
     return delay(novoCartao);
   }
 

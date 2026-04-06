@@ -85,7 +85,9 @@ export const CupomInput = ({
                   {cupom.tipo === 'promocional' ? 'Promocional' : 'Troca'}
                 </span>
                 <span className={styles['cupom-valor']}>
-                  - R$ {cupom.valor.toFixed(2).replace('.', ',')}
+                  {cupom.tipo === 'promocional'
+                    ? `- ${cupom.valor}%`
+                    : `- R$ ${cupom.valor.toFixed(2).replace('.', ',')}`}
                 </span>
               </div>
               <button
@@ -114,14 +116,12 @@ export const CupomInput = ({
             onFocus={() => setMostrarSugestoes(true)}
             onBlur={() => setTimeout(() => setMostrarSugestoes(false), 200)}
             placeholder="CÓDIGO DO CUPOM"
-            disabled={!!cupomPromocionalAplicado}
             data-cy="checkout-coupon-input"
           />
           <button
             type="button"
             className="btn-secondary"
             onClick={handleAplicar}
-            disabled={!!cupomPromocionalAplicado}
             data-cy="checkout-apply-coupon-button"
           >
             Aplicar
@@ -130,7 +130,7 @@ export const CupomInput = ({
 
         {cupomPromocionalAplicado && (
           <p className={styles['cupom-limite']}>
-            Limite de 1 cupom promocional por compra atingido
+            Cupom promocional já aplicado. Você ainda pode adicionar cupons de troca acima.
           </p>
         )}
 

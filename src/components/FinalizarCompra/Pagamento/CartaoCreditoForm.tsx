@@ -8,6 +8,8 @@ interface CartaoCreditoFormProps {
   onSubmit: (dados: ICartaoCreditoInput) => void;
   onCancel?: () => void;
   salvarCartao?: boolean;
+  /** Texto auxiliar abaixo do checkbox “salvar cartão” (ex.: checkout). */
+  dicaSalvarCartaoOpcional?: string;
 }
 
 export const CartaoCreditoForm = ({
@@ -15,6 +17,7 @@ export const CartaoCreditoForm = ({
   onSubmit,
   onCancel,
   salvarCartao = false,
+  dicaSalvarCartaoOpcional,
 }: CartaoCreditoFormProps) => {
   const f = useCartaoCreditoForm(bandeirasPermitidas, onSubmit, salvarCartao);
 
@@ -33,6 +36,7 @@ export const CartaoCreditoForm = ({
         salvar={f.salvar}
         mostrarCvv={f.mostrarCvv}
         bandeiraDetectada={f.bandeiraDetectada}
+        dicaSalvarCartaoOpcional={dicaSalvarCartaoOpcional}
         onNomeChange={(e) => f.setNomeTitular(e.target.value)}
         onSalvarChange={(e) => f.setSalvar(e.target.checked)}
         onToggleCvv={() => f.setMostrarCvv(!f.mostrarCvv)}

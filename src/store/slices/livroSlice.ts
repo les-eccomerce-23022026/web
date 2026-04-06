@@ -29,7 +29,8 @@ const initialState: LivroState = {
 
 /** Catálogo da home — destaques (GET /livros/destaques). */
 export const fetchLivros = createAsyncThunk('livro/fetchLivros', async () => {
-  return LivroService.getDestaques();
+  const raw = await LivroService.getDestaques();
+  return Array.isArray(raw) ? raw : [];
 });
 
 /** Lista administrativa (GET /admin/livros). */
@@ -80,7 +81,7 @@ const livroSlice = createSlice({
       })
       .addCase(fetchLivros.fulfilled, (state, action) => {
         state.statusDestaque = 'succeeded';
-        state.livrosDestaque = action.payload;
+        state.livrosDestaque = Array.isArray(action.payload) ? action.payload : [];
         state.errorDestaque = null;
       })
       .addCase(fetchLivros.rejected, (state, action) => {

@@ -1,3 +1,4 @@
+export { CartaoCheckoutResumo } from './CartaoCheckoutResumo';
 export { CartaoCreditoForm } from './CartaoCreditoForm';
 export { CartoesSalvosList } from './CartoesSalvosList';
 export { CupomInput } from './CupomInput';

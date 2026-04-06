@@ -4,6 +4,20 @@
  */
 
 export type TipoPagamento = 'cartao_credito' | 'cupom_troca' | 'cupom_promocional';
+
+/** Corpo alinhado a `POST /pagamentos/selecionar` no backend. */
+export interface ISelecionarPagamentoLiquidaBody {
+  vendaUuid: string;
+  valor: number;
+  tipoPagamento: TipoPagamento;
+  detalhesCupom?: string;
+  cartao?: {
+    numero: string;
+    nomeTitular: string;
+    validade: string;
+    bandeira: string;
+  };
+}
 export type StatusPagamento = 'pendente' | 'aprovado' | 'recusado' | 'cancelado';
 
 export interface IBandeiraCartao {
@@ -49,6 +63,8 @@ export interface ICupomAplicado {
 
 export interface IFreteOpcao {
   uuid: string;
+  /** Alinhado a `POST /frete/cotar` — usar em `POST /vendas.cotacaoUuid` quando presente. */
+  cotacaoUuid?: string;
   tipo: 'PAC' | 'SEDEX' | 'RETIRA_EM_LOJA';
   valor: number;
   prazo: string;
