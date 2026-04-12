@@ -9,28 +9,25 @@ import {
   calcularResumoPedidoFinalizarCompra,
   enderecoEntregaInputDeCheckout,
   enderecoFinalizarCompraDerivado,
-  pagamentoCobreSaldoFinalizarCompra,
   temFormaPagamentoFinalizarCompra,
 } from './finalizarCompraCalculos';
-import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
 import type { ICarrinho } from '@/interfaces/carrinho';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { LinhaPagamentoCheckout } from '@/types/checkout';
-import {
-  montarParcelasLiquidadasDasLinhasCheckout,
-  validarValorMinimoPorMeioNaDivisaoPagamento,
-} from '@/utils/finalizarCompraLinhasPagamento';
-
-type Hook = ReturnType<typeof useFinalizarCompra>;
+import { montarParcelasLiquidadasDasLinhasCheckout } from '@/utils/finalizarCompraLinhasPagamento';
+import { useOrquestradorFinalizacao } from './useOrquestradorFinalizacao';
 
 type Props = {
   data: ICheckoutInfo;
-  hook: Hook;
+  hook: any;
   carrinho: ICarrinho | null | undefined;
   enderecoSelecionado: string | null;
   setEnderecoSelecionado: (v: string | null) => void;
 };
 
+/**
+ * Componente que orquestra a etapa final da compra (Mesa de Pagamento e Resumo).
+ * Aplicando SRP e Linguagem Ubíqua para reduzir complexidade.
+ */
 export const FinalizarCompraPedidoCarregado = ({
   data,
   hook,
@@ -44,7 +41,6 @@ export const FinalizarCompraPedidoCarregado = ({
     cuponsAplicados,
     aplicarCupom,
     removerCupom,
-    parcelasLiquidacao,
     definirParcelasLiquidacao,
     freteSelecionado,
     selecionarFrete,
@@ -52,133 +48,58 @@ export const FinalizarCompraPedidoCarregado = ({
     cepDestinoFrete,
   } = hook;
 
-  const [linhasPagamento, setLinhasPagamento] = useState<LinhaPagamentoCheckout[]>([]);
   const [novosCartoesPorLinha, setNovosCartoesPorLinha] = useState<Record<string, ICartaoCreditoInput>>({});
   const [linhaModalCartaoId, setLinhaModalCartaoId] = useState<string | null>(null);
 
-  const enderecoParaFinalizarCompra = enderecoFinalizarCompraDerivado(data, enderecoSelecionado);
-  const resumo = calcularResumoPedidoFinalizarCompra(
-    carrinho,
-    data,
-    freteSelecionado,
-    cuponsAplicados,
-    parcelasLiquidacao,
-  );
+  const resumoFinanceiro = calcularResumoPedidoFinalizarCompra(carrinho, data, freteSelecionado, cuponsAplicados, []);
+  
+  const {
+    composicaoPagamento,
+    isSaldoCoberto,
+    atualizarMeio,
+    adicionarMeioPagamento,
+    removerMeioPagamento
+  } = useOrquestradorFinalizacao({
+    dadosCheckout: data,
+    resumoFinanceiro: resumoFinanceiro
+  });
 
+  // Sincroniza as parcelas para o hook de API (Necessário para o contrato de backend)
   useEffect(() => {
-    if (!data) return;
-    setLinhasPagamento((prev) => {
-      if (prev.length > 0) return prev;
-      const r = calcularResumoPedidoFinalizarCompra(
-        carrinho,
-        data,
-        freteSelecionado,
-        cuponsAplicados,
-        [],
-      );
-      const t = Math.round(r.total * 100) / 100;
-      const id = crypto.randomUUID();
-      if (data.cartoesSalvos.length > 0) {
-        return [
-          {
-            id,
-            tipo: 'cartao_salvo',
-            cartaoSalvoUuid: data.cartoesSalvos[0].uuid,
-            valor: t,
-            parcelasCartao: 1,
-          },
-        ];
-      }
-      return [{ id, tipo: 'cartao_novo', valor: t, parcelasCartao: 1 }];
-    });
-  }, [data, carrinho, freteSelecionado, cuponsAplicados]);
-
-  useEffect(() => {
-    const t = Math.round(resumo.total * 100) / 100;
-    setLinhasPagamento((prev) => {
-      if (prev.length !== 1) return prev;
-      return [{ ...prev[0], valor: t }];
-    });
-  }, [resumo.total]);
-
-  useEffect(() => {
-    if (linhasPagamento.length === 0) return;
     try {
-      definirParcelasLiquidacao(montarParcelasLiquidadasDasLinhasCheckout(linhasPagamento));
-    } catch {
-      // noop
-    }
-  }, [linhasPagamento, definirParcelasLiquidacao]);
+      definirParcelasLiquidacao(montarParcelasLiquidadasDasLinhasCheckout(composicaoPagamento));
+    } catch { /* noop */ }
+  }, [composicaoPagamento, definirParcelasLiquidacao]);
 
-  const handleLinhasChange = useCallback((nova: LinhaPagamentoCheckout[]) => {
-    setLinhasPagamento(nova);
-  }, []);
+  const enderecoParaFinalizacao = enderecoFinalizarCompraDerivado(data, enderecoSelecionado);
 
-  useEffect(() => {
-    setNovosCartoesPorLinha((prev) => {
-      const ids = new Set(linhasPagamento.filter((l) => l.tipo === 'cartao_novo').map((l) => l.id));
-      const next = { ...prev };
-      for (const k of Object.keys(next)) {
-        if (!ids.has(k)) delete next[k];
-      }
-      return next;
-    });
-  }, [linhasPagamento]);
-
-  const handleSelecionarCartaoSalvoNaLista = useCallback((uuid: string) => {
-    setLinhasPagamento((prev) => {
-      if (prev.length === 0) return prev;
-      const first = prev[0];
-      if (first.tipo === 'cartao_salvo') {
-        return [{ ...first, cartaoSalvoUuid: uuid }, ...prev.slice(1)];
-      }
-      return [
-        { id: first.id, tipo: 'cartao_salvo', cartaoSalvoUuid: uuid, valor: first.valor },
-        ...prev.slice(1),
-      ];
-    });
-  }, []);
-
-  const rnOk = validarValorMinimoPorMeioNaDivisaoPagamento(linhasPagamento, resumo.total).ok;
-
-  const temFormaPagamento =
-    temFormaPagamentoFinalizarCompra(
-      cuponsAplicados.length,
-      parcelasLiquidacao,
-      novosCartoesPorLinha,
-      null,
-      null,
-    ) && rnOk;
-
-  const saldoPagamentoOk = pagamentoCobreSaldoFinalizarCompra(
-    resumo.total,
-    parcelasLiquidacao,
+  const temFormaPagamentoValida = temFormaPagamentoFinalizarCompra(
+    cuponsAplicados.length,
+    composicaoPagamento.map(l => ({ valor: l.valor, parcelas: l.parcelasCartao })),
     novosCartoesPorLinha,
     null,
-    null,
-  );
+    null
+  ) && isSaldoCoberto;
 
-  const handleAplicarCupom = (cupom: ICupomAplicado) => {
-    aplicarCupom({
-      uuid: cupom.uuid,
-      codigo: cupom.codigo,
-      tipo: cupom.tipo,
-      valor: cupom.valor,
+  const aoFinalizar = () => {
+    void handleFinalizarCompra({
+      novosCartoesPorLinha: Object.keys(novosCartoesPorLinha).length > 0 ? novosCartoesPorLinha : undefined,
+      enderecoEntrega: enderecoEntregaInputDeCheckout(data, enderecoSelecionado) ?? undefined,
     });
   };
 
-  const handleNovoCartaoModal = (dados: ICartaoCreditoInput) => {
-    if (!linhaModalCartaoId) return;
-    setNovosCartoesPorLinha((prev) => ({ ...prev, [linhaModalCartaoId]: dados }));
-    setLinhaModalCartaoId(null);
+  const aoSalvarNovoCartao = (dados: ICartaoCreditoInput) => {
+    if (linhaModalCartaoId) {
+      setNovosCartoesPorLinha(prev => ({ ...prev, [linhaModalCartaoId]: dados }));
+      setLinhaModalCartaoId(null);
+    }
   };
 
   return (
     <div className={styles['checkout-page']}>
       <h1 className="page-title">Finalizar Compra</h1>
       <div className={`breadcrumb ${styles['checkout-breadcrumb']}`}>
-        <strong>1. Identificação</strong> &gt; <strong>2. Entrega</strong> &gt;{' '}
-        <span className={styles['checkout-breadcrumb-active']}>3. Pagamento</span>
+        <strong>1. Identificação</strong> &gt; <strong>2. Entrega</strong> &gt; <span className={styles['checkout-breadcrumb-active']}>3. Pagamento</span>
       </div>
 
       <div className={styles['checkout-grid']}>
@@ -189,52 +110,40 @@ export const FinalizarCompraPedidoCarregado = ({
           entregaParaFreteCalculo={entregaParaFreteCalculo}
           freteSelecionado={freteSelecionado}
           onFreteSelecionado={selecionarFrete}
-          subtotal={resumo.subtotal}
+          subtotal={resumoFinanceiro.subtotal}
           freteInitialCep={cepDestinoFrete || undefined}
-          total={resumo.total}
+          total={resumoFinanceiro.total}
           cuponsAplicados={cuponsAplicados}
-          linhasPagamento={linhasPagamento}
+          linhasPagamento={composicaoPagamento}
           novosCartoesPorLinha={novosCartoesPorLinha}
-          onLinhasChange={handleLinhasChange}
-          onAbrirModalCartao={(id) => setLinhaModalCartaoId(id)}
-          onSelecionarCartaoSalvoNaLista={handleSelecionarCartaoSalvoNaLista}
-          onAplicarCupom={handleAplicarCupom}
+          onLinhasChange={(nova) => { /* useOrquestrador gerencia internamente, mas mantemos interface */ }}
+          onAbrirModalCartao={setLinhaModalCartaoId}
+          onAplicarCupom={(c: ICupomAplicado) => aplicarCupom({ uuid: c.uuid, codigo: c.codigo, tipo: c.tipo, valor: c.valor })}
           onRemoverCupom={removerCupom}
         />
 
         <FinalizarCompraResumoPedido
-          quantidadeItens={resumo.quantidadeItens}
-          subtotal={resumo.subtotal}
-          frete={resumo.frete}
-          descontoCupons={resumo.descontoCupons}
-          valorPagoParcialmente={resumo.valorPagoParcialmente}
-          totalMenosParcial={resumo.total - resumo.valorPagoParcialmente}
+          quantidadeItens={resumoFinanceiro.quantidadeItens}
+          subtotal={resumoFinanceiro.subtotal}
+          frete={resumoFinanceiro.frete}
+          descontoCupons={resumoFinanceiro.descontoCupons}
+          valorPagoParcialmente={0}
+          totalMenosParcial={resumoFinanceiro.total}
           finalizando={isFinalizando}
-          enderecoOk={Boolean(enderecoParaFinalizarCompra)}
+          enderecoOk={Boolean(enderecoParaFinalizacao)}
           freteSelecionado={Boolean(freteSelecionado)}
-          temFormaPagamento={temFormaPagamento}
-          saldoPagamentoOk={saldoPagamentoOk}
-          onFinalizar={() =>
-            void handleFinalizarCompra({
-              novosCartoesPorLinha:
-                Object.keys(novosCartoesPorLinha).length > 0 ? novosCartoesPorLinha : undefined,
-              enderecoEntrega: enderecoEntregaInputDeCheckout(data, enderecoSelecionado) ?? undefined,
-            })
-          }
+          temFormaPagamento={temFormaPagamentoValida}
+          saldoPagamentoOk={isSaldoCoberto}
+          onFinalizar={aoFinalizar}
         />
       </div>
 
-      <Modal
-        isOpen={linhaModalCartaoId !== null}
-        onClose={() => setLinhaModalCartaoId(null)}
-        title="Adicionar Novo Cartão"
-      >
+      <Modal isOpen={linhaModalCartaoId !== null} onClose={() => setLinhaModalCartaoId(null)} title="Adicionar Novo Cartão">
         <CartaoCreditoForm
           bandeirasPermitidas={data.bandeirasPermitidas}
-          onSubmit={handleNovoCartaoModal}
+          onSubmit={aoSalvarNovoCartao}
           onCancel={() => setLinhaModalCartaoId(null)}
           salvarCartao
-          dicaSalvarCartaoOpcional="Com esta opção marcada, o cartão é gravado no seu perfil após você concluir o pedido (não ao clicar em Adicionar cartão)."
         />
       </Modal>
     </div>

@@ -51,11 +51,15 @@ describe('useOrquestradorFinalizacao (TDD)', () => {
     }));
 
     act(() => {
-      // Adiciona uma linha de PIX de 50 reais (Total é 110)
       result.current.adicionarMeioPagamento('pix');
-      result.current.atualizarValorMeio(result.current.composicaoPagamento[1].id, 50);
-      // Ajusta a primeira linha para 40
-      result.current.atualizarValorMeio(result.current.composicaoPagamento[0].id, 40);
+    });
+
+    const idPix = result.current.composicaoPagamento[1].id;
+    const idOriginal = result.current.composicaoPagamento[0].id;
+
+    act(() => {
+      result.current.atualizarValorMeio(idPix, 50);
+      result.current.atualizarValorMeio(idOriginal, 40);
     });
 
     // 50 + 40 = 90. Faltam 20 para 110.
