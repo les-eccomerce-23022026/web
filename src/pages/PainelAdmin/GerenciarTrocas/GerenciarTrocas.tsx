@@ -10,7 +10,7 @@ import styles from './GerenciarTrocas.module.css';
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 
 export const GerenciarTrocas = () => {
-  const { pedidos, loading, error, autorizarTroca, confirmarRecebimento } = usePedidosTrocaAdmin();
+  const { pedidos, isLoading, hasError, autorizarTroca, confirmarRecebimento } = usePedidosTrocaAdmin();
   const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
   const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);
   const livrosParaTitulo = useMemo(
@@ -22,8 +22,8 @@ export const GerenciarTrocas = () => {
   const [retornarEstoque, setRetornarEstoque] = useState(true);
   const [processando, setProcessando] = useState(false);
 
-  if (loading) return <LoadingState message="Carregando solicitações de troca..." />;
-  if (error) return <ErrorState message={error} />;
+  if (isLoading) return <LoadingState message="Carregando solicitações de troca..." />;
+  if (hasError) return <ErrorState message="Não foi possível carregar as solicitações de troca." />;
   if (pedidos.length === 0) {
     return <EmptyState message="Nenhuma solicitação de troca encontrada." />;
   }

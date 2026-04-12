@@ -32,7 +32,8 @@ export const Carrinho = () => {
     selecionarFrete,
     calcularFrete,
     freteCalculado,
-    loading: entregaLoading,
+    isLoading: isEntregaLoading,
+    hasError: hasEntregaError,
     error: entregaError,
     formatarCep,
     validarCep,
@@ -44,12 +45,13 @@ export const Carrinho = () => {
     () => ({
       calcularFrete,
       freteCalculado,
-      loading: entregaLoading,
+      isLoading: isEntregaLoading,
+      hasError: hasEntregaError,
       error: entregaError,
       formatarCep,
       validarCep,
     }),
-    [calcularFrete, freteCalculado, entregaLoading, entregaError, formatarCep, validarCep],
+    [calcularFrete, freteCalculado, isEntregaLoading, hasEntregaError, entregaError, formatarCep, validarCep],
   );
 
   const carrinhoAssinatura = useMemo(() => assinaturaItensCarrinho(data), [data]);

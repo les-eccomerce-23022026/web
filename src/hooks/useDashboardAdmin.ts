@@ -4,20 +4,22 @@ import type { IDashboardAdminInfo } from '@/interfaces/dashboardAdmin';
 
 export function useDashboardAdmin() {
   const [data, setData] = useState<IDashboardAdminInfo | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     DashboardAdminService.getDashboardInfo()
       .then((dashboardData) => {
         setData(dashboardData);
-        setLoading(false);
+        setIsLoading(false);
       })
       .catch((err) => {
         setError(err);
-        setLoading(false);
+        setIsLoading(false);
       });
   }, []);
 
-  return { data, loading, error };
+  const hasError = error !== null;
+
+  return { data, isLoading, hasError, error };
 }

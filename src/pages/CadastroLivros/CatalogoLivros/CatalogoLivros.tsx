@@ -12,7 +12,7 @@ import { CapaLivro } from '@/components/Comum/CapaLivro/CapaLivro';
 import { ControlesCompra } from '@/components/Comum/ControlesCompra/ControlesCompra';
 
 export const CatalogoLivros = () => {
-  const { destaques, loading, error } = useLivrosDestaque();
+  const { destaques, isLoading, hasError } = useLivrosDestaque();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const location = useLocation();
@@ -75,11 +75,11 @@ export const CatalogoLivros = () => {
 
   const mostrarBanner = !termoBusca && !slug && !isMaisVendidos;
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingState message="Carregando o catálogo..." />;
   }
 
-  if (error) {
+  if (hasError) {
     return (
       <ErrorState
         title="Oops! Tivemos um problema"

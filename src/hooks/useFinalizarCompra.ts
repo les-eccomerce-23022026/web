@@ -25,9 +25,11 @@ export function useFinalizarCompra() {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [data, setData] = useState<ICheckoutInfo | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-  const [finalizando, setFinalizando] = useState<boolean>(false);
+  const [isFinalizando, setIsFinalizando] = useState<boolean>(false);
+
+  const hasError = error !== null;
 
   const carrinho = useAppSelector((state) => state.carrinho.data);
   const usuario = useAppSelector((state) => state.auth.user);
@@ -39,8 +41,8 @@ export function useFinalizarCompra() {
     selecionarFrete,
     calcularFrete,
     freteCalculado,
-    loading: entregaLoading,
-    error: entregaError,
+    isLoading: isEntregaLoading,
+    hasError: hasEntregaError,
     formatarCep,
     validarCep,
     cadastrarEntrega,
@@ -83,12 +85,13 @@ export function useFinalizarCompra() {
     () => ({
       calcularFrete,
       freteCalculado,
-      loading: entregaLoading,
-      error: entregaError,
+      isLoading: isEntregaLoading,
+      hasError: hasEntregaError,
+      error: hasEntregaError ? new Error('Erro ao calcular frete') : null, // Fallback para objeto Error
       formatarCep,
       validarCep,
     }),
-    [calcularFrete, freteCalculado, entregaLoading, entregaError, formatarCep, validarCep],
+    [calcularFrete, freteCalculado, isEntregaLoading, hasEntregaError, formatarCep, validarCep],
   );
 
   const {
@@ -102,15 +105,15 @@ export function useFinalizarCompra() {
   } = usePagamento();
 
   const carregarInformacoesFinalizarCompra = useCallback(async () => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
     try {
       const infoPagamento = await PagamentoService.obterPagamentoInfo();
       setData(buildCheckoutInfoFromPagamento(infoPagamento, carrinho));
-      setLoading(false);
+      setIsLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Erro ao carregar informações de checkout'));
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [carrinho]);
 
@@ -125,7 +128,7 @@ export function useFinalizarCompra() {
         return;
       }
 
-      setFinalizando(true);
+      setIsFinalizando(true);
       setError(null);
 
       try {
@@ -150,7 +153,7 @@ export function useFinalizarCompra() {
       } catch (err: unknown) {
         tratarErroFinalizarCheckout(err, setError);
       } finally {
-        setFinalizando(false);
+        setIsFinalizando(false);
       }
     },
     [
@@ -168,9 +171,10 @@ export function useFinalizarCompra() {
 
   return {
     data,
-    loading,
+    isLoading,
+    hasError,
     error,
-    finalizando,
+    isFinalizando,
     handleFinalizarCompra,
     recarregar: carregarInformacoesFinalizarCompra,
     cuponsAplicados,
@@ -186,3 +190,4 @@ export function useFinalizarCompra() {
     cepDestinoFrete: cepDestino,
   };
 }
+

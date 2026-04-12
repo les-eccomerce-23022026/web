@@ -39,7 +39,7 @@ export const FinalizarCompraPedidoCarregado = ({
   setEnderecoSelecionado,
 }: Props) => {
   const {
-    finalizando,
+    isFinalizando,
     handleFinalizarCompra,
     cuponsAplicados,
     aplicarCupom,
@@ -209,7 +209,7 @@ export const FinalizarCompraPedidoCarregado = ({
           descontoCupons={resumo.descontoCupons}
           valorPagoParcialmente={resumo.valorPagoParcialmente}
           totalMenosParcial={resumo.total - resumo.valorPagoParcialmente}
-          finalizando={finalizando}
+          finalizando={isFinalizando}
           enderecoOk={Boolean(enderecoParaFinalizarCompra)}
           freteSelecionado={Boolean(freteSelecionado)}
           temFormaPagamento={temFormaPagamento}

@@ -36,9 +36,11 @@ export function useEntrega() {
   const [freteCalculado, setFreteCalculado] = useState<IFreteCalculoOutput | null>(null);
   const [freteSelecionado, setFreteSelecionado] = useState<IFreteOpcao | null>(null);
   const [cepDestino, setCepDestino] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [entregaCadastrada, setEntregaCadastrada] = useState<IEntregaOutputDto | null>(null);
+
+  const hasError = error !== null;
 
   const service = useMemo(() => new EntregaServiceApi(), []);
 
@@ -46,7 +48,7 @@ export function useEntrega() {
    * Calcula frete para um CEP
    */
   const calcularFrete = useCallback(async (cep: string, peso?: number, valorTotal?: number) => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
     
     try {
@@ -69,7 +71,7 @@ export function useEntrega() {
       setError(err instanceof Error ? err : new Error('Erro ao calcular frete'));
       return null;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [service]);
 
@@ -92,7 +94,7 @@ export function useEntrega() {
       return null;
     }
     
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
     
     try {
@@ -111,7 +113,7 @@ export function useEntrega() {
       setError(err instanceof Error ? err : new Error('Erro ao cadastrar entrega'));
       return null;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, [service, freteSelecionado]);
 
@@ -142,7 +144,8 @@ export function useEntrega() {
     freteCalculado,
     freteSelecionado,
     cepDestino,
-    loading,
+    isLoading,
+    hasError,
     error,
     entregaCadastrada,
     

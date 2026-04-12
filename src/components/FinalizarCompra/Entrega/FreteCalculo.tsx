@@ -7,7 +7,8 @@ import styles from './FreteCalculo.module.css';
 export interface FreteCalculoEntregaApi {
   calcularFrete: (cep: string, peso?: number, valorTotal?: number) => Promise<IFreteCalculoOutput | null>;
   freteCalculado: IFreteCalculoOutput | null;
-  loading: boolean;
+  isLoading: boolean;
+  hasError: boolean;
   error: Error | null;
   formatarCep: (cep: string) => string;
   validarCep: (cep: string) => boolean;
@@ -32,7 +33,7 @@ export const FreteCalculo = ({
   initialCep,
 }: FreteCalculoProps) => {
   const [cep, setCep] = useState('');
-  const { calcularFrete, freteCalculado, loading, error, formatarCep: formatar, validarCep: validar } = entrega;
+  const { calcularFrete, freteCalculado, isLoading, hasError, error, formatarCep: formatar, validarCep: validar } = entrega;
 
   useEffect(() => {
     if (!initialCep) return;
@@ -94,14 +95,14 @@ export const FreteCalculo = ({
             type="button"
             className="btn-secondary"
             onClick={() => void handleCalcular()}
-            disabled={loading}
+            disabled={isLoading}
             data-cy="checkout-freight-calculate-button"
           >
-            {loading ? 'Calculando...' : 'Calcular'}
+            {isLoading ? 'Calculando...' : 'Calcular'}
           </button>
         </div>
 
-        {error && (
+        {hasError && error && (
           <p className={styles['erro']} data-cy="checkout-freight-error">
             {error.message}
           </p>

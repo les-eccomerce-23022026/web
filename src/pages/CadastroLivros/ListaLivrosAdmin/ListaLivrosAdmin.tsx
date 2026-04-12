@@ -11,7 +11,7 @@ import { Modal } from '@/components/Comum/Modal';
 import { livroPassaFiltrosLista } from './listaLivrosFiltros';
 
 export const ListaLivrosAdmin = () => {
-  const { livros, loading, error } = useListaLivrosAdmin();
+  const { livros, isLoading, hasError } = useListaLivrosAdmin();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -26,8 +26,8 @@ export const ListaLivrosAdmin = () => {
   const [justificativaTexto, setJustificativaTexto] = useState('');
   const [justificativaCategoria, setJustificativaCategoria] = useState('');
 
-  if (loading) return <LoadingState message="Buscando catálogo de livros..." />;
-  if (error) return <ErrorState message="Não foi possível carregar a lista de livros." onRetry={() => window.location.reload()} />;
+  if (isLoading) return <LoadingState message="Buscando catálogo de livros..." />;
+  if (hasError) return <ErrorState message="Não foi possível carregar a lista de livros." onRetry={() => window.location.reload()} />;
 
   const solicitarTrocaStatus = (uuid: string) => {
     setLivroPendenteStatus(uuid);

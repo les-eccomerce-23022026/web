@@ -22,10 +22,10 @@ export const FinalizarCompra = () => {
     });
   }, [hook.data]);
 
-  if (hook.loading) {
+  if (hook.isLoading) {
     return <p className={styles['checkout-status-message']}>Carregando dados de checkout...</p>;
   }
-  if (hook.error) {
+  if (hook.hasError) {
     return <p className={styles['checkout-status-message']}>Erro ao carregar checkout.</p>;
   }
   if (!hook.data) {

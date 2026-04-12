@@ -8,10 +8,10 @@ import { ControlesCompra } from '@/components/Comum/ControlesCompra/ControlesCom
 
 export const DetalhesLivro = () => {
   const { uuid = '' } = useParams<{ uuid: string }>();
-  const { livro: data, loading, error } = useDetalhesLivro(uuid);
+  const { livro: data, isLoading, hasError } = useDetalhesLivro(uuid);
 
-  if (loading) return <LoadingState message="Buscando detalhes do livro..." />;
-  if (error) return <ErrorState message="Não foi possível carregar os detalhes do livro." onRetry={() => window.location.reload()} />;
+  if (isLoading) return <LoadingState message="Buscando detalhes do livro..." />;
+  if (hasError) return <ErrorState message="Não foi possível carregar os detalhes do livro." onRetry={() => window.location.reload()} />;
   if (!data) return <p className={styles['detalhes-status-message']}>Livro não encontrado.</p>;
 
 

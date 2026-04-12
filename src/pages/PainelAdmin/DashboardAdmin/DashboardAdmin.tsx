@@ -16,7 +16,7 @@ export const DashboardAdmin = () => {
   const optionsStatus = { responsive: true, plugins: { legend: { position: 'right' as const }, title: { display: true, text: 'Status dos Pedidos' } } };
   const optionsCategoria = { responsive: true, plugins: { legend: { position: 'top' as const }, title: { display: true, text: 'Vendas por Categoria (Jan-Mar)' } } };
 
-  const { data, loading, error } = useDashboardAdmin();
+  const { data, isLoading, hasError } = useDashboardAdmin();
 
   useEffect(() => {
     void dispatch(fetchLivrosAdmin());
@@ -28,8 +28,8 @@ export const DashboardAdmin = () => {
   const totalLivros = livros.length;
   const estoqueCriticoCount = livros.filter(l => l.estoque <= 5).length;
 
-  if (loading) return <div className="admin-loading"><div className="spinner"></div><p>Carregando métricas corporativas...</p></div>;
-  if (error) return <div className="admin-loading"><p>Erro ao carregar dashboard admin.</p></div>;
+  if (isLoading) return <div className="admin-loading"><div className="spinner"></div><p>Carregando métricas corporativas...</p></div>;
+  if (hasError) return <div className="admin-loading"><p>Erro ao carregar dashboard admin.</p></div>;
   if (!data) return <div className="admin-loading">Nenhum dado encontrado no dashboard admin.</div>;
 
   return (

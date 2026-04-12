@@ -29,16 +29,18 @@ export {
  */
 export function usePagamento() {
   const [info, setInfo] = useState<IPagamentoInfo | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
-  const [processando, setProcessando] = useState<boolean>(false);
+  const [isProcessando, setIsProcessando] = useState<boolean>(false);
+
+  const hasError = error !== null;
 
   const [pagamentoSelecionado, setPagamentoSelecionado] = useState<IPagamentoSelecionado | null>(null);
   const [cuponsAplicados, setCuponsAplicados] = useState<ICupomAplicado[]>([]);
   const [parcelasLiquidacao, setParcelasLiquidacao] = useState<IPagamentoParcial[]>([]);
 
   const carregarInfo = useCallback(async () => {
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
     try {
       const dados = await PagamentoService.obterPagamentoInfo();
@@ -46,7 +48,7 @@ export function usePagamento() {
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Erro ao carregar informações de pagamento'));
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
@@ -107,7 +109,7 @@ export function usePagamento() {
       valorTotal: number,
       pagamentosOverride?: IPagamentoParcial[],
     ): Promise<IProcessarPagamentoResultado | null> => {
-      setProcessando(true);
+      setIsProcessando(true);
       setError(null);
       try {
         const pagamentosCartao = montarPagamentosCartaoParaAutorizacao(
@@ -134,7 +136,7 @@ export function usePagamento() {
         setError(err instanceof Error ? err : new Error('Erro ao processar pagamento'));
         return null;
       } finally {
-        setProcessando(false);
+        setIsProcessando(false);
       }
     },
     [pagamentoSelecionado, cuponsAplicados, parcelasLiquidacao],
@@ -150,9 +152,10 @@ export function usePagamento() {
 
   return {
     info,
-    loading,
+    isLoading,
+    hasError,
     error,
-    processando,
+    isProcessando,
     pagamentoSelecionado,
     cuponsAplicados,
     parcelasLiquidacao,

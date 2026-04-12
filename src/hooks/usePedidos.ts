@@ -31,7 +31,8 @@ export function usePedidos(clienteUuid?: string) {
 
   return {
     pedidos,
-    loading: status === 'loading',
+    isLoading: status === 'loading',
+    hasError: error !== null,
     error,
     pedidosPorStatus,
     solicitarTroca,
@@ -59,7 +60,8 @@ export function usePedidosTrocaAdmin() {
 
   return {
     pedidos,
-    loading: status === 'loading',
+    isLoading: status === 'loading',
+    hasError: error !== null,
     error,
     autorizarTroca,
     confirmarRecebimento,
