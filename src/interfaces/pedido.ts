@@ -12,11 +12,13 @@ export type StatusPedido =
   | 'Devoluções';
 
 export interface IItemPedido {
+  uuid: string;
   livroUuid: string;
   titulo?: string;
   quantidade: number;
   precoUnitario: number;
   categoria: string;
+  emTroca?: boolean;
 }
 
 export interface IFormaPagamentoPedido {

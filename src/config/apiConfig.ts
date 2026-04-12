@@ -28,17 +28,19 @@ export const API_ENDPOINTS = {
   // Pedidos (histórico do cliente — backend: GET /minhas-vendas)
   obterPedidosCliente: `${BASE_URL}/minhas-vendas`,
   solicitarTroca: (pedidoUuid: string) =>
-    `${BASE_URL}/pedidos/${pedidoUuid}/troca`,
+    `${BASE_URL}/vendas/${pedidoUuid}/troca`,
 
   // Trocas (Admin)
-  obterPedidosEmTroca: `${BASE_URL}/admin/trocas`,
+  obterPedidosEmTroca: `${BASE_URL}/admin/pedidos/trocas`,
   autorizarTroca: (pedidoUuid: string) =>
-    `${BASE_URL}/admin/trocas/${pedidoUuid}/autorizar`,
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/autorizar-troca`,
   confirmarRecebimentoTroca: (pedidoUuid: string) =>
-    `${BASE_URL}/admin/trocas/${pedidoUuid}/confirmar`,
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/confirmar-recebimento`,
+  rejeitarTroca: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/rejeitar-troca`,
 
   // Cupons de troca
-  obterCuponsCliente: `${BASE_URL}/cupons/troca`,
+  obterCuponsCliente: `${BASE_URL}/pagamento/info`,
 
   // Vendas (pedido — backend retorna JSON direto, sem envelope { sucesso, dados })
   criarVenda: `${BASE_URL}/vendas`,

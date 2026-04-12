@@ -39,11 +39,11 @@ export const SolicitarTroca = () => {
     return livro?.titulo || livroUuid;
   };
 
-  const toggleItem = (livroUuid: string) => {
+  const toggleItem = (itemUuid: string) => {
     setItensSelecionados((prev) =>
-      prev.includes(livroUuid)
-        ? prev.filter((id) => id !== livroUuid)
-        : [...prev, livroUuid],
+      prev.includes(itemUuid)
+        ? prev.filter((id) => id !== itemUuid)
+        : [...prev, itemUuid],
     );
   };
 
@@ -113,14 +113,14 @@ export const SolicitarTroca = () => {
         <div className={styles.itensLista} data-cy="troca-itens-lista">
           {pedido.itens.map((item: IItemPedido) => (
             <label
-              key={item.livroUuid}
-              className={`${styles.itemCheckbox} ${itensSelecionados.includes(item.livroUuid) ? styles.itemSelecionado : ''}`}
-              data-cy={`troca-item-${item.livroUuid}`}
+              key={item.uuid}
+              className={`${styles.itemCheckbox} ${itensSelecionados.includes(item.uuid) ? styles.itemSelecionado : ''}`}
+              data-cy={`troca-item-${item.uuid}`}
             >
               <input
                 type="checkbox"
-                checked={itensSelecionados.includes(item.livroUuid)}
-                onChange={() => toggleItem(item.livroUuid)}
+                checked={itensSelecionados.includes(item.uuid)}
+                onChange={() => toggleItem(item.uuid)}
               />
               <div className={styles.itemInfo}>
                 <span className={styles.itemTitulo}>{getLivroTitulo(item.livroUuid)}</span>
@@ -154,7 +154,7 @@ export const SolicitarTroca = () => {
             Valor estimado do cupom:{' '}
             <strong className={styles.valorCupom}>
               R$ {pedido.itens
-                .filter((item) => itensSelecionados.includes(item.livroUuid))
+                .filter((item) => itensSelecionados.includes(item.uuid))
                 .reduce((acc, item) => acc + item.precoUnitario * item.quantidade, 0)
                 .toFixed(2)
                 .replace('.', ',')}

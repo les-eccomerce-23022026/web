@@ -2,7 +2,7 @@ import type { NavigateFunction } from 'react-router-dom';
 import type { AppDispatch } from '@/store';
 import type { AuthUser } from '@/store/slices/authSlice';
 import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICupomAplicado, IPagamentoParcial } from '@/interfaces/pagamento';
+import type { ICupomAplicado, IPagamentoParcial, IProcessarPagamentoResultado } from '@/interfaces/pagamento';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import type { IEnderecoEntregaInput, IEntregaInputDto } from '@/interfaces/entrega';
 import { CheckoutService } from '@/services/checkoutService';
@@ -108,6 +108,11 @@ export async function executarFinalizarCheckout(params: {
   dispatch: AppDispatch;
   navigate: NavigateFunction;
   pagamentoService: IPagamentoService;
+  solicitarAutorizacaoFinanceiraCheckout: (
+    vendaUuid: string,
+    valorTotal: number,
+    pagamentosOverride?: IPagamentoParcial[],
+  ) => Promise<IProcessarPagamentoResultado | null>;
   checkoutData: ICheckoutInfo | null;
   cadastrarEntrega: (
     vendaUuid: string,
@@ -162,18 +167,17 @@ export async function executarFinalizarCheckout(params: {
 
   let liquidacaoPix: ResultadoLiquidacaoPagamentos | null = null;
   if (!USE_MOCK) {
-    liquidacaoPix = await liquidarPagamentosEEntregaNaApi({
-      pagamentoService,
-      vendaUuid,
-      subtotal,
-      frete,
-      cuponsAplicados,
-      pagamentosEfetivos,
-      opcoes,
-      checkoutData,
-      enderecoEntrega: enderecoEntrega as IEnderecoEntregaInput,
-      cadastrarEntrega,
-    });
+    // Para API real, usamos o endpoint bulk que garante atomicidade multi-cartão (Sprint 1)
+    const resPag = await solicitarAutorizacaoFinanceiraCheckout(vendaUuid, total, pagamentosEfetivos);
+    if (!resPag || !resPag.sucesso) {
+      throw new Error('Pagamento não autorizado. Verifique os dados dos cartões e cupons.');
+    }
+
+    // Registrar a entrega
+    const entregaResult = await cadastrarEntrega(vendaUuid, enderecoEntrega as IEnderecoEntregaInput);
+    if (!entregaResult) {
+      throw new Error('Não foi possível registrar a entrega.');
+    }
   }
 
   try {

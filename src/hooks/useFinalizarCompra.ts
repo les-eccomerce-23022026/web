@@ -102,6 +102,7 @@ export function useFinalizarCompra() {
     adicionarParcelaLiquidacao,
     removerParcelaLiquidacao,
     definirParcelasLiquidacao,
+    solicitarAutorizacaoFinanceiraCheckout,
   } = usePagamento();
 
   const carregarInformacoesFinalizarCompra = useCallback(async () => {
@@ -142,6 +143,7 @@ export function useFinalizarCompra() {
           dispatch,
           navigate,
           pagamentoService: PagamentoService,
+          solicitarAutorizacaoFinanceiraCheckout,
           checkoutData: data,
           cadastrarEntrega,
           onSalvarCartaoCheckoutFalhou: (erro) => {

@@ -12,11 +12,13 @@ interface IVendaApi {
   totalVenda: number;
   status: string;
   usuarioUuid: string;
+  motivoTroca?: string;
   itens: Array<{
     id: string;
     livroUuid: string;
     quantidade: number;
     precoUnitario: number;
+    emTroca?: boolean;
   }>;
   criadoEm: string;
 }
@@ -46,11 +48,14 @@ function vendaApiParaPedido(v: IVendaApi): IPedido {
     clienteUuid: v.usuarioUuid,
     total: v.totalVenda,
     status: mapStatusVendaParaPedido(v.status),
+    motivo: v.motivoTroca,
     itens: v.itens.map((i) => ({
+      uuid: i.id,
       livroUuid: i.livroUuid,
       quantidade: i.quantidade,
       precoUnitario: i.precoUnitario,
       categoria: 'Livro',
+      emTroca: i.emTroca,
     })),
   };
 }
