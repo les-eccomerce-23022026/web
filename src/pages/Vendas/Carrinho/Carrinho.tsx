@@ -128,17 +128,17 @@ export const Carrinho = () => {
 
     if (usarCarrinhoLocal) {
       dispatch(atualizarQuantidade({ uuid, quantidade: qtd }));
-    } else {
-      void dispatch(sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: qtd }));
+      return;
     }
+    void dispatch(sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: qtd }));
   };
 
   const handleRemover = (uuid: string) => {
     if (usarCarrinhoLocal) {
       dispatch(removerItem(uuid));
-    } else {
-      void dispatch(sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: 0 }));
+      return;
     }
+    void dispatch(sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: 0 }));
   };
 
   return (

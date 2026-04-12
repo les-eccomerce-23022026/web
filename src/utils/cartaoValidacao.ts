@@ -51,9 +51,13 @@ function validarNumeroCartao(numeroLimpo: string): string[] {
   const erros: string[] = [];
   if (numeroLimpo.length < 13 || numeroLimpo.length > 19) {
     erros.push('Número do cartão inválido (13-19 dígitos)');
-  } else if (!validarLuhn(numeroLimpo)) {
+    return erros;
+  }
+
+  if (!validarLuhn(numeroLimpo)) {
     erros.push('Número do cartão inválido (falha na validação)');
   }
+
   return erros;
 }
 

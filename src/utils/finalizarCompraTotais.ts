@@ -19,15 +19,19 @@ export function montarLiquidaçõesEfetivasFinalizarCompra(
   total: number,
   parcelasLiquidacao: IPagamentoParcial[],
 ): IPagamentoParcial[] {
-  let pagamentosEfetivos = [...parcelasLiquidacao];
-  if (pagamentosEfetivos.length === 0 && total > 0) {
-    if (opcoes?.cartaoSalvoUuid) {
-      pagamentosEfetivos = [
-        { referenciaMeioPagamento: opcoes.cartaoSalvoUuid, valor: total, parcelasCartao: 1 },
-      ];
-    } else if (opcoes?.novoCartao) {
-      pagamentosEfetivos = [{ referenciaMeioPagamento: 'novo', valor: total, parcelasCartao: 1 }];
-    }
+  if (parcelasLiquidacao.length > 0 || total <= 0) {
+    return [...parcelasLiquidacao];
   }
-  return pagamentosEfetivos;
+
+  if (opcoes?.cartaoSalvoUuid) {
+    return [
+      { referenciaMeioPagamento: opcoes.cartaoSalvoUuid, valor: total, parcelasCartao: 1 },
+    ];
+  }
+
+  if (opcoes?.novoCartao) {
+    return [{ referenciaMeioPagamento: 'novo', valor: total, parcelasCartao: 1 }];
+  }
+
+  return [];
 }

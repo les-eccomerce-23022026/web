@@ -68,8 +68,14 @@ export const CatalogoLivros = () => {
   const irPagina = (nova: number) => {
     const p = Math.max(1, Math.min(nova, totalPaginas));
     const next = new URLSearchParams(searchParams);
-    if (p <= 1) next.delete('pagina');
-    else next.set('pagina', String(p));
+
+    if (p <= 1) {
+      next.delete('pagina');
+      setSearchParams(next, { replace: true });
+      return;
+    }
+
+    next.set('pagina', String(p));
     setSearchParams(next, { replace: true });
   };
 

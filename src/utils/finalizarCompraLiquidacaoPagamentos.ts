@@ -184,15 +184,15 @@ export async function executarPagamentosAposCriarVenda(params: {
         tipoPagamento: 'cupom_promocional',
         detalhesCupom: cupom.codigo,
       });
-    } else {
-      const valor = Math.min(cupom.valor, 50);
-      await pagamentoService.selecionarPagamentoLiquida({
-        vendaUuid,
-        valor,
-        tipoPagamento: 'cupom_troca',
-        detalhesCupom: cupom.codigo,
-      });
+      continue;
     }
+    const valor = Math.min(cupom.valor, 50);
+    await pagamentoService.selecionarPagamentoLiquida({
+      vendaUuid,
+      valor,
+      tipoPagamento: 'cupom_troca',
+      detalhesCupom: cupom.codigo,
+    });
   }
 
   const somaCartoes = pagamentosEfetivos.reduce((s, p) => s + p.valor, 0);

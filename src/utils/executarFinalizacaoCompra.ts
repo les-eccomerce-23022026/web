@@ -182,9 +182,9 @@ export async function executarFinalizarCheckout(params: {
     const err = e instanceof Error ? e : new Error(String(e));
     if (onSalvarCartaoCheckoutFalhou) {
       onSalvarCartaoCheckoutFalhou(err);
-    } else {
-      console.warn('[Checkout] Não foi possível salvar o cartão no perfil:', err);
+      return;
     }
+    console.warn('[Checkout] Não foi possível salvar o cartão no perfil:', err);
   }
 
   await limparCarrinhoAposPedido(dispatch);
