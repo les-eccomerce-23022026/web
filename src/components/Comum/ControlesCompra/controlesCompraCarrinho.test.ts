@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { definirQuantidadeCarrinho } from './controlesCompraCarrinho';
 import { removerItem, atualizarQuantidade, sincronizarLinhaCarrinho } from '@/store/slices/carrinhoSlice';
+import type { ILivro } from '@/interfaces/livro';
 
 // Mocking the actions
 vi.mock('@/store/slices/carrinhoSlice', () => ({
@@ -11,7 +12,7 @@ vi.mock('@/store/slices/carrinhoSlice', () => ({
 
 describe('controlesCompraCarrinho', () => {
   const dispatch = vi.fn();
-  const livro = { uuid: 'livro-123', titulo: 'Livro Teste', preco: 10, imagem: '', isbn: '' } as any;
+  const livro = { uuid: 'livro-123', titulo: 'Livro Teste', preco: 10, imagem: '', isbn: '' } as Partial<ILivro>;
 
   it('deve remover item localmente quando quantidade <= 0 e usarLocal for true', () => {
     definirQuantidadeCarrinho(dispatch, true, livro, 0);

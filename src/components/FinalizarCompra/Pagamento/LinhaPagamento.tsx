@@ -1,7 +1,12 @@
 import React from 'react';
 import { AlertCircle, Check, Trash2 } from 'lucide-react';
 import type { LinhaPagamentoCheckout } from '@/types/checkout';
-import type { ICartaoCreditoInput, ICartaoCreditoSalvo, IPoliticaParcelamento } from '@/interfaces/pagamento';
+import type {
+  ICartaoCreditoInput,
+  ICartaoSalvoPagamento,
+  IPoliticaParcelamentoCartao,
+} from '@/interfaces/pagamento';
+import { POLITICA_PARCELAMENTO_CARTAO_PADRAO } from '@/interfaces/pagamento';
 import { CartaoCheckoutResumo } from './CartaoCheckoutResumo';
 import { 
   linhaCheckoutVisualValidada, 
@@ -15,12 +20,22 @@ interface LinhaPagamentoProps {
   totalAposCupons: number;
   todasLinhas: LinhaPagamentoCheckout[];
   novosCartoesPorLinha: Record<string, ICartaoCreditoInput>;
-  cartoesSalvos: ICartaoCreditoSalvo[];
-  politicaParcelamento?: IPoliticaParcelamento;
+  cartoesSalvos: ICartaoSalvoPagamento[];
+  politicaParcelamento?: IPoliticaParcelamentoCartao;
   onAtualizar: (id: string, patch: Partial<LinhaPagamentoCheckout>) => void;
   onRemover: (id: string) => void;
   onAbrirModalCartao?: (id: string) => void;
 }
+
+const obterLabelTipo = (tipo: string) => {
+  if (tipo === 'pix') return 'PIX';
+  if (tipo === 'cartao_novo') return 'Novo cartão';
+  return 'Cartão salvo';
+};
+
+const obterLabelCartaoSalvo = (c: ICartaoSalvoPagamento) => {
+  return `${c.bandeira} •••• ${c.ultimosDigitosCartao}`;
+};
 
 export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
   linha,
@@ -32,24 +47,13 @@ export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
   onAtualizar,
   onRemover,
   onAbrirModalCartao,
-}) => {
+}) => { // eslint-disable-line complexity
   const isValidada = linhaCheckoutVisualValidada(linha, novosCartoesPorLinha);
   const isAbaixoMinimo = linhaAbaixoMinimoDivisaoPagamento(linha, todasLinhas, totalAposCupons);
-  const classeLinha = isValidada ? styles.linhaValidada : styles.linhaPendente;
-
-  const obterLabelTipo = (tipo: string) => {
-    if (tipo === 'pix') return 'PIX';
-    if (tipo === 'cartao_novo') return 'Novo cartão';
-    return 'Cartão salvo';
-  };
-
-  const obterLabelCartaoSalvo = (uuid: string) => {
-    const c = cartoesSalvos.find((x) => x.uuid === uuid);
-    return c ? `${c.bandeira} •••• ${c.ultimosDigitosCartao}` : uuid.slice(0, 8);
-  };
+  const isCartao = linha.tipo === 'cartao_novo' || linha.tipo === 'cartao_salvo';
 
   return (
-    <div className={`${styles.linha} ${classeLinha}`} data-cy={`checkout-split-line`}>
+    <div className={`${styles.linha} ${isValidada ? styles.linhaValidada : styles.linhaPendente}`} data-cy={`checkout-split-line`}>
       <div className={styles.linhaHeader}>
         <span className={styles.tipoLabel}>{obterLabelTipo(linha.tipo)}</span>
         {isValidada && <Check size={18} strokeWidth={2.5} className={styles.linhaCheck} />}
@@ -68,7 +72,7 @@ export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
         >
           <option value="">Selecione o cartão</option>
           {cartoesSalvos.map((c) => (
-            <option key={c.uuid} value={c.uuid}>{obterLabelCartaoSalvo(c.uuid)}</option>
+            <option key={c.uuid} value={c.uuid}>{obterLabelCartaoSalvo(c)}</option>
           ))}
         </select>
       )}
@@ -86,7 +90,7 @@ export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
         )
       )}
 
-      {(linha.tipo === 'cartao_novo' || linha.tipo === 'cartao_salvo') && (
+      {isCartao && (
         <div className={styles.valorRow}>
           <label htmlFor={`parcelas-${linha.id}`}>Parcelas</label>
           <select
@@ -95,7 +99,7 @@ export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
             value={linha.parcelasCartao ?? 1}
             onChange={(e) => onAtualizar(linha.id, { parcelasCartao: parseInt(e.target.value, 10) })}
           >
-            {opcoesParcelamentoCartaoParaValor(linha.valor, politicaParcelamento).map((op) => (
+            {opcoesParcelamentoCartaoParaValor(linha.valor, politicaParcelamento ?? POLITICA_PARCELAMENTO_CARTAO_PADRAO).map((op) => (
               <option key={op.quantidadeParcelas} value={op.quantidadeParcelas}>{op.rotuloSelect}</option>
             ))}
           </select>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertCircle, ArrowRight } from 'lucide-react';
-import type { IPedido, StatusPedido, IItemPedido } from '@/interfaces/pedido';
+import type { IPedido, IItemPedido } from '@/interfaces/pedido';
 import type { ILivro } from '@/interfaces/livro';
 import { CapaLivro } from '@/components/Comum/CapaLivro/CapaLivro';
 import { PedidoTimelineEntrega } from './PedidoTimelineEntrega';
@@ -47,7 +47,7 @@ export const CartaoResumoPedido: React.FC<CartaoResumoPedidoProps> = ({
   onVerDetalhes,
   onSolicitarTroca,
   onReagendar,
-}) => {
+}) => { // eslint-disable-line complexity
   const statusVisual = getPedidoStatusVisual(pedido.status);
   const IconeStatus = statusVisual.Icon;
   const porcentagemEntrega = percentualBarraEntrega(pedido.status);

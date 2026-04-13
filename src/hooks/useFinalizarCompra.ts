@@ -168,6 +168,7 @@ export function useFinalizarCompra() {
       navigate,
       data,
       cadastrarEntrega,
+      solicitarAutorizacaoFinanceiraCheckout,
     ],
   );
 

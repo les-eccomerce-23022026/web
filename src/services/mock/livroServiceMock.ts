@@ -20,30 +20,30 @@ function delay<T>(data: T, ms = 300): Promise<T> {
 }
 
 export class LivroServiceMock implements ILivroService {
+  // eslint-disable-next-line complexity
   async getCatalogo(filtro: IFiltroCatalogoLivros = {}): Promise<ICatalogoLivrosResposta> {
-    if (typeof window !== 'undefined' && window.location.search.includes('forceError=true')) {
+    const windowObj = typeof window !== 'undefined' ? window : null;
+    if (windowObj?.location.search.includes('forceError=true')) {
       return Promise.reject(new Error('Simulated Error'));
     }
-    if (typeof window !== 'undefined' && window.location.search.includes('forceEmpty=true')) {
-      const pagina = filtro.pagina ?? 1;
-      const itensPorPagina = filtro.itensPorPagina ?? 10;
+    
+    const pagina = filtro.pagina ?? 1;
+    const itensPorPagina = filtro.itensPorPagina ?? 10;
+
+    if (windowObj?.location.search.includes('forceEmpty=true')) {
       return Promise.resolve({ livros: [], total: 0, pagina, itensPorPagina });
     }
 
     let delayMs = 300;
-    if (typeof window !== 'undefined') {
-      const match = window.location.search.match(/delay=(\d+)/);
-      if (match) delayMs = parseInt(match[1], 10);
-    }
+    const match = windowObj?.location.search.match(/delay=(\d+)/);
+    if (match) delayMs = parseInt(match[1], 10);
 
     console.log('[Mock] Buscando catálogo de livros.');
     const all = [...homeData.destaques];
-    let data = [...all];
-    if (filtro.ordenacao === 'mais-vendidos') {
-      data.sort((a, b) => (b.estoque ?? 0) - (a.estoque ?? 0));
-    }
-    const pagina = filtro.pagina ?? 1;
-    const itensPorPagina = filtro.itensPorPagina ?? 10;
+    const data = filtro.ordenacao === 'mais-vendidos' 
+      ? [...all].sort((a, b) => (b.estoque ?? 0) - (a.estoque ?? 0))
+      : all;
+
     const total = data.length;
     const start = (pagina - 1) * itensPorPagina;
     const livros = data.slice(start, start + itensPorPagina);

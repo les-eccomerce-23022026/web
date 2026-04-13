@@ -1,3 +1,5 @@
+import { getAdminCreds, getApiUrl, getClienteCreds, getTestBootstrapKey } from './env';
+
 // ***********************************************
 // This example commands.ts shows you how to
 // create various custom commands and overwrite
@@ -69,16 +71,8 @@ Cypress.Commands.add('loginCliente', () => {
 });
 
 Cypress.Commands.add('loginClienteSeed', () => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const clienteCfg = Cypress.env('cliente') as { email?: string; senha?: string } | undefined;
-  const email = clienteCfg?.email ?? (Cypress.env('clienteEmail') as string | undefined);
-  const senha = clienteCfg?.senha ?? (Cypress.env('clienteSenha') as string | undefined);
-
-  if (!email || !senha) {
-    throw new Error(
-      'Credenciais do cliente seed ausentes. Configure CYPRESS_CLIENTE_EMAIL e CYPRESS_CLIENTE_SENHA (ou cypress.env.json local).',
-    );
-  }
+  const apiUrl = getApiUrl();
+  const { email, senha } = getClienteCreds();
 
   cy.request({
     method: 'POST',
@@ -111,7 +105,7 @@ Cypress.Commands.add('login', (email, password) => {
  * Sessão via cookie HttpOnly (mesma origem `apiUrl` = Vite + proxy).
  */
 Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const apiUrl = getApiUrl();
 
   if (userType === 'cliente') {
     cy.getNewUser().then((newUser) => {
@@ -155,13 +149,8 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
       });
     });
   } else {
-    const user = Cypress.env('admin') as { email?: string; senha?: string } | undefined;
-    if (!user?.email || !user?.senha) {
-      throw new Error(
-        'Credenciais de admin ausentes. Configure CYPRESS_ADMIN_EMAIL e CYPRESS_ADMIN_SENHA (ou cypress.env.json local).',
-      );
-    }
-    const testBootstrapKey = Cypress.env('testBootstrapKey') as string | undefined;
+    const user = getAdminCreds();
+    const testBootstrapKey = getTestBootstrapKey();
     
     cy.session(`session-admin`, () => {
       cy.request({
@@ -169,14 +158,14 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
         url: `${apiUrl}/admin/bootstrap`,
         headers: {
           'x-use-test-db': 'true',
-          ...(testBootstrapKey ? { 'x-test-bootstrap-key': testBootstrapKey } : {}),
+          'x-test-bootstrap-key': testBootstrapKey,
         },
         failOnStatusCode: false
       }).then((bootstrapResponse) => {
         if (bootstrapResponse.status !== 200 && bootstrapResponse.status !== 201) {
           throw new Error(
             `Falha no bootstrap do admin: ${bootstrapResponse.body?.mensagem || 'Erro'}`
-            + ` (status=${bootstrapResponse.status}). Configure Cypress.env('testBootstrapKey') e rode backend com NODE_ENV=test.`,
+            + ` (status=${bootstrapResponse.status}). Verifique Cypress.env('testBootstrapKey') e backend com NODE_ENV=test.`,
           );
         }
 
@@ -203,7 +192,7 @@ Cypress.Commands.add('getDataCy', (value) => {
 });
 
 Cypress.Commands.add('registerAndLoginClienteSession', (user, sessionKeyPrefix = 'session-cliente') => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const apiUrl = getApiUrl();
   const sessionKey = `${sessionKeyPrefix}-${user.email}`;
   const cpfSomenteDigitos = user.cpf.replace(/\D/g, '');
   const payloadBase = {
@@ -278,7 +267,7 @@ Cypress.Commands.add('registerAndLoginClienteSession', (user, sessionKeyPrefix =
 });
 
 Cypress.Commands.add('loginWithSession', (email: string, senha: string, sessionKeyPrefix = 'session-user') => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const apiUrl = getApiUrl();
   const sessionKey = `${sessionKeyPrefix}-${email}`;
 
   cy.session(sessionKey, () => {

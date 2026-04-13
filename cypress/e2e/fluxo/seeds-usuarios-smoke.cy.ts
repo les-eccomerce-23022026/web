@@ -1,8 +1,10 @@
+import { getApiUrl, getClienteCreds } from '../../support/env';
+
 describe('Smoke de seeds SQL de usuários', () => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const apiUrl = getApiUrl();
   const adminSeedSql = { email: 'admin@livraria.com.br', senha: 'Admin@123' };
   const clienteSeedSql = { email: 'clientetest@email.com', senha: '@asdfJKLÇ123' };
-  const clienteEnv = Cypress.env('cliente') as { email?: string; senha?: string } | undefined;
+  const clienteEnv = getClienteCreds();
 
   it('valida login do admin seed (DML 002)', () => {
     cy.request({
@@ -19,7 +21,7 @@ describe('Smoke de seeds SQL de usuários', () => {
   });
 
   it('valida login do cliente seed (DML 005)', () => {
-    if (clienteEnv?.email && clienteEnv.email !== clienteSeedSql.email) {
+    if (clienteEnv.email !== clienteSeedSql.email) {
       cy.log(`cliente env difere do SQL: env=${clienteEnv.email} sql=${clienteSeedSql.email}`);
     }
 

@@ -22,28 +22,21 @@ export type PedidoStatusVisual = {
   variant: PedidoStatusVariant;
 };
 
+const statusMapping: Record<StatusPedido, PedidoStatusVisual> = {
+  'Entregue': { Icon: CheckCircle, variant: 'entregue' },
+  'Em Trânsito': { Icon: Truck, variant: 'transito' },
+  'Preparando': { Icon: Package, variant: 'preparando' },
+  'Pendentes': { Icon: Clock, variant: 'processamento' },
+  'Aguardando Pagamento': { Icon: Clock, variant: 'processamento' },
+  'Em Processamento': { Icon: Clock, variant: 'processamento' },
+  'Falha na Entrega': { Icon: XCircle, variant: 'problema' },
+  'Trocado': { Icon: CheckCircle, variant: 'entregue' },
+  'Em Troca': { Icon: AlertTriangle, variant: 'problema' },
+  'Troca Autorizada': { Icon: AlertTriangle, variant: 'problema' },
+  'Devoluções': { Icon: AlertTriangle, variant: 'problema' },
+  'Cancelado': { Icon: AlertTriangle, variant: 'problema' },
+};
+
 export function getPedidoStatusVisual(status: StatusPedido): PedidoStatusVisual {
-  switch (status) {
-    case 'Entregue':
-      return { Icon: CheckCircle, variant: 'entregue' };
-    case 'Em Trânsito':
-      return { Icon: Truck, variant: 'transito' };
-    case 'Preparando':
-      return { Icon: Package, variant: 'preparando' };
-    case 'Pendentes':
-    case 'Aguardando Pagamento':
-    case 'Em Processamento':
-      return { Icon: Clock, variant: 'processamento' };
-    case 'Falha na Entrega':
-      return { Icon: XCircle, variant: 'problema' };
-    case 'Trocado':
-      return { Icon: CheckCircle, variant: 'entregue' };
-    case 'Em Troca':
-    case 'Troca Autorizada':
-    case 'Devoluções':
-    case 'Cancelado':
-      return { Icon: AlertTriangle, variant: 'problema' };
-    default:
-      return { Icon: Package, variant: 'preparando' };
-  }
+  return statusMapping[status] || { Icon: Package, variant: 'preparando' };
 }

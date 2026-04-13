@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import styles from './FinalizarCompra.module.css';
 import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
 import { useAppSelector } from '@/store/hooks';
@@ -8,19 +8,13 @@ export const FinalizarCompra = () => {
   const hook = useFinalizarCompra();
   const carrinho = useAppSelector((state) => state.carrinho.data);
   const [enderecoSelecionado, setEnderecoSelecionado] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!hook.data?.enderecosDisponiveis?.length) {
-      setEnderecoSelecionado(null);
-      return;
-    }
-    const list = hook.data.enderecosDisponiveis;
-    setEnderecoSelecionado((prev) => {
-      if (prev && list.some((e) => e.uuid === prev)) return prev;
-      const principal = list.find((e) => e.principal);
-      return (principal ?? list[0]).uuid;
-    });
-  }, [hook.data]);
+  const enderecoSelecionadoEfetivo = useMemo(() => {
+    const list = hook.data?.enderecosDisponiveis;
+    if (!list?.length) return null;
+    if (enderecoSelecionado && list.some((e) => e.uuid === enderecoSelecionado)) return enderecoSelecionado;
+    const principal = list.find((e) => e.principal);
+    return (principal ?? list[0]).uuid;
+  }, [hook.data, enderecoSelecionado]);
 
   if (hook.isLoading) {
     return <p className={styles['checkout-status-message']}>Carregando dados de checkout...</p>;
@@ -37,7 +31,7 @@ export const FinalizarCompra = () => {
       data={hook.data}
       hook={hook}
       carrinho={carrinho}
-      enderecoSelecionado={enderecoSelecionado}
+      enderecoSelecionado={enderecoSelecionadoEfetivo}
       setEnderecoSelecionado={setEnderecoSelecionado}
     />
   );

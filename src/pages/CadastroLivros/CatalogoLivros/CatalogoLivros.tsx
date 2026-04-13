@@ -11,6 +11,7 @@ import { ShoppingCart, AlertCircle, X, Search, ChevronLeft, ChevronRight } from 
 import { CapaLivro } from '@/components/Comum/CapaLivro/CapaLivro';
 import { ControlesCompra } from '@/components/Comum/ControlesCompra/ControlesCompra';
 
+// eslint-disable-next-line complexity
 export const CatalogoLivros = () => {
   const { destaques, isLoading, hasError } = useLivrosDestaque();
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './FinalizarCompra.module.css';
 import { CartaoCreditoForm } from '@/components/FinalizarCompra/Pagamento';
 import { Modal } from '@/components/Comum/Modal';
@@ -15,10 +15,11 @@ import type { ICarrinho } from '@/interfaces/carrinho';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import { montarParcelasLiquidadasDasLinhasCheckout } from '@/utils/finalizarCompraLinhasPagamento';
 import { useOrquestradorFinalizacao } from './useOrquestradorFinalizacao';
+import type { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
 
 type Props = {
   data: ICheckoutInfo;
-  hook: any;
+  hook: ReturnType<typeof useFinalizarCompra>;
   carrinho: ICarrinho | null | undefined;
   enderecoSelecionado: string | null;
   setEnderecoSelecionado: (v: string | null) => void;
@@ -56,26 +57,24 @@ export const FinalizarCompraPedidoCarregado = ({
   const {
     composicaoPagamento,
     isSaldoCoberto,
-    atualizarMeio,
-    adicionarMeioPagamento,
-    removerMeioPagamento
   } = useOrquestradorFinalizacao({
     dadosCheckout: data,
     resumoFinanceiro: resumoFinanceiro
   });
+  const parcelasLiquidadas = montarParcelasLiquidadasDasLinhasCheckout(composicaoPagamento);
 
   // Sincroniza as parcelas para o hook de API (Necessário para o contrato de backend)
   useEffect(() => {
     try {
-      definirParcelasLiquidacao(montarParcelasLiquidadasDasLinhasCheckout(composicaoPagamento));
+      definirParcelasLiquidacao(parcelasLiquidadas);
     } catch { /* noop */ }
-  }, [composicaoPagamento, definirParcelasLiquidacao]);
+  }, [parcelasLiquidadas, definirParcelasLiquidacao]);
 
   const enderecoParaFinalizacao = enderecoFinalizarCompraDerivado(data, enderecoSelecionado);
 
   const temFormaPagamentoValida = temFormaPagamentoFinalizarCompra(
     cuponsAplicados.length,
-    composicaoPagamento.map(l => ({ valor: l.valor, parcelas: l.parcelasCartao })),
+    parcelasLiquidadas,
     novosCartoesPorLinha,
     null,
     null
@@ -116,8 +115,9 @@ export const FinalizarCompraPedidoCarregado = ({
           cuponsAplicados={cuponsAplicados}
           linhasPagamento={composicaoPagamento}
           novosCartoesPorLinha={novosCartoesPorLinha}
-          onLinhasChange={(nova) => { /* useOrquestrador gerencia internamente, mas mantemos interface */ }}
+          onLinhasChange={(_nova) => { /* useOrquestrador gerencia internamente, mas mantemos interface */ }}
           onAbrirModalCartao={setLinhaModalCartaoId}
+          onSelecionarCartaoSalvoNaLista={() => {}}
           onAplicarCupom={(c: ICupomAplicado) => aplicarCupom({ uuid: c.uuid, codigo: c.codigo, tipo: c.tipo, valor: c.valor })}
           onRemoverCupom={removerCupom}
         />

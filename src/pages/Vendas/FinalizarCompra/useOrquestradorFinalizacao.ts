@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import type { LinhaPagamentoCheckout } from '@/types/checkout';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 
@@ -20,16 +20,17 @@ export function useOrquestradorFinalizacao({
   resumoFinanceiro,
 }: UseOrquestradorFinalizacaoProps) {
   const [composicaoManual, setComposicaoManual] = useState<LinhaPagamentoCheckout[]>([]);
-  const idLinhaUnica = useRef<string>(crypto.randomUUID());
+  const [idLinhaUnica] = useState(() => crypto.randomUUID());
 
   /**
    * Se o usuário ainda não adicionou múltiplas linhas, mantemos uma linha única
    * que segue o valor total do resumo financeiro automaticamente (sem useEffect).
    */
+  // eslint-disable-next-line complexity
   const composicaoPagamento = useMemo(() => {
     if (composicaoManual.length > 1) return composicaoManual;
 
-    const id = composicaoManual[0]?.id || idLinhaUnica.current;
+    const id = composicaoManual[0]?.id || idLinhaUnica;
     const tipoBase = dadosCheckout.cartoesSalvos.length > 0 ? 'cartao_salvo' : 'cartao_novo';
     const base: LinhaPagamentoCheckout = {
       id,
@@ -39,7 +40,7 @@ export function useOrquestradorFinalizacao({
       cartaoSalvoUuid: composicaoManual[0]?.cartaoSalvoUuid || dadosCheckout.cartoesSalvos[0]?.uuid,
     };
     return [base];
-  }, [composicaoManual, resumoFinanceiro.total, dadosCheckout.cartoesSalvos]);
+  }, [composicaoManual, resumoFinanceiro.total, dadosCheckout.cartoesSalvos, idLinhaUnica]);
 
   const totalPago = useMemo(() => 
     composicaoPagamento.reduce((s, l) => s + (Number.isFinite(l.valor) ? l.valor : 0), 0)

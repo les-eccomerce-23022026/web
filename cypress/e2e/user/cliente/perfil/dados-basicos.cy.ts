@@ -1,15 +1,17 @@
 import { ProfilePage } from '../../../../support/pages/user/ProfilePage';
 import type { ITestUser } from '../../../../support/interfaces';
+import { getClienteCreds } from '../../../../support/env';
 
 describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
   let testUser: ITestUser;
 
   before(() => {
+    const cliente = getClienteCreds();
     testUser = {
       nome: 'Cliente Seed',
       cpf: '',
-      email: (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com',
-      senha: (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKL\u00C7123',
+      email: cliente.email,
+      senha: cliente.senha,
     };
   });
 

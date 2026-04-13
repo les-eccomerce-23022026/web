@@ -64,6 +64,85 @@ export const GerenciarPedidos = () => {
     );
   }
 
+  // eslint-disable-next-line complexity
+  const renderPedidoRow = (pedido: (typeof pedidosFiltrados)[number]) => (
+    <tr key={pedido.uuid}>
+      <td className={styles.colPedido}>
+        #{pedido.uuid.split('-')[1].toUpperCase()}
+      </td>
+      <td>{formatarData(pedido.data)}</td>
+      <td className={styles.colItens}>
+        {pedido.itens.map((item) => (
+          <div key={item.livroUuid} className={styles.itemLinha}>
+            <span>{getLivroTitulo(item.livroUuid)}</span>
+            <span className={styles.itemQtd}>×{item.quantidade}</span>
+          </div>
+        ))}
+      </td>
+      <td className={styles.colTotal}>{formatarMoeda(pedido.total)}</td>
+      <td>
+        <span
+          className={`${styles.statusBadge} ${
+            styles[STATUS_CSS[pedido.status]] ?? styles.statusOutro
+          }`}
+        >
+          {STATUS_LABELS[pedido.status] ?? pedido.status}
+        </span>
+      </td>
+      <td className={styles.colAcoes}>
+        {isAprovado(pedido.status) && (
+          <button
+            id={`btn-despachar-${pedido.uuid}`}
+            className={`${styles.btnAcao} ${styles.btnDespachar}`}
+            disabled={processando === pedido.uuid}
+            onClick={() => despachar(pedido)}
+            title="Despachar pedido para entrega — RF0038"
+          >
+            <Truck size={14} />
+            {processando === pedido.uuid ? 'Despachando...' : 'Despachar'}
+          </button>
+        )}
+
+        {isEmTransito(pedido.status) && (
+          <div className={styles.grupoAcoes}>
+            <button
+              id={`btn-confirmar-entrega-${pedido.uuid}`}
+              className={`${styles.btnAcao} ${styles.btnEntregue}`}
+              disabled={processando === pedido.uuid}
+              onClick={() => confirmarEntrega(pedido.uuid)}
+              title="Confirmar entrega ao cliente — RF0039"
+            >
+              <CheckCircle size={14} />
+              {processando === pedido.uuid ? 'Confirmando...' : 'Entregue'}
+            </button>
+            <button
+              id={`btn-falha-entrega-${pedido.uuid}`}
+              className={`${styles.btnAcao} ${styles.btnFalha}`}
+              disabled={processando === pedido.uuid}
+              onClick={() => registrarFalha(pedido.uuid)}
+              title="Registrar falha na entrega"
+            >
+              <XCircle size={14} />
+              {processando === pedido.uuid ? 'Registrando...' : 'Falha'}
+            </button>
+          </div>
+        )}
+
+        {pedido.status === 'Falha na Entrega' && (
+          <span className={styles.infoAguardando}>
+            Aguardando re-endereçamento pelo cliente
+          </span>
+        )}
+
+        {pedido.status === 'Entregue' && (
+          <span className={styles.concluidoLabel}>
+            <CheckCircle size={14} /> Entregue
+          </span>
+        )}
+      </td>
+    </tr>
+  );
+
   return (
     <div className={styles.container}>
       {/* Header */}
@@ -133,87 +212,11 @@ export const GerenciarPedidos = () => {
               </tr>
             </thead>
             <tbody>
-              {pedidosFiltrados.map((pedido) => (
-                <tr key={pedido.uuid}>
-                  <td className={styles.colPedido}>
-                    #{pedido.uuid.split('-')[1].toUpperCase()}
-                  </td>
-                  <td>{formatarData(pedido.data)}</td>
-                  <td className={styles.colItens}>
-                    {pedido.itens.map((item) => (
-                      <div key={item.livroUuid} className={styles.itemLinha}>
-                        <span>{getLivroTitulo(item.livroUuid)}</span>
-                        <span className={styles.itemQtd}>×{item.quantidade}</span>
-                      </div>
-                    ))}
-                  </td>
-                  <td className={styles.colTotal}>{formatarMoeda(pedido.total)}</td>
-                  <td>
-                    <span
-                      className={`${styles.statusBadge} ${
-                        styles[STATUS_CSS[pedido.status]] ?? styles.statusOutro
-                      }`}
-                    >
-                      {STATUS_LABELS[pedido.status] ?? pedido.status}
-                    </span>
-                  </td>
-                  <td className={styles.colAcoes}>
-                    {isAprovado(pedido.status) && (
-                      <button
-                        id={`btn-despachar-${pedido.uuid}`}
-                        className={`${styles.btnAcao} ${styles.btnDespachar}`}
-                        disabled={processando === pedido.uuid}
-                        onClick={() => despachar(pedido)}
-                        title="Despachar pedido para entrega — RF0038"
-                      >
-                        <Truck size={14} />
-                        {processando === pedido.uuid ? 'Despachando...' : 'Despachar'}
-                      </button>
-                    )}
-
-                    {isEmTransito(pedido.status) && (
-                      <div className={styles.grupoAcoes}>
-                        <button
-                          id={`btn-confirmar-entrega-${pedido.uuid}`}
-                          className={`${styles.btnAcao} ${styles.btnEntregue}`}
-                          disabled={processando === pedido.uuid}
-                          onClick={() => confirmarEntrega(pedido.uuid)}
-                          title="Confirmar entrega ao cliente — RF0039"
-                        >
-                          <CheckCircle size={14} />
-                          {processando === pedido.uuid ? 'Confirmando...' : 'Entregue'}
-                        </button>
-                        <button
-                          id={`btn-falha-entrega-${pedido.uuid}`}
-                          className={`${styles.btnAcao} ${styles.btnFalha}`}
-                          disabled={processando === pedido.uuid}
-                          onClick={() => registrarFalha(pedido.uuid)}
-                          title="Registrar falha na entrega"
-                        >
-                          <XCircle size={14} />
-                          {processando === pedido.uuid ? 'Registrando...' : 'Falha'}
-                        </button>
-                      </div>
-                    )}
-
-                    {pedido.status === 'Falha na Entrega' && (
-                      <span className={styles.infoAguardando}>
-                        Aguardando re-endereçamento pelo cliente
-                      </span>
-                    )}
-
-                    {pedido.status === 'Entregue' && (
-                      <span className={styles.concluidoLabel}>
-                        <CheckCircle size={14} /> Entregue
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+              {pedidosFiltrados.map(renderPedidoRow)}
             </tbody>
           </table>
         </div>
       )}
     </div>
   );
-}
+};

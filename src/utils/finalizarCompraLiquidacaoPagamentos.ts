@@ -51,37 +51,23 @@ export function cartaoTesteParaBandeira(bandeira: string): {
   };
 }
 
-function resolverCartaoParaSelecionar(
-  linha: IPagamentoParcial,
-  opcoes: OpcoesFinalizarCheckout | undefined,
-  cartoesSalvos: ICartaoSalvo[],
-): { numero: string; nomeTitular: string; validade: string; bandeira: string } {
-  const ref = linha.referenciaMeioPagamento;
-  if (isLinhaPix(ref)) {
-    throw new Error('PIX não utiliza dados de cartão');
+function resolverNovoCartao(ref: string, opcoes: OpcoesFinalizarCheckout | undefined) {
+  const id = ref === 'novo' ? null : idDePrefixoNovo(ref);
+  const c = (id ? opcoes?.novosCartoesPorLinha?.[id] : null) ?? opcoes?.novoCartao;
+  
+  if (!c) {
+    throw new Error('Dados do novo cartão não encontrados para a liquidação.');
   }
-  if (ref === 'novo' && opcoes?.novoCartao) {
-    const c = opcoes.novoCartao;
-    return {
-      numero: c.numero.replace(/\s/g, ''),
-      nomeTitular: c.nomeTitular,
-      validade: c.validade,
-      bandeira: normalizarBandeiraCartao(c.bandeira),
-    };
-  }
-  if (isLinhaNovoCartao(ref)) {
-    const id = idDePrefixoNovo(ref);
-    const c = opcoes?.novosCartoesPorLinha?.[id] ?? opcoes?.novoCartao;
-    if (!c) {
-      throw new Error('Dados do novo cartão não encontrados para a liquidação.');
-    }
-    return {
-      numero: c.numero.replace(/\s/g, ''),
-      nomeTitular: c.nomeTitular,
-      validade: c.validade,
-      bandeira: normalizarBandeiraCartao(c.bandeira),
-    };
-  }
+  
+  return {
+    numero: c.numero.replace(/\s/g, ''),
+    nomeTitular: c.nomeTitular,
+    validade: c.validade,
+    bandeira: normalizarBandeiraCartao(c.bandeira),
+  };
+}
+
+function resolverCartaoSalvo(ref: string, cartoesSalvos: ICartaoSalvo[]) {
   const salvo = cartoesSalvos.find((c) => c.uuid === ref);
   if (!salvo) {
     throw new Error('Cartão não encontrado para a liquidação.');
@@ -93,6 +79,23 @@ function resolverCartaoParaSelecionar(
       ? salvo.validade
       : '12/30',
   };
+}
+
+function resolverCartaoParaSelecionar(
+  linha: IPagamentoParcial,
+  opcoes: OpcoesFinalizarCheckout | undefined,
+  cartoesSalvos: ICartaoSalvo[],
+): { numero: string; nomeTitular: string; validade: string; bandeira: string } {
+  const ref = linha.referenciaMeioPagamento;
+  if (isLinhaPix(ref)) {
+    throw new Error('PIX não utiliza dados de cartão');
+  }
+  
+  if (ref === 'novo' || isLinhaNovoCartao(ref)) {
+    return resolverNovoCartao(ref, opcoes);
+  }
+
+  return resolverCartaoSalvo(ref, cartoesSalvos);
 }
 
 export function valorCupomPromocionalEmReais(subtotal: number, cupom: ICupomAplicado): number {

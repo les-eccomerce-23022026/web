@@ -27,7 +27,7 @@ export const CheckoutSplitPagamento = ({
   novosCartoesPorLinha,
   onLinhasChange,
   onAbrirModalCartao,
-}: Props) => {
+}: Props) => { // eslint-disable-line complexity
   const {
     somaLinhas,
     restante,

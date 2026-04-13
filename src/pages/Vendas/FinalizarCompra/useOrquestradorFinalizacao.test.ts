@@ -1,23 +1,21 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useOrquestradorFinalizacao } from './useOrquestradorFinalizacao';
+import type { ICheckoutInfo } from '@/interfaces/checkout';
 
 describe('useOrquestradorFinalizacao (TDD)', () => {
-  const MOCK_CHECKOUT = {
-    cartoesSalvos: [{ uuid: 'c1', bandeira: 'Visa', ultimosDigitos: '1234' }],
-    enderecosDisponiveis: [{ uuid: 'e1', principal: true }],
+  const MOCK_CHECKOUT: Partial<ICheckoutInfo> = {
+    cartoesSalvos: [{ uuid: 'c1', bandeira: 'Visa', ultimosDigitosCartao: '1234', nomeCliente: 'Teste', nomeImpresso: 'Teste', validade: '12/30' }],
+    enderecosDisponiveis: [{ uuid: 'e1', principal: true, logradouro: 'Rua Teste', numero: '123', bairro: 'Bairro', cidade: 'Cidade', estado: 'SP', cep: '00000-000', apelido: 'Casa' }],
   };
 
   const MOCK_RESUMO = {
-    subtotal: 100,
-    frete: 20,
-    descontoCupons: 10,
-    total: 110, // 100 + 20 - 10
+    total: 110,
   };
 
   it('deve inicializar com uma linha de pagamento cobrindo o total', () => {
     const { result } = renderHook(() => useOrquestradorFinalizacao({
-      dadosCheckout: MOCK_CHECKOUT as any,
+      dadosCheckout: MOCK_CHECKOUT as ICheckoutInfo,
       resumoFinanceiro: MOCK_RESUMO,
     }));
 
@@ -29,7 +27,7 @@ describe('useOrquestradorFinalizacao (TDD)', () => {
   it('deve atualizar automaticamente o valor da linha única quando o total do pedido mudar (sem useEffect)', () => {
     let resumo = { ...MOCK_RESUMO };
     const { result, rerender } = renderHook(({ res }) => useOrquestradorFinalizacao({
-      dadosCheckout: MOCK_CHECKOUT as any,
+      dadosCheckout: MOCK_CHECKOUT as ICheckoutInfo,
       resumoFinanceiro: res,
     }), {
       initialProps: { res: resumo }
@@ -46,7 +44,7 @@ describe('useOrquestradorFinalizacao (TDD)', () => {
 
   it('deve validar se o pagamento cobre o saldo devedor', () => {
     const { result } = renderHook(() => useOrquestradorFinalizacao({
-      dadosCheckout: MOCK_CHECKOUT as any,
+      dadosCheckout: MOCK_CHECKOUT as ICheckoutInfo,
       resumoFinanceiro: MOCK_RESUMO,
     }));
 

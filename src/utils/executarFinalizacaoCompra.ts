@@ -12,16 +12,13 @@ import {
   totaisFinalizarCompraComFrete,
 } from '@/utils/finalizarCompraTotais';
 import {
-  executarPagamentosAposCriarVenda,
   valorTotalPedidoSemCupons,
-  type ResultadoLiquidacaoPagamentos,
 } from '@/utils/finalizarCompraLiquidacaoPagamentos';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
 import type { IPagamentoService } from '@/services/contracts/pagamentoService';
 import { USE_MOCK } from '@/config/apiConfig';
 import type { IFreteOpcao } from '@/interfaces/entrega';
 import { salvarCartoesPerfilSeSolicitado } from '@/utils/finalizarCompraSalvarCartaoPerfil';
-import { salvarCheckoutPixPendente } from '@/utils/checkoutPixPendente';
 
 type FreteSelecionado = IFreteOpcao | null | undefined;
 
@@ -44,56 +41,6 @@ function validarFreteEEnderecoApiReal(
   if (!enderecoEntrega) {
     throw new Error('Selecione o endereço de entrega.');
   }
-}
-
-async function liquidarPagamentosEEntregaNaApi(params: {
-  pagamentoService: IPagamentoService;
-  vendaUuid: string;
-  subtotal: number;
-  frete: number;
-  cuponsAplicados: ICupomAplicado[];
-  pagamentosEfetivos: IPagamentoParcial[];
-  opcoes: OpcoesFinalizarCheckout | undefined;
-  checkoutData: ICheckoutInfo | null;
-  enderecoEntrega: IEnderecoEntregaInput;
-  cadastrarEntrega: (
-    vendaUuid: string,
-    endereco: IEntregaInputDto['endereco'],
-  ) => Promise<unknown>;
-}): Promise<ResultadoLiquidacaoPagamentos> {
-  const {
-    pagamentoService,
-    vendaUuid,
-    subtotal,
-    frete,
-    cuponsAplicados,
-    pagamentosEfetivos,
-    opcoes,
-    checkoutData,
-    enderecoEntrega,
-    cadastrarEntrega,
-  } = params;
-
-  const liquidacao = await executarPagamentosAposCriarVenda({
-    pagamentoService,
-    vendaUuid,
-    subtotal,
-    frete,
-    cuponsAplicados,
-    pagamentosEfetivos,
-    opcoesOpcional: opcoes,
-    cartoesSalvos: checkoutData?.cartoesSalvos ?? [],
-  });
-
-  if (liquidacao.pixPendente) {
-    return liquidacao;
-  }
-
-  const entregaResult = await cadastrarEntrega(vendaUuid, enderecoEntrega);
-  if (!entregaResult) {
-    throw new Error('Não foi possível registrar a entrega.');
-  }
-  return liquidacao;
 }
 
 /** Orquestra validação, criação de venda, liquidação e navegação. */
@@ -130,8 +77,7 @@ export async function executarFinalizarCheckout(params: {
     opcoes,
     dispatch,
     navigate,
-    pagamentoService,
-    checkoutData,
+    solicitarAutorizacaoFinanceiraCheckout,
     cadastrarEntrega,
     onSalvarCartaoCheckoutFalhou,
   } = params;
@@ -165,7 +111,6 @@ export async function executarFinalizarCheckout(params: {
     throw new Error('Resposta da venda sem identificador.');
   }
 
-  let liquidacaoPix: ResultadoLiquidacaoPagamentos | null = null;
   if (!USE_MOCK) {
     // Para API real, usamos o endpoint bulk que garante atomicidade multi-cartão (Sprint 1)
     const resPag = await solicitarAutorizacaoFinanceiraCheckout(vendaUuid, total, pagamentosEfetivos);
@@ -192,20 +137,6 @@ export async function executarFinalizarCheckout(params: {
   }
 
   await limparCarrinhoAposPedido(dispatch);
-
-  if (!USE_MOCK && liquidacaoPix?.pixPendente && freteSelecionado && enderecoEntrega) {
-    salvarCheckoutPixPendente({
-      vendaUuid,
-      pixPendentes: liquidacaoPix.pixPendentes,
-      entrega: {
-        endereco: enderecoEntrega,
-        tipoFrete: freteSelecionado.tipo,
-        custoFrete: freteSelecionado.valor,
-      },
-    });
-    navigate(`/pagamento-pix?venda=${encodeURIComponent(vendaUuid)}`);
-    return;
-  }
 
   navigate(`/pedido-confirmado?pedido=${vendaUuid}`);
 }

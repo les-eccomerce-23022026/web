@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { Package, MapPin } from 'lucide-react';
 import type { IFreteCalculoOutput, IFreteOpcao } from '@/interfaces/entrega';
 import styles from './FreteCalculo.module.css';
@@ -32,13 +32,10 @@ export const FreteCalculo = ({
   valorTotal,
   initialCep,
 }: FreteCalculoProps) => {
-  const [cep, setCep] = useState('');
   const { calcularFrete, freteCalculado, isLoading, hasError, error, formatarCep: formatar, validarCep: validar } = entrega;
-
-  useEffect(() => {
-    if (!initialCep) return;
-    setCep(formatar(initialCep));
-  }, [initialCep, formatar]);
+  const [cep, setCep] = useState('');
+  const cepInicialFormatado = useMemo(() => (initialCep ? formatar(initialCep) : ''), [initialCep, formatar]);
+  const cepAtual = cep || cepInicialFormatado;
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
@@ -47,12 +44,12 @@ export const FreteCalculo = ({
   };
 
   const handleCalcular = async () => {
-    if (!validar(cep)) {
+    if (!validar(cepAtual)) {
       alert('CEP inválido');
       return;
     }
 
-    await calcularFrete(cep, pesoTotal, valorTotal);
+    await calcularFrete(cepAtual, pesoTotal, valorTotal);
   };
 
   const handleSelecionar = (frete: IFreteOpcao) => {
@@ -81,7 +78,7 @@ export const FreteCalculo = ({
               <input
                 id="cep-destino"
                 type="text"
-                value={cep}
+                value={cepAtual}
                 onChange={handleCepChange}
                 onKeyPress={handleKeyPress}
                 placeholder="00000-000"

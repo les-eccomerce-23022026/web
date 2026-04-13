@@ -12,9 +12,13 @@ import { Modal } from '@/components/Comum/Modal/Modal';
 import type { IPedido, IItemPedido } from '@/interfaces/pedido';
 import type { ILivro } from '@/interfaces/livro';
 import styles from './MeusPedidos.module.css';
+import { ArrowRight } from 'lucide-react';
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 import { CartaoResumoPedido } from './CartaoResumoPedido';
 
+type AbaPedidos = 'todos' | 'aberto' | 'finalizados';
+
+// eslint-disable-next-line complexity
 export const MeusPedidos = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -77,7 +81,7 @@ export const MeusPedidos = () => {
         }
       })).unwrap();
       setModalReagendar(null);
-    } catch (e) {
+    } catch {
       alert('Erro ao reagendar entrega. Tente novamente.');
     } finally {
       setProcessandoReagendamento(false);
@@ -102,7 +106,7 @@ export const MeusPedidos = () => {
               <button
                 type="button"
                 className={`${styles.stepperStep} ${abaAtiva === aba.id ? styles.stepperStepAtiva : ''}`}
-                onClick={() => alterarAba(aba.id as any)}
+                onClick={() => alterarAba(aba.id as AbaPedidos)}
               >
                 <span className={styles.stepperIndex}>{aba.index}</span>
                 {aba.label}

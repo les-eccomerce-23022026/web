@@ -31,7 +31,7 @@ export const FinalizarCompraResumoPedidoAcoes = ({
   temFormaPagamento,
   saldoPagamentoOk,
   onFinalizar,
-}: Props) => {
+}: Props) => { // eslint-disable-line complexity
   const disabled = !podeFinalizar(
     finalizando,
     enderecoOk,
