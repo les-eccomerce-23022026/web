@@ -1,495 +1,471 @@
 .container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 20px;
+  padding: 0;
 }
 
-/* ===== Filtros: abas + select ===== */
 .filtrosBar {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-bottom: 28px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--bn-border-light);
+  margin-bottom: 32px;
 }
 
+/* Stepper horizontal */
 .stepper {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0;
-  width: 100%;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .stepperStep {
-  display: inline-flex;
+  background: none;
+  border: none;
+  display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--bn-text-muted);
-  background: #fafafa;
-  border: 1px solid var(--bn-border-light);
-  border-radius: 999px;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  white-space: nowrap;
+  border-radius: var(--bn-border-radius-md);
+  transition: all 0.2s;
 }
 
-.stepperStep:hover {
-  color: var(--bn-primary);
-  border-color: rgba(15, 76, 58, 0.35);
+.stepperIndex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--bn-bg-subtle);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--bn-text-muted);
 }
 
 .stepperStepAtiva {
   color: var(--bn-primary);
-  background: rgba(15, 76, 58, 0.08);
-  border-color: var(--bn-primary);
-}
-
-.stepperIndex {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  font-size: 11px;
-  font-weight: 700;
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--bn-text-muted);
+  background-color: rgba(15, 76, 58, 0.08);
 }
 
 .stepperStepAtiva .stepperIndex {
-  background: var(--bn-primary);
+  background-color: var(--bn-primary);
   color: #fff;
 }
 
 .stepperConnector {
-  width: 16px;
+  flex: 1;
+  max-width: 40px;
   height: 2px;
-  background: var(--bn-border-light);
-  flex-shrink: 0;
+  background-color: var(--bn-border-light);
 }
 
+/* Chips de status */
 .chipsBlock {
-  width: 100%;
+  margin-top: 16px;
 }
 
 .chipsLabel {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--bn-text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .chipsRow {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  align-items: center;
 }
 
 .chip {
-  font-family: var(--font-sans);
+  background-color: var(--bn-bg-primary);
+  border: 1px solid var(--bn-border-light);
+  padding: 6px 16px;
+  border-radius: 20px;
   font-size: 13px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--bn-border);
-  background: #fff;
-  color: var(--bn-text-title);
+  color: var(--bn-text-muted);
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.chip:hover {
-  border-color: rgba(15, 76, 58, 0.35);
+  transition: all 0.2s;
 }
 
 .chipAtivo {
-  background: rgba(15, 76, 58, 0.1);
-  border-color: var(--bn-primary);
-  color: var(--bn-primary);
-  font-weight: 600;
+  background-color: var(--bn-text-primary);
+  color: var(--bn-bg-primary);
+  border-color: var(--bn-text-primary);
 }
 
-/* ===== Lista ===== */
 .lista {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  margin-bottom: 40px;
 }
 
-/* ===== Card ===== */
+/* Card do Pedido */
 .pedidoCard {
-  border-radius: 12px;
+  background-color: var(--bn-bg-primary);
   border: 1px solid var(--bn-border-light);
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  padding: 20px;
-  transition: box-shadow 0.25s ease;
-}
-
-.pedidoCard:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  border-radius: var(--bn-border-radius-lg);
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .pedidoHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 4px;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--bn-bg-secondary);
+  border-bottom: 1px solid var(--bn-border-light);
 }
 
 .pedidoHeaderMeta {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
+  font-size: 13px;
 }
 
 .pedidoIdMuted {
-  font-size: 13px;
-  font-weight: 600;
   color: var(--bn-text-muted);
 }
 
 .pedidoUuid {
-  font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas,
-    monospace;
-  font-size: 12px;
-  font-weight: 500;
-  word-break: break-all;
+  font-weight: 700;
+  font-family: var(--font-serif);
+  color: var(--bn-text-primary);
 }
 
 .pedidoMetaSep {
-  color: var(--bn-text-muted);
-  font-size: 13px;
+  color: var(--bn-border-light);
 }
 
 .pedidoData {
-  font-size: 13px;
+  font-weight: 500;
   color: var(--bn-text-muted);
 }
 
-/* ===== Status Badges ===== */
 .statusBadge {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  background-color: var(--bn-bg-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .statusBadgeIcon {
-  flex-shrink: 0;
+  color: inherit;
 }
 
-.statusEntregue {
-  background-color: var(--bn-success-light);
-  color: var(--bn-success-text);
+/* Timeline/ProgressBar (embutida no Card) */
+.pedidoTimeline {
+  padding: 24px 20px 12px;
 }
 
-.statusTransito {
-  background-color: #fff3e0;
-  color: #e65100;
-}
-
-.statusPreparando {
-  background-color: #e3f2fd;
-  color: #1565c0;
-}
-
-.statusPendente {
-  background-color: #fff8e1;
-  color: #f57f17;
-}
-
-.statusAguardandoPagamento {
-  background-color: #e8f5e9;
-  color: var(--bn-primary);
-}
-
-.statusProcessamento {
-  background-color: #e1f5fe;
-  color: #0277bd;
-}
-
-.statusEmTroca {
-  background-color: #fce4ec;
-  color: #c62828;
-}
-
-.statusTrocaAutorizada {
-  background-color: #e8eaf6;
-  color: #283593;
-}
-
-.statusTrocado {
-  background-color: #e0f2f1;
-  color: #00695c;
-}
-
-.statusCancelado {
-  background-color: var(--bn-error-light);
-  color: var(--bn-error-text);
-}
-
-.statusDevolucoes {
-  background-color: #f3e5f5;
-  color: #6a1b9a;
-}
-
-/* ===== Itens ===== */
+/* Itens */
 .pedidoItens {
-  border-top: 1px solid var(--bn-border-light);
-  padding-top: 16px;
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 0 20px;
 }
 
 .itemRow {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--bn-border-light);
+}
+
+.itemRow:last-child {
+  border-bottom: none;
 }
 
 .itemCapaWrap {
-  width: 64px;
-  height: 88px;
+  width: 60px;
+  height: 80px;
   flex-shrink: 0;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .itemCapaImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  border-radius: var(--bn-border-radius-sm);
 }
 
 .itemMain {
   flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
 .itemTitulo {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--bn-text-title);
-  line-height: 1.3;
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--bn-text-primary);
 }
 
 .itemBarraTrack {
   height: 4px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.08);
+  background-color: var(--bn-bg-subtle);
+  border-radius: 2px;
+  margin-bottom: 8px;
   overflow: hidden;
-  margin-top: 6px;
-  max-width: 100%;
 }
 
 .itemBarraFill {
   height: 100%;
-  border-radius: inherit;
-  transition: width 0.35s ease;
-}
-
-.itemBarraFillEntregue {
-  background: var(--bn-success, #2e7d32);
-}
-
-.itemBarraFillTransito {
-  background: #f57c00;
-}
-
-.itemBarraFillPreparando {
-  background: #1565c0;
-}
-
-.itemBarraFillProcessamento {
-  background: #0277bd;
-}
-
-.itemBarraFillProblema {
-  background: var(--bn-error, #c62828);
+  border-radius: 2px;
+  transition: width 0.3s ease;
 }
 
 .itemLinhaPreco {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--bn-text-muted);
 }
 
-.trocaInfo {
-  font-size: 13px;
-  color: var(--bn-warning);
-  font-weight: 600;
-  margin: 8px 0 0;
-}
-
-.trocaConcluida {
-  font-size: 13px;
-  color: var(--bn-success-text);
-  font-weight: 600;
-  margin: 8px 0 0;
-}
-
-/* ===== Footer ===== */
+/* Rodapé do Card */
 .pedidoFooter {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 16px;
-  margin-top: 20px;
-  padding-top: 16px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--bn-bg-secondary);
   border-top: 1px solid var(--bn-border-light);
-}
-
-@media (min-width: 640px) {
-  .pedidoFooter {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: flex-end;
-  }
 }
 
 .totalBloco {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  text-align: right;
-  gap: 2px;
 }
 
 .pedidoTotalLabel {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--bn-text-muted);
+  font-size: 11px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: var(--bn-text-muted);
 }
 
 .pedidoTotal {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--bn-primary);
   font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: 24px;
-  color: var(--bn-text-title);
 }
 
 .pedidoItensCount {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--bn-text-muted);
 }
 
 .acoes {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-end;
+  gap: 12px;
 }
 
 .btnAcao {
-  font-size: 14px;
-  padding: 10px 18px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .btnAcaoNeutra {
-  font-size: 14px;
-  padding: 10px 18px;
-  background: #fff !important;
-  color: var(--bn-text-title) !important;
-  border: 1px solid var(--bn-border) !important;
+  border-color: var(--bn-border-light);
 }
 
-.btnAcaoNeutra:hover {
-  background: #fafafa !important;
-}
-
-.modalTexto p {
-  margin: 0 0 12px;
-  line-height: 1.5;
-}
-
-.modalDetalhes p {
-  margin: 0 0 10px;
-  line-height: 1.5;
+/* Modais */
+.modalTexto {
+  line-height: 1.6;
 }
 
 .modalDataLinha {
-  margin-bottom: 14px !important;
+  color: var(--bn-text-muted);
+  font-size: 14px;
+  margin-bottom: 20px;
 }
 
 .modalResumoTable {
   width: 100%;
   border-collapse: collapse;
-  margin: 0 0 18px;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.modalResumoTable th,
-.modalResumoTable td {
-  border: 1px solid transparent;
-  padding: 10px 12px;
-  vertical-align: top;
-  text-align: left;
-}
-
-.modalResumoTable tbody tr:not(:last-child) th,
-.modalResumoTable tbody tr:not(:last-child) td {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
 }
 
 .modalResumoLabel {
-  font-weight: 600;
+  text-align: left;
+  padding: 12px;
+  background-color: var(--bn-bg-subtle);
+  font-size: 12px;
+  text-transform: uppercase;
   color: var(--bn-text-muted);
-  width: 30%;
-  min-width: 96px;
+  width: 120px;
+  border: 1px solid var(--bn-border-light);
 }
 
 .modalResumoValor {
-  color: var(--bn-text-title);
+  padding: 12px;
+  border: 1px solid var(--bn-border-light);
+  font-size: 14px;
 }
 
 .modalResumoTotal {
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--bn-text-title);
+  padding: 12px;
+  border: 1px solid var(--bn-border-light);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--bn-primary);
+  font-family: var(--font-serif);
 }
 
 .modalSecaoTitulo {
-  font-size: 15px;
-  margin: 16px 0 8px;
-  color: var(--bn-text-title);
+  font-size: 14px;
+  font-weight: 700;
+  margin: 24px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--bn-border-light);
 }
 
 .modalListaItens {
-  margin: 0 0 12px;
-  padding-left: 20px;
+  list-style: none;
+  padding: 0;
+  font-size: 14px;
 }
 
-.modalEndereco {
-  line-height: 1.5;
+.modalListaItens li {
+  padding: 4px 0;
+  color: var(--bn-text-muted);
 }
 
 .modalMuted {
+  color: var(--bn-text-muted);
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Cores específicas de Status */
+.statusEntregue { color: #2e7d32; }
+.statusTransito { color: #1565c0; }
+.statusPreparando { color: #e65100; }
+.statusProcessamento { color: var(--bn-text-muted); }
+.statusPendente { color: #d32f2f; }
+.statusAguardandoPagamento { color: #ef6c00; }
+.statusEmTroca { color: #7b1fa2; }
+.statusTrocaAutorizada { color: #2e7d32; }
+.statusTrocado { color: var(--bn-primary); }
+.statusCancelado { color: #c62828; }
+.statusDevolucoes { color: #5d4037; }
+.statusFalha { color: #c62828; }
+
+.itemBarraFillEntregue { background-color: #4caf50; }
+.itemBarraFillTransito { background-color: #2196f3; }
+.itemBarraFillPreparando { background-color: #ff9800; }
+.itemBarraFillProcessamento { background-color: var(--bn-text-muted); }
+.itemBarraFillProblema { background-color: #f44336; }
+
+.trocaInfo {
+  margin: 12px 20px;
+  padding: 8px 12px;
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.trocaConcluida {
+  margin: 12px 20px;
+  padding: 8px 12px;
+  background-color: rgba(15, 76, 58, 0.1);
+  color: var(--bn-primary);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+/* Alertas de Falha (S3-C) */
+.alertaProblema {
+  margin: 16px 20px;
+  padding: 12px 16px;
+  background-color: #fff1f0;
+  border: 1px solid #ffa39e;
+  border-radius: var(--bn-border-radius-md);
+  display: flex;
+  gap: 12px;
+  color: #cf1322;
+}
+
+.alertaTexto p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.btnCorrigirEndereco {
+  background-color: #cf1322;
+  border-color: #cf1322;
+}
+
+.btnCorrigirEndereco:hover {
+  background-color: #a8071a;
+  border-color: #a8071a;
+}
+
+/* Modal Reagendar */
+.modalReagendar {
+  max-width: 100%;
+}
+
+.modalAviso {
   font-size: 14px;
   color: var(--bn-text-muted);
+  margin-bottom: 24px;
   line-height: 1.5;
+}
+
+.listaEnderecos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.enderecoOpcao {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: var(--bn-bg-primary);
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.enderecoOpcao:hover:not(:disabled) {
+  border-color: var(--bn-primary);
+  background-color: rgba(15, 76, 58, 0.02);
+}
+
+.enderecoOpcao:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.enderecoInfo {
+  flex: 1;
+}
+
+.enderecoApelido {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--bn-text-primary);
+  margin: 0 0 4px;
+}
+
+.enderecoTexto {
+  font-size: 13px;
+  color: var(--bn-text-muted);
+  margin: 0;
 }

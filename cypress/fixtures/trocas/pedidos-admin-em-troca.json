@@ -1,0 +1,40 @@
+[
+  {
+    "uuid": "bbbbcc00-1234-5678-abcd-ef0123456789",
+    "data": "2026-04-06T14:00:00.000Z",
+    "clienteUuid": "00000000-0000-0000-0000-000000000002",
+    "total": 115.90,
+    "status": "Em Troca",
+    "motivo": "Livro chegou com páginas danificadas, impossível de ler.",
+    "itens": [
+      {
+        "uuid": "item0000-0002-0002-0002-000000000002",
+        "livroUuid": "550e8400-e29b-41d4-a716-446655440000",
+        "titulo": "O Livro de Teste E2E",
+        "quantidade": 1,
+        "precoUnitario": 100.00,
+        "categoria": "Educação",
+        "emTroca": true
+      }
+    ]
+  },
+  {
+    "uuid": "cccccc00-1234-5678-abcd-ef0123456789",
+    "data": "2026-04-07T09:00:00.000Z",
+    "clienteUuid": "00000000-0000-0000-0000-000000000003",
+    "total": 89.90,
+    "status": "Troca Autorizada",
+    "motivo": "Recebi o livro errado, não é o que pedi.",
+    "itens": [
+      {
+        "uuid": "item0000-0003-0003-0003-000000000003",
+        "livroUuid": "550e8400-e29b-41d4-a716-446655440001",
+        "titulo": "Outro Livro de Teste",
+        "quantidade": 1,
+        "precoUnitario": 89.90,
+        "categoria": "Técnico",
+        "emTroca": true
+      }
+    ]
+  }
+]

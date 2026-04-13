@@ -6,6 +6,8 @@ export interface IPedidoService {
   getAllPedidos(statusFiltro?: string[]): Promise<IPedido[]>;
   despacharPedido(pedidoUuid: string): Promise<IPedido>;
   confirmarEntrega(pedidoUuid: string): Promise<IPedido>;
+  registrarFalhaEntrega(pedidoUuid: string): Promise<IPedido>;
+  reagendarEntrega(pedidoUuid: string, novoEndereco: object): Promise<IPedido>;
   getPedidosEmTroca(): Promise<IPedido[]>;
   solicitarTroca(pedidoUuid: string, motivo: string, itensUuids: string[]): Promise<IPedido>;
   autorizarTroca(pedidoUuid: string): Promise<IPedido>;

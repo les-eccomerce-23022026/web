@@ -5,13 +5,14 @@ import {
   despacharPedidoThunk,
   confirmarEntregaThunk,
   darBaixaEstoqueThunk,
+  registrarFalhaEntregaThunk,
 } from '@/store/slices/pedidoSlice';
 import type { IPedido, StatusPedido } from '@/interfaces/pedido';
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 
-const STATUS_APROVADOS: StatusPedido[] = ['Em Processamento'];
+const STATUS_APROVADOS: StatusPedido[] = ['Em Processamento', 'Preparando'];
 const STATUS_TRANSITO: StatusPedido[] = ['Em Trânsito'];
-const STATUS_GERENCIAVEIS: StatusPedido[] = ['Em Processamento', 'Em Trânsito'];
+const STATUS_GERENCIAVEIS: StatusPedido[] = ['Em Processamento', 'Preparando', 'Em Trânsito', 'Falha na Entrega'];
 
 export function useGerenciarPedidos() {
   const dispatch = useAppDispatch();
@@ -52,7 +53,7 @@ export function useGerenciarPedidos() {
       setProcessando(pedido.uuid);
       try {
         await dispatch(despacharPedidoThunk(pedido.uuid)).unwrap();
-        // RF0053 — dar baixa no estoque ao despachar
+        // RF0053 — dar baixa no estoque ao despachar (se ainda não deu)
         await dispatch(darBaixaEstoqueThunk(pedido.uuid)).unwrap();
         setFeedbackMsg(`Pedido #${pedido.uuid.split('-')[1]} despachado. Estoque atualizado.`);
       } catch (e: unknown) {
@@ -81,6 +82,22 @@ export function useGerenciarPedidos() {
     [dispatch],
   );
 
+  const registrarFalha = useCallback(
+    async (pedidoUuid: string) => {
+      setProcessando(pedidoUuid);
+      try {
+        await dispatch(registrarFalhaEntregaThunk(pedidoUuid)).unwrap();
+        setFeedbackMsg(`Pedido #${pedidoUuid.split('-')[1]} marcado como Falha na Entrega.`);
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : 'Erro ao registrar falha';
+        setFeedbackMsg(`Erro: ${msg}`);
+      } finally {
+        setProcessando(null);
+      }
+    },
+    [dispatch],
+  );
+
   const isAprovado = (status: StatusPedido) => STATUS_APROVADOS.includes(status);
   const isEmTransito = (status: StatusPedido) => STATUS_TRANSITO.includes(status);
 
@@ -98,6 +115,7 @@ export function useGerenciarPedidos() {
     getLivroTitulo,
     despachar,
     confirmarEntrega,
+    registrarFalha,
     isAprovado,
     isEmTransito,
   };

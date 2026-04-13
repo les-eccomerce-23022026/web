@@ -20,6 +20,11 @@ declare global {
       loginClienteSeed(): Chainable<void>;
       getDataCy(value: string): Chainable<JQuery<HTMLElement>>;
       getNewUser(): Chainable<{ nome: string, cpf: string, email: string, senha: string }>;
+      registerAndLoginClienteSession(
+        user: { nome: string; cpf: string; email: string; senha: string },
+        sessionKeyPrefix?: string
+      ): Chainable<void>;
+      loginWithSession(email: string, senha: string, sessionKeyPrefix?: string): Chainable<void>;
     }
   }
 }
@@ -65,11 +70,15 @@ Cypress.Commands.add('loginCliente', () => {
 
 Cypress.Commands.add('loginClienteSeed', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  /** Mesmas credenciais do `005_seed_usuarios_teste.sql` (senha com Ç como U+00C7). */
-  const email =
-    (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com';
-  const senha =
-    (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKL\u00C7123';
+  const clienteCfg = Cypress.env('cliente') as { email?: string; senha?: string } | undefined;
+  const email = clienteCfg?.email ?? (Cypress.env('clienteEmail') as string | undefined);
+  const senha = clienteCfg?.senha ?? (Cypress.env('clienteSenha') as string | undefined);
+
+  if (!email || !senha) {
+    throw new Error(
+      'Credenciais do cliente seed ausentes. Configure CYPRESS_CLIENTE_EMAIL e CYPRESS_CLIENTE_SENHA (ou cypress.env.json local).',
+    );
+  }
 
   cy.request({
     method: 'POST',
@@ -146,17 +155,29 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
       });
     });
   } else {
-    const user = Cypress.env('admin') || { email: 'admin@livraria.com.br', senha: 'Admin@123' };
+    const user = Cypress.env('admin') as { email?: string; senha?: string } | undefined;
+    if (!user?.email || !user?.senha) {
+      throw new Error(
+        'Credenciais de admin ausentes. Configure CYPRESS_ADMIN_EMAIL e CYPRESS_ADMIN_SENHA (ou cypress.env.json local).',
+      );
+    }
+    const testBootstrapKey = Cypress.env('testBootstrapKey') as string | undefined;
     
     cy.session(`session-admin`, () => {
       cy.request({
         method: 'POST',
         url: `${apiUrl}/admin/bootstrap`,
-        headers: { 'x-use-test-db': 'true' },
+        headers: {
+          'x-use-test-db': 'true',
+          ...(testBootstrapKey ? { 'x-test-bootstrap-key': testBootstrapKey } : {}),
+        },
         failOnStatusCode: false
       }).then((bootstrapResponse) => {
         if (bootstrapResponse.status !== 200 && bootstrapResponse.status !== 201) {
-          throw new Error(`Falha no bootstrap do admin: ${bootstrapResponse.body?.mensagem || 'Erro'}`);
+          throw new Error(
+            `Falha no bootstrap do admin: ${bootstrapResponse.body?.mensagem || 'Erro'}`
+            + ` (status=${bootstrapResponse.status}). Configure Cypress.env('testBootstrapKey') e rode backend com NODE_ENV=test.`,
+          );
         }
 
         cy.request({
@@ -179,6 +200,102 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
 
 Cypress.Commands.add('getDataCy', (value) => {
   return cy.get(`[data-cy="${value}"]`);
+});
+
+Cypress.Commands.add('registerAndLoginClienteSession', (user, sessionKeyPrefix = 'session-cliente') => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const sessionKey = `${sessionKeyPrefix}-${user.email}`;
+  const cpfSomenteDigitos = user.cpf.replace(/\D/g, '');
+  const payloadBase = {
+    ...user,
+    confirmacaoSenha: user.senha,
+    genero: 'Prefiro não informar',
+    dataNascimento: '1990-01-01',
+    telefone: { tipo: 'Celular', ddd: '11', numero: '999999999' },
+  };
+  const payloadFallback = {
+    ...payloadBase,
+    cpf: cpfSomenteDigitos,
+    enderecoCobranca: {
+      apelido: 'Principal',
+      tipoResidencia: 'Casa',
+      tipoLogradouro: 'Rua',
+      logradouro: 'Rua Teste',
+      numero: '123',
+      bairro: 'Centro',
+      cep: '01001-000',
+      cidade: 'Sao Paulo',
+      estado: 'SP',
+      pais: 'Brasil',
+    },
+  };
+
+  cy.session(sessionKey, () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/clientes/registro`,
+      headers: { 'x-use-test-db': 'true' },
+      body: payloadBase,
+      failOnStatusCode: false,
+    }).then((registroResponse) => {
+      if (registroResponse.status === 400) {
+        return cy.request({
+          method: 'POST',
+          url: `${apiUrl}/clientes/registro`,
+          headers: { 'x-use-test-db': 'true' },
+          body: payloadFallback,
+          failOnStatusCode: false,
+        }).then((fallbackResponse) => {
+          if (fallbackResponse.status !== 201 && fallbackResponse.status !== 200 && fallbackResponse.status !== 409) {
+            throw new Error(
+              `Falha no registro em sessão (fallback): ${fallbackResponse.status} ${JSON.stringify(fallbackResponse.body)}`,
+            );
+          }
+        });
+      }
+      if (registroResponse.status !== 201 && registroResponse.status !== 200 && registroResponse.status !== 409) {
+        throw new Error(
+          `Falha no registro em sessão: ${registroResponse.status} ${JSON.stringify(registroResponse.body)}`,
+        );
+      }
+      return undefined;
+    });
+
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/auth/login`,
+      headers: { 'x-use-test-db': 'true' },
+      body: { email: user.email, senha: user.senha },
+      failOnStatusCode: false,
+    }).then((loginResponse) => {
+      if (loginResponse.status !== 200 || !loginResponse.body?.dados?.user) {
+        throw new Error(`Falha no login em sessão: ${loginResponse.status} ${JSON.stringify(loginResponse.body)}`);
+      }
+    });
+  }, {
+    cacheAcrossSpecs: false,
+  });
+});
+
+Cypress.Commands.add('loginWithSession', (email: string, senha: string, sessionKeyPrefix = 'session-user') => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const sessionKey = `${sessionKeyPrefix}-${email}`;
+
+  cy.session(sessionKey, () => {
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/auth/login`,
+      headers: { 'x-use-test-db': 'true' },
+      body: { email, senha },
+      failOnStatusCode: false,
+    }).then((loginResponse) => {
+      if (loginResponse.status !== 200 || !loginResponse.body?.dados?.user) {
+        throw new Error(`Falha no login em sessão: ${loginResponse.status} ${JSON.stringify(loginResponse.body)}`);
+      }
+    });
+  }, {
+    cacheAcrossSpecs: false,
+  });
 });
 
 export {};

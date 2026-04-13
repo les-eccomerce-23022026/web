@@ -32,7 +32,7 @@ export class PedidoServiceMock implements IPedidoService {
     const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
     if (index === -1) throw new Error('Pedido não encontrado');
 
-    const statusPermitidos: string[] = ['Em Processamento', 'Aprovado'];
+    const statusPermitidos: string[] = ['Em Processamento', 'Aprovado', 'Preparando'];
     if (!statusPermitidos.includes(pedidosMemoria[index].status)) {
       throw new Error('Apenas pedidos aprovados podem ser despachados');
     }
@@ -50,6 +50,24 @@ export class PedidoServiceMock implements IPedidoService {
     }
 
     pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Entregue' };
+    return delay({ ...pedidosMemoria[index] }, 400);
+  }
+
+  async registrarFalhaEntrega(pedidoUuid: string): Promise<IPedido> {
+    console.log('[Mock] Registrando falha entrega:', pedidoUuid);
+    const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+    if (index === -1) throw new Error('Pedido não encontrado');
+    
+    pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Falha na Entrega' };
+    return delay({ ...pedidosMemoria[index] }, 400);
+  }
+
+  async reagendarEntrega(pedidoUuid: string, _novoEndereco: object): Promise<IPedido> {
+    console.log('[Mock] Reagendando entrega:', pedidoUuid);
+    const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+    if (index === -1) throw new Error('Pedido não encontrado');
+    
+    pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Em Processamento' };
     return delay({ ...pedidosMemoria[index] }, 400);
   }
 

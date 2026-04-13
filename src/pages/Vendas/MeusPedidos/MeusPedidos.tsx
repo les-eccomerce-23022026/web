@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { usePedidos } from '@/hooks/usePedidos';
 import { useFiltrosMeusPedidos } from '@/hooks/useFiltrosMeusPedidos';
 import { fetchPerfilCompleto } from '@/store/slices/clienteSlice';
+import { reagendarEntregaThunk } from '@/store/slices/pedidoSlice';
 import { LoadingState } from '@/components/Comum/LoadingState/LoadingState';
 import { EmptyState } from '@/components/Comum/EmptyState/EmptyState';
 import { ErrorState } from '@/components/Comum/ErrorState/ErrorState';
@@ -36,6 +37,8 @@ export const MeusPedidos = () => {
 
   const [modalRastrear, setModalRastrear] = useState<IPedido | null>(null);
   const [modalDetalhes, setModalDetalhes] = useState<IPedido | null>(null);
+  const [modalReagendar, setModalReagendar] = useState<IPedido | null>(null);
+  const [processandoReagendamento, setProcessandoReagendamento] = useState(false);
 
   const livrosMap = useMemo(() => {
     const merged = mergeLivrosDestaqueEAdmin(livrosDestaque, livrosAdmin);
@@ -55,6 +58,31 @@ export const MeusPedidos = () => {
   [livrosMap]);
 
   const formatarMoeda = (n: number) => `R$ ${n.toFixed(2).replace('.', ',')}`;
+
+  const reagendar = async (pedidoUuid: string, enderecoUuid: string) => {
+    const endereco = enderecos.find(e => e.uuid === enderecoUuid);
+    if (!endereco) return;
+
+    setProcessandoReagendamento(true);
+    try {
+      await dispatch(reagendarEntregaThunk({ 
+        pedidoUuid, 
+        novoEndereco: {
+          logradouro: endereco.logradouro,
+          numero: endereco.numero,
+          bairro: endereco.bairro,
+          cidade: endereco.cidade,
+          estado: endereco.estado,
+          cep: endereco.cep
+        }
+      })).unwrap();
+      setModalReagendar(null);
+    } catch (e) {
+      alert('Erro ao reagendar entrega. Tente novamente.');
+    } finally {
+      setProcessandoReagendamento(false);
+    }
+  };
 
   if (isLoading) return <LoadingState message="Carregando seus pedidos..." />;
   if (hasError) return <ErrorState message="Não foi possível carregar seus pedidos." />;
@@ -118,10 +146,36 @@ export const MeusPedidos = () => {
             livrosMap={livrosMap}
             onVerDetalhes={setModalDetalhes}
             onRastrear={setModalRastrear}
+            onReagendar={setModalReagendar}
             onSolicitarTroca={(uuid) => navigate(`/pedidos/${uuid}/troca`)}
           />
         ))}
       </div>
+
+      {/* Modal Reagendamento (S3-C) */}
+      <Modal isOpen={!!modalReagendar} onClose={() => setModalReagendar(null)} title="Corrigir endereço de entrega">
+        {modalReagendar && (
+          <div className={styles.modalReagendar}>
+            <p className={styles.modalAviso}>Escolha um dos seus endereços salvos ou use o atual corrigido para uma nova tentativa de entrega.</p>
+            <div className={styles.listaEnderecos}>
+              {enderecos.map(end => (
+                <button 
+                  key={end.uuid}
+                  className={styles.enderecoOpcao}
+                  disabled={processandoReagendamento}
+                  onClick={() => reagendar(modalReagendar.uuid, end.uuid)}
+                >
+                  <div className={styles.enderecoInfo}>
+                    <p className={styles.enderecoApelido}>{end.apelido}</p>
+                    <p className={styles.enderecoTexto}>{end.logradouro}, {end.numero} — {end.bairro}</p>
+                  </div>
+                  <ArrowRight size={18} />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </Modal>
 
       <Modal isOpen={!!modalRastrear} onClose={() => setModalRastrear(null)} title="Acompanhar entrega">
         {modalRastrear && (

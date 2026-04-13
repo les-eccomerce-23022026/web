@@ -1,0 +1,21 @@
+[
+  {
+    "id": "aabbcc00-1234-5678-abcd-ef0123456789",
+    "totalItens": 1,
+    "frete": 15.90,
+    "totalVenda": 115.90,
+    "status": "ENTREGUE",
+    "usuarioUuid": "00000000-0000-0000-0000-000000000001",
+    "motivoTroca": null,
+    "itens": [
+      {
+        "id": "item0000-0001-0001-0001-000000000001",
+        "livroUuid": "550e8400-e29b-41d4-a716-446655440000",
+        "quantidade": 1,
+        "precoUnitario": 100.00,
+        "emTroca": false
+      }
+    ],
+    "criadoEm": "2026-04-05T10:00:00.000Z"
+  }
+]

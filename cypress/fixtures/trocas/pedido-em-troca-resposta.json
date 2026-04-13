@@ -1,0 +1,19 @@
+{
+  "uuid": "aabbcc00-1234-5678-abcd-ef0123456789",
+  "data": "2026-04-05T10:00:00.000Z",
+  "clienteUuid": "00000000-0000-0000-0000-000000000001",
+  "total": 115.90,
+  "status": "Em Troca",
+  "motivo": "Livro chegou com páginas danificadas, impossível de ler.",
+  "itens": [
+    {
+      "uuid": "item0000-0001-0001-0001-000000000001",
+      "livroUuid": "550e8400-e29b-41d4-a716-446655440000",
+      "titulo": "O Livro de Teste E2E",
+      "quantidade": 1,
+      "precoUnitario": 100.00,
+      "categoria": "Educação",
+      "emTroca": true
+    }
+  ]
+}

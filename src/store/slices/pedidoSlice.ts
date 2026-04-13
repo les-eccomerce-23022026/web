@@ -45,6 +45,20 @@ export const confirmarEntregaThunk = createAsyncThunk(
   },
 );
 
+export const registrarFalhaEntregaThunk = createAsyncThunk(
+  'pedido/registrarFalhaEntrega',
+  async (pedidoUuid: string) => {
+    return PedidoService.registrarFalhaEntrega(pedidoUuid);
+  },
+);
+
+export const reagendarEntregaThunk = createAsyncThunk(
+  'pedido/reagendarEntrega',
+  async (payload: { pedidoUuid: string; novoEndereco: object }) => {
+    return PedidoService.reagendarEntrega(payload.pedidoUuid, payload.novoEndereco);
+  },
+);
+
 // RF0053 — Baixa em estoque: disparado após pedido aprovado/processado
 export const darBaixaEstoqueThunk = createAsyncThunk(
   'pedido/darBaixaEstoque',
@@ -184,6 +198,22 @@ const pedidoSlice = createSlice({
     // confirmarEntrega
     builder
       .addCase(confirmarEntregaThunk.fulfilled, (state, action) => {
+        const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
+        if (index === -1) return;
+        state.pedidos[index] = action.payload;
+      });
+
+    // registrarFalhaEntrega
+    builder
+      .addCase(registrarFalhaEntregaThunk.fulfilled, (state, action) => {
+        const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
+        if (index === -1) return;
+        state.pedidos[index] = action.payload;
+      });
+
+    // reagendarEntrega
+    builder
+      .addCase(reagendarEntregaThunk.fulfilled, (state, action) => {
         const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
         if (index === -1) return;
         state.pedidos[index] = action.payload;

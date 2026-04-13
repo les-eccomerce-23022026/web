@@ -29,4 +29,19 @@ export interface IEntregaService {
    * Lista entregas por venda
    */
   listarPorVenda(vendaUuid: string): Promise<IEntregaOutputDto[]>;
+
+  /**
+   * Registra falha na entrega (Admin)
+   */
+  registrarFalha(entregaUuid: string): Promise<void>;
+
+  /**
+   * Confirma recebimento da entrega (Admin)
+   */
+  confirmarRecebimento(entregaUuid: string): Promise<void>;
+
+  /**
+   * Reagenda entrega com novo endereço (Cliente)
+   */
+  reagendarEntrega(entregaUuid: string, novoEndereco: object): Promise<void>;
 }

@@ -23,14 +23,15 @@ export default defineConfig({
       /** Mesma origem do Vite (proxy `/api` → backend) para cookie HttpOnly. */
       apiUrl: "http://localhost:5173/api",
       admin: {
-        email: "admin@livraria.com.br",
-        senha: "Admin@123"
+        email: process.env.CYPRESS_ADMIN_EMAIL || "",
+        senha: process.env.CYPRESS_ADMIN_SENHA || ""
       },
       /** Alinhado ao seed `005_seed_usuarios_teste.sql` (banco de testes). */
       cliente: {
-        email: "clientetest@email.com",
-        senha: "@asdfJKLÇ123",
+        email: process.env.CYPRESS_CLIENTE_EMAIL || "",
+        senha: process.env.CYPRESS_CLIENTE_SENHA || "",
       },
+      testBootstrapKey: process.env.TEST_BOOTSTRAP_KEY || '',
     },
     setupNodeEvents(on, _config) {
       on('task', {

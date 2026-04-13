@@ -9,7 +9,8 @@ export type StatusPedido =
   | 'Troca Autorizada'
   | 'Trocado'
   | 'Cancelado'
-  | 'Devoluções';
+  | 'Devoluções'
+  | 'Falha na Entrega';
 
 export interface IItemPedido {
   uuid: string;
@@ -41,4 +42,3 @@ export interface IPedido {
   freteUuid?: string;
   formaPagamento?: IFormaPagamentoPedido[];
 }
-

@@ -7,27 +7,11 @@ describe('Cliente - Perfil - Gestão de Cartões', () => {
   before(() => {
     cy.getNewUser().then((user) => {
       testUser = user;
-      cy.request({
-        method: 'POST',
-        url: `${Cypress.env('apiUrl')}/clientes/registro`,
-        headers: { 'x-use-test-db': 'true' },
-        body: { ...testUser, confirmacaoSenha: testUser.senha }
-      });
     });
   });
 
   beforeEach(() => {
-    cy.session(`session-cartoes-${testUser.email}`, () => {
-      cy.request({
-        method: 'POST',
-        url: `${Cypress.env('apiUrl')}/auth/login`,
-        headers: { 'x-use-test-db': 'true' },
-        body: { email: testUser.email, senha: testUser.senha }
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body?.dados?.user).to.exist;
-      });
-    });
+    cy.registerAndLoginClienteSession(testUser, 'session-cartoes');
   });
 
   it('deve permitir gerenciar cartões de crédito de diferentes bandeiras', () => {
@@ -57,32 +41,23 @@ describe('Cliente - Perfil - Gestão de Cartões', () => {
       cy.contains('Cartão salvo!').should('be.visible');
       cy.contains(nomeDono).should('be.visible');
       
-      // Se for o primeiro, define como preferencial para testar o badge
       if (index === 0) {
         ProfilePage.getPreferredButton(0).click({ force: true });
         ProfilePage.preferredCardBadge.should('be.visible');
       }
-
-      cy.wait(500);
     });
 
-    // Validar que todos estão na lista e realizar trocas sucessivas de preferencial
     bandeiras.forEach((b) => {
       cy.contains(b.nome).should('be.visible');
-      
-      // Encontra o botão de preferencial para este cartão específico e clica se ele existir
-      // (se já for o preferencial, o botão não aparece, então pulamos)
       cy.get('body').then(($body) => {
         const selector = `[data-cy^="cartao-item-"]:contains("${b.nome}") [data-cy^="cartao-preferencial-button-"]`;
         if ($body.find(selector).length > 0) {
           cy.get(selector).click({ force: true });
           ProfilePage.preferredCardBadge.should('be.visible');
-          cy.wait(1000); // Pausa para o vídeo
         }
       });
     });
 
-    // Editar o último para garantir que a edição funciona com Amex
     const novoNomeAmex = 'AMEX ALTERADO';
     ProfilePage.getEditButton('cartao', 3).click({ force: true });
     ProfilePage.cardNomeInput.clear({ force: true }).type(novoNomeAmex, { force: true });
@@ -90,13 +65,11 @@ describe('Cliente - Perfil - Gestão de Cartões', () => {
     cy.contains('Cartão atualizado!').should('be.visible');
     cy.contains(novoNomeAmex).should('be.visible');
 
-    // Remover um por um para limpar e testar exclusão múltipla
     bandeiras.forEach(() => {
       ProfilePage.getDeleteButton('cartao', 0).click({ force: true });
       cy.get('h2').contains('Remover Cartão').should('be.visible');
       ProfilePage.genericModalConfirmButton.click({ force: true });
       cy.contains('Cartão removido!').should('be.visible');
-      cy.wait(500);
     });
   });
 });

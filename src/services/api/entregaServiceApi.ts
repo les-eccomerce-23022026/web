@@ -84,4 +84,30 @@ export class EntregaServiceApi implements IEntregaService {
   async listarPorVenda(vendaUuid: string): Promise<IEntregaOutputDto[]> {
     return ApiClient.get<IEntregaOutputDto[]>(`${API_ENDPOINTS.entregas}?vendaUuid=${vendaUuid}`);
   }
+
+  /**
+   * Registra falha na entrega (Admin)
+   * PATCH /api/entregas/:uuid/falha
+   */
+  async registrarFalha(entregaUuid: string): Promise<void> {
+    return ApiClient.patch(`${API_ENDPOINTS.entregas}/${entregaUuid}/falha`, {});
+  }
+
+  /**
+   * Confirma recebimento da entrega (Admin)
+   * PATCH /api/entregas/:uuid/confirmar
+   */
+  async confirmarRecebimento(entregaUuid: string): Promise<void> {
+    return ApiClient.patch(`${API_ENDPOINTS.entregas}/${entregaUuid}/confirmar`, {});
+  }
+
+  /**
+   * Reagenda entrega com novo endereço (Cliente)
+   * PATCH /api/entregas/:uuid/reagendar
+   */
+  async reagendarEntrega(entregaUuid: string, novoEndereco: object): Promise<void> {
+    return ApiClient.patch(`${API_ENDPOINTS.entregas}/${entregaUuid}/reagendar`, {
+      endereco: novoEndereco,
+    });
+  }
 }

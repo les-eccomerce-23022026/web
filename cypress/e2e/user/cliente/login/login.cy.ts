@@ -27,8 +27,6 @@ describe('Cliente - Autenticação', () => {
     LoginPage.errorMessage
       .should('be.visible')
       .and('contain', 'E-mail ou senha inválidos');
-    
-    cy.wait(2000); // Pausa para ver o feedback de erro
   });
 
   it('deve realizar login e validar o estado do Header', () => {
@@ -37,24 +35,19 @@ describe('Cliente - Autenticação', () => {
       
       LoginPage.emailInput.type('cristiana@gmail.com');
       LoginPage.passwordInput.type('cliente@asdfJKLÇ123');
-      cy.wait(2000); // Pausa para ver as credenciais digitadas
 
       LoginPage.submitButton.click();
       cy.wait('@loginRequest');
       
       Header.verifyLoggedIn(json.dados.user.nome);
-      cy.wait(2000); // Pausa para ver Header logado
       
       Header.logout();
       Header.verifyLoggedOut();
-      cy.wait(2000); // Pausa para ver o logout realizado
     });
   });
 
   it('deve permitir alternar para a área de cadastro', () => {
-    cy.wait(1000);
     LoginPage.toggleRegister();
     cy.contains('h2', 'Criar Conta').should('be.visible');
-    cy.wait(2000);
   });
 });

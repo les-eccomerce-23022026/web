@@ -5,6 +5,7 @@ import {
   Clock,
   Package,
   Truck,
+  XCircle,
 } from 'lucide-react';
 import type { StatusPedido } from '@/interfaces/pedido';
 
@@ -33,6 +34,8 @@ export function getPedidoStatusVisual(status: StatusPedido): PedidoStatusVisual 
     case 'Aguardando Pagamento':
     case 'Em Processamento':
       return { Icon: Clock, variant: 'processamento' };
+    case 'Falha na Entrega':
+      return { Icon: XCircle, variant: 'problema' };
     case 'Trocado':
       return { Icon: CheckCircle, variant: 'entregue' };
     case 'Em Troca':

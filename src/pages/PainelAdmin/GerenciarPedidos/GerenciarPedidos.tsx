@@ -1,4 +1,4 @@
-import { Package, Truck, CheckCircle, Search, AlertCircle } from 'lucide-react';
+import { Package, Truck, CheckCircle, Search, AlertCircle, XCircle } from 'lucide-react';
 import { useGerenciarPedidos } from './useGerenciarPedidos';
 import type { StatusPedido } from '@/interfaces/pedido';
 import styles from './GerenciarPedidos.module.css';
@@ -15,12 +15,14 @@ const STATUS_LABELS: Record<StatusPedido, string> = {
   'Troca Autorizada': 'Troca Autorizada',
   Trocado: 'Trocado',
   'Devoluções': 'Devoluções',
+  'Falha na Entrega': 'Falha na Entrega',
 };
 
 const STATUS_CSS: Record<string, string> = {
   'Em Processamento': 'statusProcessando',
   'Em Trânsito': 'statusTransito',
   Entregue: 'statusEntregue',
+  'Falha na Entrega': 'statusFalha',
 };
 
 function formatarMoeda(v: number) {
@@ -45,6 +47,7 @@ export const GerenciarPedidos = () => {
     getLivroTitulo,
     despachar,
     confirmarEntrega,
+    registrarFalha,
     isAprovado,
     isEmTransito,
   } = useGerenciarPedidos();
@@ -105,6 +108,7 @@ export const GerenciarPedidos = () => {
           <option value="todos">Todos os status</option>
           <option value="Em Processamento">Em Processamento</option>
           <option value="Em Trânsito">Em Trânsito</option>
+          <option value="Falha na Entrega">Falha na Entrega</option>
           <option value="Entregue">Entregue</option>
         </select>
       </div>
@@ -168,16 +172,34 @@ export const GerenciarPedidos = () => {
                     )}
 
                     {isEmTransito(pedido.status) && (
-                      <button
-                        id={`btn-confirmar-entrega-${pedido.uuid}`}
-                        className={`${styles.btnAcao} ${styles.btnEntregue}`}
-                        disabled={processando === pedido.uuid}
-                        onClick={() => confirmarEntrega(pedido.uuid)}
-                        title="Confirmar entrega ao cliente — RF0039"
-                      >
-                        <CheckCircle size={14} />
-                        {processando === pedido.uuid ? 'Confirmando...' : 'Entregue'}
-                      </button>
+                      <div className={styles.grupoAcoes}>
+                        <button
+                          id={`btn-confirmar-entrega-${pedido.uuid}`}
+                          className={`${styles.btnAcao} ${styles.btnEntregue}`}
+                          disabled={processando === pedido.uuid}
+                          onClick={() => confirmarEntrega(pedido.uuid)}
+                          title="Confirmar entrega ao cliente — RF0039"
+                        >
+                          <CheckCircle size={14} />
+                          {processando === pedido.uuid ? 'Confirmando...' : 'Entregue'}
+                        </button>
+                        <button
+                          id={`btn-falha-entrega-${pedido.uuid}`}
+                          className={`${styles.btnAcao} ${styles.btnFalha}`}
+                          disabled={processando === pedido.uuid}
+                          onClick={() => registrarFalha(pedido.uuid)}
+                          title="Registrar falha na entrega"
+                        >
+                          <XCircle size={14} />
+                          {processando === pedido.uuid ? 'Registrando...' : 'Falha'}
+                        </button>
+                      </div>
+                    )}
+
+                    {pedido.status === 'Falha na Entrega' && (
+                      <span className={styles.infoAguardando}>
+                        Aguardando re-endereçamento pelo cliente
+                      </span>
                     )}
 
                     {pedido.status === 'Entregue' && (

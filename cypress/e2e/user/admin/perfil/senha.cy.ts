@@ -6,35 +6,19 @@ describe('Administrador - Perfil - Troca de Senha', () => {
   const novaSenha = 'admin@asdfJKLÇ1234';
 
   beforeEach(() => {
-    cy.session(`session-senha-admin-${email}`, () => {
-      cy.request({
-        method: 'POST',
-        url: `${Cypress.env('apiUrl')}/auth/login`,
-        headers: { 'x-use-test-db': 'true' },
-        body: { email: email, senha: senhaAtual }
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body?.dados?.user).to.exist;
-      });
-    });
+    cy.loginWithSession(email, senhaAtual, 'session-senha-admin');
     cy.visit('/perfil');
     ProfilePage.navigateToTab('senha');
   });
 
   it('deve permitir alterar a senha de administrador com sucesso', () => {
-    cy.wait(1000);
-
     ProfilePage.currentPasswordInput.type(senhaAtual);
     ProfilePage.newPasswordInput.type(novaSenha);
     ProfilePage.confirmNewPasswordInput.type(novaSenha);
-    cy.wait(2000);
 
     ProfilePage.submitPasswordButton.click();
 
     ProfilePage.successMessage.should('be.visible').and('contain', 'Senha altreada!');
-    cy.wait(2000);
-
-    // Validar login com a nova senha
     cy.request({
       method: 'POST',
       url: `${Cypress.env('apiUrl')}/auth/login`,

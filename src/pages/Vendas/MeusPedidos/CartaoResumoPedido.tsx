@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertCircle, ArrowRight } from 'lucide-react';
 import type { IPedido, StatusPedido, IItemPedido } from '@/interfaces/pedido';
 import type { ILivro } from '@/interfaces/livro';
 import { CapaLivro } from '@/components/Comum/CapaLivro/CapaLivro';
@@ -19,6 +20,7 @@ const MAPA_CLASSES_STATUS: Record<string, string> = {
   Trocado: styles.statusTrocado,
   Cancelado: styles.statusCancelado,
   Devoluções: styles.statusDevolucoes,
+  'Falha na Entrega': styles.statusFalha,
 };
 
 const MAPA_CORES_BARRA: Record<PedidoStatusVariant, string> = {
@@ -35,6 +37,7 @@ interface CartaoResumoPedidoProps {
   onRastrear?: (pedido: IPedido) => void;
   onVerDetalhes: (pedido: IPedido) => void;
   onSolicitarTroca?: (pedidoUuid: string) => void;
+  onReagendar?: (pedido: IPedido) => void;
 }
 
 export const CartaoResumoPedido: React.FC<CartaoResumoPedidoProps> = ({
@@ -43,6 +46,7 @@ export const CartaoResumoPedido: React.FC<CartaoResumoPedidoProps> = ({
   onRastrear,
   onVerDetalhes,
   onSolicitarTroca,
+  onReagendar,
 }) => {
   const statusVisual = getPedidoStatusVisual(pedido.status);
   const IconeStatus = statusVisual.Icon;
@@ -103,6 +107,16 @@ export const CartaoResumoPedido: React.FC<CartaoResumoPedidoProps> = ({
         ))}
       </div>
 
+      {pedido.status === 'Falha na Entrega' && (
+        <div className={styles.alertaProblema}>
+          <AlertCircle size={18} />
+          <div className={styles.alertaTexto}>
+            <p><strong>Não conseguimos entregar seu pedido.</strong></p>
+            <p>Por favor, confirme ou atualize o endereço de entrega para tentarmos novamente.</p>
+          </div>
+        </div>
+      )}
+
       {(pedido.status === 'Em Troca' || pedido.status === 'Troca Autorizada') && (
         <p className={styles.trocaInfo}>Aguardando processamento da troca</p>
       )}
@@ -120,6 +134,18 @@ export const CartaoResumoPedido: React.FC<CartaoResumoPedidoProps> = ({
         </div>
 
         <div className={styles.acoes}>
+          {pedido.status === 'Falha na Entrega' && onReagendar && (
+            <button
+              type="button"
+              className={`btn-primary ${styles.btnAcao} ${styles.btnCorrigirEndereco}`}
+              onClick={() => onReagendar(pedido)}
+              data-cy={`btn-corrigir-endereco-${pedido.uuid}`}
+            >
+              Corrigir endereço
+              <ArrowRight size={14} style={{ marginLeft: 4 }} />
+            </button>
+          )}
+
           {(pedido.status === 'Em Trânsito' || pedido.status === 'Preparando') && onRastrear && (
             <button
               type="button"

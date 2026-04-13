@@ -32,17 +32,7 @@ describe('Cliente - Perfil - Limite de Endereços (Bloqueio UI)', () => {
   });
 
   beforeEach(() => {
-    cy.session(`session-limite-enderecos-${testUser.email}`, () => {
-      cy.request({
-        method: 'POST',
-        url: `${Cypress.env('apiUrl')}/auth/login`,
-        headers: { 'x-use-test-db': 'true' },
-        body: { email: testUser.email, senha: testUser.senha }
-      }).then((response) => {
-        expect(response.status).to.eq(200);
-        expect(response.body?.dados?.user).to.exist;
-      });
-    });
+    cy.loginWithSession(testUser.email, testUser.senha, 'session-limite-enderecos');
   });
 
   it('deve desabilitar o botão de adicionar quando houver 5 endereços', () => {
@@ -65,7 +55,6 @@ describe('Cliente - Perfil - Limite de Endereços (Bloqueio UI)', () => {
 
         ProfilePage.saveAddressButton.click({ force: true });
         cy.contains('Endereço salvo!').should('be.visible');
-        cy.wait(500);
     }
 
     // Agora deve estar bloqueado
