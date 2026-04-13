@@ -1,0 +1,48 @@
+.enderecoForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.formGroupLarge {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 2;
+}
+
+.formGroup label, .formGroupLarge label {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.formGroup input, .formGroupLarge input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.formActions button {
+  flex: 1;
+  padding: 12px;
+}

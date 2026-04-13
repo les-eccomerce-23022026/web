@@ -19,9 +19,9 @@ const PEDIDO_MOCK: IPedido = {
   data: '2026-03-01',
   total: 129.9,
   status: 'Entregue',
-  usuarioUuid: 'u1',
+  clienteUuid: 'u1',
   itens: [
-    { livroUuid: 'l1', quantidade: 1, precoUnitario: 29.9 }
+    { uuid: 'item-1', livroUuid: 'l1', quantidade: 1, precoUnitario: 29.9, categoria: 'Literatura' }
   ]
 };
 

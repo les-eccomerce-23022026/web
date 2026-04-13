@@ -25,7 +25,7 @@
     "cypress:run": "cypress run",
     "cypress:run:cliente": "cypress run --spec \"cypress/e2e/user/cliente/**/*.cy.ts\"",
     "cypress:run:fluxo-login-compra": "cypress run --spec \"cypress/e2e/fluxo/cliente-login-compra-feliz.cy.ts\"",
-    "cypress:fluxo-venda-imgs": "cypress run --spec \"cypress/e2e/fluxo/fluxo-venda-screenshots.cy.ts\" --config video=false --browser chrome",
+    "cypress:run:fluxo-venda": "cypress run --spec \"cypress/e2e/fluxo/fluxo-venda.cy.ts\" --browser chrome",
     "cypress:open": "cypress open"
   },
   "dependencies": {

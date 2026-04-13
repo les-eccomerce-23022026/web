@@ -44,7 +44,7 @@ describe('useGerenciadorLinhasPagamento (TDD)', () => {
 
   it('deve remover uma linha se houver mais de uma', () => {
     const onLinhasChange = vi.fn();
-    const DUAS_LINHAS = [...LINHAS_INICIAIS, { id: '2', tipo: 'pix', valor: 50 }];
+    const DUAS_LINHAS: LinhaPagamentoCheckout[] = [...LINHAS_INICIAIS, { id: '2', tipo: 'pix', valor: 50 }];
     const { result } = renderHook(() => useGerenciadorLinhasPagamento({
       totalAposCupons: 100,
       linhas: DUAS_LINHAS,

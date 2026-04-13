@@ -16,6 +16,7 @@ import { opcoesParcelamentoCartaoParaValor } from '@/utils/opcoesParcelamentoCar
 import styles from './CheckoutSplitPagamento.module.css';
 
 interface LinhaPagamentoProps {
+  index: number;
   linha: LinhaPagamentoCheckout;
   totalAposCupons: number;
   todasLinhas: LinhaPagamentoCheckout[];
@@ -38,6 +39,7 @@ const obterLabelCartaoSalvo = (c: ICartaoSalvoPagamento) => {
 };
 
 export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
+  index,
   linha,
   totalAposCupons,
   todasLinhas,
@@ -58,7 +60,7 @@ export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
         <span className={styles.tipoLabel}>{obterLabelTipo(linha.tipo)}</span>
         {isValidada && <Check size={18} strokeWidth={2.5} className={styles.linhaCheck} />}
         {todasLinhas.length > 1 && (
-          <button type="button" className={styles.removerBtn} onClick={() => onRemover(linha.id)}>
+          <button type="button" className={styles.removerBtn} onClick={() => onRemover(linha.id)} data-cy={`checkout-split-remove-line-${index}`}>
             <Trash2 size={16} /> Remover
           </button>
         )}
@@ -86,7 +88,7 @@ export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
             onTrocar={() => onAbrirModalCartao?.(linha.id)}
           />
         ) : (
-          <button type="button" className="btn-primary" onClick={() => onAbrirModalCartao?.(linha.id)}>Informar cartão</button>
+          <button type="button" className="btn-primary" onClick={() => onAbrirModalCartao?.(linha.id)} data-cy="checkout-split-inform-new-card">Informar cartão</button>
         )
       )}
 
@@ -98,6 +100,7 @@ export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
             className={styles.selectCartao}
             value={linha.parcelasCartao ?? 1}
             onChange={(e) => onAtualizar(linha.id, { parcelasCartao: parseInt(e.target.value, 10) })}
+            data-cy="checkout-split-line-parcelas"
           >
             {opcoesParcelamentoCartaoParaValor(linha.valor, politicaParcelamento ?? POLITICA_PARCELAMENTO_CARTAO_PADRAO).map((op) => (
               <option key={op.quantidadeParcelas} value={op.quantidadeParcelas}>{op.rotuloSelect}</option>
@@ -117,6 +120,7 @@ export const LinhaPagamento: React.FC<LinhaPagamentoProps> = ({
             className={`${styles.valorInput} ${isAbaixoMinimo ? styles.valorInputErro : ''}`}
             value={linha.valor}
             onChange={(e) => onAtualizar(linha.id, { valor: parseFloat(e.target.value) || 0 })}
+            data-cy="checkout-split-line-value"
           />
           {isAbaixoMinimo && <AlertCircle size={18} className={styles.valorErroIcon} />}
         </div>

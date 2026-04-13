@@ -64,6 +64,7 @@ export interface IEntregaInputDto {
 
 export interface IEntregaOutputDto {
   id: string;
+  uuid?: string; // Aliased for legacy compatibility
   vendaUuid: string;
   tipoFrete: string;
   endereco: IEnderecoEntrega;

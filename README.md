@@ -1,87 +1,78 @@
-# React + TypeScript + Vite (LES — frontend)
+# Web - Frontend LES (Livraria)
 
-## Sessão e API
+Frontend React + TypeScript responsável pelas jornadas de cliente e administração, consumindo a API do módulo `backend`.
 
-- Por padrão `VITE_API_BASE_URL` é `/api`: o Vite faz **proxy** para `http://localhost:3000` (ver `vite.config.ts`), mantendo a **mesma origem** que o app (`localhost:5173`) para o cookie de sessão HttpOnly.
-- O cliente HTTP usa `credentials: 'include'`. O JWT **não** fica em `sessionStorage`; apenas um snapshot de `user` pode ser guardado para UX.
-- Com backend em outra origem (ex.: URL absoluta em `VITE_API_BASE_URL`), cookies exigem `SameSite=None; Secure` e HTTPS — prefira proxy ou mesmo host em produção.
+## Contexto no monorepo
 
-## Documentação (SSoT e quadro local)
+- Visão geral do projeto: [`../README.md`](../README.md)
+- API e regras de backend: [`../backend/README.md`](../backend/README.md)
+- Requisitos e ADRs (SSoT): [`../documentacao-exigida/README.md`](../documentacao-exigida/README.md)
 
-- Especificação e ADRs: [`../documentacao-exigida/README.md`](../documentacao-exigida/README.md)
-- Kanban frontend: [`docs/PROJECT-BOARD.md`](docs/PROJECT-BOARD.md)
-- Diretrizes de agente: [`AGENTS.md`](AGENTS.md)
+## Stack e arquitetura
 
----
+- React 19 + Vite 7 + TypeScript
+- Estado global com Redux Toolkit
+- Roteamento com `react-router-dom`
+- Testes unitários com Vitest + Testing Library
+- Testes E2E com Cypress
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Execução local
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Aplicação disponível em `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Integração com backend (sessão e API)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Por padrão, `VITE_API_BASE_URL=/api`.
+- O Vite faz proxy para `http://localhost:3000`, preservando mesma origem no navegador durante desenvolvimento.
+- O cliente HTTP usa `credentials: include` para cookies HttpOnly de sessão.
+- O JWT não é persistido em `sessionStorage`; apenas snapshot de `user` pode ser mantido para UX.
+- Se usar backend em outra origem, configure `SameSite=None; Secure` e HTTPS.
+
+## Build e qualidade
+
+| Comando | Objetivo |
+| --- | --- |
+| `npm run build` | Build de produção |
+| `npm run preview` | Servir build localmente |
+| `npm run lint` | Verificação estática frontend |
+
+## Guia rápido de testes
+
+### Estratégia
+
+| Comando | Escopo |
+| --- | --- |
+| `npm test` | Testes unitários do frontend (Vitest) |
+| `npm run test:unit` | Alias explícito para suíte unitária |
+| `npm run test:unit:watch` | Modo watch para TDD local |
+| `npm run test:e2e` | E2E completo com Cypress |
+
+### Domínio funcional (Vitest)
+
+| Domínio | Comando |
+| --- | --- |
+| Finalização de compra | `npm run test:unit:finalizacao-compra` |
+| Meus pedidos | `npm run test:unit:meus-pedidos` |
+| Pagamentos | `npm run test:unit:pagamentos` |
+| Carrinho | `npm run test:unit:carrinho` |
+| Checkout (agregado) | `npm run test:dominio:checkout` |
+
+### E2E por macrodomínio (Cypress)
+
+| Domínio | Comando |
+| --- | --- |
+| Cliente | `npm run test:e2e:cliente` |
+| Admin | `npm run test:e2e:admin` |
+| Shop/Catálogo | `npm run test:e2e:shop` |
+| Fluxos ponta a ponta | `npm run test:e2e:fluxo` |
+| UI/UX | `npm run test:e2e:ui-ux` |
+
+## Documentação local
+
+- Quadro de trabalho frontend: [`docs/PROJECT-BOARD.md`](docs/PROJECT-BOARD.md)
+- Diretrizes internas do módulo: [`AGENTS.md`](AGENTS.md)

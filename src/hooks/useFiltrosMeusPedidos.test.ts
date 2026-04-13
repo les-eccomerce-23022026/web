@@ -4,10 +4,10 @@ import { useFiltrosMeusPedidos } from './useFiltrosMeusPedidos';
 import type { IPedido } from '@/interfaces/pedido';
 
 const PEDIDOS_MOCK: IPedido[] = [
-  { uuid: '1', status: 'Aguardando Pagamento', data: '2026-03-01', total: 100, itens: [], usuarioUuid: 'u1' },
-  { uuid: '2', status: 'Entregue', data: '2026-03-02', total: 200, itens: [], usuarioUuid: 'u1' },
-  { uuid: '3', status: 'Cancelado', data: '2026-03-03', total: 300, itens: [], usuarioUuid: 'u1' },
-  { uuid: '4', status: 'Em Trânsito', data: '2026-03-04', total: 400, itens: [], usuarioUuid: 'u1' },
+  { uuid: '1', status: 'Aguardando Pagamento', data: '2026-03-01', total: 100, itens: [], clienteUuid: 'u1' },
+  { uuid: '2', status: 'Entregue', data: '2026-03-02', total: 200, itens: [], clienteUuid: 'u1' },
+  { uuid: '3', status: 'Cancelado', data: '2026-03-03', total: 300, itens: [], clienteUuid: 'u1' },
+  { uuid: '4', status: 'Em Trânsito', data: '2026-03-04', total: 400, itens: [], clienteUuid: 'u1' },
 ];
 
 describe('useFiltrosMeusPedidos (TDD)', () => {

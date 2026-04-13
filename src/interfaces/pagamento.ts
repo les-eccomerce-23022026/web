@@ -99,6 +99,7 @@ export interface IPagamentoInfo {
 
 export interface IEnderecoCliente {
   uuid: string;
+  apelido?: string;
   logradouro: string;
   numero: string;
   complemento: string;
@@ -106,6 +107,9 @@ export interface IEnderecoCliente {
   cidade: string;
   estado: string;
   cep: string;
+  pais?: string;
+  tipoResidencia?: string;
+  tipoLogradouro?: string;
   tipo: 'cobranca' | 'entrega' | 'ambos';
   principal?: boolean;
 }

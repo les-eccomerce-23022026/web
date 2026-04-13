@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styles from './FinalizarCompra.module.css';
 import { CartaoCreditoForm } from '@/components/FinalizarCompra/Pagamento';
 import { Modal } from '@/components/Comum/Modal';
-import type { ICartaoCreditoInput, ICupomAplicado } from '@/interfaces/pagamento';
+import { EnderecoForm } from '@/components/Cliente/EnderecoForm';
+import { ClienteService } from '@/services/clienteService';
+import type { ICartaoCreditoInput, ICupomAplicado, IEnderecoCliente } from '@/interfaces/pagamento';
 import { FinalizarCompraResumoPedido } from './FinalizarCompraResumoPedido';
 import { FinalizarCompraColunaPrincipal } from './FinalizarCompraColunaPrincipal';
 import {
@@ -47,16 +49,25 @@ export const FinalizarCompraPedidoCarregado = ({
     selecionarFrete,
     entregaParaFreteCalculo,
     cepDestinoFrete,
+    recarregar,
   } = hook;
 
   const [novosCartoesPorLinha, setNovosCartoesPorLinha] = useState<Record<string, ICartaoCreditoInput>>({});
   const [linhaModalCartaoId, setLinhaModalCartaoId] = useState<string | null>(null);
+
+  // Estados para Modal de Endereço
+  const [isEnderecoModalOpen, setIsEnderecoModalOpen] = useState(false);
+  const [enderecoEditandoUuid, setEnderecoEditandoUuid] = useState<string | null>(null);
+  const [isSalvandoEndereco, setIsSalvandoEndereco] = useState(false);
 
   const resumoFinanceiro = calcularResumoPedidoFinalizarCompra(carrinho, data, freteSelecionado, cuponsAplicados, []);
   
   const {
     composicaoPagamento,
     isSaldoCoberto,
+    atualizarMeio,
+    adicionarMeioPagamento,
+    removerMeioPagamento,
   } = useOrquestradorFinalizacao({
     dadosCheckout: data,
     resumoFinanceiro: resumoFinanceiro
@@ -94,6 +105,45 @@ export const FinalizarCompraPedidoCarregado = ({
     }
   };
 
+  const aoAbrirModalEndereco = useCallback((uuid?: string) => {
+    setEnderecoEditandoUuid(uuid || null);
+    setIsEnderecoModalOpen(true);
+  }, []);
+
+  const aoSalvarEndereco = async (dados: Omit<IEnderecoCliente, 'uuid'>) => {
+    setIsSalvandoEndereco(true);
+    try {
+      let novaLista: IEnderecoCliente[];
+      if (enderecoEditandoUuid) {
+        novaLista = await ClienteService.editarEndereco(enderecoEditandoUuid, dados);
+      } else {
+        novaLista = await ClienteService.adicionarEndereco(dados);
+      }
+
+      // Identifica o UUID do endereço salvo (se for novo, é o que não estava na lista anterior)
+      const anteriorUuids = new Set((data.enderecosDisponiveis || []).map(e => e.uuid));
+      const novoOuEditado = novaLista.find(e => !anteriorUuids.has(e.uuid)) || 
+                           novaLista.find(e => e.uuid === enderecoEditandoUuid);
+
+      await recarregar();
+
+      if (novoOuEditado) {
+        setEnderecoSelecionado(novoOuEditado.uuid);
+      }
+
+      setIsEnderecoModalOpen(false);
+      setEnderecoEditandoUuid(null);
+    } catch {
+      alert('Erro ao salvar endereço. Por favor, tente novamente.');
+    } finally {
+      setIsSalvandoEndereco(false);
+    }
+  };
+
+  const enderecoEditando = enderecoEditandoUuid 
+    ? data.enderecosDisponiveis?.find(e => e.uuid === enderecoEditandoUuid)
+    : undefined;
+
   return (
     <div className={styles['checkout-page']}>
       <h1 className="page-title">Finalizar Compra</h1>
@@ -115,11 +165,15 @@ export const FinalizarCompraPedidoCarregado = ({
           cuponsAplicados={cuponsAplicados}
           linhasPagamento={composicaoPagamento}
           novosCartoesPorLinha={novosCartoesPorLinha}
-          onLinhasChange={(_nova) => { /* useOrquestrador gerencia internamente, mas mantemos interface */ }}
+          onAdicionarMeio={adicionarMeioPagamento}
+          onRemoverMeio={removerMeioPagamento}
+          onAtualizarMeio={atualizarMeio}
           onAbrirModalCartao={setLinhaModalCartaoId}
-          onSelecionarCartaoSalvoNaLista={() => {}}
+          onSelecionarCartaoSalvoNaLista={(uuid) => atualizarMeio(composicaoPagamento[0].id, { cartaoSalvoUuid: uuid, tipo: 'cartao_salvo' })}
           onAplicarCupom={(c: ICupomAplicado) => aplicarCupom({ uuid: c.uuid, codigo: c.codigo, tipo: c.tipo, valor: c.valor })}
           onRemoverCupom={removerCupom}
+          onAddEndereco={() => aoAbrirModalEndereco()}
+          onEditEndereco={(uuid) => aoAbrirModalEndereco(uuid)}
         />
 
         <FinalizarCompraResumoPedido
@@ -144,6 +198,19 @@ export const FinalizarCompraPedidoCarregado = ({
           onSubmit={aoSalvarNovoCartao}
           onCancel={() => setLinhaModalCartaoId(null)}
           salvarCartao
+        />
+      </Modal>
+
+      <Modal 
+        isOpen={isEnderecoModalOpen} 
+        onClose={() => setIsEnderecoModalOpen(false)} 
+        title={enderecoEditandoUuid ? 'Editar Endereço' : 'Adicionar Novo Endereço'}
+      >
+        <EnderecoForm
+          initialData={enderecoEditando}
+          onSubmit={aoSalvarEndereco}
+          onCancel={() => setIsEnderecoModalOpen(false)}
+          isLoading={isSalvandoEndereco}
         />
       </Modal>
     </div>

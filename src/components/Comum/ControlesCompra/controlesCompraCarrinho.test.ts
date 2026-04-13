@@ -12,7 +12,7 @@ vi.mock('@/store/slices/carrinhoSlice', () => ({
 
 describe('controlesCompraCarrinho', () => {
   const dispatch = vi.fn();
-  const livro = { uuid: 'livro-123', titulo: 'Livro Teste', preco: 10, imagem: '', isbn: '' } as Partial<ILivro>;
+  const livro = { uuid: 'livro-123', titulo: 'Livro Teste', preco: 10, imagem: '', isbn: '' } as ILivro;
 
   it('deve remover item localmente quando quantidade <= 0 e usarLocal for true', () => {
     definirQuantidadeCarrinho(dispatch, true, livro, 0);

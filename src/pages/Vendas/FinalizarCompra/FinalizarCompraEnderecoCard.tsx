@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
 import styles from './FinalizarCompra.module.css';
 import enderecoStyles from '@/components/FinalizarCompra/Entrega/EnderecoEntregaCard.module.css';
@@ -9,23 +8,37 @@ type Props = {
   data: ICheckoutInfo;
   enderecoSelecionado: string | null;
   onSelectEndereco: (uuid: string | null) => void;
+  onAddEndereco: () => void;
+  onEditEndereco: (uuid: string) => void;
 };
 
 export const FinalizarCompraEnderecoCard = ({
   data,
   enderecoSelecionado,
   onSelectEndereco,
+  onAddEndereco,
+  onEditEndereco,
 }: Props) => {
   const temLista = data.enderecosDisponiveis && data.enderecosDisponiveis.length > 0;
 
   if (temLista) {
     return (
       <div className={`card ${styles['checkout-card-spaced']}`}>
-        <h3>Endereço de Entrega</h3>
+        <div className={styles['card-header-with-action']}>
+          <h3>Endereço de Entrega</h3>
+          <button 
+            className={`btn-secondary ${styles['btn-header-small']}`}
+            onClick={onAddEndereco}
+            data-cy="checkout-add-address-button-top"
+          >
+            + Novo Endereço
+          </button>
+        </div>
         <EnderecoEntregaCard
           enderecos={data.enderecosDisponiveis!}
           selecionado={enderecoSelecionado}
           onSelect={onSelectEndereco}
+          onEdit={onEditEndereco}
         />
         {enderecoSelecionado && (
           <p className={styles['endereco-selecionado-info']}>
@@ -43,13 +56,13 @@ export const FinalizarCompraEnderecoCard = ({
         <MapPin size={48} strokeWidth={1.5} />
         <p>Nenhum endereço cadastrado</p>
         <span>É necessário cadastrar um endereço para continuar a compra.</span>
-        <Link
-          to="/perfil"
+        <button
           className="btn-secondary"
-          data-cy="checkout-add-address-link"
+          onClick={onAddEndereco}
+          data-cy="checkout-add-address-button"
         >
-          Ir ao perfil para cadastrar endereço
-        </Link>
+          Adicionar Endereço
+        </button>
       </div>
     </div>
   );

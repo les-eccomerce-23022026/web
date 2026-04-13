@@ -15,7 +15,9 @@ type Props = {
   cuponsAplicados: ICupomAplicado[];
   linhasPagamento: LinhaPagamentoCheckout[];
   novosCartoesPorLinha: Record<string, ICartaoCreditoInput>;
-  onLinhasChange: (linhas: LinhaPagamentoCheckout[]) => void;
+  onAdicionarMeio: (tipo: LinhaPagamentoCheckout['tipo']) => void;
+  onRemoverMeio: (id: string) => void;
+  onAtualizarMeio: (id: string, patch: Partial<LinhaPagamentoCheckout>) => void;
   onAbrirModalCartao: (linhaId: string) => void;
   onSelecionarCartaoSalvoNaLista: (uuid: string) => void;
   onAplicarCupom: (cupom: ICupomAplicado) => void;
@@ -39,7 +41,9 @@ export const FinalizarCompraPagamentoCard = ({
   cuponsAplicados,
   linhasPagamento,
   novosCartoesPorLinha,
-  onLinhasChange,
+  onAdicionarMeio,
+  onRemoverMeio,
+  onAtualizarMeio,
   onAbrirModalCartao,
   onSelecionarCartaoSalvoNaLista,
   onAplicarCupom,
@@ -73,7 +77,9 @@ export const FinalizarCompraPagamentoCard = ({
           cuponsAplicados={cuponsAplicados}
           linhas={linhasPagamento}
           novosCartoesPorLinha={novosCartoesPorLinha}
-          onLinhasChange={onLinhasChange}
+          onAdicionarMeio={onAdicionarMeio}
+          onRemoverMeio={onRemoverMeio}
+          onAtualizarMeio={onAtualizarMeio}
           onAbrirModalCartao={onAbrirModalCartao}
         />
       </div>

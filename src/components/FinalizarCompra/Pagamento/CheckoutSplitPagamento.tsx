@@ -3,7 +3,6 @@ import type { ICheckoutInfo } from '@/interfaces/checkout';
 import { POLITICA_PARCELAMENTO_CARTAO_PADRAO, type ICartaoCreditoInput, type ICupomAplicado } from '@/interfaces/pagamento';
 import type { LinhaPagamentoCheckout } from '@/types/checkout';
 import { validarValorMinimoPorMeioNaDivisaoPagamento } from '@/utils/finalizarCompraLinhasPagamento';
-import { useGerenciadorLinhasPagamento } from '@/hooks/useGerenciadorLinhasPagamento';
 import { LinhaPagamento } from './LinhaPagamento';
 import styles from './CheckoutSplitPagamento.module.css';
 
@@ -15,7 +14,9 @@ type Props = {
   cuponsAplicados: ICupomAplicado[];
   linhas: LinhaPagamentoCheckout[];
   novosCartoesPorLinha: Record<string, ICartaoCreditoInput>;
-  onLinhasChange: (linhas: LinhaPagamentoCheckout[]) => void;
+  onAdicionarMeio: (tipo: LinhaPagamentoCheckout['tipo']) => void;
+  onRemoverMeio: (id: string) => void;
+  onAtualizarMeio: (id: string, patch: Partial<LinhaPagamentoCheckout>) => void;
   onAbrirModalCartao: (linhaId: string) => void;
 };
 
@@ -25,23 +26,21 @@ export const CheckoutSplitPagamento = ({
   cuponsAplicados,
   linhas,
   novosCartoesPorLinha,
-  onLinhasChange,
+  onAdicionarMeio,
+  onRemoverMeio,
+  onAtualizarMeio,
   onAbrirModalCartao,
 }: Props) => { // eslint-disable-line complexity
-  const {
-    somaLinhas,
-    restante,
-    isAlinhado,
-    percentualCoberto,
-    atualizarLinha,
-    removerLinha,
-    adicionarLinha,
-  } = useGerenciadorLinhasPagamento({
-    totalAposCupons,
-    linhas,
-    onLinhasChange,
-    primeiroCartaoSalvoUuid: data.cartoesSalvos[0]?.uuid,
-  });
+  const somaLinhas = useMemo(() => 
+    linhas.reduce((acc, linha) => acc + (Number.isFinite(linha.valor) ? linha.valor : 0), 0)
+  , [linhas]);
+
+  const restante = totalAposCupons - somaLinhas;
+  const isAlinhado = Math.abs(restante) < 0.02;
+  const percentualCoberto = useMemo(() => {
+    if (totalAposCupons <= 0.02) return 100;
+    return Math.min(100, (somaLinhas / totalAposCupons) * 100);
+  }, [somaLinhas, totalAposCupons]);
 
   const rn = validarValorMinimoPorMeioNaDivisaoPagamento(linhas, totalAposCupons);
   const politicaParcelamento = data.politicaParcelamentoCartao ?? POLITICA_PARCELAMENTO_CARTAO_PADRAO;
@@ -76,22 +75,23 @@ export const CheckoutSplitPagamento = ({
         {!rn.ok && rn.mensagem && <p className={styles.restanteAviso} role="alert">{rn.mensagem}</p>}
 
         <div className={styles.toolbar} data-cy="checkout-split-toolbar">
-          <button type="button" className="btn-secondary" onClick={() => adicionarLinha('cartao_salvo')} disabled={data.cartoesSalvos.length === 0}>+ Cartão salvo</button>
-          <button type="button" className="btn-secondary" onClick={() => adicionarLinha('cartao_novo')}>+ Novo cartão</button>
-          <button type="button" className="btn-secondary" onClick={() => adicionarLinha('pix')}>+ PIX</button>
+          <button type="button" className="btn-secondary" onClick={() => onAdicionarMeio('cartao_salvo')} disabled={data.cartoesSalvos.length === 0} data-cy="checkout-split-add-saved-card">+ Cartão salvo</button>
+          <button type="button" className="btn-secondary" onClick={() => onAdicionarMeio('cartao_novo')} data-cy="checkout-split-add-new-card">+ Novo cartão</button>
+          <button type="button" className="btn-secondary" onClick={() => onAdicionarMeio('pix')} data-cy="checkout-split-add-pix">+ PIX</button>
         </div>
 
-        {linhas.map((linha) => (
+        {linhas.map((linha, index) => (
           <LinhaPagamento
             key={linha.id}
+            index={index}
             linha={linha}
             totalAposCupons={totalAposCupons}
             todasLinhas={linhas}
             novosCartoesPorLinha={novosCartoesPorLinha}
             cartoesSalvos={data.cartoesSalvos}
             politicaParcelamento={politicaParcelamento}
-            onAtualizar={atualizarLinha}
-            onRemover={removerLinha}
+            onAtualizar={onAtualizarMeio}
+            onRemover={onRemoverMeio}
             onAbrirModalCartao={onAbrirModalCartao}
           />
         ))}

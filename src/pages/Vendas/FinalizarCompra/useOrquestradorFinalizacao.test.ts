@@ -6,7 +6,7 @@ import type { ICheckoutInfo } from '@/interfaces/checkout';
 describe('useOrquestradorFinalizacao (TDD)', () => {
   const MOCK_CHECKOUT: Partial<ICheckoutInfo> = {
     cartoesSalvos: [{ uuid: 'c1', bandeira: 'Visa', ultimosDigitosCartao: '1234', nomeCliente: 'Teste', nomeImpresso: 'Teste', validade: '12/30' }],
-    enderecosDisponiveis: [{ uuid: 'e1', principal: true, logradouro: 'Rua Teste', numero: '123', bairro: 'Bairro', cidade: 'Cidade', estado: 'SP', cep: '00000-000', apelido: 'Casa' }],
+    enderecosDisponiveis: [{ uuid: 'e1', principal: true, logradouro: 'Rua Teste', numero: '123', bairro: 'Bairro', cidade: 'Cidade', estado: 'SP', cep: '00000-000', apelido: 'Casa', complemento: '', tipo: 'entrega' }],
   };
 
   const MOCK_RESUMO = {

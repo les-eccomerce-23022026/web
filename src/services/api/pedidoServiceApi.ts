@@ -86,7 +86,7 @@ export class PedidoServiceApi implements IPedidoService {
     if (entregas.length === 0) throw new Error('Nenhuma entrega vinculada a este pedido.');
     
     // Confirma a mais recente
-    await this.entregaService.confirmarRecebimento(entregas[0].uuid);
+    await this.entregaService.confirmarRecebimento(entregas[0].id);
     
     // Retorna o pedido atualizado
     const raw = await ApiClient.get<IVendaApi>(`${API_ENDPOINTS.criarVenda}/${pedidoUuid}`);
@@ -97,7 +97,7 @@ export class PedidoServiceApi implements IPedidoService {
     const entregas = await this.entregaService.listarPorVenda(pedidoUuid);
     if (entregas.length === 0) throw new Error('Nenhuma entrega vinculada a este pedido.');
     
-    await this.entregaService.registrarFalha(entregas[0].uuid);
+    await this.entregaService.registrarFalha(entregas[0].id);
     
     const raw = await ApiClient.get<IVendaApi>(`${API_ENDPOINTS.criarVenda}/${pedidoUuid}`);
     return vendaApiParaPedido(raw);
@@ -107,7 +107,7 @@ export class PedidoServiceApi implements IPedidoService {
     const entregas = await this.entregaService.listarPorVenda(pedidoUuid);
     if (entregas.length === 0) throw new Error('Nenhuma entrega vinculada a este pedido.');
     
-    await this.entregaService.reagendarEntrega(entregas[0].uuid, novoEndereco);
+    await this.entregaService.reagendarEntrega(entregas[0].id, novoEndereco);
     
     const raw = await ApiClient.get<IVendaApi>(`${API_ENDPOINTS.criarVenda}/${pedidoUuid}`);
     return vendaApiParaPedido(raw);

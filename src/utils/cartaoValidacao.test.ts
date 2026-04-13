@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validarCartao } from './cartaoValidacao';
-import { ICartaoCreditoInput } from '@/interfaces/pagamento';
+import type { ICartaoCreditoInput } from '@/interfaces/pagamento';
 
 describe('cartaoValidacao', () => {
   const cartaoValido: ICartaoCreditoInput = {

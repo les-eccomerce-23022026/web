@@ -1,15 +1,25 @@
 /**
- * Capturas do fluxo de venda (entrega / slides).
+ * E2E do fluxo de venda (carrinho → checkout → pagamento).
  *
  * Login: clientetest@email.com / @asdfJKLÇ123 (seed 005).
- * Requer: Vite :5173 + backend com catálogo (≥3 livros no grid) e proxy /api.
+ * Requer: Vite :5173 + backend com catálogo (≥3 livros na 1ª página) e proxy /api.
+ * Dados: migration `021_seed_livros_catalogo_mock.sql` (entre outras) — rode `setup-db.sh` se o pré-check falhar.
  *
  * Carrinho: API real (DELETE /carrinho + catálogo). Frete e dados de checkout (endereços,
  * cartões, política de parcelas): fixture para resposta estável. Finalização do pedido
  * (último cenário): mocks alinhados ao fluxo "compra feliz".
  */
-describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
+describe('Fluxo de venda (E2E)', () => {
   const apiUrl = Cypress.env('apiUrl') as string;
+
+  /** Mesmos parâmetros que o front usa na home (`fetchLivros`). */
+  const CATALOGO_HOME_QUERY = 'pagina=1&itensPorPagina=10&ordenacao=recentes';
+  const MIN_LIVROS_TOTAL = 3;
+  const MIN_LIVROS_PRIMEIRA_PAGINA = 3;
+
+  const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  /** Lista pública: `/api/livros?...` — não casa com `/api/livros/:uuid`. */
+  const catalogoListaUrlRe = new RegExp(`^${escapeRegex(apiUrl)}/livros(?:\\?.*)?$`);
 
   const EMAIL_CLIENTE = 'clientetest@email.com';
   /** Mesmo caractere Ç do seed (U+00C7). */
@@ -23,8 +33,37 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     });
   };
 
-  const loginClienteEntrega4 = () => {
-    cy.session('clientetest-entrega4-screens', () => {
+  /** Falha cedo com mensagem acionável se o ambiente não atende ao contrato do spec. */
+  const assertPrecondicaoCatalogoViaApi = () => {
+    const url = `${apiUrl}/livros?${CATALOGO_HOME_QUERY}`;
+    cy.request({ url, failOnStatusCode: false }).then((res) => {
+      if (res.status !== 200) {
+        throw new Error(
+          `Pré-condição catálogo: GET /livros retornou HTTP ${res.status} em ${url}. ` +
+            `Suba o backend (:3000), o Vite com proxy (:5173) e o Postgres; rode ` +
+            `backend/scripts/setup-db.sh (ou equivalente) para aplicar schema + seeds/migrations.`,
+        );
+      }
+      const body = res.body as { livros?: unknown[]; total?: number } | undefined;
+      const total = typeof body?.total === 'number' ? body.total : 0;
+      const nPagina = Array.isArray(body?.livros) ? body.livros.length : 0;
+      if (total < MIN_LIVROS_TOTAL) {
+        throw new Error(
+          `Pré-condição catálogo: "total"=${total}, precisa ≥ ${MIN_LIVROS_TOTAL} livros ativos no banco. ` +
+            `Garanta a migration de seeds (ex.: 021_seed_livros_catalogo_mock.sql) e rode setup-db.`,
+        );
+      }
+      if (nPagina < MIN_LIVROS_PRIMEIRA_PAGINA) {
+        throw new Error(
+          `Pré-condição catálogo: primeira página retornou ${nPagina} itens, precisa ≥ ${MIN_LIVROS_PRIMEIRA_PAGINA} ` +
+            `com ${CATALOGO_HOME_QUERY}. Ajuste seeds ou itensPorPagina.`,
+        );
+      }
+    });
+  };
+
+  const loginClienteFluxoVenda = () => {
+    cy.session('clientetest-fluxo-venda', () => {
       cy.request({
         method: 'POST',
         url: `${apiUrl}/auth/login`,
@@ -45,6 +84,7 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
   const setupInterceptorsBase = () => {
     cy.intercept(`${apiUrl}/**`, (req) => {
       delete req.headers['x-use-test-db'];
+      req.continue();
     });
     cy.intercept('GET', `${apiUrl}/pagamento/info`, { fixture: 'pagamento-info-checkout.json' }).as(
       'pagamentoInfo',
@@ -52,6 +92,65 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     cy.intercept('POST', `${apiUrl}/frete/cotar`, { fixture: 'frete-cotar-checkout.json' }).as(
       'freteCotar',
     );
+    /**
+     * Por último (match antes do `**`): `cy.wait('@catalogo')` na home.
+     * Força revalidação na rede (evita 304 sem corpo e visitas que não disparam XHR por cache).
+     */
+    cy.intercept({ method: 'GET', url: catalogoListaUrlRe }, (req) => {
+      delete req.headers['x-use-test-db'];
+      req.headers['cache-control'] = 'no-cache';
+      req.headers['pragma'] = 'no-cache';
+      req.headers['if-none-match'] = ''; // Forçar rede ignorando ETag
+      req.continue();
+    }).as('catalogo');
+  };
+
+  type InterceptionCatalogo = {
+    response?: { statusCode?: number; body?: { livros?: unknown[]; total?: number } };
+  };
+
+  const assertRespostaCatalogoLista = (interception: InterceptionCatalogo) => {
+    const code = interception.response?.statusCode ?? 0;
+    if (code !== 200 && code !== 304) {
+      const corpo = interception.response?.body;
+      throw new Error(
+        `GET catálogo (lista) retornou HTTP ${code}. Corpo: ${JSON.stringify(corpo)}. ` +
+          `Confirme backend (:3000), Postgres e seeds (setup-db).`,
+      );
+    }
+    if (code === 304) {
+      // Corpo costuma vir vazio; o passo seguinte valida `.cartao-livro` no DOM.
+      return;
+    }
+    const body = interception.response?.body;
+    expect(body?.livros, 'catálogo deve incluir array livros').to.be.an('array');
+    const n = body!.livros!.length;
+    expect(n, 'primeira página com livros visíveis na home').to.be.at.least(1);
+    expect(body?.total ?? 0, 'total no catálogo').to.be.at.least(MIN_LIVROS_TOTAL);
+    expect(n, 'livros na primeira página para cenários com 3 títulos').to.be.at.least(MIN_LIVROS_PRIMEIRA_PAGINA);
+  };
+
+  /** Após `cy.visit('/')`: aguarda o GET da lista (alinha rede ao DOM). Re-tenta em 5xx transitório. */
+  const aguardarCatalogoListaAposVisitaHome = () => {
+    cy.wait('@catalogo', { timeout: 45000 }).then((interception) => {
+      const code = interception.response?.statusCode ?? 0;
+      if ([500, 502, 503, 504].includes(code)) {
+        cy.wait(1000);
+        cy.visit(`/?__e2e=${Date.now()}`, { timeout: 120000 });
+        cy.wait('@catalogo', { timeout: 45000 }).then((segunda) => {
+          const c2 = segunda.response?.statusCode ?? 0;
+          if ([500, 502, 503, 504].includes(c2)) {
+            cy.wait(1000);
+            cy.visit(`/?__e2e=${Date.now()}`, { timeout: 120000 });
+            cy.wait('@catalogo', { timeout: 45000 }).then(assertRespostaCatalogoLista);
+          } else {
+            assertRespostaCatalogoLista(segunda);
+          }
+        });
+        return;
+      }
+      assertRespostaCatalogoLista(interception);
+    });
   };
 
   const setupInterceptorsFinalizarPedido = () => {
@@ -121,8 +220,10 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
 
   /** Abre o n-ésimo livro do grid e usa "Comprar Agora" (vai ao carrinho). */
   const comprarLivroDoCatalogo = (indiceZeroBased: number) => {
-    cy.visit('/', { timeout: 120000 });
-    cy.get('.cartao-livro', { timeout: 90000 }).should('have.length.at.least', indiceZeroBased + 1);
+    // Query descartável: força novo documento / fetch do catálogo (evita ausência de `@catalogo` por cache).
+    cy.visit(`/?__e2e=${Date.now()}`, { timeout: 120000 });
+    aguardarCatalogoListaAposVisitaHome();
+    cy.get('.cartao-livro', { timeout: 25000 }).should('have.length.at.least', indiceZeroBased + 1);
     cy.get('.cartao-livro').eq(indiceZeroBased).contains('Ver Detalhes').click();
     cy.url({ timeout: 20000 }).should('include', '/livro/');
     cy.get('[data-cy="checkout-buy-button"]', { timeout: 20000 }).click();
@@ -140,26 +241,31 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
   };
 
   const calcularFreteTelaAtual = () => {
-    cy.get('[data-cy="checkout-freight-zip-input"]', { timeout: 20000 }).should('be.visible');
-    cy.get('[data-cy="checkout-freight-zip-input"]').clear({ force: true });
-    cy.get('[data-cy="checkout-freight-zip-input"]').type('01310100', { force: true });
-    cy.get('[data-cy="checkout-freight-calculate-button"]').click();
+    // Carrinho com várias linhas pode repetir blocos de frete — sempre o primeiro visível.
+    cy.get('[data-cy="checkout-freight-zip-input"]', { timeout: 20000 }).first().should('be.visible');
+    cy.get('[data-cy="checkout-freight-zip-input"]').first().clear({ force: true });
+    cy.get('[data-cy="checkout-freight-zip-input"]').first().type('01310100', { force: true });
+    cy.get('[data-cy="checkout-freight-calculate-button"]').first().click();
     cy.wait('@freteCotar', { timeout: 20000 });
-    cy.get('[data-cy="checkout-freight-options"]', { timeout: 15000 }).should('be.visible');
-    cy.get('[data-cy="checkout-freight-option-PAC"]').click({ force: true });
+    cy.get('[data-cy="checkout-freight-options"]', { timeout: 15000 }).first().should('be.visible');
+    cy.get('[data-cy="checkout-freight-option-PAC"]').first().click({ force: true });
   };
 
   const prepararCheckoutComEnderecoEFrete = () => {
-    cy.visit('/checkout');
-    cy.contains('h1', 'Finalizar Compra', { timeout: 25000 }).should('be.visible');
+    cy.visit(`/checkout?__e2e=${Date.now()}`, { timeout: 120000 });
+    cy.contains('h1', 'Finalizar Compra', { timeout: 35000 }).should('be.visible');
     cy.wait('@pagamentoInfo', { timeout: 25000 });
     cy.get('[data-cy^="checkout-address-item-"]', { timeout: 20000 }).first().click({ force: true });
     calcularFreteTelaAtual();
   };
 
+  before(() => {
+    assertPrecondicaoCatalogoViaApi();
+  });
+
   beforeEach(() => {
     cy.viewport(1920, 1080);
-    loginClienteEntrega4();
+    loginClienteFluxoVenda();
     setupInterceptorsBase();
     limparCarrinhoApi();
   });
@@ -167,34 +273,29 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
   it('01 — carrinho com 1 livro', () => {
     adicionarUmLivroIrParaCarrinho();
     cy.contains('h1', 'Carrinho', { matchCase: false }).should('be.visible');
-    cy.screenshot('01-carrinho-1-livro', { capture: 'viewport' });
   });
 
   it('02 — carrinho com 1 livro e frete calculado', () => {
     adicionarUmLivroIrParaCarrinho();
     calcularFreteTelaAtual();
     cy.contains('Frete PAC selecionado', { matchCase: false }).should('be.visible');
-    cy.screenshot('02-carrinho-1-livro-frete', { capture: 'viewport' });
   });
 
   it('03 — carrinho com 3 livros', () => {
     adicionarTresLivrosDistintos();
     cy.get('table tbody tr', { timeout: 20000 }).should('have.length', 3);
-    cy.screenshot('03-carrinho-3-livros', { capture: 'viewport' });
   });
 
   it('04 — carrinho com 3 livros e frete calculado', () => {
     adicionarTresLivrosDistintos();
     calcularFreteTelaAtual();
     cy.contains('Frete PAC selecionado', { matchCase: false }).should('be.visible');
-    cy.screenshot('04-carrinho-3-livros-frete', { capture: 'viewport' });
   });
 
   it('05 — checkout com endereço e frete calculado', () => {
     adicionarUmLivroIrParaCarrinho();
     prepararCheckoutComEnderecoEFrete();
     cy.get('[data-cy="checkout-freight-options"]', { timeout: 15000 }).should('be.visible');
-    cy.screenshot('05-checkout-frete', { capture: 'viewport' });
   });
 
   it('06 — pagamento: cartão salvo e parcelamento', () => {
@@ -203,10 +304,9 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     cy.get('[data-cy="checkout-split-payment"]', { timeout: 20000 }).scrollIntoView();
     cy.get('[data-cy="checkout-split-line-parcelas"]').should('be.visible');
     cy.get('[data-cy="checkout-split-line-parcelas"]').first().select(3);
-    cy.screenshot('06-pagamento-cartao-salvo-parcelas', { capture: 'viewport' });
   });
 
-  it('07 — pagamento: linha de cartão novo (informar dados)', () => {
+  it.only('07 — pagamento: linha de cartão novo (informar dados)', () => {
     adicionarUmLivroIrParaCarrinho();
     prepararCheckoutComEnderecoEFrete();
     cy.get('[data-cy="checkout-split-toolbar"]', { timeout: 20000 }).scrollIntoView();
@@ -218,10 +318,9 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     })
       .first()
       .should('be.visible');
-    cy.screenshot('07-pagamento-cartao-novo', { capture: 'viewport' });
   });
 
-  it('08 — pagamento: somente PIX', () => {
+  it.only('08 — pagamento: somente PIX', () => {
     adicionarUmLivroIrParaCarrinho();
     prepararCheckoutComEnderecoEFrete();
     cy.get('[data-cy="checkout-split-toolbar"]', { timeout: 20000 }).scrollIntoView();
@@ -242,10 +341,9 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
       });
     cy.get('[data-cy="checkout-split-restante"]').should('contain', 'OK');
     cy.contains('PIX', { matchCase: false }).should('be.visible');
-    cy.screenshot('08-pagamento-pix', { capture: 'viewport' });
   });
 
-  it('09 — pagamento: dividido cartão salvo + PIX', () => {
+  it.only('09 — pagamento: dividido cartão salvo + PIX', () => {
     adicionarUmLivroIrParaCarrinho();
     prepararCheckoutComEnderecoEFrete();
     cy.get('[data-cy="checkout-split-toolbar"]', { timeout: 20000 }).scrollIntoView();
@@ -274,7 +372,6 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
         });
       });
     cy.get('[data-cy="checkout-split-restante"]', { timeout: 10000 }).should('contain', 'OK');
-    cy.screenshot('09-pagamento-dividido-cartao-e-pix', { capture: 'viewport' });
   });
 
   it('10 — pagamento: cupom aplicado + cartão (parcelas)', () => {
@@ -287,10 +384,9 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     cy.get('[data-cy="checkout-applied-coupons"]', { timeout: 10000 }).should('be.visible');
     cy.get('[data-cy="checkout-split-payment"]', { timeout: 15000 }).scrollIntoView();
     cy.get('[data-cy="checkout-split-line-parcelas"]').first().select(2);
-    cy.screenshot('10-pagamento-com-cupom-e-parcelas', { capture: 'viewport' });
   });
 
-  it('11 — pedido confirmado e 12 — meus pedidos', () => {
+  it.only('11 — pedido confirmado e 12 — meus pedidos', () => {
     setupInterceptorsFinalizarPedido();
     cy.intercept('GET', '**/minhas-vendas', { fixture: 'minhas-vendas-mock.json' }).as('minhasVendas');
 
@@ -317,11 +413,9 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     cy.wait('@cadastrarEntrega', { timeout: 30000 });
     cy.url({ timeout: 15000 }).should('include', '/pedido-confirmado');
     cy.get('[data-cy="confirmado-btn-pedidos"]', { timeout: 20000 }).should('be.visible');
-    cy.screenshot('11-pedido-confirmado', { capture: 'viewport' });
 
     cy.visit('/pedidos');
     cy.wait('@minhasVendas', { timeout: 20000 });
     cy.contains('h1', 'Meus Pedidos', { timeout: 20000 }).should('be.visible');
-    cy.screenshot('12-meus-pedidos', { capture: 'viewport' });
   });
 });

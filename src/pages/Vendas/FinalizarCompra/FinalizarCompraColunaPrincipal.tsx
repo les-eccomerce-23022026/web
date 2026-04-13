@@ -20,11 +20,15 @@ type Props = {
   cuponsAplicados: ICupomAplicado[];
   linhasPagamento: LinhaPagamentoCheckout[];
   novosCartoesPorLinha: Record<string, ICartaoCreditoInput>;
-  onLinhasChange: (linhas: LinhaPagamentoCheckout[]) => void;
+  onAdicionarMeio: (tipo: LinhaPagamentoCheckout['tipo']) => void;
+  onRemoverMeio: (id: string) => void;
+  onAtualizarMeio: (id: string, patch: Partial<LinhaPagamentoCheckout>) => void;
   onAbrirModalCartao: (linhaId: string) => void;
   onSelecionarCartaoSalvoNaLista: (uuid: string) => void;
   onAplicarCupom: (cupom: ICupomAplicado) => void;
   onRemoverCupom: (uuid: string) => void;
+  onAddEndereco: () => void;
+  onEditEndereco: (uuid: string) => void;
   /** CEP da cotação reutilizada do carrinho */
   freteInitialCep?: string;
 };
@@ -35,6 +39,8 @@ export const FinalizarCompraColunaPrincipal = (p: Props) => (
       data={p.data}
       enderecoSelecionado={p.enderecoSelecionado}
       onSelectEndereco={p.onSelectEndereco}
+      onAddEndereco={p.onAddEndereco}
+      onEditEndereco={p.onEditEndereco}
     />
     <FinalizarCompraFreteCard
       entregaParaFreteCalculo={p.entregaParaFreteCalculo}
@@ -49,7 +55,9 @@ export const FinalizarCompraColunaPrincipal = (p: Props) => (
       cuponsAplicados={p.cuponsAplicados}
       linhasPagamento={p.linhasPagamento}
       novosCartoesPorLinha={p.novosCartoesPorLinha}
-      onLinhasChange={p.onLinhasChange}
+      onAdicionarMeio={p.onAdicionarMeio}
+      onRemoverMeio={p.onRemoverMeio}
+      onAtualizarMeio={p.onAtualizarMeio}
       onAbrirModalCartao={p.onAbrirModalCartao}
       onSelecionarCartaoSalvoNaLista={p.onSelecionarCartaoSalvoNaLista}
       onAplicarCupom={p.onAplicarCupom}
