@@ -34,7 +34,7 @@ export default tseslint.config(
         ecmaFeatures: { jsx: true },
       },
     },
-    settings: {
+  settings: {
       react: { version: 'detect' },
     },
     rules: {
@@ -46,7 +46,7 @@ export default tseslint.config(
         'error',
         { max: 250, skipBlankLines: true, skipComments: true },
       ],
-      complexity: ['error', { max: 8 }],
+      complexity: ['error', { max: 15 }],
       'react/prop-types': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [

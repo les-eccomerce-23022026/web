@@ -56,19 +56,10 @@ export const FinalizarCompraPedidoCarregado = ({
   const [novosCartoesPorLinha, setNovosCartoesPorLinha] = useState<Record<string, ICartaoCreditoInput>>({});
   const [linhaModalCartaoId, setLinhaModalCartaoId] = useState<string | null>(null);
 
-  const enderecoParaFinalizarCompra = enderecoFinalizarCompraDerivado(data, enderecoSelecionado);
-  const resumo = calcularResumoPedidoFinalizarCompra(
-    carrinho,
-    data,
-    freteSelecionado,
-    cuponsAplicados,
-    parcelasLiquidacao,
-  );
-
-  useEffect(() => {
-    if (!data) return;
-    setLinhasPagamento((prev) => {
-      if (prev.length > 0) return prev;
+  const [prevData, setPrevData] = useState<ICheckoutInfo | null>(null);
+  if (data && data !== prevData) {
+    setPrevData(data);
+    if (linhasPagamento.length === 0) {
       const r = calcularResumoPedidoFinalizarCompra(
         carrinho,
         data,
@@ -79,7 +70,7 @@ export const FinalizarCompraPedidoCarregado = ({
       const t = Math.round(r.total * 100) / 100;
       const id = crypto.randomUUID();
       if (data.cartoesSalvos.length > 0) {
-        return [
+        setLinhasPagamento([
           {
             id,
             tipo: 'cartao_salvo',
@@ -87,19 +78,44 @@ export const FinalizarCompraPedidoCarregado = ({
             valor: t,
             parcelasCartao: 1,
           },
-        ];
+        ]);
+      } else {
+        setLinhasPagamento([{ id, tipo: 'cartao_novo', valor: t, parcelasCartao: 1 }]);
       }
-      return [{ id, tipo: 'cartao_novo', valor: t, parcelasCartao: 1 }];
-    });
-  }, [data, carrinho, freteSelecionado, cuponsAplicados]);
+    }
+  }
 
-  useEffect(() => {
-    const t = Math.round(resumo.total * 100) / 100;
-    setLinhasPagamento((prev) => {
-      if (prev.length !== 1) return prev;
-      return [{ ...prev[0], valor: t }];
-    });
-  }, [resumo.total]);
+  const enderecoParaFinalizarCompra = enderecoFinalizarCompraDerivado(data, enderecoSelecionado);
+  const resumo = calcularResumoPedidoFinalizarCompra(
+    carrinho,
+    data,
+    freteSelecionado,
+    cuponsAplicados,
+    parcelasLiquidacao,
+  );
+
+  const [prevResumoTotal, setPrevResumoTotal] = useState(resumo.total);
+  if (resumo.total !== prevResumoTotal) {
+    setPrevResumoTotal(resumo.total);
+    if (linhasPagamento.length === 1) {
+      const t = Math.round(resumo.total * 100) / 100;
+      setLinhasPagamento([{ ...linhasPagamento[0], valor: t }]);
+    }
+  }
+
+  const [prevLinhasForNovosCartoes, setPrevLinhasForNovosCartoes] = useState(linhasPagamento);
+  if (linhasPagamento !== prevLinhasForNovosCartoes) {
+    setPrevLinhasForNovosCartoes(linhasPagamento);
+    const ids = new Set(linhasPagamento.filter((l) => l.tipo === 'cartao_novo').map((l) => l.id));
+    const hasKeysToRemove = Object.keys(novosCartoesPorLinha).some((k) => !ids.has(k));
+    if (hasKeysToRemove) {
+      const next = { ...novosCartoesPorLinha };
+      for (const k of Object.keys(next)) {
+        if (!ids.has(k)) delete next[k];
+      }
+      setNovosCartoesPorLinha(next);
+    }
+  }
 
   useEffect(() => {
     if (linhasPagamento.length === 0) return;
@@ -113,17 +129,6 @@ export const FinalizarCompraPedidoCarregado = ({
   const handleLinhasChange = useCallback((nova: LinhaPagamentoCheckout[]) => {
     setLinhasPagamento(nova);
   }, []);
-
-  useEffect(() => {
-    setNovosCartoesPorLinha((prev) => {
-      const ids = new Set(linhasPagamento.filter((l) => l.tipo === 'cartao_novo').map((l) => l.id));
-      const next = { ...prev };
-      for (const k of Object.keys(next)) {
-        if (!ids.has(k)) delete next[k];
-      }
-      return next;
-    });
-  }, [linhasPagamento]);
 
   const handleSelecionarCartaoSalvoNaLista = useCallback((uuid: string) => {
     setLinhasPagamento((prev) => {

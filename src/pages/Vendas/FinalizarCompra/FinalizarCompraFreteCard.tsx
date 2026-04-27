@@ -21,6 +21,7 @@ export const FinalizarCompraFreteCard = ({
   <div className={`card ${styles['checkout-card-spaced']}`}>
     <h3 className={styles['checkout-section-title']}>Frete</h3>
     <FreteCalculo
+      key={initialCep || 'sem-cep'}
       entrega={entregaParaFreteCalculo}
       onFreteSelecionado={onFreteSelecionado}
       freteSelecionado={freteSelecionado}

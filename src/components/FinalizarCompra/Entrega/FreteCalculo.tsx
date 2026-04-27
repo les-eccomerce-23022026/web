@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Package, MapPin } from 'lucide-react';
 import type { IFreteCalculoOutput, IFreteOpcao } from '@/interfaces/entrega';
 import styles from './FreteCalculo.module.css';
@@ -31,13 +31,8 @@ export const FreteCalculo = ({
   valorTotal,
   initialCep,
 }: FreteCalculoProps) => {
-  const [cep, setCep] = useState('');
   const { calcularFrete, freteCalculado, loading, error, formatarCep: formatar, validarCep: validar } = entrega;
-
-  useEffect(() => {
-    if (!initialCep) return;
-    setCep(formatar(initialCep));
-  }, [initialCep, formatar]);
+  const [cep, setCep] = useState(() => (initialCep ? formatar(initialCep) : ''));
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;

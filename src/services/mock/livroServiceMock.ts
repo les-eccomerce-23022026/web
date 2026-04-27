@@ -38,7 +38,7 @@ export class LivroServiceMock implements ILivroService {
 
     console.log('[Mock] Buscando catálogo de livros.');
     const all = [...homeData.destaques];
-    let data = [...all];
+    const data = [...all];
     if (filtro.ordenacao === 'mais-vendidos') {
       data.sort((a, b) => (b.estoque ?? 0) - (a.estoque ?? 0));
     }

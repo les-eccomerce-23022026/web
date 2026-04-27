@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from './FinalizarCompra.module.css';
 import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
 import { useAppSelector } from '@/store/hooks';
@@ -7,20 +7,22 @@ import { FinalizarCompraPedidoCarregado } from './FinalizarCompraPedidoCarregado
 export const FinalizarCompra = () => {
   const hook = useFinalizarCompra();
   const carrinho = useAppSelector((state) => state.carrinho.data);
-  const [enderecoSelecionado, setEnderecoSelecionado] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!hook.data?.enderecosDisponiveis?.length) {
-      setEnderecoSelecionado(null);
-      return;
-    }
+  // Inicializa o endereço selecionado com base nos dados carregados, se disponível.
+  const [enderecoSelecionado, setEnderecoSelecionado] = useState<string | null>(() => {
+    const list = hook.data?.enderecosDisponiveis;
+    if (!list || list.length === 0) return null;
+    return (list.find((e) => e.principal) || list[0]).uuid;
+  });
+
+  // Se o hook terminou de carregar e ainda não temos endereço selecionado (ex: carregamento tardio), 
+  // tentamos selecionar novamente. Como enderecoSelecionado é null apenas inicialmente,
+  // esta lógica só roda quando os dados chegam.
+  if (!enderecoSelecionado && hook.data?.enderecosDisponiveis?.length) {
     const list = hook.data.enderecosDisponiveis;
-    setEnderecoSelecionado((prev) => {
-      if (prev && list.some((e) => e.uuid === prev)) return prev;
-      const principal = list.find((e) => e.principal);
-      return (principal ?? list[0]).uuid;
-    });
-  }, [hook.data]);
+    const principal = list.find((e) => e.principal) || list[0];
+    setEnderecoSelecionado(principal.uuid);
+  }
 
   if (hook.loading) {
     return <p className={styles['checkout-status-message']}>Carregando dados de checkout...</p>;
@@ -34,6 +36,7 @@ export const FinalizarCompra = () => {
 
   return (
     <FinalizarCompraPedidoCarregado
+      key={enderecoSelecionado || 'sem-endereco'}
       data={hook.data}
       hook={hook}
       carrinho={carrinho}

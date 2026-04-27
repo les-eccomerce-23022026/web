@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { AlertCircle, Check, Trash2 } from 'lucide-react';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import {
   POLITICA_PARCELAMENTO_CARTAO_PADRAO,
@@ -7,13 +6,10 @@ import {
   type ICupomAplicado,
 } from '@/interfaces/pagamento';
 import type { LinhaPagamentoCheckout } from '@/types/checkout';
-import { CartaoCheckoutResumo } from './CartaoCheckoutResumo';
 import {
-  linhaAbaixoMinimoDivisaoPagamento,
-  linhaCheckoutVisualValidada,
   validarValorMinimoPorMeioNaDivisaoPagamento,
 } from '@/utils/finalizarCompraLinhasPagamento';
-import { opcoesParcelamentoCartaoParaValor } from '@/utils/opcoesParcelamentoCartao';
+import { LinhaPagamentoItem } from './LinhaPagamentoItem';
 import styles from './CheckoutSplitPagamento.module.css';
 
 const EPS = 0.02;
@@ -88,60 +84,6 @@ export const CheckoutSplitPagamento = ({
           ? { id, tipo: 'cartao_novo', valor: 0, parcelasCartao: 1 }
           : { id, tipo: 'cartao_salvo', cartaoSalvoUuid: primeiroSalvo!, valor: 0, parcelasCartao: 1 };
     onLinhasChange([...linhas, base]);
-  };
-
-  const cartaoSalvoLabel = (uuid: string) => {
-    const c = data.cartoesSalvos.find((x) => x.uuid === uuid);
-    return c ? `${c.bandeira} •••• ${c.ultimosDigitosCartao}` : uuid.slice(0, 8);
-  };
-
-  const blocoCartaoNovoSemDados = (linhaId: string) => {
-    const disponiveis = data.cartoesSalvos.filter((c) => !uuidsCartoesSalvosEmUso.has(c.uuid));
-    if (disponiveis.length > 0) {
-      return (
-        <div className={styles.novoCartaoEscolha}>
-          <select
-            className={styles.selectCartao}
-            value=""
-            onChange={(e) => {
-              const uuid = e.target.value;
-              if (!uuid) return;
-              atualizarLinha(linhaId, {
-                tipo: 'cartao_salvo',
-                cartaoSalvoUuid: uuid,
-              });
-            }}
-            data-cy="checkout-split-pick-saved-on-new-line"
-            aria-label="Usar outro cartão cadastrado"
-          >
-            <option value="">Usar outro cartão cadastrado</option>
-            {disponiveis.map((c) => (
-              <option key={c.uuid} value={c.uuid}>
-                {cartaoSalvoLabel(c.uuid)}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={() => onAbrirModalCartao(linhaId)}
-            data-cy="checkout-split-inform-new-card"
-          >
-            Informar cartão novo
-          </button>
-        </div>
-      );
-    }
-    return (
-      <button
-        type="button"
-        className="btn-primary"
-        onClick={() => onAbrirModalCartao(linhaId)}
-        data-cy="checkout-add-card-button"
-      >
-        Informar cartão
-      </button>
-    );
   };
 
   const textoRestanteE2e = cuponsAplicados.length > 0
@@ -239,136 +181,22 @@ export const CheckoutSplitPagamento = ({
           </button>
         </div>
 
-        {linhas.map((linha, idx) => {
-          const validada = linhaCheckoutVisualValidada(linha, novosCartoesPorLinha);
-          const abaixoMin = linhaAbaixoMinimoDivisaoPagamento(linha, linhas, totalAposCupons);
-          const linhaClass = validada ? styles.linhaValidada : styles.linhaPendente;
-
-          return (
-            <div
-              key={linha.id}
-              className={`${styles.linha} ${linhaClass}`}
-              data-cy={`checkout-split-line-${idx}`}
-            >
-              <div className={styles.linhaHeader}>
-                <span className={styles.tipoLabel}>
-                  {linha.tipo === 'pix'
-                    ? 'PIX'
-                    : linha.tipo === 'cartao_novo'
-                      ? 'Novo cartão'
-                      : 'Cartão salvo'}
-                </span>
-                {validada ? (
-                  <span className={styles.linhaCheck} aria-hidden>
-                    <Check size={18} strokeWidth={2.5} />
-                  </span>
-                ) : null}
-                {linhas.length > 1 ? (
-                  <button
-                    type="button"
-                    className={styles.removerBtn}
-                    onClick={() => removerLinha(linha.id)}
-                    aria-label="Remover linha"
-                    data-cy={`checkout-split-remove-line-${idx}`}
-                  >
-                    <Trash2 size={16} aria-hidden />
-                    Remover
-                  </button>
-                ) : null}
-              </div>
-
-              {linha.tipo === 'cartao_salvo' ? (
-                <select
-                  className={styles.selectCartao}
-                  value={linha.cartaoSalvoUuid ?? ''}
-                  onChange={(e) =>
-                    atualizarLinha(linha.id, { cartaoSalvoUuid: e.target.value || undefined })
-                  }
-                  data-cy="checkout-split-line-card-select"
-                >
-                  <option value="">Selecione o cartão</option>
-                  {data.cartoesSalvos.map((c) => (
-                    <option key={c.uuid} value={c.uuid}>
-                      {cartaoSalvoLabel(c.uuid)}
-                    </option>
-                  ))}
-                </select>
-              ) : null}
-
-              {linha.tipo === 'cartao_novo' ? (
-                novosCartoesPorLinha[linha.id] ? (
-                  <CartaoCheckoutResumo
-                    bandeira={novosCartoesPorLinha[linha.id].bandeira}
-                    ultimosDigitos={novosCartoesPorLinha[linha.id].numero.replace(/\D/g, '').slice(-4)}
-                    nomeTitular={novosCartoesPorLinha[linha.id].nomeTitular}
-                    onTrocar={() => onAbrirModalCartao(linha.id)}
-                  />
-                ) : (
-                  blocoCartaoNovoSemDados(linha.id)
-                )
-              ) : null}
-
-              {linha.tipo === 'pix' ? (
-                <p className={styles.pixInfo}>
-                  Após finalizar, você verá o QR e o código para pagar; a confirmação é automática
-                  quando o webhook de teste for acionado.
-                </p>
-              ) : null}
-
-              {linha.tipo === 'cartao_salvo' || linha.tipo === 'cartao_novo' ? (
-                <div className={styles.valorRow}>
-                  <label htmlFor={`parcelas-linha-${linha.id}`}>Parcelas no cartão</label>
-                  <select
-                    id={`parcelas-linha-${linha.id}`}
-                    className={styles.selectCartao}
-                    value={linha.parcelasCartao ?? 1}
-                    onChange={(e) => {
-                      const n = parseInt(e.target.value, 10);
-                      atualizarLinha(linha.id, {
-                        parcelasCartao: Number.isFinite(n) ? n : 1,
-                      });
-                    }}
-                    data-cy="checkout-split-line-parcelas"
-                  >
-                    {opcoesParcelamentoCartaoParaValor(
-                      Number.isFinite(linha.valor) ? linha.valor : 0,
-                      politicaParcelamento,
-                    ).map((op) => (
-                      <option key={op.quantidadeParcelas} value={op.quantidadeParcelas}>
-                        {op.rotuloSelect}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : null}
-
-              <div className={styles.valorRow}>
-                <label htmlFor={`valor-linha-${linha.id}`}>Valor (R$)</label>
-                <div className={styles.valorInputWrap}>
-                  <input
-                    id={`valor-linha-${linha.id}`}
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    className={`${styles.valorInput} ${abaixoMin ? styles.valorInputErro : ''}`}
-                    value={Number.isFinite(linha.valor) ? linha.valor : 0}
-                    onChange={(e) => {
-                      const v = parseFloat(e.target.value.replace(',', '.'));
-                      atualizarLinha(linha.id, { valor: Number.isFinite(v) ? v : 0 });
-                    }}
-                    data-cy="checkout-split-line-value"
-                    aria-invalid={abaixoMin}
-                  />
-                  {abaixoMin ? (
-                    <span className={styles.valorErroIcon} title="Mínimo R$ 10,00 nesta linha">
-                      <AlertCircle size={18} aria-hidden />
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {linhas.map((linha, idx) => (
+          <LinhaPagamentoItem
+            key={linha.id}
+            linha={linha}
+            idx={idx}
+            data={data}
+            linhas={linhas}
+            totalAposCupons={totalAposCupons}
+            novosCartoesPorLinha={novosCartoesPorLinha}
+            politicaParcelamento={politicaParcelamento}
+            uuidsCartoesSalvosEmUso={uuidsCartoesSalvosEmUso}
+            onAtualizarLinha={atualizarLinha}
+            onRemoverLinha={removerLinha}
+            onAbrirModalCartao={onAbrirModalCartao}
+          />
+        ))}
       </div>
     </div>
   );

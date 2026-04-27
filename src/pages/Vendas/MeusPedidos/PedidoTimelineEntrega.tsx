@@ -10,7 +10,7 @@ function ariaLabel(etapa: number | 'cancelado'): string {
   return `Entrega: etapa ${etapa} de 4, ${nomes[etapa]}`;
 }
 
-export function PedidoTimelineEntrega({ status }: { status: StatusPedido }) {
+export const PedidoTimelineEntrega = ({ status }: { status: StatusPedido }) => {
   const etapa = statusParaEtapaConcluida(status);
 
   if (etapa === 'cancelado') {
