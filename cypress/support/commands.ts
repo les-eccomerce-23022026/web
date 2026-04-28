@@ -84,7 +84,7 @@ Cypress.Commands.add('loginClienteSeed', () => {
   }).then((res) => {
     if (res.status !== 200 || !res.body?.dados?.user) {
       throw new Error(
-        `Login seed falhou (${res.status}): ${JSON.stringify(res.body)} — rode o seed 005 no Postgres do backend.`,
+        `Login seed falhou (${res.status}): ${JSON.stringify(res.body)} — rode o seed 005 no Postgres do backend. Response body: ${JSON.stringify(res.body, null, 2)}`,
       );
     }
   });
@@ -128,7 +128,7 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
           failOnStatusCode: false
         }).then((registroResponse) => {
           if (registroResponse.status !== 201 && registroResponse.status !== 200) {
-            throw new Error(`Falha no registro programático: ${registroResponse.body.mensagem || 'Erro desconhecido'}`);
+            throw new Error(`Falha no registro programático: ${registroResponse.body.mensagem || 'Erro desconhecido'}. Response body: ${JSON.stringify(registroResponse.body, null, 2)}`);
           }
 
           // Passo 2: Login — cookie HttpOnly associado à origem do Vite
@@ -140,7 +140,7 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
             failOnStatusCode: false
           }).then((loginResponse) => {
             if (loginResponse.status !== 200 || !loginResponse.body?.dados?.user) {
-              throw new Error(`Falha no login programático (cliente): ${loginResponse.body?.mensagem || 'Erro desconhecido'}`);
+              throw new Error(`Falha no login programático (cliente): ${loginResponse.body?.mensagem || 'Erro desconhecido'}. Response body: ${JSON.stringify(loginResponse.body, null, 2)}`);
             }
           });
         });
@@ -159,7 +159,7 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
         failOnStatusCode: false
       }).then((bootstrapResponse) => {
         if (bootstrapResponse.status !== 200 && bootstrapResponse.status !== 201) {
-          throw new Error(`Falha no bootstrap do admin: ${bootstrapResponse.body?.mensagem || 'Erro'}`);
+          throw new Error(`Falha no bootstrap do admin: ${bootstrapResponse.body?.mensagem || 'Erro'}. Response body: ${JSON.stringify(bootstrapResponse.body, null, 2)}`);
         }
 
         cy.request({
@@ -170,7 +170,7 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
           failOnStatusCode: false
         }).then((response) => {
           if (response.status !== 200 || !response.body?.dados?.user) {
-            throw new Error(`Falha no login programático (admin): ${response.body?.mensagem || 'Erro desconhecido'}`);
+            throw new Error(`Falha no login programático (admin): ${response.body?.mensagem || 'Erro desconhecido'}. Response body: ${JSON.stringify(response.body, null, 2)}`);
           }
         });
       });

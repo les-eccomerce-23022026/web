@@ -1,5 +1,4 @@
 describe('Checkout — Validações e Cenários de Falha (E2E Real)', () => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   const email = Cypress.env('clienteEmail') || 'clientetest@email.com';
   const senha = Cypress.env('clienteSenha') || '@asdfJKL\u00C7123';
   const livroUuid = 'a1b2c3d4-e5f6-7890-1234-56789abcdef0'; // O Senhor dos Anéis (Seed 021)
