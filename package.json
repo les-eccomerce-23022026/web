@@ -11,8 +11,10 @@
     "cypress:run": "cypress run",
     "cypress:run:cliente": "cypress run --spec \"cypress/e2e/user/cliente/**/*.cy.ts\"",
     "cypress:run:fluxo-login-compra": "cypress run --spec \"cypress/e2e/fluxo/cliente-login-compra-feliz.cy.ts\"",
+    "cypress:run:fluxo-login-compra:video": "cypress run --spec \"cypress/e2e/fluxo/cliente-login-compra-feliz.cy.ts\" --config video=true",
     "cypress:fluxo-venda-imgs": "cypress run --spec \"cypress/e2e/fluxo/fluxo-venda-screenshots.cy.ts\" --config video=false --browser chrome",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "test:unit": "vitest run"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
@@ -26,18 +28,26 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "@vitest/coverage-v8": "^4.1.5",
     "cypress": "^15.10.0",
+    "cypress-terminal-report": "^7.3.3",
     "eslint": "^9.39.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "^29.1.0",
+    "msw": "^2.13.6",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^4.1.5"
   }
 }

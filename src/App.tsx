@@ -27,6 +27,7 @@ import { GestaoClientes } from '@/pages/CadastroClientes/GestaoClientes/GestaoCl
 import { GerenciarPedidos } from '@/pages/PainelAdmin/GerenciarPedidos/GerenciarPedidos';
 import { ProtectedRoute } from '@/components/Comum/ProtectedRoute/ProtectedRoute';
 import { MeuPerfil } from '@/pages/CadastroClientes/MeuPerfil/MeuPerfil';
+import { ErrorBoundary } from '@/components/Comum/ErrorBoundary/ErrorBoundary';
 
 const App = () => {
   const dispatch = useAppDispatch();
@@ -44,6 +45,7 @@ const App = () => {
   }, [dispatch]);
 
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<BaseLayout />}>
@@ -87,6 +89,7 @@ const App = () => {
         </Route>
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

@@ -20,6 +20,7 @@ import {
   montarParcelasLiquidadasDasLinhasCheckout,
   validarValorMinimoPorMeioNaDivisaoPagamento,
 } from '@/utils/finalizarCompraLinhasPagamento';
+import { generateSafeId } from '@/utils/generateId';
 
 type Hook = ReturnType<typeof useFinalizarCompra>;
 
@@ -68,7 +69,7 @@ export const FinalizarCompraPedidoCarregado = ({
         [],
       );
       const t = Math.round(r.total * 100) / 100;
-      const id = crypto.randomUUID();
+      const id = generateSafeId();
       if (data.cartoesSalvos.length > 0) {
         setLinhasPagamento([
           {

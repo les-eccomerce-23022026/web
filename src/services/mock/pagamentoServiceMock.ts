@@ -11,6 +11,7 @@ import type {
   IResumoPagamentosVenda,
 } from '@/interfaces/pagamento';
 import type { IPagamentoService } from '@/services/contracts/pagamentoService';
+import { generateSafeId } from '@/utils/generateId';
 
 function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));
@@ -87,16 +88,16 @@ export class PagamentoServiceMock implements IPagamentoService {
   async registrarIntencaoPagamento(valorTotal: number): Promise<IIntencaoPagamentoResultado> {
     console.log('[Mock] Intenção de pagamento:', valorTotal);
     return delay({
-      idIntencao: `mock-intent-${crypto.randomUUID()}`,
-      segredoConfirmacao: `mock-secret-${crypto.randomUUID()}`,
+      idIntencao: `mock-intent-${generateSafeId()}`,
+      segredoConfirmacao: `mock-secret-${generateSafeId()}`,
     });
   }
 
   async definirMetodoLiquidacao(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes> {
     console.log('[Mock] Selecionando forma de pagamento:', dados);
     return delay({
-      id: crypto.randomUUID(),
-      vendaUuid: crypto.randomUUID(),
+      id: generateSafeId(),
+      vendaUuid: generateSafeId(),
       valor: 0,
       formaPagamento: {
         tipo: dados.tipo,
@@ -109,7 +110,7 @@ export class PagamentoServiceMock implements IPagamentoService {
 
   async selecionarPagamentoLiquida(dados: ISelecionarPagamentoLiquidaBody): Promise<IPagamentoDetalhes> {
     console.log('[Mock] Liquidação por venda:', dados);
-    const id = crypto.randomUUID();
+    const id = generateSafeId();
     const base: IPagamentoDetalhes = {
       id,
       vendaUuid: dados.vendaUuid,
@@ -130,7 +131,7 @@ export class PagamentoServiceMock implements IPagamentoService {
           qrCodeBase64:
             'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
           expiraEm: exp.toISOString(),
-          segredoConfirmacao: `mock-secret-${crypto.randomUUID()}`,
+          segredoConfirmacao: `mock-secret-${generateSafeId()}`,
         },
       });
     }
@@ -141,7 +142,7 @@ export class PagamentoServiceMock implements IPagamentoService {
     console.log('[Mock] Processando pagamento:', pagamentoUuid);
     return delay({
       id: pagamentoUuid,
-      vendaUuid: crypto.randomUUID(),
+      vendaUuid: generateSafeId(),
       valor: 100,
       formaPagamento: {
         tipo: 'cartao_credito',
@@ -166,7 +167,7 @@ export class PagamentoServiceMock implements IPagamentoService {
     console.log('[Mock] Consultando pagamento:', pagamentoUuid);
     return delay({
       id: pagamentoUuid,
-      vendaUuid: crypto.randomUUID(),
+      vendaUuid: generateSafeId(),
       valor: 100,
       formaPagamento: {
         tipo: 'cartao_credito',

@@ -53,6 +53,13 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_' },
       ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.name='crypto'][property.name='randomUUID']",
+          message: 'Use generateSafeId() de @/utils/generateId — crypto.randomUUID quebra em HTTP/contextos não-seguros.',
+        },
+      ],
     },
   },
   {

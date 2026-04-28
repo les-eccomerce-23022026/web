@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig } from "cypress";
+import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
 
 /** Cópia plana dos PNGs deste spec para a pasta da entrega (slides). */
 const FLUXO_VENDA_IMGS_ENTREGA = path.resolve(
@@ -33,6 +34,7 @@ export default defineConfig({
       },
     },
     setupNodeEvents(on, _config) {
+      installLogsPrinter(on, { printLogsToConsole: 'onFail' });
       on('task', {
         log(message) {
           console.log(message);

@@ -9,6 +9,7 @@ import type { LinhaPagamentoCheckout } from '@/types/checkout';
 import {
   validarValorMinimoPorMeioNaDivisaoPagamento,
 } from '@/utils/finalizarCompraLinhasPagamento';
+import { generateSafeId } from '@/utils/generateId';
 import { LinhaPagamentoItem } from './LinhaPagamentoItem';
 import styles from './CheckoutSplitPagamento.module.css';
 
@@ -72,7 +73,7 @@ export const CheckoutSplitPagamento = ({
   };
 
   const adicionarLinha = (tipo: LinhaPagamentoCheckout['tipo']) => {
-    const id = crypto.randomUUID();
+    const id = generateSafeId();
     const primeiroSalvo = data.cartoesSalvos[0]?.uuid;
     if (tipo === 'cartao_salvo' && !primeiroSalvo) {
       return;
