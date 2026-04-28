@@ -8,7 +8,7 @@ const mockUseAppSelector = vi.fn();
 const mockHasPermission = vi.fn();
 
 vi.mock('@/store/hooks', () => ({
-  useAppSelector: (fn: any) => mockUseAppSelector(fn),
+  useAppSelector: (fn: (state: unknown) => unknown) => mockUseAppSelector(fn),
 }));
 
 vi.mock('@/hooks/useAuthorization', () => ({
@@ -67,7 +67,7 @@ describe('ProtectedRoute (Unidade)', () => {
     render(
       <MemoryRouter initialEntries={['/admin']}>
         <Routes>
-          <Route element={<ProtectedRoute requireAction="GERENCIAR_PEDIDOS" />}>
+          <Route element={<ProtectedRoute requireAction="manage_users" />}>
             <Route path="/admin" element={<div>Conteúdo Protegido</div>} />
           </Route>
           <Route path="/" element={<div>Home</div>} />
