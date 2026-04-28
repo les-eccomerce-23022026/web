@@ -64,6 +64,8 @@ async function responseToResult<T>(url: string, response: Response): Promise<T> 
   }
   if (!response.ok) {
     const msg = await parseErrorMessageFromJson(response);
+    const errorBody = await response.json().catch(() => ({ erro: msg }));
+    console.error(`[API Error] Status: ${response.status}, URL: ${url}, Body:`, errorBody);
     throw new Error(msg);
   }
   return parseJsonBody<T>(response);
@@ -113,6 +115,8 @@ export class ApiClient {
       headers,
       credentials: 'include',
     };
+
+    console.debug(`[API Request] ${config.method || 'GET'} ${url}`);
 
     try {
       const response = await fetch(url, config);

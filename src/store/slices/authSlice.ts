@@ -5,6 +5,7 @@ export const SESSION_STORAGE_KEY = 'les_auth_session';
 
 interface IStoredSession {
   user: AuthUser;
+  token?: string;
 }
 
 export interface AuthUser {
