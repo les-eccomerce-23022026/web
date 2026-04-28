@@ -42,7 +42,7 @@ export const CupomInput = ({
     );
 
     if (!cupomEncontrado) {
-      setErro('Cupom não encontrado');
+      setErro('Cupom inválido ou expirado');
       return;
     }
 

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styles from './FinalizarCompra.module.css';
 
 type Props = {
@@ -32,6 +33,8 @@ export const FinalizarCompraResumoPedidoAcoes = ({
   saldoPagamentoOk,
   onFinalizar,
 }: Props) => {
+  const [errorLocal, setErrorLocal] = useState<string | null>(null);
+
   const disabled = !podeFinalizar(
     finalizando,
     enderecoOk,
@@ -70,12 +73,32 @@ export const FinalizarCompraResumoPedidoAcoes = ({
 
       <button
         className={`btn-primary ${styles['checkout-btn-finish']} ${!disabled ? styles['checkout-btn-finish-ready'] : ''}`}
-        onClick={onFinalizar}
-        disabled={disabled}
+        onClick={() => {
+          setErrorLocal(null);
+          if (!enderecoOk) {
+            setErrorLocal('Selecione um endereço');
+            return;
+          }
+          if (!freteSelecionado) {
+            setErrorLocal('Selecione uma opção de frete');
+            return;
+          }
+          if (!temFormaPagamento || !saldoPagamentoOk) {
+            setErrorLocal('Configure a forma de pagamento corretamente');
+            return;
+          }
+          onFinalizar();
+        }}
         data-cy="checkout-finish-button"
       >
         {finalizando ? 'Processando...' : 'Concluir Pedido'}
       </button>
+
+      {errorLocal && (
+        <p className={styles['checkout-validation-error']} data-cy="checkout-validation-error">
+          {errorLocal}
+        </p>
+      )}
 
       {enderecoOk && freteSelecionado && (
         <p className={styles['checkout-entrega-info']}>✓ Entrega e frete configurados</p>

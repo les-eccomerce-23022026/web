@@ -30,6 +30,7 @@ export function useFinalizarCompra() {
   const [finalizando, setFinalizando] = useState<boolean>(false);
 
   const carrinho = useAppSelector((state) => state.carrinho.data);
+  const carrinhoStatus = useAppSelector((state) => state.carrinho.status);
   const usuario = useAppSelector((state) => state.auth.user);
   const cotacaoPersistida = useAppSelector((state) => state.cotacaoFrete.cotacao);
 
@@ -102,21 +103,40 @@ export function useFinalizarCompra() {
   } = usePagamento();
 
   const carregarInformacoesFinalizarCompra = useCallback(async () => {
+    if (carrinhoStatus !== 'succeeded') return;
+    if (!carrinho?.itens?.length) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
       const infoPagamento = await PagamentoService.obterPagamentoInfo();
       setData(buildCheckoutInfoFromPagamento(infoPagamento, carrinho));
-      setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Erro ao carregar informações de checkout'));
+    } finally {
       setLoading(false);
     }
-  }, [carrinho]);
+  }, [carrinho, carrinhoStatus]);
 
   useEffect(() => {
-    void carregarInformacoesFinalizarCompra();
-  }, [carregarInformacoesFinalizarCompra]);
+    if (data && carrinho && data.resumoPedido.subtotal === carrinho.resumo.subtotal) {
+      setLoading(false);
+      return;
+    }
+
+    if (carrinhoStatus === 'succeeded') {
+      if (carrinho?.itens?.length) {
+        void carregarInformacoesFinalizarCompra();
+      } else {
+        setLoading(false);
+      }
+    } else {
+      setLoading(true);
+    }
+  }, [carregarInformacoesFinalizarCompra, data, carrinho, carrinhoStatus]);
 
   const handleFinalizarCompra = useCallback(
     async (opcoes?: OpcoesFinalizarCheckout) => {
@@ -166,7 +186,7 @@ export function useFinalizarCompra() {
     ],
   );
 
-  return {
+  return useMemo(() => ({
     data,
     loading,
     error,
@@ -184,5 +204,11 @@ export function useFinalizarCompra() {
     selecionarFrete,
     entregaParaFreteCalculo,
     cepDestinoFrete: cepDestino,
-  };
+  }), [
+    data, loading, error, finalizando, handleFinalizarCompra, 
+    carregarInformacoesFinalizarCompra, cuponsAplicados, parcelasLiquidacao,
+    aplicarCupom, removerCupom, adicionarParcelaLiquidacao, 
+    removerParcelaLiquidacao, definirParcelasLiquidacao, 
+    freteSelecionado, selecionarFrete, entregaParaFreteCalculo, cepDestino
+  ]);
 }

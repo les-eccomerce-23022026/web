@@ -21,6 +21,7 @@ async function parseErrorMessageFromJson(response: Response): Promise<string> {
 }
 
 async function handleUnauthorized<T>(url: string, response: Response): Promise<T> {
+  console.warn('[SENIOR-DEBUG] ApiClient - 401 Unauthorized detected', { url });
   if (url.includes('/auth/login')) {
     const errorData = (await response.json().catch(() => ({}))) as ApiErrorBody;
     const msg = errorData.mensagem || errorData.erro || 'Credenciais inválidas.';

@@ -26,7 +26,6 @@ describe('Jornada do Cliente — Processo de Compra e Finalização de Pedido', 
             }];
           }
           // A linha inicial de pagamento só é `cartao_salvo` se houver cartão em `cartoesCliente`
-          // Sem cartão injetado, o componente inicia no modo `cartao_novo` e o select não existe
           if (res.body && (!res.body.cartoesCliente || res.body.cartoesCliente.length === 0)) {
             res.body.cartoesCliente = [{
               uuid: 'cartao-mock-e2e-001',
@@ -44,7 +43,7 @@ describe('Jornada do Cliente — Processo de Compra e Finalização de Pedido', 
       // Mock do carrinho para garantir que o checkout sempre tenha itens
       cy.intercept('GET', `${apiUrl}/carrinho`, { fixture: 'carrinho-com-livro-teste.json' }).as('carrinhoFixture');
 
-      // Spies para as rotas reais (o log global em e2e.ts cuidará da exibição no terminal)
+      // Spies para as rotas reais
       cy.intercept('POST', `${apiUrl}/frete/cotar`).as('freteCotar');
       cy.intercept('POST', `${apiUrl}/vendas`).as('criarVenda');
       cy.intercept('POST', `${apiUrl}/pagamentos/selecionar`).as('selecionarPagamento');
@@ -62,23 +61,17 @@ describe('Jornada do Cliente — Processo de Compra e Finalização de Pedido', 
       cy.get('[data-cy="login-password-input"]').should('be.visible').type(senha);
       cy.get('[data-cy="login-submit-button"]').click();
       
-      cy.url({ timeout: 20000 }).should('not.include', '/minha-conta');
-      
-      // SENIOR QA: Pequena espera para o app processar o token e o estado global
-      cy.wait(2000);
-
       cy.log('**Etapa: Checkout - Consolidação do Pedido**');
-      // Vai para o checkout
-      cy.visit('/checkout', {
-        onBeforeLoad(win) {
-          // Garante que o app saiba que estamos em ambiente de teste
-          win.localStorage.setItem('cypress-test', 'true');
-        }
-      });
+
+      // 🎯 Navega para checkout
+      cy.visit('/checkout');
       
-      // SENIOR QA: Aguarda as APIs críticas carregarem antes de buscar elementos na UI
-      // Removi o wait do array pois se um falhar o teste trava. Vou esperar o h1 primeiro.
-      cy.contains('h1', 'Finalizar Compra', { timeout: 30000 }).should('be.visible');
+      // ✅ Aguarda elemento crítico SEM wait fixo
+      cy.contains('h1', 'Finalizar Compra', { timeout: 20000 }).should('be.visible');
+
+      // 🔐 Garante que mocks de checkout foram chamados
+      cy.wait('@carrinhoFixture', { timeout: 10000 });
+      cy.wait('@pagamentoInfo', { timeout: 10000 });
 
       cy.log('**Etapa: Seleção de Logística (Endereço e Frete)**');
       // Seleção de Endereço - SENIOR QA FIX: Agora com garantia de que os dados chegaram

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './FinalizarCompra.module.css';
 import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
 import { useAppSelector } from '@/store/hooks';
@@ -15,14 +15,13 @@ export const FinalizarCompra = () => {
     return (list.find((e) => e.principal) || list[0]).uuid;
   });
 
-  // Se o hook terminou de carregar e ainda não temos endereço selecionado (ex: carregamento tardio), 
-  // tentamos selecionar novamente. Como enderecoSelecionado é null apenas inicialmente,
-  // esta lógica só roda quando os dados chegam.
-  if (!enderecoSelecionado && hook.data?.enderecosDisponiveis?.length) {
-    const list = hook.data.enderecosDisponiveis;
-    const principal = list.find((e) => e.principal) || list[0];
-    setEnderecoSelecionado(principal.uuid);
-  }
+  useEffect(() => {
+    if (!enderecoSelecionado && hook.data?.enderecosDisponiveis?.length) {
+      const list = hook.data.enderecosDisponiveis;
+      const principal = list.find((e) => e.principal) || list[0];
+      setEnderecoSelecionado(principal.uuid);
+    }
+  }, [enderecoSelecionado, hook.data?.enderecosDisponiveis]);
 
   if (hook.loading) {
     return <p className={styles['checkout-status-message']}>Carregando dados de checkout...</p>;
@@ -36,7 +35,7 @@ export const FinalizarCompra = () => {
 
   return (
     <FinalizarCompraPedidoCarregado
-      key={enderecoSelecionado || 'sem-endereco'}
+      key="pedido-carregado-fixo"
       data={hook.data}
       hook={hook}
       carrinho={carrinho}

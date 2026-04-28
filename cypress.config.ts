@@ -14,7 +14,7 @@ const FLUXO_VENDA_IMGS_ENTREGA = path.resolve(
 );
 
 export default defineConfig({
-  video: true,
+  video: false,
   e2e: {
     baseUrl: "http://localhost:5173",
     allowCypressEnv: true, // Reativado para permitir acesso síncrono via Cypress.env() necessário para cy.session

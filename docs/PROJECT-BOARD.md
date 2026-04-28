@@ -7,11 +7,11 @@
 
 ## Board Kanban
 
-| 📋 Todo (3)                                 | 🔄 In Progress (2)                         | ✅ Done (40)                                            |
+| 📋 Todo (3)                                 | 🔄 In Progress (0)                         | ✅ Done (42)                                            |
 | ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
-| T1 · [FRONTEND] Implementar Ranking (RN0027) | A34 · [FRONTEND] Checkout ↔ Intenção (API) | A1 · [FRONTEND] Configurar GIT e Repositório            |
-| T2 · [FRONTEND] Estoque Real Carrinho (RN0031.2) | A35 · [FRONTEND] Frete ↔ Cotação Checkout | A2 · [FRONTEND] Configurar Redux para Auth              |
-| T3 · [FRONTEND] Reserva Estoque (RN0044/45) | A43 · [FRONTEND] Refino Mocks de Pagamento | A3 · [BACKEND] Implementar API de Livros                |
+| T3 · [FRONTEND] Reserva Estoque (RN0044/45) |                                            | A1 · [FRONTEND] Configurar GIT e Repositório            |
+|                                             |                                            | A2 · [FRONTEND] Configurar Redux para Auth              |
+|                                             |                                            | A3 · [BACKEND] Implementar API de Livros                |
 |                                             |                                            | A4 · [FRONTEND] Criar Tela de Carrinho                  |
 |                                             |                                            | A5 · [FRONTEND] Refatoração Mock Data e Serviços        |
 |                                             |                                            | A6 · [FRONTEND] Extrair CSS para Arquivos               |
@@ -49,6 +49,10 @@
 |                                             |                                            | A40 · [FRONTEND] Gestão de Papéis e Promoção Admin      |
 |                                             |                                            | A41 · [FRONTEND] Refino do Dashboard e KPIs (RF0057/64) |
 |                                             |                                            | A42 · [FRONTEND] Refatoração Lint e Performance React 18 |
+|                                             |                                            | A34 · [FRONTEND] Checkout ↔ Intenção (API)              |
+|                                             |                                            | A35 · [FRONTEND] Frete ↔ Cotação Checkout               |
+|                                             |                                            | A43 · [FRONTEND] Refino Mocks de Pagamento              |
+|                                             |                                            | A44 · [FRONTEND] Sandbox de Falhas e Estabilização E2E  |
 
 ---
 
@@ -99,6 +103,7 @@
 | A31  | FRONTEND | Estabilização de Testes e UX no Perfil | Injeção de `data-cy`, uso de Page Objects (POM) e modais de confirmação para ações críticas no perfil.                                          |
 | A32  | FRONTEND | Alinhamento de Documentação de Entrega | Sincronização final dos requisitos RF/RNF/RN com a implementação técnica atual.                                                                 |
 | A33  | FRONTEND | Atualização de BDD e Governança        | Garantia de que os cenários de comportamento reflitam as novas regras de segurança e fluxos de API.                                             |
+| A44  | FRONTEND | Sandbox de Falhas e Estabilização E2E  | **Concluído:** Implementação de testes E2E resilientes para cenários de falha (Pagamento Recusado, CEP Inválido) usando injeção determinística de sandbox no backend. |
 
 ---
 

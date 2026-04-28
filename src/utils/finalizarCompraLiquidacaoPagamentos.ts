@@ -211,7 +211,10 @@ export async function executarPagamentosAposCriarVenda(params: {
       parcelasCartao: linha.parcelasCartao ?? 1,
       cartao,
     });
-    await pagamentoService.solicitarAutorizacaoFinanceira(resposta.id);
+    const autorizacao = await pagamentoService.solicitarAutorizacaoFinanceira(resposta.id);
+    if (autorizacao.status === 'recusado') {
+      throw new Error('Pagamento recusado pelo emissor do cartão.');
+    }
   }
 
   for (const linha of linhasPix) {

@@ -13,6 +13,8 @@ declare global {
   namespace Cypress {
     interface Chainable {
       login(email: string, password: string): Chainable<void>;
+      loginApi(email: string, password: string): Chainable<void>;
+      createCartApi(items: { livroUuid: string; quantidade: number }[]): Chainable<void>;
       loginProgramatico(userType: 'admin' | 'cliente'): Chainable<void>;
       /** Sessão de cliente via API real (banco de testes) — uso em checkout e fluxos autenticados. */
       loginCliente(): Chainable<void>;
@@ -20,6 +22,7 @@ declare global {
       loginClienteSeed(): Chainable<void>;
       getDataCy(value: string): Chainable<JQuery<HTMLElement>>;
       getNewUser(): Chainable<{ nome: string, cpf: string, email: string, senha: string }>;
+      adicionarAoCarrinhoApi(livroUuid: string, quantidade?: number): Chainable<void>;
     }
   }
 }
@@ -179,6 +182,50 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
 
 Cypress.Commands.add('getDataCy', (value) => {
   return cy.get(`[data-cy="${value}"]`);
+});
+
+Cypress.Commands.add('loginApi', (email, senha) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  cy.request({
+    method: 'POST',
+    url: `${apiUrl}/auth/login`,
+    headers: { 'x-use-test-db': 'true' },
+    body: { email, senha },
+  }).then((response) => {
+    expect(response.status).to.eq(200);
+  });
+});
+
+Cypress.Commands.add('createCartApi', (items) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  
+  // Limpa o carrinho primeiro para garantir estado puro
+  cy.request({
+    method: 'DELETE',
+    url: `${apiUrl}/carrinho`,
+    headers: { 'x-use-test-db': 'true' },
+    failOnStatusCode: false
+  });
+
+  // Adiciona cada item
+  items.forEach((item) => {
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/carrinho/itens`,
+      headers: { 'x-use-test-db': 'true' },
+      body: { livroUuid: item.livroUuid, quantidade: item.quantidade },
+    });
+  });
+});
+
+Cypress.Commands.add('adicionarAoCarrinhoApi', (livroUuid, quantidade = 1) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  cy.request({
+    method: 'POST',
+    url: `${apiUrl}/carrinho/itens`,
+    headers: { 'x-use-test-db': 'true' },
+    body: { livroUuid, quantidade },
+  });
 });
 
 export {};

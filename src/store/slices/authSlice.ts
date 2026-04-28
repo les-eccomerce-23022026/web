@@ -31,9 +31,9 @@ const getStoredSession = (): IStoredSession | null => {
   const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
   if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw) as { user?: AuthUser; token?: unknown };
+    const parsed = JSON.parse(raw) as { user?: AuthUser; token?: string };
     if (!parsed?.user) return null;
-    return { user: parsed.user };
+    return { user: parsed.user, token: parsed.token };
   } catch {
     return null;
   }
@@ -43,10 +43,10 @@ const stored = getStoredSession();
 
 const initialState: AuthState = {
   isAuthenticated: !!stored,
-  token: null,
+  token: stored?.token ?? null,
   user: stored?.user ?? null,
   authError: null,
-  sessionLoading: true,
+  sessionLoading: !stored, // 🔥 SWR: Só trava o app se NÃO houver nada no storage
 };
 
 /**
@@ -83,6 +83,7 @@ const authSlice = createSlice({
 
       const storedSession: IStoredSession = {
         user: action.payload.user,
+        token: action.payload.token,
       };
 
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(storedSession));
@@ -104,12 +105,15 @@ const authSlice = createSlice({
       .addCase(restoreSession.fulfilled, (state, action) => {
         if (action.payload) {
           state.isAuthenticated = true;
-          state.token = action.payload.token ?? null;
+          state.token = action.payload.token ?? state.token;
           state.user = action.payload.user;
           if (action.payload.user) {
             sessionStorage.setItem(
               SESSION_STORAGE_KEY,
-              JSON.stringify({ user: action.payload.user }),
+              JSON.stringify({ 
+                user: action.payload.user, 
+                token: state.token 
+              }),
             );
           }
         }

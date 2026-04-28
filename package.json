@@ -11,7 +11,8 @@
     "cypress:run": "cypress run",
     "cypress:run:cliente": "cypress run --spec \"cypress/e2e/user/cliente/**/*.cy.ts\"",
     "cypress:run:fluxo-login-compra": "cypress run --spec \"cypress/e2e/fluxo/cliente-login-compra-feliz.cy.ts\"",
-    "cypress:run:fluxo-login-compra:video": "cypress run --spec \"cypress/e2e/fluxo/cliente-login-compra-feliz.cy.ts\" --config video=true",
+    "cypress:run:fluxo-login-compra-falhas": "cypress run --spec \"cypress/e2e/fluxo/cliente-login-compra-falhas.cy.ts\"",
+    "_disabled_cypress:run:fluxo-login-compra:video": "cypress run --spec \"cypress/e2e/fluxo/cliente-login-compra-feliz.cy.ts\" --config video=true",
     "cypress:fluxo-venda-imgs": "cypress run --spec \"cypress/e2e/fluxo/fluxo-venda-screenshots.cy.ts\" --config video=false --browser chrome",
     "cypress:open": "cypress open",
     "test:unit": "vitest run"

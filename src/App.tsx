@@ -29,8 +29,14 @@ import { ProtectedRoute } from '@/components/Comum/ProtectedRoute/ProtectedRoute
 import { MeuPerfil } from '@/pages/CadastroClientes/MeuPerfil/MeuPerfil';
 import { ErrorBoundary } from '@/components/Comum/ErrorBoundary/ErrorBoundary';
 
+import { useActiveSessionValidation } from '@/hooks/useActiveSessionValidation';
+
 const App = () => {
+  console.log('[SENIOR-DEBUG] App Rendering');
   const dispatch = useAppDispatch();
+  
+  // 🔥 Ativa a validação de sessão em background (Senior UX)
+  useActiveSessionValidation();
 
   useEffect(() => {
     // Restaura a sessão antes de qualquer outra busca para evitar redirect prematuro
