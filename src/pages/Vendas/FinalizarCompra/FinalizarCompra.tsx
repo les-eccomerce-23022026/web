@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import styles from './FinalizarCompra.module.css';
 import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
 import { useAppSelector } from '@/store/hooks';
@@ -8,20 +8,14 @@ export const FinalizarCompra = () => {
   const hook = useFinalizarCompra();
   const carrinho = useAppSelector((state) => state.carrinho.data);
 
-  // Inicializa o endereço selecionado com base nos dados carregados, se disponível.
-  const [enderecoSelecionado, setEnderecoSelecionado] = useState<string | null>(() => {
+  // Calcula o endereço inicial usando useMemo
+  const enderecoInicial = useMemo(() => {
     const list = hook.data?.enderecosDisponiveis;
     if (!list || list.length === 0) return null;
     return (list.find((e) => e.principal) || list[0]).uuid;
-  });
+  }, [hook.data?.enderecosDisponiveis]);
 
-  useEffect(() => {
-    if (!enderecoSelecionado && hook.data?.enderecosDisponiveis?.length) {
-      const list = hook.data.enderecosDisponiveis;
-      const principal = list.find((e) => e.principal) || list[0];
-      setEnderecoSelecionado(principal.uuid);
-    }
-  }, [enderecoSelecionado, hook.data?.enderecosDisponiveis]);
+  const [enderecoSelecionado, setEnderecoSelecionado] = useState<string | null>(enderecoInicial);
 
   if (hook.loading) {
     return <p className={styles['checkout-status-message']}>Carregando dados de checkout...</p>;
@@ -35,7 +29,7 @@ export const FinalizarCompra = () => {
 
   return (
     <FinalizarCompraPedidoCarregado
-      key="pedido-carregado-fixo"
+      // Removido key prop para evitar re-mount; usar apenas se necessário para forçar re-render
       data={hook.data}
       hook={hook}
       carrinho={carrinho}
