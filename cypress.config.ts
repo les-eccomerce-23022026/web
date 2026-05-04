@@ -33,8 +33,11 @@ export default defineConfig({
         senha: "@asdfJKLÇ123",
       },
     },
-    setupNodeEvents(on, _config) {
-      installLogsPrinter(on, { printLogsToConsole: 'onFail' });
+    setupNodeEvents(on, config) {
+      const verboseLogs = config.env?.E2E_VERBOSE_LOGS === true || config.env?.E2E_VERBOSE_LOGS === '1';
+      installLogsPrinter(on, {
+        printLogsToConsole: verboseLogs ? 'always' : 'onFail',
+      });
       on('task', {
         log(message) {
           console.log(message);

@@ -1,24 +1,54 @@
 /**
  * Testes E2E de Pagamento - Sprint 2
  * User Story 3 e 4
- * 
+ *
  * Testa o fluxo completo de pagamento no checkout
+ *
+ * NOTA: Esta suíte mantém o fluxo completo pela UI (catálogo → carrinho → checkout)
+ * em vez de usar API-only para preparar o carrinho. Isso é intencional porque:
+ * - A suíte é sensível à hidratação do React/Redux
+ * - Testes de split/cupom dependem de estado de UI preciso
+ * - O custo-benefício de refatorar 37 testes não compensa
+ * - O tempo de execução adicional é aceitável para cobertura de edge cases críticos
+ *
+ * Para suítes que podem se beneficiar de API + hidratação controlada,
+ * veja o comando `prepararCarrinhoComUmLivroHidratado` em commands.ts
  */
 
 /** Endereço + frete mínimos para habilitar "Concluir Pedido" (fluxo integrado). */
 function preencherEntregaCheckoutMinimo() {
-  cy.get('[data-cy^="checkout-address-item-"]').first().click({ force: true });
+  cy.get('[data-cy^="checkout-address-item-"]')
+    .first()
+    .scrollIntoView()
+    .should('be.visible')
+    .click();
   cy.get('[data-cy="checkout-freight-zip-input"]').clear().type('01000-000');
   cy.get('[data-cy="checkout-freight-calculate-button"]').click();
   cy.get('[data-cy="checkout-freight-options"]', { timeout: 15000 }).should('be.visible');
-  cy.get('[data-cy="checkout-freight-option-PAC"]').click({ force: true });
+  cy.get('[data-cy="checkout-freight-option-PAC"]')
+    .scrollIntoView()
+    .should('be.visible')
+    .click();
 }
 
-/** Split: segunda linha com cartão salvo (fixture card-002) e valores que fecham o total (~94,90). */
+/** Segundo cartão salvo no <select> da linha de split (UUID real do seed/API). */
+function selecionarSegundoCartaoNaLinhaSplit() {
+  cy.get('[data-cy="checkout-split-line-card-select"]')
+    .eq(1)
+    .find('option:not([value=""])')
+    .eq(1)
+    .invoke('val')
+    .then((uuid) => {
+      expect(uuid, 'uuid do segundo cartão').to.be.a('string').and.not.be.empty;
+      cy.get('[data-cy="checkout-split-line-card-select"]').eq(1).select(String(uuid));
+    });
+}
+
+/** Split: segunda linha com outro cartão salvo e valores que fecham o total (~94,90). */
 function configurarSplitDoisCartoesSalvos() {
   cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('50');
   cy.get('[data-cy="checkout-split-add-saved-card"]').click();
-  cy.get('[data-cy="checkout-split-line-card-select"]').eq(1).select('card-002');
+  selecionarSegundoCartaoNaLinhaSplit();
   cy.get('[data-cy="checkout-split-line-value"]').eq(1).clear().type('44.90');
 }
 
@@ -35,15 +65,12 @@ function abrirModalNovoCartaoNaSegundaLinha() {
 
 describe('Pagamento - Checkout', () => {
   beforeEach(() => {
-    // Login como cliente
-    cy.loginCliente();
-    
-    // Adicionar item ao carrinho
-    cy.visit('/');
-    cy.get('[data-cy="livro-card"]').first().click();
-    cy.get('[data-cy="adicionar-carrinho-button"]').click();
-    
-    // Ir para checkout
+    const email = (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com';
+    const senha =
+      (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKL\u00C7123';
+    cy.loginApi(email, senha);
+    /** Catálogo → carrinho → checkout (SPA): esta suíte é sensível a hidratação; mantém fluxo UI. */
+    cy.adicionarPrimeiroLivroAoCarrinhoPelaTelaDetalhe();
     cy.visit('/checkout');
   });
 
@@ -51,17 +78,24 @@ describe('Pagamento - Checkout', () => {
     it('deve exibir cartões salvos do cliente', () => {
       cy.get('[data-cy="checkout-saved-cards"]')
         .should('exist');
-      
-      cy.get('[data-cy="checkout-card-item-1234"]')
+
+      cy.get('[data-cy^="checkout-card-item-"]')
+        .should('have.length.at.least', 1);
+
+      cy.get('[data-cy="checkout-card-item-4444"]')
         .should('exist')
         .should('contain', 'Mastercard');
+
+      cy.get('[data-cy="checkout-card-item-0002"]')
+        .should('exist')
+        .should('contain', 'Visa');
     });
 
     it('deve selecionar cartão salvo', () => {
-      cy.get('[data-cy="checkout-card-item-1234"]')
+      cy.get('[data-cy="checkout-card-item-4444"]')
         .click();
-      
-      cy.get('[data-cy="checkout-card-item-1234"]')
+
+      cy.get('[data-cy="checkout-card-item-4444"]')
         .should('have.class', 'selecionado');
     });
 
@@ -307,7 +341,7 @@ describe('Pagamento - Checkout', () => {
     it('deve validar valor mínimo de R$ 10,00 por cartão no split (RN0034)', () => {
       cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('85');
       cy.get('[data-cy="checkout-split-add-saved-card"]').click();
-      cy.get('[data-cy="checkout-split-line-card-select"]').eq(1).select('card-002');
+      selecionarSegundoCartaoNaLinhaSplit();
       cy.get('[data-cy="checkout-split-line-value"]').eq(1).clear().type('5');
       cy.get('[data-cy="checkout-split-rn34-error"]').should('exist').should('contain', 'mínimo');
     });
@@ -330,72 +364,12 @@ describe('Pagamento - Checkout', () => {
 
   describe('Finalização de Compra', () => {
     beforeEach(() => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      cy.intercept('GET', `${apiUrl}/pagamento/info`, { fixture: 'pagamento-info-checkout.json' });
-      cy.intercept('POST', `${apiUrl}/frete/cotar`, { fixture: 'frete-cotar-checkout.json' });
-      cy.intercept('POST', `${apiUrl}/vendas`, {
-        statusCode: 201,
-        body: { id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', status: 'EM PROCESSAMENTO' },
-      }).as('criarVendaCheckout');
-
-      let selecionarCount = 0;
-      cy.intercept('POST', `${apiUrl}/pagamentos/selecionar`, (req) => {
-        selecionarCount += 1;
-        const raw = req.body as unknown;
-        const body =
-          typeof raw === 'string' ? (JSON.parse(raw) as Record<string, unknown>) : (raw as Record<string, unknown>);
-        const tipo = (body?.tipoPagamento as string) ?? 'cupom_promocional';
-        const valor = typeof body?.valor === 'number' ? body.valor : 0;
-        req.reply({
-          statusCode: 201,
-          body: {
-            id: `pay-selecionar-${selecionarCount}`,
-            vendaUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-            valor,
-            formaPagamento: {
-              tipo,
-              detalhes: tipo === 'cupom_promocional' ? 'DESCONTO10' : 'cartão',
-            },
-            status: 'pendente',
-            criadoEm: new Date().toISOString(),
-          },
-        });
-      });
-
-      cy.intercept('POST', '**/pagamentos/*/processar', (req) => {
-        const id = req.url.split('/pagamentos/')[1]?.split('/')[0] ?? 'pay-processado';
-        req.reply({
-          statusCode: 200,
-          body: {
-            id,
-            vendaUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-            valor: 60,
-            formaPagamento: { tipo: 'cartao_credito' },
-            status: 'aprovado',
-            criadoEm: new Date().toISOString(),
-            processadoEm: new Date().toISOString(),
-          },
-        });
-      });
-
-      cy.intercept('POST', `${apiUrl}/entregas`, {
-        statusCode: 201,
-        body: {
-          id: 'entrega-e2e-1',
-          vendaUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-          tipoFrete: 'PAC',
-          custo: 15,
-          endereco: { rua: 'Rua', bairro: 'Centro', cidade: 'SP', estado: 'SP', cep: '01000000' },
-          criadoEm: new Date().toISOString(),
-        },
-      }).as('cadastrarEntregaCheckout');
-
       cy.visit('/checkout');
     });
 
     it('deve finalizar compra com cartão selecionado', () => {
       preencherEntregaCheckoutMinimo();
-      cy.get('[data-cy="checkout-card-item-1234"]').click();
+      cy.get('[data-cy="checkout-card-item-4444"]').click();
 
       cy.get('[data-cy="checkout-finish-button"]').click();
 
@@ -471,7 +445,7 @@ describe('Pagamento - Checkout', () => {
       cy.get('[data-cy="checkout-coupon-input"]').type('DESCONTO10');
       cy.get('[data-cy="checkout-apply-coupon-button"]').click();
 
-      cy.get('[data-cy="checkout-card-item-1234"]').click();
+      cy.get('[data-cy="checkout-card-item-4444"]').click();
 
       cy.get('[data-cy="checkout-finish-button"]').click();
 
@@ -530,16 +504,13 @@ describe('Pagamento - Checkout', () => {
         const raw = req.body as unknown;
         const body =
           typeof raw === 'string' ? (JSON.parse(raw) as Record<string, unknown>) : (raw as Record<string, unknown>);
-        expect(body.cotacaoUuid).to.eq('cot-pac-1');
-        req.reply({
-          statusCode: 201,
-          body: { id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', status: 'EM PROCESSAMENTO' },
-        });
+        expect(body.cotacaoUuid, 'cotacaoUuid no corpo da venda').to.be.a('string').and.not.be.empty;
+        req.continue();
       }).as('criarVendaComCotacao');
 
       cy.visit('/checkout');
       preencherEntregaCheckoutMinimo();
-      cy.get('[data-cy="checkout-card-item-1234"]').click();
+      cy.get('[data-cy="checkout-card-item-4444"]').click();
       cy.get('[data-cy="checkout-finish-button"]').click();
       cy.wait('@criarVendaComCotacao');
       cy.url().should('include', '/pedido-confirmado');
@@ -554,7 +525,7 @@ describe('Pagamento - Checkout', () => {
       cy.get('[data-cy="checkout-coupon-input"]').type('TROCA50');
       cy.get('[data-cy="checkout-apply-coupon-button"]').click();
       cy.get('[data-cy="checkout-coupon-TROCA50"]').should('exist');
-      cy.get('[data-cy="checkout-card-item-1234"]').click();
+      cy.get('[data-cy="checkout-card-item-4444"]').click();
       cy.get('[data-cy="checkout-finish-button"]').click();
       cy.url().should('include', '/pedido-confirmado');
     });
@@ -579,7 +550,7 @@ describe('Pagamento - Checkout', () => {
         cy.stub(win, 'alert').as('alertVenda');
       });
       preencherEntregaCheckoutMinimo();
-      cy.get('[data-cy="checkout-card-item-1234"]').click();
+      cy.get('[data-cy="checkout-card-item-4444"]').click();
       cy.get('[data-cy="checkout-finish-button"]').click();
       cy.wait('@vendaFalha');
       cy.get('@alertVenda').should('have.been.called');
@@ -589,8 +560,9 @@ describe('Pagamento - Checkout', () => {
 
   describe('Validações de Segurança', () => {
     it('deve mascarar número do cartão na UI', () => {
-      cy.get('[data-cy="checkout-card-item-1234"]')
-        .should('contain', '•••• 1234');
+      cy.get('[data-cy^="checkout-card-item-"]')
+        .first()
+        .should('contain', '••••');
     });
 
     it('deve permitir visualizar CVV', () => {

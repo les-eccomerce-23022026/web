@@ -125,7 +125,7 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     cy.get('.cartao-livro', { timeout: 90000 }).should('have.length.at.least', indiceZeroBased + 1);
     cy.get('.cartao-livro').eq(indiceZeroBased).contains('Ver Detalhes').click();
     cy.url({ timeout: 20000 }).should('include', '/livro/');
-    cy.get('[data-cy="checkout-buy-button"]', { timeout: 20000 }).click();
+    cy.get('[data-cy="adicionar-carrinho-button"]', { timeout: 20000 }).click();
     cy.url({ timeout: 20000 }).should('include', '/carrinho');
   };
 

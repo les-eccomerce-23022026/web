@@ -1,8 +1,18 @@
 /**
  * Testes E2E de Entrega/Frete - Sprint 3
  * User Story 5 e 6
- * 
+ *
  * Testa o fluxo completo de cálculo de frete e seleção de entrega
+ *
+ * NOTA: Esta suíte mantém o fluxo completo pela UI (catálogo → carrinho → checkout)
+ * em vez de usar API-only para preparar o carrinho. Isso é intencional porque:
+ * - A suíte usa intercept mock de frete + ordem complexa de describe/beforeEach aninhados
+ * - Testes de "atualizar total com frete" são sensíveis ao estado de Redux
+ * - O custo-benefício de refatorar 20+ testes não compensa
+ * - O tempo de execução adicional é aceitável para cobertura de edge cases críticos
+ *
+ * Para suítes que podem se beneficiar de API + hidratação controlada,
+ * veja o comando `prepararCarrinhoComUmLivroHidratado` em commands.ts
  */
 
 describe('Entrega/Frete - Checkout', () => {
@@ -10,16 +20,22 @@ describe('Entrega/Frete - Checkout', () => {
     const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
     cy.intercept('POST', `${apiUrl}/frete/cotar`, { fixture: 'frete-cotar-checkout.json' }).as('freteCotar');
 
-    // Login como cliente
-    cy.loginCliente();
+    const email = (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com';
+    const senha =
+      (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKL\u00C7123';
+    
+    // Login primeiro para ter permissão de limpar o carrinho
+    cy.loginApi(email, senha);
+    cy.limparCarrinhoApi();
+    cy.garantirEnderecoApi();
+    
+    cy.adicionarPrimeiroLivroAoCarrinhoPelaTelaDetalhe();
 
-    // Adicionar item ao carrinho
-    cy.visit('/');
-    cy.get('[data-cy="livro-card"]').first().click();
-    cy.get('[data-cy="adicionar-carrinho-button"]').click();
+    cy.url().should('include', '/carrinho');
+    cy.contains('Carrinho de Compras', { timeout: 15000 }).should('be.visible');
 
-    // Ir para checkout
-    cy.visit('/checkout');
+    cy.get('[data-cy="carrinho-finalizar-compra"]').click();
+    cy.url().should('include', '/checkout');
   });
 
   describe('Cálculo de Frete', () => {
@@ -115,30 +131,38 @@ describe('Entrega/Frete - Checkout', () => {
 
     it('deve selecionar opção de frete PAC', () => {
       cy.get('[data-cy="checkout-freight-option-PAC"]')
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       cy.get('[data-cy="checkout-freight-option-PAC"]')
-        .should('have.class', 'selecionado');
+        .should('have.attr', 'data-selected', 'true');
     });
 
     it('deve selecionar opção de frete SEDEX', () => {
       cy.get('[data-cy="checkout-freight-option-SEDEX"]')
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       cy.get('[data-cy="checkout-freight-option-SEDEX"]')
-        .should('have.class', 'selecionado');
+        .should('have.attr', 'data-selected', 'true');
     });
 
     it('deve selecionar opção Retira em Loja', () => {
       cy.get('[data-cy="checkout-freight-option-RETIRA_EM_LOJA"]')
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       cy.get('[data-cy="checkout-freight-option-RETIRA_EM_LOJA"]')
-        .should('have.class', 'selecionado');
+        .should('have.attr', 'data-selected', 'true');
     });
 
     it('deve atualizar resumo com valor do frete', () => {
       cy.get('[data-cy="checkout-freight-option-SEDEX"]')
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       cy.get('[data-cy="checkout-summary-list"]')
@@ -147,37 +171,53 @@ describe('Entrega/Frete - Checkout', () => {
     });
 
     it('deve atualizar total com frete', () => {
-      const subtotal = 79.90;
-      const freteSedex = 30.00;
-      const totalEsperado = subtotal + freteSedex;
-      
-      cy.get('[data-cy="checkout-freight-option-SEDEX"]')
-        .click();
-      
-      cy.get('[data-cy="checkout-total-value"]')
-        .should('contain', `R$ ${totalEsperado.toFixed(2).replace('.', ',')}`);
+      // Pega o subtotal atual da tela antes de somar o frete
+      cy.get('[data-cy="checkout-summary-list"]')
+        .contains(/Subtotal/)
+        .invoke('text')
+        .then((text) => {
+          // Extrai apenas o valor numérico (ex: R$ 49,90 -> 49.90)
+          const match = text.match(/R\$\s*([\d,.]+)/);
+          if (!match) throw new Error(`Não foi possível encontrar valor em: ${text}`);
+          
+          const subtotalValue = parseFloat(match[1].replace(',', '.'));
+          const freteSedex = 30.00;
+          const totalEsperado = subtotalValue + freteSedex;
+          
+          cy.get('[data-cy="checkout-freight-option-SEDEX"]')
+            .scrollIntoView()
+            .should('be.visible')
+            .click();
+          
+          cy.get('[data-cy="checkout-total-value"]')
+            .should('contain', `R$ ${totalEsperado.toFixed(2).replace('.', ',')}`);
+        });
     });
 
     it('deve permitir trocar seleção de frete', () => {
       // Selecionar PAC
       cy.get('[data-cy="checkout-freight-option-PAC"]')
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       cy.get('[data-cy="checkout-freight-option-PAC"]')
-        .should('have.class', 'selecionado');
+        .should('have.attr', 'data-selected', 'true');
       
       cy.get('[data-cy="checkout-freight-option-SEDEX"]')
-        .should('not.have.class', 'selecionado');
+        .should('have.attr', 'data-selected', 'false');
       
       // Trocar para SEDEX
       cy.get('[data-cy="checkout-freight-option-SEDEX"]')
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       cy.get('[data-cy="checkout-freight-option-SEDEX"]')
-        .should('have.class', 'selecionado');
+        .should('have.attr', 'data-selected', 'true');
       
       cy.get('[data-cy="checkout-freight-option-PAC"]')
-        .should('not.have.class', 'selecionado');
+        .should('have.attr', 'data-selected', 'false');
     });
   });
 
@@ -190,16 +230,20 @@ describe('Entrega/Frete - Checkout', () => {
     it('deve selecionar endereço de entrega', () => {
       cy.get('[data-cy^="checkout-address-item-"]')
         .first()
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       cy.get('[data-cy^="checkout-address-item-"]')
         .first()
-        .should('have.class', 'selecionado');
+        .should('have.attr', 'data-selected', 'true');
     });
 
     it('deve mostrar confirmação de endereço selecionado', () => {
       cy.get('[data-cy^="checkout-address-item-"]')
         .first()
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       cy.get('[data-cy="checkout-addresses"]')
@@ -208,17 +252,21 @@ describe('Entrega/Frete - Checkout', () => {
     });
 
     it('deve habilitar botão de finalizar apenas com endereço selecionado', () => {
-      // Sem endereço, botão deve estar desabilitado
+      // Sem endereço nem frete, botão deve estar desabilitado (ou sem pagamento)
+      // Nota: o sistema pode exigir Endereço + Frete + Pagamento
       cy.get('[data-cy="checkout-finish-button"]')
         .should('be.disabled');
       
       // Selecionar endereço
       cy.get('[data-cy^="checkout-address-item-"]')
         .first()
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       // Selecionar frete
       cy.get('[data-cy="checkout-freight-zip-input"]')
+        .clear()
         .type('01000-000');
       
       cy.get('[data-cy="checkout-freight-calculate-button"]')
@@ -227,10 +275,14 @@ describe('Entrega/Frete - Checkout', () => {
       cy.wait('@freteCotar', { timeout: 15000 });
       
       cy.get('[data-cy="checkout-freight-option-PAC"]')
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
-      // Selecionar pagamento
-      cy.get('[data-cy="checkout-card-item-1234"]')
+      // Selecionar pagamento (para habilitar o botão final)
+      cy.get('[data-cy="checkout-card-item-4444"]')
+        .scrollIntoView()
+        .should('be.visible')
         .click();
       
       // Botão deve estar habilitado
@@ -325,7 +377,7 @@ describe('Entrega/Frete - Checkout', () => {
         .and('contain', 'R$ 30,00');
       
       // 5. Selecionar pagamento
-      cy.get('[data-cy="checkout-card-item-1234"]')
+      cy.get('[data-cy="checkout-card-item-4444"]')
         .click();
       
       // 6. Verificar mensagem de confirmação
@@ -360,7 +412,7 @@ describe('Entrega/Frete - Checkout', () => {
         .click();
       
       // Selecionar pagamento
-      cy.get('[data-cy="checkout-card-item-1234"]')
+      cy.get('[data-cy="checkout-card-item-4444"]')
         .click();
       
       // Botão deve estar desabilitado sem endereço
@@ -375,7 +427,7 @@ describe('Entrega/Frete - Checkout', () => {
         .click();
       
       // Selecionar pagamento
-      cy.get('[data-cy="checkout-card-item-1234"]')
+      cy.get('[data-cy="checkout-card-item-4444"]')
         .click();
       
       // Botão deve estar desabilitado sem frete
