@@ -114,20 +114,29 @@ const carrinhoSlice = createSlice({
     builder
       .addCase(fetchCarrinho.pending, (state) => {
         state.status = 'loading';
+        console.log('[SENIOR-DEBUG] fetchCarrinho.pending');
       })
       .addCase(fetchCarrinho.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.data = action.payload;
         state.error = null;
+        console.log('[SENIOR-DEBUG] fetchCarrinho.fulfilled', {
+          itemCount: action.payload?.itens?.length || 0,
+          total: action.payload?.resumo?.total
+        });
       })
       .addCase(fetchCarrinho.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Erro ao carregar o carrinho';
+        console.error('[SENIOR-DEBUG] fetchCarrinho.rejected', action.error);
       })
       .addCase(sincronizarLinhaCarrinho.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.data = action.payload;
         state.error = null;
+        console.log('[SENIOR-DEBUG] sincronizarLinhaCarrinho.fulfilled', {
+          itemCount: action.payload?.itens?.length || 0
+        });
       })
       .addCase(sincronizarLinhaCarrinho.rejected, (state, action) => {
         state.error = action.error.message || 'Erro ao atualizar o carrinho';

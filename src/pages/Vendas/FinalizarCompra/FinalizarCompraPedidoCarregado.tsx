@@ -204,7 +204,7 @@ export const FinalizarCompraPedidoCarregado = ({
           onFinalizar={() =>
             void handleFinalizarCompra({
               novosCartoesPorLinha: Object.keys(novosCartoesPorLinha).length > 0 ? novosCartoesPorLinha : undefined,
-              enderecoEntrega: enderecoEntregaInputDeCheckout(data, null) ?? undefined,
+              enderecoEntrega: enderecoEntregaInputDeCheckout(data, enderecoSelecionado) ?? undefined,
             })
           }
         />

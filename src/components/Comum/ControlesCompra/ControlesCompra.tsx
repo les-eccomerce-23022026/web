@@ -30,19 +30,19 @@ export const ControlesCompra: React.FC<ControlesCompraProps> = ({
 
   const usarCarrinhoLocal = USE_MOCK || !isAuthenticated;
 
-  const handleAdicionarAoCarrinho = (e: React.MouseEvent, redirect: boolean = false) => {
+  const handleAdicionarAoCarrinho = async (e: React.MouseEvent, redirect: boolean = false) => {
     e.stopPropagation();
     if (onAction) onAction(e);
-    adicionarUmAoCarrinho(dispatch, usarCarrinhoLocal, livro, quantidade);
+    await adicionarUmAoCarrinho(dispatch, usarCarrinhoLocal, livro, quantidade);
     if (redirect) {
       navigate('/carrinho');
     }
   };
 
-  const handleAtualizarQuantidade = (e: React.MouseEvent, novaQuantidade: number) => {
+  const handleAtualizarQuantidade = async (e: React.MouseEvent, novaQuantidade: number) => {
     e.stopPropagation();
     if (onAction) onAction(e);
-    definirQuantidadeCarrinho(dispatch, usarCarrinhoLocal, livro, novaQuantidade);
+    await definirQuantidadeCarrinho(dispatch, usarCarrinhoLocal, livro, novaQuantidade);
   };
 
   return (
@@ -56,7 +56,7 @@ export const ControlesCompra: React.FC<ControlesCompraProps> = ({
       <button
         className={`botao btn-primary controles-compra__btn-comprar`}
         onClick={(e) => handleAdicionarAoCarrinho(e, true)}
-        data-cy="checkout-buy-button"
+        data-cy={variant === 'detalhes' ? 'adicionar-carrinho-button' : 'adicionar-carrinho-card-button'}
       >
         {variant === 'card' ? 'Comprar' : 'Comprar Agora'}
       </button>

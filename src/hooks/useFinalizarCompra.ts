@@ -14,6 +14,7 @@ import {
   tratarErroFinalizarCheckout,
 } from '@/utils/executarFinalizacaoCompra';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
+import { useNotification } from '@/components/Comum/Notification';
 
 export type { OpcoesFinalizarCheckout } from '@/types/checkout';
 
@@ -28,6 +29,7 @@ export function useFinalizarCompra() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
   const [finalizando, setFinalizando] = useState<boolean>(false);
+  const { showError } = useNotification();
 
   const carrinho = useAppSelector((state) => state.carrinho.data);
   const carrinhoStatus = useAppSelector((state) => state.carrinho.status);
@@ -64,6 +66,12 @@ export function useFinalizarCompra() {
       cotacaoPersistida.assinaturaItens === assinatura && assinatura.length > 0;
 
     if (!assinaturaOk || !subtotalOk) {
+      console.log('[SENIOR-DEBUG] useFinalizarCompra: Hydration failed', { 
+        assinaturaOk, 
+        subtotalOk,
+        cotacaoAssinatura: cotacaoPersistida.assinaturaItens,
+        carrinhoAssinatura: assinatura
+      });
       freteHidratacaoRef.current = null;
       dispatch(limparCotacaoFreteCarrinho());
       return;
@@ -72,6 +80,11 @@ export function useFinalizarCompra() {
     const chave = `${cotacaoPersistida.opcaoSelecionada.uuid}:${assinatura}:${cotacaoPersistida.subtotalCotado}`;
     if (freteHidratacaoRef.current === chave) return;
     freteHidratacaoRef.current = chave;
+
+    console.log('[SENIOR-DEBUG] useFinalizarCompra: Hydrating freight', { 
+      opcao: cotacaoPersistida.opcaoSelecionada.tipo,
+      cep: cotacaoPersistida.cepDestino
+    });
 
     hidratarFrete({
       freteCalculado: cotacaoPersistida.freteCalculado,
@@ -162,13 +175,14 @@ export function useFinalizarCompra() {
           checkoutData: data,
           cadastrarEntrega,
           onSalvarCartaoCheckoutFalhou: (erro) => {
-            alert(
+            showError(
               `Pedido concluído com sucesso, mas o cartão não foi salvo no perfil: ${erro.message}. Você pode cadastrar o cartão em Meu Perfil.`,
             );
           },
+          showError: (msg: string) => showError(msg),
         });
       } catch (err: unknown) {
-        tratarErroFinalizarCheckout(err, setError);
+        tratarErroFinalizarCheckout(err, setError, showError);
       } finally {
         setFinalizando(false);
       }
@@ -183,6 +197,7 @@ export function useFinalizarCompra() {
       navigate,
       data,
       cadastrarEntrega,
+      showError,
     ],
   );
 

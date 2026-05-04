@@ -18,7 +18,7 @@ export const FinalizarCompraResumoPedidoLista = ({
   const labelItens = quantidadeItens === 1 ? 'item' : 'itens';
 
   return (
-    <ul className={styles['checkout-summary-list']}>
+    <ul className={styles['checkout-summary-list']} data-cy="checkout-summary-list">
       <li className={styles['checkout-summary-item']}>
         <span>
           Subtotal ({quantidadeItens} {labelItens}):

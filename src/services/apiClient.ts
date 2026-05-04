@@ -105,6 +105,10 @@ export class ApiClient {
     if (import.meta.env.VITE_USE_TEST_DB === 'true') {
       headers.set('x-use-test-db', 'true');
     }
+    // Se o Cypress definiu a flag global para usar banco de testes, adiciona o header
+    if (!headers.has('x-use-test-db') && typeof window !== 'undefined' && (window as any).__USE_TEST_DB__) {
+      headers.set('x-use-test-db', 'true');
+    }
 
     if (token && token.split('.').length === 3) {
       headers.set('Authorization', `Bearer ${token}`);
@@ -116,12 +120,31 @@ export class ApiClient {
       credentials: 'include',
     };
 
-    console.debug(`[API Request] ${config.method || 'GET'} ${url}`);
+    const hasTestDbHeader = headers.get('x-use-test-db') === 'true';
+    console.log(`[SENIOR-DEBUG] API Request: ${config.method || 'GET'} ${url}`, {
+      hasToken: !!token,
+      hasTestDbHeader,
+      windowTestDbFlag: typeof window !== 'undefined' ? (window as any).__USE_TEST_DB__ : 'N/A'
+    });
 
     try {
       const response = await fetch(url, config);
+      const clone = response.clone();
+      let bodyText = '';
+      try {
+        bodyText = await clone.text();
+      } catch {
+        bodyText = '(could not read body)';
+      }
+
+      console.log(`[SENIOR-DEBUG] API Response: ${response.status} ${url}`, {
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries()),
+        body: bodyText.length > 500 ? bodyText.substring(0, 500) + '...' : bodyText
+      });
       return await responseToResult<T>(url, response);
     } catch (error: unknown) {
+      console.error(`[SENIOR-DEBUG] API Network Error: ${url}`, error);
       return rethrowNetworkError(error);
     }
   }

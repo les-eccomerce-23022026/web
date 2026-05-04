@@ -131,6 +131,7 @@ export const CatalogoLivros = () => {
                 <div
                   key={book.uuid}
                   className="cartao-livro"
+                  data-cy="livro-card"
                   onClick={() => navigate(`/livro/${book.uuid}`)}
                 >
                   {quantidadeNoCarrinho > 0 && (

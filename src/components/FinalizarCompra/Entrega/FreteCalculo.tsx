@@ -41,11 +41,6 @@ export const FreteCalculo = ({
   };
 
   const handleCalcular = async () => {
-    if (!validar(cep)) {
-      alert('CEP inválido');
-      return;
-    }
-
     await calcularFrete(cep, pesoTotal, valorTotal);
   };
 
@@ -114,6 +109,7 @@ export const FreteCalculo = ({
               className={`${styles['opcao-frete']} ${freteSelecionado?.uuid === opcao.uuid ? styles['selecionado'] : ''}`}
               onClick={() => handleSelecionar(opcao)}
               data-cy={`checkout-freight-option-${opcao.tipo}`}
+              data-selected={freteSelecionado?.uuid === opcao.uuid}
             >
               <div className={styles['opcao-conteudo']}>
                 <div className={styles['opcao-tipo']}>

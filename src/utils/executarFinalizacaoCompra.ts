@@ -115,6 +115,8 @@ export async function executarFinalizarCheckout(params: {
   ) => Promise<unknown>;
   /** Pedido já concluído; só avisa que o cartão não foi gravado no perfil (fluxo não bloqueante). */
   onSalvarCartaoCheckoutFalhou?: (erro: Error) => void;
+  /** Função para mostrar notificação de erro */
+  showError: (message: string) => void;
 }): Promise<void> {
   const {
     carrinho,
@@ -129,6 +131,7 @@ export async function executarFinalizarCheckout(params: {
     checkoutData,
     cadastrarEntrega,
     onSalvarCartaoCheckoutFalhou,
+    showError,
   } = params;
 
   const frete = freteSelecionado?.valor ?? carrinho.resumo.frete;
@@ -206,8 +209,12 @@ export async function executarFinalizarCheckout(params: {
   navigate(`/pedido-confirmado?pedido=${vendaUuid}`);
 }
 
-export function tratarErroFinalizarCheckout(err: unknown, setError: (e: Error) => void): void {
+export function tratarErroFinalizarCheckout(
+  err: unknown,
+  setError: (e: Error) => void,
+  showError: (message: string) => void
+): void {
   const mensagem = err instanceof Error ? err.message : 'Erro desconhecido ao finalizar compra';
   setError(new Error(mensagem));
-  alert('Erro ao finalizar compra: ' + mensagem);
+  showError('Erro ao finalizar compra: ' + mensagem);
 }

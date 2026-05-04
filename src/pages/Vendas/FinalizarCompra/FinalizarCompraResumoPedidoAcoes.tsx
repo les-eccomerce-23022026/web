@@ -89,6 +89,7 @@ export const FinalizarCompraResumoPedidoAcoes = ({
           }
           onFinalizar();
         }}
+        disabled={disabled}
         data-cy="checkout-finish-button"
       >
         {finalizando ? 'Processando...' : 'Concluir Pedido'}

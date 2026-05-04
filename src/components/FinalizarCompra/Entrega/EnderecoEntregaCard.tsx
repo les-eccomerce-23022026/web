@@ -44,6 +44,7 @@ export const EnderecoEntregaCard = ({
           className={`${styles['endereco-item']} ${selecionado === endereco.uuid ? styles['selecionado'] : ''}`}
           onClick={() => onSelect(endereco.uuid)}
           data-cy={`checkout-address-item-${endereco.uuid}`}
+          data-selected={selecionado === endereco.uuid}
         >
           <div className={styles['endereco-conteudo']}>
             <div className={styles['endereco-icon']}>

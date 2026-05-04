@@ -104,6 +104,10 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(restoreSession.fulfilled, (state, action) => {
+        console.log('[SENIOR-DEBUG] restoreSession.fulfilled', { 
+          user: action.payload?.user?.email, 
+          isAuthenticated: !!action.payload 
+        });
         if (action.payload) {
           state.isAuthenticated = true;
           state.token = action.payload.token ?? state.token;

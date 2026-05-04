@@ -24,6 +24,13 @@ export const Carrinho = () => {
   const dispatch = useAppDispatch();
   const { data, error, status } = useAppSelector((state) => state.carrinho);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  
+  console.log('[SENIOR-DEBUG] Carrinho Rendering', { 
+    status, 
+    isAuthenticated, 
+    itemCount: data?.itens?.length || 0 
+  });
+
   const usarCarrinhoLocal = USE_MOCK || !isAuthenticated;
 
   const entrega = useEntrega();
@@ -156,7 +163,7 @@ export const Carrinho = () => {
         </thead>
         <tbody>
           {data.itens.map((item) => (
-            <tr key={item.uuid}>
+            <tr key={item.uuid} data-cy="carrinho-linha-item">
               <td className={styles['carrinho-td-product']}>
                 <img src={item.imagem} alt="Livro" className={styles['carrinho-item-image']} />
                 <div>
@@ -210,7 +217,14 @@ export const Carrinho = () => {
           <hr className={styles['carrinho-total-separator']} />
           <h2 className={styles['carrinho-total-header']}>Total: R$ {data.resumo.total.toFixed(2).replace('.', ',')}</h2>
 
-          <Link to="/pagamento"><button className={`btn-primary ${styles['carrinho-btn-finalizar']}`}>Finalizar Compra</button></Link>
+          <Link to="/pagamento">
+            <button 
+              className={`btn-primary ${styles['carrinho-btn-finalizar']}`}
+              data-cy="carrinho-finalizar-compra"
+            >
+              Finalizar Compra
+            </button>
+          </Link>
         </div>
       </div>
     </div>

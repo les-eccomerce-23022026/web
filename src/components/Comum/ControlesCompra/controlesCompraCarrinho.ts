@@ -12,7 +12,7 @@ export function adicionarUmAoCarrinho(
   usarLocal: boolean,
   livro: ILivro,
   quantidadeAtual: number,
-): void {
+): Promise<any> | void {
   if (usarLocal) {
     dispatch(
       adicionarItem({
@@ -27,7 +27,7 @@ export function adicionarUmAoCarrinho(
     );
     return;
   }
-  void dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: quantidadeAtual + 1 }));
+  return dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: quantidadeAtual + 1 }));
 }
 
 export function definirQuantidadeCarrinho(
@@ -35,18 +35,18 @@ export function definirQuantidadeCarrinho(
   usarLocal: boolean,
   livro: ILivro,
   novaQuantidade: number,
-): void {
+): Promise<any> | void {
   if (novaQuantidade <= 0) {
     if (usarLocal) {
       dispatch(removerItem(livro.uuid));
     } else {
-      void dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: 0 }));
+      return dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: 0 }));
     }
     return;
   }
   if (usarLocal) {
     dispatch(atualizarQuantidade({ uuid: livro.uuid, quantidade: novaQuantidade }));
   } else {
-    void dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: novaQuantidade }));
+    return dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: novaQuantidade }));
   }
 }
