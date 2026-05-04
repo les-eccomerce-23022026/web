@@ -3,6 +3,7 @@ import styles from './FinalizarCompra.module.css';
 import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
 import { useAppSelector } from '@/store/hooks';
 import { FinalizarCompraPedidoCarregado } from './FinalizarCompraPedidoCarregado';
+import { FinalizarCompraSkeleton } from './FinalizarCompraSkeleton';
 
 export const FinalizarCompra = () => {
   const hook = useFinalizarCompra();
@@ -18,7 +19,7 @@ export const FinalizarCompra = () => {
   const [enderecoSelecionado, setEnderecoSelecionado] = useState<string | null>(enderecoInicial);
 
   if (hook.loading) {
-    return <p className={styles['checkout-status-message']}>Carregando dados de checkout...</p>;
+    return <FinalizarCompraSkeleton />;
   }
   if (hook.error) {
     return <p className={styles['checkout-status-message']}>Erro ao carregar checkout.</p>;

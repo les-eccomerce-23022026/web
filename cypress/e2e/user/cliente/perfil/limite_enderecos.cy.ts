@@ -51,7 +51,7 @@ describe('Cliente - Perfil - Limite de Endereços (Bloqueio UI)', () => {
 
     // Já tem 1 do registro. Adicionar mais 4.
     for (let i = 1; i <= 4; i++) {
-        ProfilePage.addAddressButton.should('not.be.disabled').click({ force: true });
+        ProfilePage.addAddressButton.should('not.be.disabled').scrollIntoView().should('be.visible').click();
         
         ProfilePage.fillAddress({
             apelido: `Novo ${i}`,
@@ -63,7 +63,7 @@ describe('Cliente - Perfil - Limite de Endereços (Bloqueio UI)', () => {
             estado: 'SP'
         });
 
-        ProfilePage.saveAddressButton.click({ force: true });
+        ProfilePage.saveAddressButton.scrollIntoView().should('be.visible').click();
         cy.contains('Endereço salvo!').should('be.visible');
         cy.wait(500);
     }

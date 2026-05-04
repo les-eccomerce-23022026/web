@@ -1,27 +1,19 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type { Notification, NotificationContextType, NotificationType } from './types';
-
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
-
-export function useNotification(): NotificationContextType {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotification must be used within NotificationProvider');
-  }
-  return context;
-}
+import { generateSafeId } from '@/utils/generateId';
+import { NotificationContext } from './NotificationContext.context';
 
 interface NotificationProviderProps {
   children: ReactNode;
 }
 
-export function NotificationProvider({ children }: NotificationProviderProps) {
+export const NotificationProvider = ({ children }: NotificationProviderProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const addNotification = useCallback(
     (type: NotificationType, message: string, duration?: number) => {
-      const id = crypto.randomUUID();
+      const id = generateSafeId();
       const notification: Notification = {
         id,
         type,
@@ -86,4 +78,4 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
       {children}
     </NotificationContext.Provider>
   );
-}
+};

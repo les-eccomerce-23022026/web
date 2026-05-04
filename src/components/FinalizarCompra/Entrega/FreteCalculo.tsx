@@ -31,7 +31,7 @@ export const FreteCalculo = ({
   valorTotal,
   initialCep,
 }: FreteCalculoProps) => {
-  const { calcularFrete, freteCalculado, loading, error, formatarCep: formatar, validarCep: validar } = entrega;
+  const { calcularFrete, freteCalculado, loading, error, formatarCep: formatar } = entrega;
   const [cep, setCep] = useState(() => (initialCep ? formatar(initialCep) : ''));
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,14 +85,21 @@ export const FreteCalculo = ({
             className="btn-secondary"
             onClick={() => void handleCalcular()}
             disabled={loading}
+            aria-busy={loading}
             data-cy="checkout-freight-calculate-button"
           >
-            {loading ? 'Calculando...' : 'Calcular'}
+            Calcular
           </button>
         </div>
 
+        {loading && (
+          <div className={styles['loading-bar']} role="status" aria-label="Calculando frete">
+            <div className={styles['loading-bar-progress']}></div>
+          </div>
+        )}
+
         {error && (
-          <p className={styles['erro']} data-cy="checkout-freight-error">
+          <p className={styles['erro']} role="alert" data-cy="checkout-freight-error">
             {error.message}
           </p>
         )}

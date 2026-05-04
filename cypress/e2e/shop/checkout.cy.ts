@@ -1,19 +1,26 @@
 describe('Checkout (Finalização de Compra)', () => {
   beforeEach(() => {
-    // Fazer login como cliente para evitar redirecionamento
-    cy.intercept('POST', '/api/auth/login', {
-      statusCode: 200,
-      body: {
-        token: "fake-token-checkout",
-        user: { uuid: "user-1", nome: "Teste", role: "cliente" }
-      }
-    }).as('loginCheckout');
+    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+    const email = 'clientetest@email.com';
+    const senha = '@asdfJKL\u00C7123';
 
-    cy.login('teste@email.com', '123456');
-    cy.wait('@loginCheckout');
+    // Login real via API
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/auth/login`,
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: { email, senha },
+      failOnStatusCode: false,
+    }).then((response) => {
+      expect(response.status).to.eq(200);
+      const nome = response.body.dados?.user?.nome;
+      expect(nome).to.be.a('string');
+    });
+
+    cy.login(email, senha);
 
     // Garantir que o login foi processado (Header deve mudar)
-    cy.getDataCy('header-user-profile').should('be.visible').and('contain', 'Teste');
+    cy.getDataCy('header-user-profile').should('be.visible');
 
     // Garantir que a página base home foi carregada
     cy.url().should('eq', Cypress.config().baseUrl + '/');
@@ -32,11 +39,10 @@ describe('Checkout (Finalização de Compra)', () => {
     cy.contains('3. Pagamento').should('exist');
   });
 
-  it('deve listar o endereço de entrega do mock', () => {
-    // Baseado no checkoutMock.json (lista em EnderecoEntregaCard)
+  it('deve listar o endereço de entrega do cliente', () => {
+    // Usa endereços reais do cliente via GET /pagamento/info
     cy.contains('Endereço de Entrega').should('be.visible');
     cy.get('[data-cy="checkout-addresses"]').should('be.visible');
-    cy.contains('Rua Bela Vista').should('exist');
   });
 
   it('deve oferecer componentes para a etapa de pagamento (múltiplos cartões, cupons)', () => {

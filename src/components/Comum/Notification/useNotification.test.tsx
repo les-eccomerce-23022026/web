@@ -5,9 +5,9 @@ import { NotificationProvider } from './NotificationContext';
 
 describe('useNotification', () => {
   it('deve fornecer funções para mostrar notificações', () => {
-    const wrapper = ({ children }: { children: ReactNode }) => (
-      <NotificationProvider>{children}</NotificationProvider>
-    );
+    const wrapper = ({ children }: { children: ReactNode }) => {
+      return <NotificationProvider>{children}</NotificationProvider>;
+    };
 
     const { result } = renderHook(() => useNotification(), { wrapper });
 

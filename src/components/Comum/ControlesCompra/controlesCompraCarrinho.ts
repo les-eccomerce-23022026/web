@@ -12,7 +12,7 @@ export function adicionarUmAoCarrinho(
   usarLocal: boolean,
   livro: ILivro,
   quantidadeAtual: number,
-): Promise<any> | void {
+) {
   if (usarLocal) {
     dispatch(
       adicionarItem({
@@ -35,7 +35,7 @@ export function definirQuantidadeCarrinho(
   usarLocal: boolean,
   livro: ILivro,
   novaQuantidade: number,
-): Promise<any> | void {
+) {
   if (novaQuantidade <= 0) {
     if (usarLocal) {
       dispatch(removerItem(livro.uuid));

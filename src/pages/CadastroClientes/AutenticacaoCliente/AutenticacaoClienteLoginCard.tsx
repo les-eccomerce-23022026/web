@@ -16,6 +16,9 @@ export const AutenticacaoClienteLoginCard = ({ loginState }: Props) => (
         placeholder="admin@livraria.com.br (admin)"
         value={loginState.email}
         onChange={(e) => loginState.setEmail(e.target.value)}
+        className={loginState.loginError ? styles['input-error'] : ''}
+        aria-invalid={!!loginState.loginError}
+        aria-describedby={loginState.loginError ? 'login-error-message' : undefined}
         data-cy="login-email-input"
       />
     </div>
@@ -25,9 +28,11 @@ export const AutenticacaoClienteLoginCard = ({ loginState }: Props) => (
         <input
           type={loginState.showPasswordLogin ? 'text' : 'password'}
           placeholder="password123"
-          className={styles.passwordInput}
+          className={`${styles.passwordInput} ${loginState.loginError ? styles['input-error'] : ''}`}
           value={loginState.senha}
           onChange={(e) => loginState.setSenha(e.target.value)}
+          aria-invalid={!!loginState.loginError}
+          aria-describedby={loginState.loginError ? 'login-error-message' : undefined}
           data-cy="login-password-input"
         />
         <button
@@ -45,7 +50,7 @@ export const AutenticacaoClienteLoginCard = ({ loginState }: Props) => (
       </a>
     </div>
     {loginState.loginError && (
-      <p className={styles['auth-message-error']} data-cy="login-error-message">
+      <p className={styles['auth-message-error']} id="login-error-message" data-cy="login-error-message">
         {loginState.loginError}
       </p>
     )}

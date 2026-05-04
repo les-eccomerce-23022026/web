@@ -15,6 +15,8 @@ import {
 } from '@/utils/executarFinalizacaoCompra';
 import type { OpcoesFinalizarCheckout } from '@/types/checkout';
 import { useNotification } from '@/components/Comum/Notification';
+import type { IEntregaInputDto } from '@/interfaces/entrega';
+import { EntregaServiceApi } from '@/services/api/entregaServiceApi';
 
 export type { OpcoesFinalizarCheckout } from '@/types/checkout';
 
@@ -46,7 +48,6 @@ export function useFinalizarCompra() {
     error: entregaError,
     formatarCep,
     validarCep,
-    cadastrarEntrega,
     hidratarFrete,
     cepDestino,
   } = entrega;
@@ -66,12 +67,14 @@ export function useFinalizarCompra() {
       cotacaoPersistida.assinaturaItens === assinatura && assinatura.length > 0;
 
     if (!assinaturaOk || !subtotalOk) {
-      console.log('[SENIOR-DEBUG] useFinalizarCompra: Hydration failed', { 
-        assinaturaOk, 
-        subtotalOk,
-        cotacaoAssinatura: cotacaoPersistida.assinaturaItens,
-        carrinhoAssinatura: assinatura
-      });
+      if (import.meta.env.DEV) {
+        console.debug('[useFinalizarCompra] hidratação frete ignorada', {
+          assinaturaOk,
+          subtotalOk,
+          cotacaoAssinatura: cotacaoPersistida.assinaturaItens,
+          carrinhoAssinatura: assinatura,
+        });
+      }
       freteHidratacaoRef.current = null;
       dispatch(limparCotacaoFreteCarrinho());
       return;
@@ -81,10 +84,12 @@ export function useFinalizarCompra() {
     if (freteHidratacaoRef.current === chave) return;
     freteHidratacaoRef.current = chave;
 
-    console.log('[SENIOR-DEBUG] useFinalizarCompra: Hydrating freight', { 
-      opcao: cotacaoPersistida.opcaoSelecionada.tipo,
-      cep: cotacaoPersistida.cepDestino
-    });
+    if (import.meta.env.DEV) {
+      console.debug('[useFinalizarCompra] hidratar frete do Redux', {
+        opcao: cotacaoPersistida.opcaoSelecionada.tipo,
+        cep: cotacaoPersistida.cepDestino,
+      });
+    }
 
     hidratarFrete({
       freteCalculado: cotacaoPersistida.freteCalculado,
@@ -128,6 +133,9 @@ export function useFinalizarCompra() {
       const infoPagamento = await PagamentoService.obterPagamentoInfo();
       setData(buildCheckoutInfoFromPagamento(infoPagamento, carrinho));
     } catch (err) {
+      if (import.meta.env.DEV) {
+        console.debug('[useFinalizarCompra] GET /pagamento/info falhou', err);
+      }
       setError(err instanceof Error ? err : new Error('Erro ao carregar informações de checkout'));
     } finally {
       setLoading(false);
@@ -158,6 +166,13 @@ export function useFinalizarCompra() {
         return;
       }
 
+      /** Congelar antes de `setFinalizando`: evita que efeitos limpem o frete antes do snapshot usado em POST /entregas. */
+      const freteParaEntrega = freteSelecionado;
+      if (!freteParaEntrega) {
+        showError('Selecione uma opção de frete.');
+        return;
+      }
+
       setFinalizando(true);
       setError(null);
 
@@ -167,19 +182,26 @@ export function useFinalizarCompra() {
           usuario,
           cuponsAplicados,
           parcelasLiquidacao,
-          freteSelecionado,
+          freteSelecionado: freteParaEntrega,
           opcoes,
           dispatch,
           navigate,
           pagamentoService: PagamentoService,
           checkoutData: data,
-          cadastrarEntrega,
+          cadastrarEntrega: async (vendaUuid, endereco, custoFreteRegistradoNaVenda) => {
+            const dados: IEntregaInputDto = {
+              vendaUuid,
+              tipoFrete: freteParaEntrega.tipo,
+              endereco,
+              custo: custoFreteRegistradoNaVenda,
+            };
+            return new EntregaServiceApi().cadastrarEntrega(dados);
+          },
           onSalvarCartaoCheckoutFalhou: (erro) => {
             showError(
               `Pedido concluído com sucesso, mas o cartão não foi salvo no perfil: ${erro.message}. Você pode cadastrar o cartão em Meu Perfil.`,
             );
           },
-          showError: (msg: string) => showError(msg),
         });
       } catch (err: unknown) {
         tratarErroFinalizarCheckout(err, setError, showError);
@@ -196,7 +218,6 @@ export function useFinalizarCompra() {
       dispatch,
       navigate,
       data,
-      cadastrarEntrega,
       showError,
     ],
   );

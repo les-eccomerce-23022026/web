@@ -20,6 +20,8 @@ export interface IVendaResultado {
   ven_uuid?: string;
   status?: string;
   mensagem?: string;
+  /** Frete efetivamente gravado na venda (pode divergir do valor cotado na UI se o backend usa `cotacaoUuid`). */
+  frete?: number;
 }
 
 export interface ICheckoutService {

@@ -2,11 +2,12 @@ import { useMemo } from 'react';
 import { calcularResumoPedidoFinalizarCompra } from '../pages/Vendas/FinalizarCompra/finalizarCompraCalculos';
 import { generateSafeId } from '@/utils/generateId';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { ICarrinho } from '@/interfaces/carrinho'; 
+import type { ICarrinho } from '@/interfaces/carrinho';
+import type { IFreteOpcao } from '@/interfaces/pagamento';
 import type { LinhaPagamentoCheckout } from '@/types/checkout';
 import type { ICupomAplicado } from '@/interfaces/pagamento';
 
-export const useLinhasPagamentoIniciais = (data: ICheckoutInfo, carrinho: ICarrinho | null | undefined, freteSelecionado: any, cuponsAplicados: ICupomAplicado[]) => {
+export const useLinhasPagamentoIniciais = (data: ICheckoutInfo, carrinho: ICarrinho | null | undefined, freteSelecionado: IFreteOpcao | null, cuponsAplicados: ICupomAplicado[]) => {
   return useMemo(() => {
     if (!data || !carrinho?.itens?.length) return [];
     const r = calcularResumoPedidoFinalizarCompra(carrinho, data, freteSelecionado, cuponsAplicados, []);

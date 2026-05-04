@@ -22,6 +22,7 @@ import { USE_MOCK } from '@/config/apiConfig';
 import type { IFreteOpcao } from '@/interfaces/entrega';
 import { salvarCartoesPerfilSeSolicitado } from '@/utils/finalizarCompraSalvarCartaoPerfil';
 import { salvarCheckoutPixPendente } from '@/utils/checkoutPixPendente';
+import { mapearErroUsuario } from '@/utils/mapearErro';
 
 type FreteSelecionado = IFreteOpcao | null | undefined;
 
@@ -51,6 +52,8 @@ async function liquidarPagamentosEEntregaNaApi(params: {
   vendaUuid: string;
   subtotal: number;
   frete: number;
+  /** Mesmo valor persistido em `vendas.ven_frete` (backend pode recalcular via cotação). Obrigatório para POST /entregas. */
+  custoFreteRegistradoNaVenda: number;
   cuponsAplicados: ICupomAplicado[];
   pagamentosEfetivos: IPagamentoParcial[];
   opcoes: OpcoesFinalizarCheckout | undefined;
@@ -59,6 +62,7 @@ async function liquidarPagamentosEEntregaNaApi(params: {
   cadastrarEntrega: (
     vendaUuid: string,
     endereco: IEntregaInputDto['endereco'],
+    custoFrete: number,
   ) => Promise<unknown>;
 }): Promise<ResultadoLiquidacaoPagamentos> {
   const {
@@ -72,6 +76,7 @@ async function liquidarPagamentosEEntregaNaApi(params: {
     checkoutData,
     enderecoEntrega,
     cadastrarEntrega,
+    custoFreteRegistradoNaVenda,
   } = params;
 
   const liquidacao = await executarPagamentosAposCriarVenda({
@@ -89,7 +94,11 @@ async function liquidarPagamentosEEntregaNaApi(params: {
     return liquidacao;
   }
 
-  const entregaResult = await cadastrarEntrega(vendaUuid, enderecoEntrega);
+  const entregaResult = await cadastrarEntrega(
+    vendaUuid,
+    enderecoEntrega,
+    custoFreteRegistradoNaVenda,
+  );
   if (!entregaResult) {
     throw new Error('Não foi possível registrar a entrega.');
   }
@@ -112,11 +121,11 @@ export async function executarFinalizarCheckout(params: {
   cadastrarEntrega: (
     vendaUuid: string,
     endereco: IEntregaInputDto['endereco'],
+    custoFrete: number,
   ) => Promise<unknown>;
   /** Pedido já concluído; só avisa que o cartão não foi gravado no perfil (fluxo não bloqueante). */
   onSalvarCartaoCheckoutFalhou?: (erro: Error) => void;
   /** Função para mostrar notificação de erro */
-  showError: (message: string) => void;
 }): Promise<void> {
   const {
     carrinho,
@@ -131,7 +140,6 @@ export async function executarFinalizarCheckout(params: {
     checkoutData,
     cadastrarEntrega,
     onSalvarCartaoCheckoutFalhou,
-    showError,
   } = params;
 
   const frete = freteSelecionado?.valor ?? carrinho.resumo.frete;
@@ -163,6 +171,9 @@ export async function executarFinalizarCheckout(params: {
     throw new Error('Resposta da venda sem identificador.');
   }
 
+  const custoFreteNaVenda =
+    typeof resultado.frete === 'number' && !Number.isNaN(resultado.frete) ? resultado.frete : frete;
+
   let liquidacaoPix: ResultadoLiquidacaoPagamentos | null = null;
   if (!USE_MOCK) {
     liquidacaoPix = await liquidarPagamentosEEntregaNaApi({
@@ -170,6 +181,7 @@ export async function executarFinalizarCheckout(params: {
       vendaUuid,
       subtotal,
       frete,
+      custoFreteRegistradoNaVenda: custoFreteNaVenda,
       cuponsAplicados,
       pagamentosEfetivos,
       opcoes,
@@ -214,7 +226,7 @@ export function tratarErroFinalizarCheckout(
   setError: (e: Error) => void,
   showError: (message: string) => void
 ): void {
-  const mensagem = err instanceof Error ? err.message : 'Erro desconhecido ao finalizar compra';
-  setError(new Error(mensagem));
-  showError('Erro ao finalizar compra: ' + mensagem);
+  const mensagemSegura = mapearErroUsuario(err);
+  setError(new Error(mensagemSegura));
+  showError(mensagemSegura);
 }

@@ -28,9 +28,20 @@ declare global {
       getNewUser(): Chainable<{ nome: string, cpf: string, email: string, senha: string }>;
       adicionarAoCarrinhoApi(livroUuid: string, quantidade?: number): Chainable<void>;
       limparCarrinhoApi(): Chainable<void>;
+      /** Garante pelo menos um endereço via GET /pagamento/info + POST se vazio. */
+      garantirEnderecoApi(): Chainable<void>;
+      /** Remove todos os cartões salvos do cliente autenticado (API real). */
+      removerTodosCartoesSalvosApi(): Chainable<void>;
+      /** Primeiro livro do catálogo público GET /livros (dados reais do banco). */
+      obterPrimeiroLivroUuidDoCatalogo(): Chainable<string>;
       removerEnderecosUsuarioApi(): Chainable<void>;
       /** Aliases GET pagamento/info, POST/GET carrinho — chamar no beforeEach antes das ações. */
       setupCheckoutNetworkSpies(): Chainable<void>;
+      /**
+       * Diagnóstico E2E: URL atual + toast + seção de pagamento + estado do botão finalizar (não falha o teste).
+       * Usar antes/depois de `cy.wait('@pagamentoInfo')` ou quando a URL não chega em `/pedido-confirmado`.
+       */
+      logCheckoutDiagnosticContext(label?: string): Chainable<void>;
       /**
        * Exige intercept `freteCotar` no spec. CEP só dígitos ou formatado como a UI aceita.
        * Evita `force: true` com scroll + espera de rede.
@@ -42,12 +53,9 @@ declare global {
         opts: { via: 'api'; livroUuid: string; quantidade?: number } | { via: 'ui' },
       ): Chainable<void>;
       /**
-       * Versão hidratada de prepararCarrinhoComUmLivro para suítes que precisam de estado Redux sincronizado.
-       * Força uma visita ao carrinho após preparar via API para garantir que o React Query/Redux esteja hidratado.
+       * Monta o carrinho via API + visita ao checkout. Sem `livroUuid`, usa o primeiro livro do GET /livros.
        */
-      prepararCarrinhoComUmLivroHidratado(
-        opts: { livroUuid: string; quantidade?: number },
-      ): Chainable<void>;
+      prepararCarrinhoComUmLivroHidratado(opts?: { livroUuid?: string; quantidade?: number }): Chainable<void>;
     }
   }
 }
@@ -210,19 +218,33 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
   }
 });
 
-Cypress.Commands.add('garantirEnderecoApi', () => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+/** Headers padrão para requests autenticados com banco de testes. */
+export function apiHeadersTestDb(): Record<string, string> {
   const useTestDb = Cypress.env('injectTestDbHeader') === true;
-  const headers: Record<string, string> = {
+  return {
     'Content-Type': 'application/json; charset=utf-8',
     ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
   };
+}
 
-  cy.request({
+interface PagamentoInfoResponse {
+  enderecosCliente: unknown[];
+  cartoesCliente?: unknown[];
+}
+
+Cypress.Commands.add('garantirEnderecoApi', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+
+  cy.request<PagamentoInfoResponse>({
     method: 'GET',
     url: `${apiUrl}/pagamento/info`,
     headers,
+    failOnStatusCode: false,
   }).then((response) => {
+    if (response.status !== 200) {
+      throw new Error(`GET /pagamento/info falhou: ${response.status} — ${JSON.stringify(response.body)}`);
+    }
     if (response.body.enderecosCliente.length === 0) {
       cy.request({
         method: 'POST',
@@ -240,6 +262,10 @@ Cypress.Commands.add('garantirEnderecoApi', () => {
           principal: true,
           apelido: 'Casa',
         },
+      }).then((postRes) => {
+        if (postRes.status !== 201 && postRes.status !== 200) {
+          throw new Error(`POST endereço falhou: ${postRes.status}`);
+        }
       });
     }
   });
@@ -283,6 +309,8 @@ Cypress.Commands.add('loginApi', (email, senha) => {
     body: { email, senha },
   }).then((response) => {
     expect(response.status).to.eq(200);
+    const masked = email.includes('@') ? `${email[0]}***@${email.split('@')[1]}` : '***';
+    cy.log(`[loginApi] sessão API OK (${masked}) — cookie deve espelhar no browser no próximo visit`);
   });
 });
 
@@ -345,6 +373,64 @@ Cypress.Commands.add('limparCarrinhoApi', () => {
   });
 });
 
+Cypress.Commands.add('removerTodosCartoesSalvosApi', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const useTestDb = Cypress.env('injectTestDbHeader') === true;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json; charset=utf-8',
+    ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
+  };
+
+  cy.request({
+    method: 'GET',
+    url: `${apiUrl}/clientes/perfil/cartoes`,
+    headers,
+  })
+    .its('body.dados')
+    .then((cartoes: { uuid: string }[]) => {
+      if (!Array.isArray(cartoes) || cartoes.length === 0) return;
+      cy.wrap(cartoes).each((c: { uuid: string }) => {
+        cy.request({
+          method: 'DELETE',
+          url: `${apiUrl}/clientes/perfil/cartoes/${c.uuid}`,
+          headers,
+          failOnStatusCode: false,
+        });
+      });
+    });
+});
+
+export interface LivroResponse {
+  uuid: string;
+  titulo: string;
+  preco: number;
+}
+
+export interface CatalogoResponse {
+  livros: LivroResponse[];
+}
+
+Cypress.Commands.add('obterPrimeiroLivroUuidDoCatalogo', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+
+  return cy
+    .request<CatalogoResponse>({
+      method: 'GET',
+      url: `${apiUrl}/livros`,
+      qs: { pagina: 1, itensPorPagina: 1, ordenacao: 'recentes' },
+      headers,
+      failOnStatusCode: false,
+    })
+    .then((res) => {
+      if (res.status !== 200) {
+        throw new Error(`GET /livros falhou: ${res.status} — rode seed/migração do catálogo. Response: ${JSON.stringify(res.body)}`);
+      }
+      expect(res.body.livros, 'catálogo não vazio').to.be.an('array').with.length.greaterThan(0);
+      return res.body.livros[0].uuid;
+    });
+});
+
 Cypress.Commands.add('removerEnderecosUsuarioApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   const useTestDb = Cypress.env('injectTestDbHeader') === true;
@@ -378,6 +464,47 @@ Cypress.Commands.add('setupCheckoutNetworkSpies', () => {
   registerCheckoutApiAliases();
 });
 
+/**
+ * Snapshot legível no Command Log / terminal-report quando há timeout em URL ou em `@pagamentoInfo`.
+ * Não substitui assert; só correlaciona “checkout em branco”, toast de erro e botão desabilitado.
+ */
+Cypress.Commands.add('logCheckoutDiagnosticContext', (label = 'checkout') => {
+  const tag = `[E2E:${label}]`;
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+
+  cy.url().then((href) => {
+    cy.log(`${tag} url=${href}`);
+  });
+
+  cy.get('body').then(($body) => {
+    const emptyish = $body.text().trim().length < 80;
+    const toast = $body.find('[data-cy="notification-toast"]');
+    const toastVisible = toast.filter(':visible');
+    const toastText =
+      toastVisible.length > 0
+        ? toastVisible.first().text().trim().slice(0, 280)
+        : toast.length > 0
+          ? '(toast no DOM, não visível)'
+          : '(sem toast)';
+
+    const pay = $body.find('[data-cy="checkout-payment-section-title"]');
+    const finish = $body.find('[data-cy="checkout-finish-button"]');
+    const h1 = $body.find('h1').first().text().trim().slice(0, 120);
+
+    const line = [
+      `body≈vazio=${emptyish}`,
+      `h1="${h1}"`,
+      `paymentSection=${pay.filter(':visible').length ? 'visível' : 'ausente'}`,
+      `finishDisabled=${finish.length ? finish.is(':disabled') : 'sem-botão'}`,
+      `toast=${toastText}`,
+    ].join(' | ');
+
+    cy.log(`${tag} ${line}`);
+    // Ajuda a comparar env do runner vs proxy Vite (mesma origem).
+    cy.log(`${tag} Cypress.env(apiUrl)=${apiUrl}`);
+  });
+});
+
 Cypress.Commands.add('checkoutPreencherFretePac', (cep: string) => {
   cy.get('[data-cy="checkout-freight-zip-input"]').scrollIntoView().clear().type(cep);
   cy.get('[data-cy="checkout-freight-calculate-button"]').scrollIntoView().should('be.visible').click();
@@ -406,17 +533,41 @@ Cypress.Commands.add(
 
 /**
  * Versão hidratada de prepararCarrinhoComUmLivro para suítes que precisam de estado Redux sincronizado.
- * Força uma visita ao carrinho após preparar via API para garantir que o React Query/Redux esteja hidratado.
- * Útil para suítes sensíveis a hidratação onde o fluxo completo pela UI é muito lento.
+ * Após createCart via API, visita o checkout e sincroniza pela UI.
+ * `livroUuid` opcional: quando omitido, usa o primeiro título retornado por GET /livros (banco real).
  */
-Cypress.Commands.add(
-  'prepararCarrinhoComUmLivroHidratado',
-  (opts: { livroUuid: string; quantidade?: number }) => {
-    cy.createCartApi([{ livroUuid: opts.livroUuid, quantidade: opts.quantidade ?? 1 }]);
-    // Força visita ao carrinho para hidratar o Redux antes do checkout
-    cy.visit('/carrinho');
-    cy.get('[data-cy="carrinho-linha-item"]', { timeout: 15000 }).should('be.visible');
-  },
-);
+Cypress.Commands.add('prepararCarrinhoComUmLivroHidratado', (opts?: { livroUuid?: string; quantidade?: number }) => {
+  const quantidade = opts?.quantidade ?? 1;
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+  const checkoutTimeout = Cypress.env('checkoutTimeout') ? Number(Cypress.env('checkoutTimeout')) : 20000;
+
+  const montar = (livroUuid: string) => {
+    cy.createCartApi([{ livroUuid, quantidade }]);
+    cy.visit('/checkout');
+    cy.get('[data-cy="checkout-payment-section-title"]', { timeout: checkoutTimeout }).should('be.visible');
+    cy.get('[data-cy="checkout-coupon-input"]', { timeout: checkoutTimeout }).scrollIntoView().should('be.visible');
+  };
+
+  if (opts?.livroUuid) {
+    montar(opts.livroUuid);
+    return;
+  }
+
+  cy.request<CatalogoResponse>({
+    method: 'GET',
+    url: `${apiUrl}/livros`,
+    qs: { pagina: 1, itensPorPagina: 1, ordenacao: 'recentes' },
+    headers,
+    failOnStatusCode: false,
+  }).then((res) => {
+    if (res.status !== 200) {
+      throw new Error(`GET /livros falhou ao preparar carrinho: ${res.status}. Rode seed/migração do catálogo.`);
+    }
+    expect(res.body.livros, 'pelo menos um livro no catálogo').to.be.an('array').with.length.greaterThan(0);
+    const uuid = res.body.livros[0].uuid;
+    montar(uuid);
+  });
+});
 
 export {};

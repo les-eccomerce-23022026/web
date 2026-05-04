@@ -1,8 +1,9 @@
 import { useNotification } from './useNotification';
 import { NotificationToast } from './NotificationToast';
+import type { Notification as AppNotification } from './types';
 import styles from './NotificationContainer.module.css';
 
-export function NotificationContainer() {
+export const NotificationContainer = () => {
   const { notifications, removeNotification } = useNotification();
 
   if (notifications.length === 0) {
@@ -11,7 +12,7 @@ export function NotificationContainer() {
 
   return (
     <div className={styles.container} data-cy="notification-container">
-      {notifications.map((notification) => (
+      {notifications.map((notification: AppNotification) => (
         <NotificationToast
           key={notification.id}
           notification={notification}
@@ -20,4 +21,4 @@ export function NotificationContainer() {
       ))}
     </div>
   );
-}
+};

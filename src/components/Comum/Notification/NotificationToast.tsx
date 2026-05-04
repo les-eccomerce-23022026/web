@@ -15,7 +15,7 @@ const icons = {
   info: <Info size={20} className={styles.iconInfo} />,
 };
 
-export function NotificationToast({ notification, onClose }: NotificationToastProps) {
+export const NotificationToast = ({ notification, onClose }: NotificationToastProps) => {
   useEffect(() => {
     if (notification.duration && notification.duration > 0) {
       const timer = setTimeout(onClose, notification.duration);
@@ -41,4 +41,4 @@ export function NotificationToast({ notification, onClose }: NotificationToastPr
       </button>
     </div>
   );
-}
+};

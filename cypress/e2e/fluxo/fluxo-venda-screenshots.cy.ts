@@ -46,77 +46,7 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     cy.intercept(`${apiUrl}/**`, (req) => {
       delete req.headers['x-use-test-db'];
     });
-    cy.intercept('GET', `${apiUrl}/pagamento/info`, { fixture: 'pagamento-info-checkout.json' }).as(
-      'pagamentoInfo',
-    );
-    cy.intercept('POST', `${apiUrl}/frete/cotar`, { fixture: 'frete-cotar-checkout.json' }).as(
-      'freteCotar',
-    );
-  };
-
-  const setupInterceptorsFinalizarPedido = () => {
-    cy.intercept('POST', '**/vendas', {
-      statusCode: 201,
-      fixture: 'venda-criada-resposta.json',
-    }).as('criarVenda');
-
-    let selecionarCount = 0;
-    cy.intercept('POST', '**/pagamentos/selecionar', (req) => {
-      selecionarCount += 1;
-      const raw = req.body as unknown;
-      const body =
-        typeof raw === 'string' ? (JSON.parse(raw) as Record<string, unknown>) : (raw as Record<string, unknown>);
-      const tipo = (body?.tipoPagamento as string) ?? 'cartao_credito';
-      const valor = typeof body?.valor === 'number' ? body.valor : 0;
-      req.reply({
-        statusCode: 201,
-        body: {
-          id: `pay-selecionar-${selecionarCount}`,
-          vendaUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-          valor,
-          formaPagamento: {
-            tipo,
-            detalhes: tipo === 'cupom_promocional' ? 'DESCONTO10' : 'cartão',
-          },
-          status: 'pendente',
-          criadoEm: new Date().toISOString(),
-        },
-      });
-    }).as('selecionarPagamento');
-
-    cy.intercept('POST', '**/pagamentos/*/processar', (req) => {
-      const id = req.url.split('/pagamentos/')[1]?.split('/')[0] ?? 'pay-processado';
-      req.reply({
-        statusCode: 200,
-        body: {
-          id,
-          vendaUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-          valor: 60,
-          formaPagamento: { tipo: 'cartao_credito' },
-          status: 'aprovado',
-          criadoEm: new Date().toISOString(),
-          processadoEm: new Date().toISOString(),
-        },
-      });
-    }).as('processarPagamento');
-
-    cy.intercept('POST', '**/entregas', {
-      statusCode: 201,
-      body: {
-        id: 'entrega-mock-1',
-        vendaUuid: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
-        tipoFrete: 'PAC',
-        custo: 15,
-        endereco: {
-          rua: 'Bela Vista',
-          bairro: 'Centro',
-          cidade: 'São Paulo',
-          estado: 'SP',
-          cep: '01000000',
-        },
-        criadoEm: new Date().toISOString(),
-      },
-    }).as('cadastrarEntrega');
+    // Usa API real para pagamento/info e frete/cotar
   };
 
   /** Abre o n-ésimo livro do grid e usa "Comprar Agora" (vai ao carrinho). */
@@ -144,7 +74,6 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     cy.get('[data-cy="checkout-freight-zip-input"]').clear({ force: true });
     cy.get('[data-cy="checkout-freight-zip-input"]').type('01310100', { force: true });
     cy.get('[data-cy="checkout-freight-calculate-button"]').click();
-    cy.wait('@freteCotar', { timeout: 20000 });
     cy.get('[data-cy="checkout-freight-options"]', { timeout: 15000 }).should('be.visible');
     cy.get('[data-cy="checkout-freight-option-PAC"]').click({ force: true });
   };
@@ -152,7 +81,6 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
   const prepararCheckoutComEnderecoEFrete = () => {
     cy.visit('/checkout');
     cy.contains('h1', 'Finalizar Compra', { timeout: 25000 }).should('be.visible');
-    cy.wait('@pagamentoInfo', { timeout: 25000 });
     cy.get('[data-cy^="checkout-address-item-"]', { timeout: 20000 }).first().click({ force: true });
     calcularFreteTelaAtual();
   };
@@ -291,9 +219,7 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
   });
 
   it('11 — pedido confirmado e 12 — meus pedidos', () => {
-    setupInterceptorsFinalizarPedido();
-    cy.intercept('GET', '**/minhas-vendas', { fixture: 'minhas-vendas-mock.json' }).as('minhasVendas');
-
+    // Usa rotas reais do backend para finalização
     adicionarUmLivroIrParaCarrinho();
     prepararCheckoutComEnderecoEFrete();
 
@@ -310,17 +236,11 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     cy.get('[data-cy="checkout-finish-button"]', { timeout: 30000 }).should('not.be.disabled');
     cy.get('[data-cy="checkout-finish-button"]').scrollIntoView().click({ force: true });
 
-    cy.wait('@criarVenda', { timeout: 30000 });
-    cy.wait('@selecionarPagamento', { timeout: 30000 });
-    cy.wait('@selecionarPagamento', { timeout: 30000 });
-    cy.wait('@processarPagamento', { timeout: 30000 });
-    cy.wait('@cadastrarEntrega', { timeout: 30000 });
     cy.url({ timeout: 15000 }).should('include', '/pedido-confirmado');
     cy.get('[data-cy="confirmado-btn-pedidos"]', { timeout: 20000 }).should('be.visible');
     cy.screenshot('11-pedido-confirmado', { capture: 'viewport' });
 
     cy.visit('/pedidos');
-    cy.wait('@minhasVendas', { timeout: 20000 });
     cy.contains('h1', 'Meus Pedidos', { timeout: 20000 }).should('be.visible');
     cy.screenshot('12-meus-pedidos', { capture: 'viewport' });
   });

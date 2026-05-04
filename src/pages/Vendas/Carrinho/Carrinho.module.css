@@ -219,6 +219,17 @@
   padding: 20px;
 }
 
+.carrinho-skeleton-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.carrinho-skeleton-row {
+  width: 100%;
+  border-radius: var(--bn-border-radius-md);
+}
+
 .carrinho-item-image {
   width: 60px;
   height: 90px;

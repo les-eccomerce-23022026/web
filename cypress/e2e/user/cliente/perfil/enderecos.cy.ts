@@ -40,37 +40,37 @@ describe('Cliente - Perfil - Gestão de Endereços', () => {
     ];
 
     enderecos.forEach((end) => {
-      ProfilePage.addAddressButton.click({ force: true });
+      ProfilePage.addAddressButton.scrollIntoView().should('be.visible').click();
       ProfilePage.fillAddress(end);
       
       // Selects adicionais conforme regras de negócio
-      cy.get('[data-cy="endereco-tipo-residencia-select"]').select(end.tipoResidencia, { force: true });
-      cy.get('[data-cy="endereco-tipo-logradouro-select"]').select(end.tipoLogradouro, { force: true });
+      cy.get('[data-cy="endereco-tipo-residencia-select"]').scrollIntoView().should('be.visible').select(end.tipoResidencia);
+      cy.get('[data-cy="endereco-tipo-logradouro-select"]').scrollIntoView().should('be.visible').select(end.tipoLogradouro);
 
-      ProfilePage.saveAddressButton.click({ force: true });
+      ProfilePage.saveAddressButton.scrollIntoView().should('be.visible').click();
       cy.contains('Endereço salvo!').should('be.visible');
       cy.contains(end.apelido).should('be.visible');
       cy.wait(1000); // Pausa para o vídeo
     });
 
     // Editar o primeiro endereço
-    ProfilePage.getEditButton('endereco', 0).click({ force: true });
+    ProfilePage.getEditButton('endereco', 0).scrollIntoView().should('be.visible').click();
     const apelidoEditado = 'EDITADO ' + Date.now();
-    ProfilePage.addressApelidoInput.clear({ force: true }).type(apelidoEditado, { force: true });
-    ProfilePage.saveAddressButton.click({ force: true });
+    ProfilePage.addressApelidoInput.scrollIntoView().should('be.visible').clear().type(apelidoEditado);
+    ProfilePage.saveAddressButton.scrollIntoView().should('be.visible').click();
     cy.contains('Endereço atualizado!').should('be.visible');
     cy.contains(apelidoEditado).should('be.visible');
     cy.wait(1000);
 
     // Remover um por um com confirmação visível
     enderecos.forEach(() => {
-      ProfilePage.getDeleteButton('endereco', 0).click({ force: true });
+      ProfilePage.getDeleteButton('endereco', 0).scrollIntoView().should('be.visible').click();
       
       // Valida o modal com título correto ("Remover Endereço")
       cy.get('h2').contains('Remover Endereço').should('be.visible');
       cy.wait(1000); // Pausa para mostrar o modal
       
-      ProfilePage.genericModalConfirmButton.click({ force: true });
+      ProfilePage.genericModalConfirmButton.scrollIntoView().should('be.visible').click();
       cy.contains('Endereço removido!').should('be.visible');
       cy.wait(1000);
     });

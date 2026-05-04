@@ -75,6 +75,38 @@
   color: var(--error-color, #c00);
 }
 
+.loading-bar {
+  width: 100%;
+  height: 4px;
+  background-color: var(--bn-bg-tertiary, #f0f0f0);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.loading-bar-progress {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--bn-primary, #0066cc) 0%, var(--bn-primary-light, #3399ff) 50%, var(--bn-primary, #0066cc) 100%);
+  background-size: 200% 100%;
+  animation: loadingBarAnimation 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingBarAnimation {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-bar-progress {
+    animation: none;
+  }
+}
+
 .opcoes-frete {
   margin-top: 1rem;
   border-top: 1px solid var(--border-color, #e0e0e0);

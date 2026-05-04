@@ -159,8 +159,10 @@ describe('Cliente - Perfil - Dados Básicos e Críticos', () => {
       
       // 2. Tentar interagir (não deve mudar nada)
       cy.get('[data-cy="perfil-cpf-input"]', { timeout: 15000 })
-        .click({ force: true })
-        .type('99999999999', { force: true });
+        .scrollIntoView()
+        .should('be.visible')
+        .click()
+        .type('99999999999');
       
       // 3. Validar valor final mascarado
       cy.get('[data-cy="perfil-cpf-input"]', { timeout: 15000 })

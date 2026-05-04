@@ -21,7 +21,15 @@ export class CheckoutServiceMock implements ICheckoutService {
   async finalizarCompra(dados: IVendaInput): Promise<IVendaResultado> {
     console.log('[Mock] Finalizando compra:', dados);
     return new Promise((resolve) =>
-      setTimeout(() => resolve({ id: 'mock-uuid-venda', status: 'EM PROCESSAMENTO' }), 500),
+      setTimeout(
+        () =>
+          resolve({
+            id: 'mock-uuid-venda',
+            status: 'EM PROCESSAMENTO',
+            frete: dados.valorFrete,
+          }),
+        500,
+      ),
     );
   }
 }

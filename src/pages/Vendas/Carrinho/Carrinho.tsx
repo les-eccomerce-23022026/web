@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import styles from './Carrinho.module.css';
 import { EmptyState } from '@/components/Comum/EmptyState/EmptyState';
+import { Skeleton } from '@/components/Comum/Skeleton/Skeleton';
 import { FreteCalculo, type FreteCalculoEntregaApi } from '@/components/FinalizarCompra/Entrega';
 import { useEntrega } from '@/hooks/useEntrega';
 import type { IFreteOpcao } from '@/interfaces/entrega';
@@ -101,9 +102,40 @@ export const Carrinho = () => {
     ],
   );
 
-  if (status === 'loading') return <p className={styles['carrinho-status-message']}>Carregando carrinho...</p>;
-  if (status === 'failed' || error) return <p className={styles['carrinho-status-message']}>Erro ao carregar carrinho.</p>;
-  if (!data) return <p className={styles['carrinho-status-message']}>Carregando carrinho...</p>;
+  if (status === 'loading') {
+    return (
+      <div className={styles['carrinho-page']}>
+        <h1 className="page-title">Carrinho de Compras</h1>
+        <hr className={styles['carrinho-separator']} />
+        <div className={styles['carrinho-skeleton-container']}>
+          <Skeleton variant="rectangular" height={100} className={styles['carrinho-skeleton-row']} />
+          <Skeleton variant="rectangular" height={100} className={styles['carrinho-skeleton-row']} />
+          <Skeleton variant="rectangular" height={100} className={styles['carrinho-skeleton-row']} />
+        </div>
+      </div>
+    );
+  }
+  if (status === 'failed' || error) {
+    return (
+      <div className={styles['carrinho-page']}>
+        <h1 className="page-title">Carrinho de Compras</h1>
+        <hr className={styles['carrinho-separator']} />
+        <p className={styles['carrinho-status-message']}>Erro ao carregar carrinho.</p>
+      </div>
+    );
+  }
+  if (!data) {
+    return (
+      <div className={styles['carrinho-page']}>
+        <h1 className="page-title">Carrinho de Compras</h1>
+        <hr className={styles['carrinho-separator']} />
+        <div className={styles['carrinho-skeleton-container']}>
+          <Skeleton variant="rectangular" height={100} className={styles['carrinho-skeleton-row']} />
+          <Skeleton variant="rectangular" height={100} className={styles['carrinho-skeleton-row']} />
+        </div>
+      </div>
+    );
+  }
   if (data.itens.length === 0) {
     return (
       <div className={`${styles['carrinho-page']} page-transition-enter`} data-cy="carrinho-vazio">

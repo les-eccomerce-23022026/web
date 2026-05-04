@@ -53,6 +53,9 @@ export interface ICartaoSalvoPagamento {
   principal?: boolean;
 }
 
+// Alias for compatibility with cliente.ts
+export type ICartaoCliente = ICartaoSalvoPagamento;
+
 export interface ICartaoCreditoInput {
   numero: string;
   nomeTitular: string;
@@ -99,6 +102,9 @@ export interface IPagamentoInfo {
 
 export interface IEnderecoCliente {
   uuid: string;
+  apelido?: string;
+  tipoResidencia?: string;
+  tipoLogradouro?: string;
   logradouro: string;
   numero: string;
   complemento: string;
@@ -106,6 +112,7 @@ export interface IEnderecoCliente {
   cidade: string;
   estado: string;
   cep: string;
+  pais?: string;
   tipo: 'cobranca' | 'entrega' | 'ambos';
   principal?: boolean;
 }

@@ -106,7 +106,7 @@ export class ApiClient {
       headers.set('x-use-test-db', 'true');
     }
     // Se o Cypress definiu a flag global para usar banco de testes, adiciona o header
-    if (!headers.has('x-use-test-db') && typeof window !== 'undefined' && (window as any).__USE_TEST_DB__) {
+    if (!headers.has('x-use-test-db') && typeof window !== 'undefined' && window.__USE_TEST_DB__) {
       headers.set('x-use-test-db', 'true');
     }
 
@@ -124,7 +124,7 @@ export class ApiClient {
     console.log(`[SENIOR-DEBUG] API Request: ${config.method || 'GET'} ${url}`, {
       hasToken: !!token,
       hasTestDbHeader,
-      windowTestDbFlag: typeof window !== 'undefined' ? (window as any).__USE_TEST_DB__ : 'N/A'
+      windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A'
     });
 
     try {
