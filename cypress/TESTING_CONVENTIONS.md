@@ -28,6 +28,7 @@
 | **Falhas / validações** (sem endereço+frete, cupom inválido, CEP inexistente, teto sandbox) | `e2e/fluxo/cliente-login-compra-falhas.cy.ts` | Livro(s) via `GET /livros` / `obterPrimeiroLivroUuidDoCatalogo`. |
 | **Frete / CEP / jornada longa na UI** | `e2e/user/cliente/checkout/entrega-frete.cy.ts` | Catálogo → checkout; sensível a Redux. |
 | **Regras via API** (cupom, RN0034, política parcelas) | `e2e/integration/pagamento-api.cy.ts` | Menos flakiness que UI. |
+| **SEO/SSR** (validação de HTML, meta tags, Open Graph) | `e2e/seo/` (nova pasta) | `cy.request` sem `db:reset:all`; valida `generateMetadata` Next.js. |
 
 Lista atual de `.skip` em checkout de pagamento: `grep -n "it\\.skip" web/cypress/e2e/user/cliente/checkout/pagamento.cy.ts`.
 
@@ -38,6 +39,14 @@ Lista atual de `.skip` em checkout de pagamento: `grep -n "it\\.skip" web/cypres
 - **`cy.request()`** não passa por `cy.intercept`; comandos como `loginApi` e specs de integração enviam `x-use-test-db` nas headers quando necessário.
 - **`cliente-login-compra-feliz`** e **`cliente-login-compra-falhas`**: `beforeEach` com `Cypress.env('injectTestDbHeader', true)` para alinhar ao Postgres de teste sem depender só da CLI.
 
+### Next.js SSR (MVP)
+
+- **Dev server**: `npm run dev:next` → `http://localhost:3002` (porta 3000 usada pelo backend).
+- **API proxy**: `next.config.mjs` com `rewrites` de `/api/*` → `http://localhost:3000/:path*`.
+- **Rotas SSR**: `/`, `/livro/[uuid]` (Server Components com `generateMetadata`).
+- **Rotas CSR** (futuro): `/carrinho`, `/minha-conta`, `/checkout`, `/pagamento`, `/admin/*`.
+- **Testes SEO**: `cypress/e2e/seo/` com `cy.request` para validar HTML/meta sem `db:reset:all`.
+
 ### Scripts npm (`web/`)
 
 | Script | Uso |
@@ -47,6 +56,7 @@ Lista atual de `.skip` em checkout de pagamento: `grep -n "it\\.skip" web/cypres
 | `npm run cypress:run:e2e-compra-devdb` | Mesmas specs de compra com **`injectTestDbHeader=false`** (fase 1 de `scripts/run-e2e-compra-com-relatorio.sh`). |
 | `npm run cypress:run:e2e-compra-testdb` | Igual `test:e2e:compra:run` (test DB). |
 | `npm run cypress:run:e2e-checkout-pagamento` | `pagamento.cy.ts` + `entrega-frete.cy.ts`. |
+| `npm run test:e2e:seo` | Specs de SEO/SSR com `cy.request` (sem `db:reset:all`). |
 
 Backend na porta 3000 sem Vite: acrescentar `--env apiUrl=http://localhost:3000/api`.
 
@@ -133,3 +143,5 @@ function apiHeadersTestDb(): Record<string, string> {
 - Frontend React: `web/AGENTS.md`
 - Backend SQL: `backend/sql/AGENTS.md`
 - Documentação Exigida: `documentacao-exigida/`
+- Next.js Migration Plan: `docs/plans/next-roteamento-ssr-cypress-tdd.md`
+- ADR Next.js: `documentacao-exigida/adr/0003-nextjs-app-router-ssr-migration.md`
