@@ -1,0 +1,87 @@
+.confirmado-page {
+  max-width: 700px;
+  margin: 60px auto;
+  text-align: center;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.confirmado-card {
+  padding: 48px 40px;
+}
+
+.confirmado-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.confirmado-card h1 {
+  font-size: 1.8rem;
+  color: var(--bn-success-text);
+  margin-bottom: 12px;
+}
+
+.confirmado-card h2 {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--bn-text-muted);
+  margin-bottom: 24px;
+}
+
+.confirmado-status-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  background: var(--bn-success-light);
+  color: var(--bn-success-text);
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  margin-bottom: 28px;
+}
+
+.confirmado-info {
+  text-align: left;
+  background: var(--bn-bg-secondary);
+  border-radius: var(--bn-border-radius-md);
+  padding: 20px 24px;
+  margin-bottom: 28px;
+}
+
+.confirmado-info p {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: var(--bn-text-body);
+}
+
+.confirmado-info strong {
+  color: var(--bn-text-title);
+}
+
+.confirmado-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.confirmado-btn-home {
+  padding: 14px 32px;
+  font-size: 16px;
+}
+
+.confirmado-btn-pedidos {
+  padding: 14px 32px;
+  font-size: 16px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
