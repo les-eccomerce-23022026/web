@@ -1,4 +1,4 @@
-import type { IPagamentoSelecionado, ICartaoSalvoPagamento, IPagamentoParcial } from '@/interfaces/pagamento';
+import type { IPagamentoSelecionado, ICartaoSalvoPagamento, IPagamentoParcial } from '../interfaces/pagamento';
 
 function uuidCartaoDoSelecionado(pagamentoSelecionado: IPagamentoSelecionado | null): string | null {
   if (!pagamentoSelecionado || pagamentoSelecionado.tipo !== 'cartao_credito') {

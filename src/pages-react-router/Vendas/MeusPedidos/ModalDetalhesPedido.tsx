@@ -1,9 +1,9 @@
-import { Modal } from '@/components/Comum/Modal/Modal';
-import type { IPedido } from '@/interfaces/pedido';
-import type { ILivro } from '@/interfaces/livro';
-import type { IEnderecoCliente } from '@/interfaces/pagamento';
+import { Modal } from '../../../components/Comum/Modal';
+import type { IPedido } from '../../../interfaces/pedido';
+import type { ILivro } from '../../../interfaces/livro';
+import type { IEnderecoCliente } from '../../../interfaces/pagamento';
 import { formatMoeda, tituloItem } from './meusPedidosHelpers';
-import styles from './MeusPedidos.module.css';
+import styles from './style.module.css';
 
 type Props = {
   pedido: IPedido | null;

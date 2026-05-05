@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { calcularResumoPedidoFinalizarCompra } from '../pages/Vendas/FinalizarCompra/finalizarCompraCalculos';
-import { generateSafeId } from '@/utils/generateId';
-import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { ICarrinho } from '@/interfaces/carrinho';
-import type { IFreteOpcao } from '@/interfaces/pagamento';
-import type { LinhaPagamentoCheckout } from '@/types/checkout';
-import type { ICupomAplicado } from '@/interfaces/pagamento';
+import { calcularResumoPedidoFinalizarCompra } from '../pages-react-router/Vendas/FinalizarCompra/finalizarCompraCalculos';
+import { generateSafeId } from '../utils/generateId';
+import type { ICheckoutInfo } from '../interfaces/checkout';
+import type { ICarrinho } from '../interfaces/carrinho';
+import type { IFreteOpcao } from '../interfaces/pagamento';
+import type { LinhaPagamentoCheckout } from '../types/checkout';
+import type { ICupomAplicado } from '../interfaces/pagamento';
 
 export const useLinhasPagamentoIniciais = (data: ICheckoutInfo, carrinho: ICarrinho | null | undefined, freteSelecionado: IFreteOpcao | null, cuponsAplicados: ICupomAplicado[]) => {
   return useMemo(() => {

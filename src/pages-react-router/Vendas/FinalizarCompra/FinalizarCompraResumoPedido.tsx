@@ -1,4 +1,4 @@
-import styles from './FinalizarCompra.module.css';
+import styles from './style.module.css';
 import { FinalizarCompraResumoPedidoLista } from './FinalizarCompraResumoPedidoLista';
 import { FinalizarCompraResumoPedidoAcoes } from './FinalizarCompraResumoPedidoAcoes';
 

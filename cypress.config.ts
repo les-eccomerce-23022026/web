@@ -16,13 +16,13 @@ const FLUXO_VENDA_IMGS_ENTREGA = path.resolve(
 export default defineConfig({
   video: false,
   e2e: {
-    baseUrl: "http://localhost:5173",
+    baseUrl: "http://localhost:3000",
     allowCypressEnv: true, // Reativado para permitir acesso síncrono via Cypress.env() necessário para cy.session
     env: {
       /** Só injeta `x-use-test-db` no browser quando `true` (suítes que usam Postgres de teste). */
       injectTestDbHeader: false,
-      /** Mesma origem do Vite (proxy `/api` → backend) para cookie HttpOnly. */
-      apiUrl: "http://localhost:5173/api",
+      /** Mesma origem do Next.js (rewrites `/api` → backend) para cookie HttpOnly. */
+      apiUrl: "http://localhost:3000/api",
       admin: {
         email: "admin@livraria.com.br",
         senha: "Admin@123"

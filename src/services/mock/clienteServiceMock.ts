@@ -7,7 +7,7 @@ import type {
   IRegistroClienteCompletoPayload,
 } from '@/interfaces/cliente';
 import type { IEnderecoCliente, ICartaoSalvoPagamento as ICartaoCliente } from '@/interfaces/pagamento';
-import type { IClienteService } from '@/services/contracts/clienteService';
+import type { IClienteService } from '../contracts/clienteService';
 
 function delay<T>(data: T, ms = 300): Promise<T> {
   return new Promise((resolve) => setTimeout(() => resolve(data), ms));

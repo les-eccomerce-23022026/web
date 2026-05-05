@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import { logout } from '@/store/slices/authSlice';
+import { logout } from './authSlice';
 import { LivroService } from '@/services/livroService';
 import type { ICategoriaMenu, IFiltroCatalogoLivros } from '@/interfaces/catalogoLivros';
 import type { ILivro } from '@/interfaces/livro';

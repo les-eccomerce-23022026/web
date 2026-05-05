@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { AdminClienteService } from '@/services/adminClienteService';
-import type { IClienteAdminItem } from '@/services/contracts/adminClienteService';
+import { AdminClienteService } from '../../../services/adminClienteService';
+import type { IClienteAdminItem } from '../../../services/contracts/adminClienteService';
 import { clientePassaFiltros } from './gestaoClientesFiltro';
 
 export function useGestaoClientes() {

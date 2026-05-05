@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { useAppSelector } from '@/store/hooks';
 import './Footer.css';
 
@@ -16,11 +16,11 @@ export const Footer = () => {
         <div className="footer-column">
           <h3>Navegação</h3>
           <ul>
-            <li><Link to="/">Início</Link></li>
-            <li><Link to="/mais-vendidos">Mais Vendidos</Link></li>
+            <li><Link href="/">Início</Link></li>
+            <li><Link href="/mais-vendidos">Mais Vendidos</Link></li>
             {categoriasMenu.slice(0, 6).map((c) => (
               <li key={c.slug}>
-                <Link to={`/categoria/${c.slug}`}>{c.nome}</Link>
+                <Link href={`/categoria/${c.slug}`}>{c.nome}</Link>
               </li>
             ))}
           </ul>
@@ -29,20 +29,20 @@ export const Footer = () => {
         <div className="footer-column">
           <h3>Minha Conta</h3>
           <ul>
-            <li><Link to="/minha-conta">Meus Dados</Link></li>
-            <li><Link to="/meus-pedidos">Meus Pedidos</Link></li>
-            <li><Link to="/enderecos">Endereços</Link></li>
-            <li><Link to="/cartoes">Cartões</Link></li>
+            <li><Link href="/minha-conta">Meus Dados</Link></li>
+            <li><Link href="/pedidos">Meus Pedidos</Link></li>
+            <li><Link href="/minha-conta">Endereços</Link></li>
+            <li><Link href="/minha-conta">Cartões</Link></li>
           </ul>
         </div>
 
         <div className="footer-column">
           <h3>Suporte</h3>
           <ul>
-            <li><Link to="/central-ajuda">Central de Ajuda</Link></li>
-            <li><Link to="/politica-trocas">Política de Trocas</Link></li>
-            <li><Link to="/fale-conosco">Fale Conosco</Link></li>
-            <li><Link to="/termos-uso">Termos de Uso</Link></li>
+            <li><Link href="/central-ajuda">Central de Ajuda</Link></li>
+            <li><Link href="/politica-trocas">Política de Trocas</Link></li>
+            <li><Link href="/fale-conosco">Fale Conosco</Link></li>
+            <li><Link href="/termos-uso">Termos de Uso</Link></li>
           </ul>
         </div>
       </div>

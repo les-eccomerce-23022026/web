@@ -9,7 +9,7 @@ import type {
 import type { IAdmin } from '@/interfaces/admin';
 import { MOCK_TOKEN_PREFIX } from '@/config/apiConfig';
 import { SESSION_STORAGE_KEY } from '@/store/slices/authSlice';
-import type { IAuthService } from '@/services/contracts/authService';
+import type { IAuthService } from '../contracts/authService';
 
 interface IStoredSession {
   user: IUsuario;

@@ -8,12 +8,11 @@ describe('Home / Catálogo de Produtos', () => {
     cy.contains('LES Livraria').should('be.visible');
     cy.get('input[placeholder*="Buscar por título"]').should('exist');
     cy.contains('Minha Conta').should('be.visible');
-    cy.contains('Carrinho').should('be.visible');
-    cy.contains('Admin').should('be.visible');
+    cy.get('[data-cy="header-cart-link"]').should('be.visible');
   });
 
   it('deve exibir a navegação secundária com categorias', () => {
-    const categorias = ['Ficção', 'Não-Ficção', 'Romance', 'Fantasia', 'Técnico e Científico', 'Infantil'];
+    const categorias = ['Ficção Científica', 'Fantasia', 'Clássicos', 'Aventura', 'Distopia'];
     categorias.forEach(cat => {
       cy.get('nav').contains(cat).should('be.visible');
     });
@@ -24,7 +23,7 @@ describe('Home / Catálogo de Produtos', () => {
   });
 
   it('deve renderizar o grid de livros destacados', () => {
-    cy.contains('Lançamentos Destacados').should('be.visible');
+    cy.contains('Lançamentos em destaque').should('be.visible');
     cy.get('.cartao-livro').should('have.length.at.least', 1);
     
     // Validar o conteúdo de um livro

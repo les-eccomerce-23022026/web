@@ -1,12 +1,12 @@
-import styles from './FinalizarCompra.module.css';
+import styles from './style.module.css';
 import { FinalizarCompraEnderecoCard } from './FinalizarCompraEnderecoCard';
 import { FinalizarCompraFreteCard } from './FinalizarCompraFreteCard';
 import { FinalizarCompraPagamentoCard } from './FinalizarCompraPagamentoCard';
-import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { FreteCalculoEntregaApi } from '@/components/FinalizarCompra/Entrega';
-import type { ICartaoCreditoInput, ICupomAplicado } from '@/interfaces/pagamento';
-import type { IFreteOpcao } from '@/interfaces/pagamento';
-import type { LinhaPagamentoCheckout } from '@/types/checkout';
+import type { ICheckoutInfo } from '../../../interfaces/checkout';
+import type { FreteCalculoEntregaApi } from '../../../components/FinalizarCompra/Entrega';
+import type { ICartaoCreditoInput, ICupomAplicado } from '../../../interfaces/pagamento';
+import type { IFreteOpcao } from '../../../interfaces/pagamento';
+import type { LinhaPagamentoCheckout } from '../../../types/checkout';
 
 type Props = {
   data: ICheckoutInfo;

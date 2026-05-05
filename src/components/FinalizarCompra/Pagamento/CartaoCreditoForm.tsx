@@ -1,7 +1,7 @@
 import { useCartaoCreditoForm } from './useCartaoCreditoForm';
 import { CartaoCreditoFormView } from './CartaoCreditoFormView';
 import type { ICartaoCreditoInput } from '@/interfaces/pagamento';
-import styles from './CartaoCreditoForm.module.css';
+import styles from './CartaoCreditoForm.style.module.css';
 
 interface CartaoCreditoFormProps {
   bandeirasPermitidas?: string[];

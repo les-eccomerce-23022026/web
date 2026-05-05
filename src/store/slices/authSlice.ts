@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { USE_MOCK } from '@/config/apiConfig';
-
-export const SESSION_STORAGE_KEY = 'les_auth_session';
-
-interface IStoredSession {
-  user: AuthUser;
-  token?: string;
-}
+import {
+  limparSessaoArmazenada,
+  lerSessaoArmazenada,
+  SESSION_STORAGE_KEY,
+  salvarSessaoArmazenada,
+} from './authSessionStorage';
+export { SESSION_STORAGE_KEY };
 
 export interface AuthUser {
   uuid: string;
@@ -27,20 +27,7 @@ interface AuthState {
   sessionLoading: boolean;
 }
 
-const getStoredSession = (): IStoredSession | null => {
-  if (typeof window === 'undefined') return null;
-  const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
-  if (!raw) return null;
-  try {
-    const parsed = JSON.parse(raw) as { user?: AuthUser; token?: string };
-    if (!parsed?.user) return null;
-    return { user: parsed.user, token: parsed.token };
-  } catch {
-    return null;
-  }
-};
-
-const stored = getStoredSession();
+const stored = lerSessaoArmazenada();
 
 const initialState: AuthState = {
   isAuthenticated: !!stored,
@@ -78,16 +65,10 @@ const authSlice = createSlice({
       state.authError = null;
       state.sessionLoading = false;
       if (!action.payload.user) {
-        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        limparSessaoArmazenada();
         return;
       }
-
-      const storedSession: IStoredSession = {
-        user: action.payload.user,
-        token: action.payload.token,
-      };
-
-      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(storedSession));
+      salvarSessaoArmazenada(action.payload.user, action.payload.token);
     },
     logout: (state) => {
       state.isAuthenticated = false;
@@ -95,7 +76,7 @@ const authSlice = createSlice({
       state.user = null;
       state.authError = null;
       state.sessionLoading = false;
-      sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      limparSessaoArmazenada();
     },
     setAuthError: (state, action: PayloadAction<string | null>) => {
       state.authError = action.payload;
@@ -104,22 +85,12 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(restoreSession.fulfilled, (state, action) => {
-        console.log('[SENIOR-DEBUG] restoreSession.fulfilled', { 
-          user: action.payload?.user?.email, 
-          isAuthenticated: !!action.payload 
-        });
         if (action.payload) {
           state.isAuthenticated = true;
           state.token = action.payload.token ?? state.token;
           state.user = action.payload.user;
           if (action.payload.user) {
-            sessionStorage.setItem(
-              SESSION_STORAGE_KEY,
-              JSON.stringify({ 
-                user: action.payload.user, 
-                token: state.token 
-              }),
-            );
+            salvarSessaoArmazenada(action.payload.user, state.token);
           }
         }
         state.sessionLoading = false;
@@ -129,7 +100,7 @@ const authSlice = createSlice({
         state.token = null;
         state.user = null;
         state.sessionLoading = false;
-        sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        limparSessaoArmazenada();
       });
   },
 });

@@ -1,0 +1,67 @@
+'use client';
+
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { adicionarUmAoCarrinho, definirQuantidadeCarrinho } from '@/components/Comum/ControlesCompra/controlesCompraCarrinho';
+import { ControlesCompraQuantidade } from '@/components/Comum/ControlesCompra/ControlesCompraQuantidade';
+import { USE_MOCK } from '@/config/apiConfig';
+import type { ILivro } from '@/interfaces/livro';
+import '@/components/Comum/ControlesCompra/ControlesCompra.css';
+
+interface ControlesCompraProps {
+  livro: ILivro;
+  variant?: 'card' | 'detalhes';
+  className?: string;
+  onAction?: (e: React.MouseEvent) => void;
+}
+
+export const ControlesCompra: React.FC<ControlesCompraProps> = ({
+  livro,
+  variant = 'card',
+  className = '',
+  onAction,
+}) => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const carrinho = useAppSelector((state) => state.carrinho.data);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
+  const itemNoCarrinho = carrinho?.itens.find((i) => i.uuid === livro.uuid);
+  const quantidade = itemNoCarrinho ? itemNoCarrinho.quantidade : 0;
+
+  const usarCarrinhoLocal = USE_MOCK || !isAuthenticated;
+
+  const handleAdicionarAoCarrinho = async (e: React.MouseEvent, redirect: boolean = false) => {
+    e.stopPropagation();
+    if (onAction) onAction(e);
+    await adicionarUmAoCarrinho(dispatch, usarCarrinhoLocal, livro, quantidade);
+    if (redirect) {
+      router.push('/carrinho');
+    }
+  };
+
+  const handleAtualizarQuantidade = async (e: React.MouseEvent, novaQuantidade: number) => {
+    e.stopPropagation();
+    if (onAction) onAction(e);
+    await definirQuantidadeCarrinho(dispatch, usarCarrinhoLocal, livro, novaQuantidade);
+  };
+
+  return (
+    <div className={`controles-compra controles-compra--${variant} ${className}`}>
+      <ControlesCompraQuantidade
+        variant={variant}
+        quantidade={quantidade}
+        onDiminuir={(e) => handleAtualizarQuantidade(e, quantidade - 1)}
+        onAumentar={(e) => handleAdicionarAoCarrinho(e)}
+      />
+      <button
+        className="botao btn-primary controles-compra__btn-comprar"
+        onClick={(e) => handleAdicionarAoCarrinho(e, true)}
+        data-cy={variant === 'detalhes' ? 'adicionar-carrinho-button' : 'adicionar-carrinho-card-button'}
+      >
+        {variant === 'card' ? 'Comprar' : 'Adicionar ao Carrinho'}
+      </button>
+    </div>
+  );
+};

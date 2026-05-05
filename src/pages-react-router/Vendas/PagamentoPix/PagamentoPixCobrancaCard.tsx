@@ -1,7 +1,7 @@
 import { Check, Copy } from 'lucide-react';
-import type { PixPendenteInfo } from '@/utils/finalizarCompraLiquidacaoPagamentos';
+import type { PixPendenteInfo } from '../../../utils/finalizarCompraLiquidacaoPagamentos';
 import { formatPixCountdown } from './pagamentoPixUtils';
-import styles from './PagamentoPix.module.css';
+import styles from './style.module.css';
 
 type Props = {
   pix: PixPendenteInfo;

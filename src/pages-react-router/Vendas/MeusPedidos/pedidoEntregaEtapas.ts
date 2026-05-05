@@ -1,4 +1,4 @@
-import type { StatusPedido } from '@/interfaces/pedido';
+import type { StatusPedido } from '../../../interfaces/pedido';
 
 /** Maior etapa concluída (1–4). Troca pós-entrega = 4. Cancelado = 0. */
 export function statusParaEtapaConcluida(status: StatusPedido): number | 'cancelado' {

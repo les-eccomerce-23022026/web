@@ -1,7 +1,7 @@
-export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
+export const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
 
 /** Base da API. Use `/api` (padrão) com proxy do Vite para cookie HttpOnly na mesma origem. */
-const envBase = import.meta.env.VITE_API_BASE_URL;
+const envBase = process.env.NEXT_PUBLIC_API_BASE_URL;
 export const BASE_URL =
   envBase !== undefined && String(envBase).trim() !== ""
     ? String(envBase).replace(/\/$/, "")
@@ -9,7 +9,7 @@ export const BASE_URL =
 
 if (!USE_MOCK && !BASE_URL) {
   throw new Error(
-    "A variável de ambiente VITE_API_BASE_URL não está definida. Verifique o seu arquivo .env",
+    "A variável de ambiente NEXT_PUBLIC_API_BASE_URL não está definida. Verifique o seu arquivo .env",
   );
 }
 

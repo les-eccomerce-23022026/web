@@ -2,7 +2,7 @@ import pedidosMockJson from '@/mocks/pedidosMock.json';
 import cuponsTrocaMockJson from '@/mocks/cuponsTrocaMock.json';
 import type { IPedido } from '@/interfaces/pedido';
 import type { ICupomTroca } from '@/interfaces/devolucao';
-import type { IPedidoService } from '@/services/contracts/pedidoService';
+import type { IPedidoService } from '../contracts/pedidoService';
 
 /** State em memória para que mutações admin e cliente sejam reflexivas na mesma sessão */
 const pedidosMemoria: IPedido[] = [...(pedidosMockJson as IPedido[])];

@@ -1,23 +1,25 @@
 import { useEffect, useMemo } from 'react';
-import { Link, useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import './CatalogoLivros.css';
-import { useLivrosDestaque } from '@/hooks/useLivros';
-import { LoadingState } from '@/components/Comum/LoadingState/LoadingState';
-import { ErrorState } from '@/components/Comum/ErrorState/ErrorState';
-import { EmptyState } from '@/components/Comum/EmptyState/EmptyState';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { fetchLivros, setTermoBusca } from '@/store/slices/livroSlice';
+import { useLivrosDestaque } from '../../../hooks/useLivros';
+import { LoadingState } from '../../../components/Comum/LoadingState/LoadingState.tsx';
+import { ErrorState } from '../../../components/Comum/ErrorState/ErrorState.tsx';
+import { EmptyState } from '../../../components/Comum/EmptyState/EmptyState.tsx';
+import { useAppSelector, useAppDispatch } from '../../../store/hooks';
+import { fetchLivros, setTermoBusca } from '../../../store/slices/livroSlice';
+import { CapaLivro } from '../../../components/Comum/CapaLivro/CapaLivro.tsx';
+import { ControlesCompra } from '../../../components/Comum/ControlesCompra/ControlesCompra.tsx';
 import { ShoppingCart, AlertCircle, X, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { CapaLivro } from '@/components/Comum/CapaLivro/CapaLivro';
-import { ControlesCompra } from '@/components/Comum/ControlesCompra/ControlesCompra';
 
 export const CatalogoLivros = () => {
   const { destaques, loading, error } = useLivrosDestaque();
-  const navigate = useNavigate();
+  const router = useRouter();
   const dispatch = useAppDispatch();
-  const location = useLocation();
-  const { slug } = useParams<{ slug: string }>();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const pathname = usePathname();
+  const params = useParams();
+  const searchParams = useSearchParams();
 
   const carrinho = useAppSelector((state) => state.carrinho.data);
   const termoBusca = useAppSelector((state) => state.livro.termoBusca);
@@ -26,7 +28,8 @@ export const CatalogoLivros = () => {
   const paginaCatalogo = useAppSelector((state) => state.livro.paginaCatalogo);
   const itensPorPaginaCatalogo = useAppSelector((state) => state.livro.itensPorPaginaCatalogo);
 
-  const isMaisVendidos = location.pathname === '/mais-vendidos';
+  const isMaisVendidos = pathname === '/mais-vendidos';
+  const slug = params.slug as string | undefined;
 
   const paginaAtual = useMemo(() => {
     const p = parseInt(searchParams.get('pagina') || '1', 10);
@@ -65,12 +68,10 @@ export const CatalogoLivros = () => {
     dispatch(setTermoBusca(''));
   };
 
-  const irPagina = (nova: number) => {
-    const p = Math.max(1, Math.min(nova, totalPaginas));
-    const next = new URLSearchParams(searchParams);
-    if (p <= 1) next.delete('pagina');
-    else next.set('pagina', String(p));
-    setSearchParams(next, { replace: true });
+  const handlePaginaChange = (novaPagina: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('pagina', novaPagina.toString());
+    router.push(`?${params.toString()}`);
   };
 
   const mostrarBanner = !termoBusca && !slug && !isMaisVendidos;
@@ -132,7 +133,7 @@ export const CatalogoLivros = () => {
                   key={book.uuid}
                   className="cartao-livro"
                   data-cy="livro-card"
-                  onClick={() => navigate(`/livro/${book.uuid}`)}
+                  onClick={() => router.push(`/livro/${book.uuid}`)}
                 >
                   {quantidadeNoCarrinho > 0 && (
                     <div className="cartao-livro__badge-carrinho" title={`${quantidadeNoCarrinho} no carrinho`}>
@@ -176,7 +177,7 @@ export const CatalogoLivros = () => {
                 type="button"
                 className="catalogo-paginacao__btn"
                 disabled={paginaCatalogo <= 1}
-                onClick={() => irPagina(paginaCatalogo - 1)}
+                onClick={() => handlePaginaChange(paginaCatalogo - 1)}
                 aria-label="Página anterior"
               >
                 <ChevronLeft size={20} /> Anterior
@@ -188,7 +189,7 @@ export const CatalogoLivros = () => {
                 type="button"
                 className="catalogo-paginacao__btn"
                 disabled={paginaCatalogo >= totalPaginas}
-                onClick={() => irPagina(paginaCatalogo + 1)}
+                onClick={() => handlePaginaChange(paginaCatalogo + 1)}
                 aria-label="Próxima página"
               >
                 Próxima <ChevronRight size={20} />

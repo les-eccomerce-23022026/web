@@ -1,4 +1,4 @@
-import type { ILivro } from '@/interfaces/livro';
+import type { ILivro } from './livro';
 
 export type OrdenacaoCatalogo = 'recentes' | 'mais-vendidos';
 

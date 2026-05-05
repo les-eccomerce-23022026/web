@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { ShieldCheck, Smartphone } from 'lucide-react';
-import type { CheckoutPixPendentePayload } from '@/utils/checkoutPixPendente';
+import type { CheckoutPixPendentePayload } from '../../../utils/checkoutPixPendente';
 import { PagamentoPixCobrancaCard } from './PagamentoPixCobrancaCard';
-import styles from './PagamentoPix.module.css';
+import styles from './style.module.css';
 
 type Props = {
   payload: CheckoutPixPendentePayload;
@@ -31,7 +31,7 @@ export const PagamentoPixPagarView = ({
 }: Props) => (
   <div className={styles.wrap} data-cy="pagamento-pix-page">
     <header className={styles.pageHeader}>
-      <Link to="/checkout" className={styles.backLink}>
+      <Link href="/checkout" className={styles.backLink}>
         Voltar ao checkout
       </Link>
       <h1 className={styles.title}>Pagamento via PIX</h1>

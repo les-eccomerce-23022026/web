@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutSession } from '@/store/slices/authSlice';
 import { 
@@ -11,6 +11,10 @@ import {
 import { ClienteService } from '@/services/clienteService';
 import type { IAtualizarPerfilPayload, Genero } from '@/interfaces/cliente';
 import type { IEnderecoCliente } from '@/interfaces/pagamento';
+import {
+  detectarAlteracoesSensveis,
+  obterValoresOriginaisMascarados,
+} from './meuPerfilHelpers';
 
 export const generosDisponiveis = ['Masculino', 'Feminino', 'Outro', 'Prefiro não informar'];
 export const tiposTelefone = ['Celular', 'Residencial', 'Comercial'];
@@ -18,7 +22,7 @@ export const bandeirasPermitidas = ['Visa', 'Mastercard', 'Elo', 'American Expre
 
 export function useMeuPerfil() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // --- Estado Global (Redux) ---
   const { user } = useAppSelector((state) => state.auth);
@@ -149,17 +153,18 @@ export function useMeuPerfil() {
   // --- Handlers ---
 
   const handleUpdateProfile = async () => {
-    // Check if user changed the visualizacao fields (and they are not their masked default)
-    const emailAualCpfMascarado = cliente?.cpfMascarado || cliente?.cpf || '';
-    const emailAualEmailMascarado = cliente?.emailMascarado || cliente?.email || '';
-    const emailAualTelMascarado = cliente?.telefone ? `(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}` : '';
-
-    const isEmailChanged = visualizacaoEmail.trim() !== '' && visualizacaoEmail !== emailAualEmailMascarado;
-    const isCpfChanged = visualizacaoCpf.trim() !== '' && visualizacaoCpf !== emailAualCpfMascarado;
-    const isTelChanged = visualizacaoTelefone.trim() !== '' && visualizacaoTelefone !== emailAualTelMascarado;
+    const valoresOriginais = obterValoresOriginaisMascarados(cliente);
+    const alteracoes = detectarAlteracoesSensveis({
+      visualizacaoEmail,
+      visualizacaoCpf,
+      visualizacaoTelefone,
+      emailAtualMascarado: valoresOriginais.emailAtualMascarado,
+      cpfAtualMascarado: valoresOriginais.cpfAtualMascarado,
+      telefoneAtualMascarado: valoresOriginais.telefoneAtualMascarado,
+    });
 
     // Frontend Validations
-    if (isEmailChanged) {
+    if (alteracoes.isEmailChanged) {
       const emailRegex = /\S+@\S+\.\S+/;
       if (!emailRegex.test(visualizacaoEmail)) {
         showMessage('Por favor, insira um e-mail válido.', 'error');
@@ -167,7 +172,7 @@ export function useMeuPerfil() {
       }
     }
 
-    if (isCpfChanged) {
+    if (alteracoes.isCpfChanged) {
       const cleanCpf = visualizacaoCpf.replace(/\D/g, '');
       if (cleanCpf.length !== 11) {
         showMessage('O CPF deve ter exatamente 11 números.', 'error');
@@ -175,7 +180,7 @@ export function useMeuPerfil() {
       }
     }
 
-    if (isTelChanged) {
+    if (alteracoes.isTelChanged) {
       const cleanTel = visualizacaoTelefone.replace(/\D/g, '');
       if (cleanTel.length < 10 || cleanTel.length > 11) {
         showMessage('O Telefone deve ter 10 ou 11 números, contando com o DDD.', 'error');
@@ -183,7 +188,7 @@ export function useMeuPerfil() {
       }
     }
 
-    if (isEmailChanged || isCpfChanged || isTelChanged) {
+    if (alteracoes.isEmailChanged || alteracoes.isCpfChanged || alteracoes.isTelChanged) {
       setShowModalSenha(true);
       return;
     }
@@ -216,17 +221,19 @@ export function useMeuPerfil() {
     if (genero && genero !== cliente?.genero) payload.genero = genero as Genero;
     if (dataNascimento && dataNascimento !== cliente?.dataNascimento) payload.dataNascimento = dataNascimento;
     
-    const emailAualCpfMascarado = cliente?.cpfMascarado || cliente?.cpf || '';
-    const emailAualEmailMascarado = cliente?.emailMascarado || cliente?.email || '';
-    const emailAualTelMascarado = cliente?.telefone ? `(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}` : '';
+    const valoresOriginais = obterValoresOriginaisMascarados(cliente);
+    const alteracoes = detectarAlteracoesSensveis({
+      visualizacaoEmail,
+      visualizacaoCpf,
+      visualizacaoTelefone,
+      emailAtualMascarado: valoresOriginais.emailAtualMascarado,
+      cpfAtualMascarado: valoresOriginais.cpfAtualMascarado,
+      telefoneAtualMascarado: valoresOriginais.telefoneAtualMascarado,
+    });
 
-    const isEmailChanged = visualizacaoEmail.trim() !== '' && visualizacaoEmail !== emailAualEmailMascarado;
-    const isCpfChanged = visualizacaoCpf.trim() !== '' && visualizacaoCpf !== emailAualCpfMascarado;
-    const isTelChanged = visualizacaoTelefone.trim() !== '' && visualizacaoTelefone !== emailAualTelMascarado;
-
-    if (isEmailChanged) payload.email = visualizacaoEmail;
-    if (isCpfChanged) payload.cpf = visualizacaoCpf.replace(/\D/g, '');
-    if (isTelChanged) {
+    if (alteracoes.isEmailChanged) payload.email = visualizacaoEmail;
+    if (alteracoes.isCpfChanged) payload.cpf = visualizacaoCpf.replace(/\D/g, '');
+    if (alteracoes.isTelChanged) {
       const cleanTel = visualizacaoTelefone.replace(/\D/g, '');
       if (cleanTel.length < 10 || cleanTel.length > 11) {
         showMessage('O Telefone deve ter 10 ou 11 números, contando com o DDD.', 'error');
@@ -276,7 +283,7 @@ export function useMeuPerfil() {
       onConfirm: async () => {
         await ClienteService.inativarConta();
         await dispatch(logoutSession());
-        navigate('/');
+        router.push('/');
       },
       variant: 'danger'
     });
@@ -513,3 +520,5 @@ export function useMeuPerfil() {
     confirmModal: { show: showConfirmModal, config: confirmModalConfig, close: () => setShowConfirmModal(false) }
   };
 }
+
+export type UseMeuPerfilRetorno = ReturnType<typeof useMeuPerfil>;

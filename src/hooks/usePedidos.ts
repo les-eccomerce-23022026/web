@@ -1,13 +1,13 @@
 import { useEffect, useCallback } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
 import {
   fetchPedidosCliente,
   fetchPedidosEmTroca,
   solicitarTrocaThunk,
   autorizarTrocaThunk,
   confirmarRecebimentoTrocaThunk,
-} from '@/store/slices/pedidoSlice';
-import type { StatusPedido } from '@/interfaces/pedido';
+} from '../store/slices/pedidoSlice';
+import type { StatusPedido } from '../interfaces/pedido';
 
 export function usePedidos(clienteUuid?: string) {
   const dispatch = useAppDispatch();

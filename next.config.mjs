@@ -3,11 +3,11 @@ const nextConfig = {
   // Rewrite /api requests to backend Express server
   // This maintains same-origin for HttpOnly cookies
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3002';
     return [
       {
         source: '/api/:path*',
-        destination: `${backendUrl}/:path*`,
+        destination: `${backendUrl}/api/:path*`,
       },
     ];
   },
@@ -25,6 +25,12 @@ const nextConfig = {
       },
     ],
   },
+  // Production optimizations
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  // Static optimization for better performance
+  output: 'standalone',
 };
 
 export default nextConfig;

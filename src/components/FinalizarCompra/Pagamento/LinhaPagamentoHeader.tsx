@@ -1,4 +1,4 @@
-import styles from './CheckoutSplitPagamento.module.css';
+import styles from './CheckoutSplitPagamento.style.module.css';
 import { Check, Trash2 } from 'lucide-react';
 import type { LinhaPagamentoCheckout } from '@/types/checkout';
 

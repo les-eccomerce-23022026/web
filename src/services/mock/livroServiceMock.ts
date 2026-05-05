@@ -3,7 +3,7 @@ import detalhesLivroMock from '@/mocks/detalhesLivroMock.json';
 import listaLivrosAdminMock from '@/mocks/listaLivrosAdminMock.json';
 import type { ICatalogoLivrosResposta, ICategoriaMenu, IFiltroCatalogoLivros } from '@/interfaces/catalogoLivros';
 import type { ILivro } from '@/interfaces/livro';
-import type { ILivroService } from '@/services/contracts/livroService';
+import type { ILivroService } from '../contracts/livroService';
 
 /** Store em memória compartilhado por toda a sessão (mock apenas) */
 const livrosMemoria: ILivro[] = [...(listaLivrosAdminMock.livros as ILivro[])];

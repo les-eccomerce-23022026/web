@@ -1,4 +1,4 @@
-import styles from './CheckoutSplitPagamento.module.css';
+import styles from './CheckoutSplitPagamento.style.module.css';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import type { LinhaPagamentoCheckout } from '@/types/checkout';
 

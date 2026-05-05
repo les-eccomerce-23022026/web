@@ -1,5 +1,5 @@
-import { Skeleton } from '@/components/Comum/Skeleton/Skeleton';
-import styles from './FinalizarCompra.module.css';
+import { Skeleton } from '../../../components/Comum/Skeleton';
+import styles from './style.module.css';
 
 /**
  * Skeleton loader for FinalizarCompra page.

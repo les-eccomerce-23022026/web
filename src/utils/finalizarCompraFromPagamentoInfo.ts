@@ -3,10 +3,10 @@ import {
   type IPagamentoInfo,
   type IEnderecoCliente,
   type ICartaoSalvoPagamento,
-} from '@/interfaces/pagamento';
-import type { ICheckoutInfo, IEnderecoEntrega, ICartaoSalvo } from '@/interfaces/checkout';
-import type { ICarrinho } from '@/interfaces/carrinho';
-import { normalizarBandeiraCartao } from '@/utils/finalizarCompraLiquidacaoPagamentos';
+} from '../interfaces/pagamento';
+import type { ICheckoutInfo, IEnderecoEntrega, ICartaoSalvo } from '../interfaces/checkout';
+import type { ICarrinho } from '../interfaces/carrinho';
+import { normalizarBandeiraCartao } from './finalizarCompraLiquidacaoPagamentos';
 
 function enderecoEntregaDeCliente(primeiro: IEnderecoCliente): IEnderecoEntrega {
   return {

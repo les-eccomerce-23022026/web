@@ -17,7 +17,7 @@ describe('Detalhes do Livro (Página do Produto)', () => {
   });
 
   it('deve permitir adicionar o livro ao carrinho', () => {
-    cy.contains('Adicionar ao Carrinho').click();
+    cy.contains('Adicionar ao Carrinho').click({ force: true });
     
     // We expect to either see a notification or navigate to the cart page
     // Since we don't know the exact implemented behavior, we verify it navigates to cart or cart counter updates

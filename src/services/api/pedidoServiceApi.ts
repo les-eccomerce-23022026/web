@@ -1,8 +1,8 @@
 import type { IPedido, StatusPedido } from '@/interfaces/pedido';
 import type { ICupomTroca } from '@/interfaces/devolucao';
 import { API_ENDPOINTS } from '@/config/apiConfig';
-import { ApiClient } from '@/services/apiClient';
-import type { IPedidoService } from '@/services/contracts/pedidoService';
+import { ApiClient } from '../apiClient';
+import type { IPedidoService } from '../contracts/pedidoService';
 
 /** Formato retornado por GET /minhas-vendas (IVenda no backend). */
 interface IVendaApi {

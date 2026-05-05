@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import styles from './FinalizarCompra.module.css';
-import { CartaoCreditoForm } from '@/components/FinalizarCompra/Pagamento';
-import { Modal } from '@/components/Comum/Modal';
-import type { ICartaoCreditoInput, ICupomAplicado } from '@/interfaces/pagamento';
+import styles from './style.module.css';
+import { CartaoCreditoForm } from '../../../components/FinalizarCompra/Pagamento';
+import { Modal } from '../../../components/Comum/Modal';
+import type { ICartaoCreditoInput, ICupomAplicado } from '../../../interfaces/pagamento';
 import { FinalizarCompraResumoPedido } from './FinalizarCompraResumoPedido';
 import { FinalizarCompraColunaPrincipal } from './FinalizarCompraColunaPrincipal';
 import {
@@ -12,15 +12,15 @@ import {
   pagamentoCobreSaldoFinalizarCompra,
   temFormaPagamentoFinalizarCompra,
 } from './finalizarCompraCalculos';
-import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
-import { useLinhasPagamentoIniciais } from '@/hooks/useLinhasPagamentoIniciais';
-import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { LinhaPagamentoCheckout } from '@/types/checkout';
+import { useFinalizarCompra } from '../../../hooks/useFinalizarCompra';
+import { useLinhasPagamentoIniciais } from '../../../hooks/useLinhasPagamentoIniciais';
+import type { ICarrinho } from '../../../interfaces/carrinho';
+import type { ICheckoutInfo } from '../../../interfaces/checkout';
+import type { LinhaPagamentoCheckout } from '../../../types/checkout';
 import {
   montarParcelasLiquidadasDasLinhasCheckout,
   validarValorMinimoPorMeioNaDivisaoPagamento,
-} from '@/utils/finalizarCompraLinhasPagamento';
+} from '../../../utils/finalizarCompraLinhasPagamento';
 
 type Hook = ReturnType<typeof useFinalizarCompra>;
 

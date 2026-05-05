@@ -28,11 +28,28 @@
 }
 
 /* --- KPIs --- */
+/* Base: Mobile (0px+) - 1 coluna */
 .painel-kpis {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Mobile Large (480px+) - 2 colunas */
+@media (min-width: 480px) {
+  .painel-kpis {
+    grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
+  }
+}
+
+/* Tablet (768px+) - auto-fit */
+@media (min-width: 768px) {
+  .painel-kpis {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     margin-bottom: 3rem;
+  }
 }
 
 .painel-kpi {
@@ -106,11 +123,20 @@
 
 
 /* --- Gráficos --- */
+/* Base: Mobile (0px+) - empilhado */
 .painel-graficos {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
     margin-bottom: 2rem;
+}
+
+/* Tablet (768px+) - grid */
+@media (min-width: 768px) {
+  .painel-graficos {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+  }
 }
 
 .painel-grafico {
@@ -198,35 +224,5 @@
   text-decoration: underline;
 }
 
-/* --- Responsividade --- */
-@media (max-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: 200px 1fr;
-  }
-}
-
-@media (max-width: 768px) {
-  .admin-dashboard {
-    padding: 15px;
-  }
-  
-  .header-admin {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-
-  .dashboard-grid {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .sidebar-admin {
-    width: 100%;
-  }
-
-  .painel-graficos {
-    display: flex;
-    flex-direction: column;
-  }
-}
+/* --- Responsividade Mobile-First --- */
+/* Base: Mobile (0px+) - já implementado no AdminLayout */

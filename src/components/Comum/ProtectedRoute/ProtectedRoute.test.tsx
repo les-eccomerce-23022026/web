@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProtectedRoute } from './ProtectedRoute';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
 
 // Mocks
 const mockUseAppSelector = vi.fn();
 const mockHasPermission = vi.fn();
+const mockRouterReplace = vi.fn();
 
 vi.mock('@/store/hooks', () => ({
   useAppSelector: (fn: (state: unknown) => unknown) => mockUseAppSelector(fn),
@@ -14,6 +14,12 @@ vi.mock('@/store/hooks', () => ({
 vi.mock('@/hooks/useAuthorization', () => ({
   useAuthorization: () => ({
     hasPermission: mockHasPermission,
+  }),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    replace: mockRouterReplace,
   }),
 }));
 
@@ -30,33 +36,26 @@ describe('ProtectedRoute (Unidade)', () => {
     mockUseAppSelector.mockReturnValue({ isAuthenticated: false, sessionLoading: true });
     
     render(
-      <MemoryRouter initialEntries={['/admin']}>
-        <Routes>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/admin" element={<div>Conteúdo Protegido</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
+      <ProtectedRoute>
+        <div>Conteúdo Protegido</div>
+      </ProtectedRoute>
     );
 
     expect(screen.getByTestId('loading')).toBeInTheDocument();
+    expect(screen.queryByText('Conteúdo Protegido')).not.toBeInTheDocument();
   });
 
   it('deve redirecionar para /minha-conta quando o usuário não estiver autenticado', () => {
     mockUseAppSelector.mockReturnValue({ isAuthenticated: false, sessionLoading: false });
 
     render(
-      <MemoryRouter initialEntries={['/admin']}>
-        <Routes>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/admin" element={<div>Conteúdo Protegido</div>} />
-          </Route>
-          <Route path="/minha-conta" element={<div>Tela de Login</div>} />
-        </Routes>
-      </MemoryRouter>
+      <ProtectedRoute>
+        <div>Conteúdo Protegido</div>
+      </ProtectedRoute>
     );
 
-    expect(screen.getByText('Tela de Login')).toBeInTheDocument();
+    expect(mockRouterReplace).toHaveBeenCalledWith('/minha-conta');
+    expect(screen.getByTestId('loading')).toBeInTheDocument();
     expect(screen.queryByText('Conteúdo Protegido')).not.toBeInTheDocument();
   });
 
@@ -65,33 +64,28 @@ describe('ProtectedRoute (Unidade)', () => {
     mockHasPermission.mockReturnValue(false);
 
     render(
-      <MemoryRouter initialEntries={['/admin']}>
-        <Routes>
-          <Route element={<ProtectedRoute requireAction="manage_users" />}>
-            <Route path="/admin" element={<div>Conteúdo Protegido</div>} />
-          </Route>
-          <Route path="/" element={<div>Home</div>} />
-        </Routes>
-      </MemoryRouter>
+      <ProtectedRoute requireAction="manage_users">
+        <div>Conteúdo Protegido</div>
+      </ProtectedRoute>
     );
 
-    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(mockRouterReplace).toHaveBeenCalledWith('/');
+    expect(screen.getByTestId('loading')).toBeInTheDocument();
+    expect(screen.queryByText('Conteúdo Protegido')).not.toBeInTheDocument();
   });
 
-  it('deve permitir acesso ao conteúdo (Outlet) quando autenticado e com permissão', () => {
+  it('deve permitir acesso ao conteúdo quando autenticado e com permissão', () => {
     mockUseAppSelector.mockReturnValue({ isAuthenticated: true, sessionLoading: false });
     mockHasPermission.mockReturnValue(true);
 
     render(
-      <MemoryRouter initialEntries={['/admin']}>
-        <Routes>
-          <Route element={<ProtectedRoute />}>
-            <Route path="/admin" element={<div>Conteúdo Protegido</div>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
+      <ProtectedRoute>
+        <div>Conteúdo Protegido</div>
+      </ProtectedRoute>
     );
 
     expect(screen.getByText('Conteúdo Protegido')).toBeInTheDocument();
+    expect(screen.queryByTestId('loading')).not.toBeInTheDocument();
+    expect(mockRouterReplace).not.toHaveBeenCalled();
   });
 });

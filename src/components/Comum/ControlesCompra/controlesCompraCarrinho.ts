@@ -39,14 +39,13 @@ export function definirQuantidadeCarrinho(
   if (novaQuantidade <= 0) {
     if (usarLocal) {
       dispatch(removerItem(livro.uuid));
-    } else {
-      return dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: 0 }));
+      return;
     }
-    return;
+    return dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: 0 }));
   }
   if (usarLocal) {
     dispatch(atualizarQuantidade({ uuid: livro.uuid, quantidade: novaQuantidade }));
-  } else {
-    return dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: novaQuantidade }));
+    return;
   }
+  return dispatch(sincronizarLinhaCarrinho({ livroUuid: livro.uuid, quantidade: novaQuantidade }));
 }

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useAuthorization } from '../../../hooks/useAuthorization';
-import type { PermissionAction } from '../../../config/permissions';
+import { useAuthorization } from '@/hooks/useAuthorization';
+import type { PermissionAction } from '@/config/permissions';
 
 interface PermissionGuardProps {
   children: React.ReactNode;

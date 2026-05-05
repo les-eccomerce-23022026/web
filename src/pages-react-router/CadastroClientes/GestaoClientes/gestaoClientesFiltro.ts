@@ -1,4 +1,4 @@
-import type { IClienteAdminItem } from '@/services/contracts/adminClienteService';
+import type { IClienteAdminItem } from '../../../services/contracts/adminClienteService';
 
 function nomeEmailCpfContemBusca(c: IClienteAdminItem, filtroBusca: string): boolean {
   if (!filtroBusca) return true;

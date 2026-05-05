@@ -1,4 +1,5 @@
-import { Link, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   BookOpen,
@@ -12,39 +13,39 @@ import type { LucideIcon } from 'lucide-react';
 import styles from './AdminLayout.module.css';
 
 type NavItem = {
-  to: string;
+  href: string;
   label: string;
   icon: LucideIcon;
   requiresMestre?: boolean;
 };
 
 const MENU_PRINCIPAL: NavItem[] = [
-  { to: '/admin', label: 'Dashboard Analytics', icon: LayoutDashboard },
-  { to: '/admin/administradores', label: 'Gerenciar Administradores', icon: Settings, requiresMestre: true },
-  { to: '/admin/livros', label: 'Gestão de Catálogo', icon: BookOpen },
-  { to: '/admin/estoque', label: 'Controle de Estoque', icon: Archive },
-  { to: '/admin/pedidos', label: 'Gerenciar Pedidos', icon: Package },
+  { href: '/admin', label: 'Dashboard Analytics', icon: LayoutDashboard },
+  { href: '/admin/administradores', label: 'Gerenciar Administradores', icon: Settings, requiresMestre: true },
+  { href: '/admin/livros', label: 'Gestão de Catálogo', icon: BookOpen },
+  { href: '/admin/estoque', label: 'Controle de Estoque', icon: Archive },
+  { href: '/admin/pedidos', label: 'Gerenciar Pedidos', icon: Package },
 ];
 
 const MENU_ATENDIMENTO: NavItem[] = [
-  { to: '/admin/trocas', label: 'Solicitações & Trocas', icon: RefreshCw },
-  { to: '/admin/clientes', label: 'Gestão de Clientes', icon: Users },
+  { href: '/admin/trocas', label: 'Solicitações & Trocas', icon: RefreshCw },
+  { href: '/admin/clientes', label: 'Gestão de Clientes', icon: Users },
 ];
 
 type Props = { eAdminMestre?: boolean };
 
 export const AdminLayoutNav = ({ eAdminMestre }: Props) => {
-  const location = useLocation();
-  const isActive = (path: string) => location.pathname === path;
+  const pathname = usePathname();
+  const isActive = (path: string) => pathname === path;
 
   const renderItem = (item: NavItem) => {
     if (item.requiresMestre && !eAdminMestre) return null;
     const Icon = item.icon;
     return (
-      <li key={item.to}>
+      <li key={item.href}>
         <Link
-          to={item.to}
-          className={`${styles.sidebarLink} ${isActive(item.to) ? styles.sidebarLinkActive : ''}`}
+          href={item.href}
+          className={`${styles.navLink} ${isActive(item.href) ? styles.navLinkActive : ''}`}
         >
           <Icon size={18} /> {item.label}
         </Link>

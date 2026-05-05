@@ -1,7 +1,7 @@
-import styles from './FinalizarCompra.module.css';
-import { FreteCalculo } from '@/components/FinalizarCompra/Entrega';
-import type { FreteCalculoEntregaApi } from '@/components/FinalizarCompra/Entrega';
-import type { IFreteOpcao } from '@/interfaces/pagamento';
+import styles from './style.module.css';
+import { FreteCalculo } from '../../../components/FinalizarCompra/Entrega';
+import type { FreteCalculoEntregaApi } from '../../../components/FinalizarCompra/Entrega';
+import type { IFreteOpcao } from '../../../interfaces/pagamento';
 
 type Props = {
   entregaParaFreteCalculo: FreteCalculoEntregaApi;

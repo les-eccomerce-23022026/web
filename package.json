@@ -4,13 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:next": "next dev",
-    "build": "tsc -b && vite build",
-    "build:next": "next build",
+    "dev": "next dev",
+    "dev:vite": "vite",
+    "build": "next build",
+    "build:vite": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "preview:next": "next start",
+    "preview": "next start",
+    "preview:vite": "vite preview",
     "test:e2e:seo": "cypress run --config video=false --config baseUrl=http://localhost:3002 --spec \"cypress/e2e/seo/**/*.cy.ts\"",
     "db:reset:all": "npm --prefix .. run db:reset:all",
     "test:unit": "vitest run",
@@ -36,7 +36,9 @@
     "test:e2e:pagamento:run": "cypress run --config video=false --env injectTestDbHeader=true --spec \"cypress/e2e/user/cliente/checkout/pagamento.cy.ts\"",
     "test:e2e:pagamento:headed": "cypress run --config video=false --headed --browser chrome --env injectTestDbHeader=true --spec \"cypress/e2e/user/cliente/checkout/pagamento.cy.ts\"",
     "test:e2e:entrega-frete:run": "cypress run --config video=false --env injectTestDbHeader=true --spec \"cypress/e2e/user/cliente/checkout/entrega-frete.cy.ts\"",
-    "test:e2e:entrega-frete:headed": "cypress run --config video=false --headed --browser chrome --env injectTestDbHeader=true --spec \"cypress/e2e/user/cliente/checkout/entrega-frete.cy.ts\""
+    "test:e2e:entrega-frete:headed": "cypress run --config video=false --headed --browser chrome --env injectTestDbHeader=true --spec \"cypress/e2e/user/cliente/checkout/entrega-frete.cy.ts\"",
+    "padroes:check": "node ./scripts/validarPadroesFrontend.mjs",
+    "padroes:check:strict": "node ./scripts/validarPadroesFrontend.mjs --strict"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
@@ -47,7 +49,8 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.5",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^7.13.1"
+    "redux-persist": "^6.0.0",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

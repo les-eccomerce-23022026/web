@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { loginSuccess, setAuthError } from '@/store/slices/authSlice';
-import { fetchCarrinho } from '@/store/slices/carrinhoSlice';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { AuthService } from '@/services/authService';
-import { USE_MOCK } from '@/config/apiConfig';
-import { ClienteService } from '@/services/clienteService';
-import clientesMock from '@/mocks/clientesMock.json';
-import type { Genero, ITelefone } from '@/interfaces/cliente';
-import type { IEnderecoCliente } from '@/interfaces/pagamento';
+import { useRouter } from 'next/navigation';
+import { loginSuccess, setAuthError } from '../../../store/slices/authSlice';
+import { fetchCarrinho } from '../../../store/slices/carrinhoSlice';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { AuthService } from '../../../services/authService';
+import { USE_MOCK } from '../../../config/apiConfig';
+import { ClienteService } from '../../../services/clienteService';
+import clientesMock from '../../../mocks/clientesMock.json';
+import type { Genero, ITelefone } from '../../../interfaces/cliente';
+import type { IEnderecoCliente } from '../../../interfaces/pagamento';
 import {
   mensagemErroCadastroStep1,
   mensagemErroEnderecoObrigatorio,
@@ -62,7 +62,7 @@ export function useAutenticacaoCliente() {
   const [isRegistering, setIsRegistering] = useState(false);
 
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { authError } = useAppSelector((state) => state.auth);
 
   // --- Domínios do mock ---
@@ -87,10 +87,10 @@ export function useAutenticacaoCliente() {
       void dispatch(fetchCarrinho());
 
       if (data.user.role === 'admin') {
-        navigate('/admin');
+        router.push('/admin');
         return;
       }
-      navigate('/');
+      router.push('/');
     } catch (err) {
       setLoginError('E-mail ou senha inválidos. Verifique suas credenciais.');
       console.error('[Auth] Falha no login:', err);

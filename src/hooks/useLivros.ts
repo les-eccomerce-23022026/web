@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { LivroService } from '@/services/livroService';
-import type { ILivro } from '@/interfaces/livro';
-import { useAppSelector } from '@/store/hooks';
+import { LivroService } from '../services/livroService';
+import type { ILivro } from '../interfaces/livro';
+import { useAppSelector } from '../store/hooks';
 
 export function useLivrosDestaque() {
   const livros = useAppSelector((state) => state.livro.livrosDestaque);

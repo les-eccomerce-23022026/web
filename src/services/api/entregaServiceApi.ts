@@ -5,8 +5,8 @@ import type {
   IFreteCalculoOutput,
   IFreteOpcao,
 } from '@/interfaces/entrega';
-import type { IEntregaService } from '@/services/contracts/entregaService';
-import { ApiClient } from '@/services/apiClient';
+import type { IEntregaService } from '../contracts/entregaService';
+import { ApiClient } from '../apiClient';
 import { API_ENDPOINTS } from '@/config/apiConfig';
 
 /** Resposta de POST /frete/cotar */

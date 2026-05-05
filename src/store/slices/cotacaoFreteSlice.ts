@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { IFreteCalculoOutput, IFreteOpcao } from '@/interfaces/entrega';
-import { logout } from '@/store/slices/authSlice';
-import { limparCarrinho } from '@/store/slices/carrinhoSlice';
+import { logout } from './authSlice';
+import { limparCarrinho } from './carrinhoSlice';
 
 export interface CotacaoFretePersistida {
   opcaoSelecionada: IFreteOpcao;

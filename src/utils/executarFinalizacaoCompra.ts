@@ -1,109 +1,29 @@
-import type { NavigateFunction } from 'react-router-dom';
-import type { AppDispatch } from '@/store';
-import type { AuthUser } from '@/store/slices/authSlice';
-import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICupomAplicado, IPagamentoParcial } from '@/interfaces/pagamento';
-import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { IEnderecoEntregaInput, IEntregaInputDto } from '@/interfaces/entrega';
-import { CheckoutService } from '@/services/checkoutService';
-import { limparCarrinhoAposPedido, montarPayloadVenda } from '@/utils/finalizarCompraPedido';
-import {
-  montarLiquidaçõesEfetivasFinalizarCompra,
-  totaisFinalizarCompraComFrete,
-} from '@/utils/finalizarCompraTotais';
-import {
-  executarPagamentosAposCriarVenda,
-  valorTotalPedidoSemCupons,
-  type ResultadoLiquidacaoPagamentos,
-} from '@/utils/finalizarCompraLiquidacaoPagamentos';
-import type { OpcoesFinalizarCheckout } from '@/types/checkout';
-import type { IPagamentoService } from '@/services/contracts/pagamentoService';
-import { USE_MOCK } from '@/config/apiConfig';
-import type { IFreteOpcao } from '@/interfaces/entrega';
-import { salvarCartoesPerfilSeSolicitado } from '@/utils/finalizarCompraSalvarCartaoPerfil';
-import { salvarCheckoutPixPendente } from '@/utils/checkoutPixPendente';
-import { mapearErroUsuario } from '@/utils/mapearErro';
+import type { AppDispatch } from '../store/index';
+import type { AuthUser } from '../store/slices/authSlice';
+import type { ICarrinho } from '../interfaces/carrinho';
+import type { ICupomAplicado, IPagamentoParcial } from '../interfaces/pagamento';
+import type { ICheckoutInfo } from '../interfaces/checkout';
+import type { IEnderecoEntregaInput, IEntregaInputDto } from '../interfaces/entrega';
+import { limparCarrinhoAposPedido } from './finalizarCompraPedido';
+import type { ResultadoLiquidacaoPagamentos } from './finalizarCompraLiquidacaoPagamentos';
+import type { OpcoesFinalizarCheckout } from '../types/checkout';
+import type { IPagamentoService } from '../services/contracts/pagamentoService';
+import { USE_MOCK } from '../config/apiConfig';
+import type { IFreteOpcao } from '../interfaces/entrega';
+import { salvarCartoesPerfilSeSolicitado } from './finalizarCompraSalvarCartaoPerfil';
+import { mapearErroUsuario } from './mapearErro';
+import { validarFormaPagamentoETotais, validarFreteEEnderecoApiReal } from './checkoutValidations';
+import { liquidarPagamentosEEntregaNaApi } from './checkoutLiquidacao';
+import { criarVendaCheckout } from './checkoutVenda';
+import { navegarAposCheckout } from './checkoutNavegacao';
+
+type NextRouter = {
+  push: (path: string) => void;
+  replace: (path: string) => void;
+  back: () => void;
+};
 
 type FreteSelecionado = IFreteOpcao | null | undefined;
-
-function validarFormaPagamentoETotais(
-  total: number,
-  pagamentosEfetivos: IPagamentoParcial[],
-): void {
-  if (total > 0 && pagamentosEfetivos.length === 0) {
-    throw new Error('Selecione uma forma de pagamento');
-  }
-}
-
-function validarFreteEEnderecoApiReal(
-  freteSelecionado: FreteSelecionado,
-  enderecoEntrega: IEnderecoEntregaInput | undefined | null,
-): void {
-  if (!freteSelecionado) {
-    throw new Error('Selecione uma opção de frete.');
-  }
-  if (!enderecoEntrega) {
-    throw new Error('Selecione o endereço de entrega.');
-  }
-}
-
-async function liquidarPagamentosEEntregaNaApi(params: {
-  pagamentoService: IPagamentoService;
-  vendaUuid: string;
-  subtotal: number;
-  frete: number;
-  /** Mesmo valor persistido em `vendas.ven_frete` (backend pode recalcular via cotação). Obrigatório para POST /entregas. */
-  custoFreteRegistradoNaVenda: number;
-  cuponsAplicados: ICupomAplicado[];
-  pagamentosEfetivos: IPagamentoParcial[];
-  opcoes: OpcoesFinalizarCheckout | undefined;
-  checkoutData: ICheckoutInfo | null;
-  enderecoEntrega: IEnderecoEntregaInput;
-  cadastrarEntrega: (
-    vendaUuid: string,
-    endereco: IEntregaInputDto['endereco'],
-    custoFrete: number,
-  ) => Promise<unknown>;
-}): Promise<ResultadoLiquidacaoPagamentos> {
-  const {
-    pagamentoService,
-    vendaUuid,
-    subtotal,
-    frete,
-    cuponsAplicados,
-    pagamentosEfetivos,
-    opcoes,
-    checkoutData,
-    enderecoEntrega,
-    cadastrarEntrega,
-    custoFreteRegistradoNaVenda,
-  } = params;
-
-  const liquidacao = await executarPagamentosAposCriarVenda({
-    pagamentoService,
-    vendaUuid,
-    subtotal,
-    frete,
-    cuponsAplicados,
-    pagamentosEfetivos,
-    opcoesOpcional: opcoes,
-    cartoesSalvos: checkoutData?.cartoesSalvos ?? [],
-  });
-
-  if (liquidacao.pixPendente) {
-    return liquidacao;
-  }
-
-  const entregaResult = await cadastrarEntrega(
-    vendaUuid,
-    enderecoEntrega,
-    custoFreteRegistradoNaVenda,
-  );
-  if (!entregaResult) {
-    throw new Error('Não foi possível registrar a entrega.');
-  }
-  return liquidacao;
-}
 
 /** Orquestra validação, criação de venda, liquidação e navegação. */
 // eslint-disable-next-line complexity -- fluxo de checkout integrado em um único ponto de entrada
@@ -115,7 +35,7 @@ export async function executarFinalizarCheckout(params: {
   freteSelecionado: FreteSelecionado;
   opcoes?: OpcoesFinalizarCheckout;
   dispatch: AppDispatch;
-  navigate: NavigateFunction;
+  navigate: NextRouter;
   pagamentoService: IPagamentoService;
   checkoutData: ICheckoutInfo | null;
   cadastrarEntrega: (
@@ -142,37 +62,25 @@ export async function executarFinalizarCheckout(params: {
     onSalvarCartaoCheckoutFalhou,
   } = params;
 
-  const frete = freteSelecionado?.valor ?? carrinho.resumo.frete;
-  const { subtotal, total } = totaisFinalizarCompraComFrete(carrinho, frete, cuponsAplicados);
-  const pagamentosEfetivos = montarLiquidaçõesEfetivasFinalizarCompra(opcoes, total, parcelasLiquidacao);
-
-  validarFormaPagamentoETotais(total, pagamentosEfetivos);
-
   const enderecoEntrega = opcoes?.enderecoEntrega;
 
   if (!USE_MOCK) {
     validarFreteEEnderecoApiReal(freteSelecionado, enderecoEntrega);
   }
 
-  const valorTotalPedido = valorTotalPedidoSemCupons(subtotal, frete);
-
-  const payloadVenda = montarPayloadVenda(
-    usuario,
+  const { vendaUuid, custoFreteNaVenda, subtotal, frete, pagamentosEfetivos } = await criarVendaCheckout({
     carrinho,
-    frete,
-    subtotal,
-    valorTotalPedido,
-    freteSelecionado ?? null,
+    usuario,
+    cuponsAplicados,
+    parcelasLiquidacao,
+    freteSelecionado,
+    opcoes,
+  });
+
+  validarFormaPagamentoETotais(
+    pagamentosEfetivos.reduce((s, p) => s + p.valor, 0),
+    pagamentosEfetivos,
   );
-
-  const resultado = await CheckoutService.finalizarCompra(payloadVenda);
-  const vendaUuid = resultado.id ?? resultado.ven_uuid;
-  if (!vendaUuid) {
-    throw new Error('Resposta da venda sem identificador.');
-  }
-
-  const custoFreteNaVenda =
-    typeof resultado.frete === 'number' && !Number.isNaN(resultado.frete) ? resultado.frete : frete;
 
   let liquidacaoPix: ResultadoLiquidacaoPagamentos | null = null;
   if (!USE_MOCK) {
@@ -197,28 +105,21 @@ export async function executarFinalizarCheckout(params: {
     const err = e instanceof Error ? e : new Error(String(e));
     if (onSalvarCartaoCheckoutFalhou) {
       onSalvarCartaoCheckoutFalhou(err);
-    } else {
-      console.warn('[Checkout] Não foi possível salvar o cartão no perfil:', err);
+      return;
     }
+    console.warn('[Checkout] Não foi possível salvar o cartão no perfil:', err);
   }
 
   await limparCarrinhoAposPedido(dispatch);
 
-  if (!USE_MOCK && liquidacaoPix?.pixPendente && freteSelecionado && enderecoEntrega) {
-    salvarCheckoutPixPendente({
-      vendaUuid,
-      pixPendentes: liquidacaoPix.pixPendentes,
-      entrega: {
-        endereco: enderecoEntrega,
-        tipoFrete: freteSelecionado.tipo,
-        custoFrete: freteSelecionado.valor,
-      },
-    });
-    navigate(`/pagamento-pix?venda=${encodeURIComponent(vendaUuid)}`);
-    return;
-  }
-
-  navigate(`/pedido-confirmado?pedido=${vendaUuid}`);
+  navegarAposCheckout({
+    liquidacaoPix,
+    vendaUuid,
+    freteSelecionado,
+    enderecoEntrega: enderecoEntrega ?? undefined,
+    navigate,
+    useMock: USE_MOCK,
+  });
 }
 
 export function tratarErroFinalizarCheckout(

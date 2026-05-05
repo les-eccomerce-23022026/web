@@ -1,4 +1,4 @@
-import type { ILivro } from '@/interfaces/livro';
+import type { ILivro } from '../interfaces/livro';
 
 /**
  * Une destaques e lista admin para resolver título de livro em pedidos/trocas

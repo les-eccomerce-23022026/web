@@ -6,12 +6,12 @@
  * - VITE_USE_MOCK=false → AuthServiceApi   (chamadas ao backend real)
  *
  * O resto da aplicação importa apenas daqui:
- *   import { AuthService } from '@/services/authService';
+ *   import { AuthService } from './authService';
  */
-import { USE_MOCK } from '@/config/apiConfig';
-import { AuthServiceMock } from '@/services/mock/authServiceMock';
-import { AuthServiceApi } from '@/services/api/authServiceApi';
-import type { IAuthService } from '@/services/contracts/authService';
+import { USE_MOCK } from '../config/apiConfig';
+import { AuthServiceMock } from './mock/authServiceMock';
+import { AuthServiceApi } from './api/authServiceApi';
+import type { IAuthService } from './contracts/authService';
 
 export const AuthService: IAuthService = USE_MOCK
   ? new AuthServiceMock()

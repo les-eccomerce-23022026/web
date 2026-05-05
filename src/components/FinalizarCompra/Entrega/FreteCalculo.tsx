@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { Package, MapPin } from 'lucide-react';
+import { Package } from 'lucide-react';
 import type { IFreteCalculoOutput, IFreteOpcao } from '@/interfaces/entrega';
-import styles from './FreteCalculo.module.css';
+import { FreteCepInput } from './FreteCepInput';
+import { FreteOpcoesLista } from './FreteOpcoesLista';
+import { FreteInfoAdicional } from './FreteInfoAdicional';
+import styles from './FreteCalculo.style.module.css';
 
 /** Estado de cálculo de frete injetado pelo pai (ex.: `useEntrega` em `useFinalizarCompra`) — uma única instância por fluxo. */
 export interface FreteCalculoEntregaApi {
@@ -34,8 +37,7 @@ export const FreteCalculo = ({
   const { calcularFrete, freteCalculado, loading, error, formatarCep: formatar } = entrega;
   const [cep, setCep] = useState(() => (initialCep ? formatar(initialCep) : ''));
 
-  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valor = e.target.value;
+  const handleCepChange = (valor: string) => {
     const cepFormatado = formatar(valor);
     setCep(cepFormatado);
   };
@@ -61,98 +63,24 @@ export const FreteCalculo = ({
         <h4>Cálculo de Frete</h4>
       </div>
 
-      {/* Input de CEP */}
-      <div className={styles['cep-input-wrapper']}>
-        <div className={styles['cep-input-group']}>
-          <div className={styles['input-com-label']}>
-            <label htmlFor="cep-destino">CEP de Destino</label>
-            <div className={styles['cep-input-com-icon']}>
-              <input
-                id="cep-destino"
-                type="text"
-                value={cep}
-                onChange={handleCepChange}
-                onKeyPress={handleKeyPress}
-                placeholder="00000-000"
-                maxLength={9}
-                data-cy="checkout-freight-zip-input"
-              />
-              <MapPin size={18} className={styles['cep-icon']} />
-            </div>
-          </div>
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={() => void handleCalcular()}
-            disabled={loading}
-            aria-busy={loading}
-            data-cy="checkout-freight-calculate-button"
-          >
-            Calcular
-          </button>
-        </div>
+      <FreteCepInput
+        cep={cep}
+        loading={loading}
+        onCepChange={handleCepChange}
+        onCalcular={handleCalcular}
+        onKeyPress={handleKeyPress}
+        error={error}
+      />
 
-        {loading && (
-          <div className={styles['loading-bar']} role="status" aria-label="Calculando frete">
-            <div className={styles['loading-bar-progress']}></div>
-          </div>
-        )}
-
-        {error && (
-          <p className={styles['erro']} role="alert" data-cy="checkout-freight-error">
-            {error.message}
-          </p>
-        )}
-      </div>
-
-      {/* Opções de Frete */}
       {freteCalculado && (
-        <div className={styles['opcoes-frete']} data-cy="checkout-freight-options">
-          <p className={styles['opcoes-titulo']}>Opções de frete disponíveis:</p>
-
-          {freteCalculado.opcoes.map((opcao) => (
-            <div
-              key={opcao.uuid}
-              className={`${styles['opcao-frete']} ${freteSelecionado?.uuid === opcao.uuid ? styles['selecionado'] : ''}`}
-              onClick={() => handleSelecionar(opcao)}
-              data-cy={`checkout-freight-option-${opcao.tipo}`}
-              data-selected={freteSelecionado?.uuid === opcao.uuid}
-            >
-              <div className={styles['opcao-conteudo']}>
-                <div className={styles['opcao-tipo']}>
-                  <span className={styles['tipo-badge']}>{opcao.tipo}</span>
-                </div>
-
-                <div className={styles['opcao-info']}>
-                  <p className={styles['prazo']}>{opcao.prazo}</p>
-                </div>
-
-                <div className={styles['opcao-valor']}>
-                  {opcao.valor === 0 ? (
-                    <span className={styles['gratis']}>Grátis</span>
-                  ) : (
-                    <span>R$ {opcao.valor.toFixed(2).replace('.', ',')}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <FreteOpcoesLista
+          freteCalculado={freteCalculado}
+          freteSelecionado={freteSelecionado}
+          onSelecionar={handleSelecionar}
+        />
       )}
 
-      {/* Informações adicionais */}
-      {freteCalculado && (
-        <div className={styles['frete-info-adicional']}>
-          <p>
-            <strong>CEP de Origem:</strong> {freteCalculado.cepOrigem}
-          </p>
-          {freteCalculado.pesoTotal && (
-            <p>
-              <strong>Peso Total:</strong> {freteCalculado.pesoTotal} kg
-            </p>
-          )}
-        </div>
-      )}
+      {freteCalculado && <FreteInfoAdicional freteCalculado={freteCalculado} />}
     </div>
   );
 }

@@ -1,5 +1,5 @@
-import styles from './GerenciarAdmins.module.css';
-import type { IAdmin } from '@/interfaces/admin';
+import styles from './style.module.css';
+import type { IAdmin } from '../../../interfaces/admin';
 
 type Props = {
   adm: IAdmin;

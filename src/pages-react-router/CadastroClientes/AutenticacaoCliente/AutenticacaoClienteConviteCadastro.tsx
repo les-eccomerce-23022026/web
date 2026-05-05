@@ -1,4 +1,4 @@
-import styles from './AutenticacaoCliente.module.css';
+import styles from './style.module.css';
 import type { AutenticacaoClienteCadastroState } from './autenticacaoClienteTypes';
 
 type Props = {

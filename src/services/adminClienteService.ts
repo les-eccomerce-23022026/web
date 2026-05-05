@@ -1,7 +1,7 @@
-import { USE_MOCK } from '@/config/apiConfig';
-import { AdminClienteServiceMock } from '@/services/mock/adminClienteServiceMock';
-import { AdminClienteServiceApi } from '@/services/api/adminClienteServiceApi';
-import type { IAdminClienteService } from '@/services/contracts/adminClienteService';
+import { USE_MOCK } from '../config/apiConfig';
+import { AdminClienteServiceMock } from './mock/adminClienteServiceMock';
+import { AdminClienteServiceApi } from './api/adminClienteServiceApi';
+import type { IAdminClienteService } from './contracts/adminClienteService';
 
 export const AdminClienteService: IAdminClienteService = USE_MOCK
   ? new AdminClienteServiceMock()

@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import type { IAdmin, IAdminFormState } from '@/interfaces/admin';
+import { useAppSelector, useAppDispatch } from '../../../store/hooks';
+import type { IAdmin, IAdminFormState } from '../../../interfaces/admin';
 import {
   fetchAdmins,
   updateAdmin,
-}  from '@/store/slices/adminSlice';
-import { AuthService } from '@/services/authService';
+}  from '../../../store/slices/adminSlice';
+import { AuthService } from '../../../services/authService';
 import { mensagemSeSalvarInvalido } from './gerenciarAdminsValidacao';
 
 const INITIAL_FORM: IAdminFormState = { 

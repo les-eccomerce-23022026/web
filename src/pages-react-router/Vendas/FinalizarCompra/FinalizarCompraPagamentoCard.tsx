@@ -1,13 +1,13 @@
-import styles from './FinalizarCompra.module.css';
+import styles from './style.module.css';
 import {
   CartoesSalvosList,
   CheckoutSplitPagamento,
   CupomInput,
-} from '@/components/FinalizarCompra/Pagamento';
-import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { ICartaoCreditoInput, ICupomAplicado } from '@/interfaces/pagamento';
-import type { LinhaPagamentoCheckout } from '@/types/checkout';
-import type { ICartaoSalvoPagamento } from '@/interfaces/pagamento';
+} from '../../../components/FinalizarCompra/Pagamento';
+import type { ICheckoutInfo } from '../../../interfaces/checkout';
+import type { ICartaoCreditoInput, ICupomAplicado } from '../../../interfaces/pagamento';
+import type { LinhaPagamentoCheckout } from '../../../types/checkout';
+import type { ICartaoSalvoPagamento } from '../../../interfaces/pagamento';
 
 type Props = {
   data: ICheckoutInfo;

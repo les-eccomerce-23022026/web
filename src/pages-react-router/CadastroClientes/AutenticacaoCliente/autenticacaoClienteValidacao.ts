@@ -1,6 +1,6 @@
-import type { ITelefone } from '@/interfaces/cliente';
-import type { Genero } from '@/interfaces/cliente';
-import type { IEnderecoCliente } from '@/interfaces/pagamento';
+import type { ITelefone } from '../../../interfaces/cliente';
+import type { Genero } from '../../../interfaces/cliente';
+import type { IEnderecoCliente } from '../../../interfaces/pagamento';
 
 export const REGEX_SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
 export const REGEX_CPF_COM_MASCARA = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;

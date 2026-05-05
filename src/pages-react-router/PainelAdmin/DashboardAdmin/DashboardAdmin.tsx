@@ -4,9 +4,9 @@ import { DollarSign, Percent, Users, Package, AlertTriangle, BookOpen, ShieldChe
 import './DashboardAdmin.css';
 import type { ChartData } from 'chart.js';
 import { useEffect } from 'react';
-import { useDashboardAdmin } from '@/hooks/useDashboardAdmin';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchLivrosAdmin } from '@/store/slices/livroSlice';
+import { useDashboardAdmin } from '../../../hooks/useDashboardAdmin';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { fetchLivrosAdmin } from '../../../store/slices/livroSlice';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler);
 

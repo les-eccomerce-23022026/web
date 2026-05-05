@@ -1,12 +1,12 @@
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import type { ICartaoCreditoInput, IPoliticaParcelamentoCartao } from '@/interfaces/pagamento';
 import type { LinhaPagamentoCheckout } from '@/types/checkout';
-import { CartaoCheckoutResumo } from './CartaoCheckoutResumo';
+import { CartaoCheckoutResumo } from './index';
 import {
   linhaAbaixoMinimoDivisaoPagamento,
   linhaCheckoutVisualValidada,
 } from '@/utils/finalizarCompraLinhasPagamento';
-import styles from './CheckoutSplitPagamento.module.css';
+import styles from './CheckoutSplitPagamento.style.module.css';
 import { BlocoNovoCartaoCheckout } from './BlocoNovoCartaoCheckout';
 import { LinhaPagamentoHeader } from './LinhaPagamentoHeader';
 import { LinhaPagamentoConfiguracao } from './LinhaPagamentoConfiguracao';

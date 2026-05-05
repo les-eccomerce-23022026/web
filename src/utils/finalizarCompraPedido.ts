@@ -1,10 +1,10 @@
-import type { AppDispatch } from '@/store';
-import { limparCarrinho, limparCarrinhoRemoto } from '@/store/slices/carrinhoSlice';
-import { USE_MOCK } from '@/config/apiConfig';
-import type { AuthUser } from '@/store/slices/authSlice';
-import type { ICarrinho } from '@/interfaces/carrinho';
-import type { IVendaInput } from '@/services/contracts/checkoutService';
-import type { IFreteOpcao } from '@/interfaces/entrega';
+import type { AppDispatch } from '../store/index';
+import { limparCarrinho, limparCarrinhoRemoto } from '../store/slices/carrinhoSlice';
+import { USE_MOCK } from '../config/apiConfig';
+import type { AuthUser } from '../store/slices/authSlice';
+import type { ICarrinho } from '../interfaces/carrinho';
+import type { IVendaInput } from '../services/contracts/checkoutService';
+import type { IFreteOpcao } from '../interfaces/entrega';
 
 export async function limparCarrinhoAposPedido(dispatch: AppDispatch): Promise<void> {
   if (USE_MOCK) {

@@ -1,7 +1,10 @@
+'use client';
+
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '@/store/hooks';
-import { adicionarLivro } from '@/store/slices/livroSlice';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAppDispatch } from '../../../store/hooks';
+import { adicionarLivro } from '../../../store/slices/livroSlice';
 import './CadastrarLivroAdmin.css';
 import {
   calcularPrecoVenda,
@@ -9,9 +12,9 @@ import {
   buildNovoLivroFromForm,
 } from './cadastrarLivroValidacao';
 
-export const CadastrarLivroAdmin = () => {
+function CadastrarLivroAdmin() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [form, setForm] = useState({
     titulo: '',
@@ -40,14 +43,14 @@ export const CadastrarLivroAdmin = () => {
     }
     const novoLivro = buildNovoLivroFromForm(form, precoVendaCalculado);
     dispatch(adicionarLivro(novoLivro));
-    navigate('/admin/livros');
+    router.push('/admin/livros');
   };
 
   return (
     <div className="cadastrar-livro-page">
       <div className="cadastrar-livro-page-header">
         <h3>Cadastrar Novo Livro</h3>
-        <Link to="/admin/livros"><button className="btn-secondary">Voltar / Cancelar</button></Link>
+        <Link href="/admin/livros"><button className="btn-secondary">Voltar / Cancelar</button></Link>
       </div>
 
       <div className="cadastrar-livro-container">
@@ -171,10 +174,13 @@ export const CadastrarLivroAdmin = () => {
         </div>
 
         <div className="cadastrar-livro-actions">
-          <button onClick={() => navigate('/admin/livros')} className="btn-secondary cadastrar-livro-action-btn">Cancelar</button>
+          <button onClick={() => router.push('/admin/livros')} className="btn-secondary cadastrar-livro-action-btn">Cancelar</button>
           <button onClick={handleSave} className="btn-primary cadastrar-livro-action-btn">✅ Salvar Novo Livro</button>
         </div>
       </div>
     </div>
   );
 }
+
+export default CadastrarLivroAdmin;
+export { CadastrarLivroAdmin };

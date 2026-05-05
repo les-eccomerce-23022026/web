@@ -1,6 +1,6 @@
-import styles from './GerenciarAdmins.module.css';
+import styles from './style.module.css';
 import { GerenciarAdminRow } from './GerenciarAdminRow';
-import type { IAdmin } from '@/interfaces/admin';
+import type { IAdmin } from '../../../interfaces/admin';
 
 type Props = {
   admins: IAdmin[];

@@ -1,5 +1,5 @@
-import type { ICartaoCreditoInput, IPagamentoParcial } from '@/interfaces/pagamento';
-import type { LinhaPagamentoCheckout } from '@/types/checkout';
+import type { ICartaoCreditoInput, IPagamentoParcial } from '../interfaces/pagamento';
+import type { LinhaPagamentoCheckout } from '../types/checkout';
 
 export const PREFIXO_LINHA_NOVO = 'novo:';
 export const PREFIXO_LINHA_PIX = 'pix:';

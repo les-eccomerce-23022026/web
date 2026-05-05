@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
+import styles from './ErrorBoundary.module.css';
 
 interface Props { children: ReactNode; }
 interface State { hasError: boolean; error: Error | null; }
@@ -18,9 +19,9 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '24px', color: '#b91c1c', background: '#fef2f2', fontFamily: 'monospace' }}>
-          <h2 style={{ marginBottom: '8px' }}>Erro de renderização</h2>
-          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+        <div className={styles.containerErro}>
+          <h2 className={styles.tituloErro}>Erro de renderização</h2>
+          <pre className={styles.detalhesErro}>
             {this.state.error?.message}
             {'\n\n'}
             {this.state.error?.stack}

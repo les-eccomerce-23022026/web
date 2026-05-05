@@ -10,7 +10,7 @@ import type {
   ISelecionarPagamentoLiquidaBody,
   IResumoPagamentosVenda,
 } from '@/interfaces/pagamento';
-import type { IPagamentoService } from '@/services/contracts/pagamentoService';
+import type { IPagamentoService } from '../contracts/pagamentoService';
 import { generateSafeId } from '@/utils/generateId';
 
 function delay<T>(data: T, ms = 300): Promise<T> {

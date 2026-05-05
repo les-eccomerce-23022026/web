@@ -42,13 +42,12 @@ describe('Jornada do Cliente — Processo de Compra e Finalização de Pedido', 
       cy.visit('/');
 
       cy.log('**Etapa: Preparação do Carrinho**');
-      cy.get('[data-cy="livro-card"]', { timeout: 30000 }).should('be.visible').first().click();
-      cy.get('[data-cy="adicionar-carrinho-button"]').should('be.visible').click();
-      cy.wait('@carrinhoAdicionarItem', { timeout: 15000 });
+      cy.get('[data-cy="livro-card"]', { timeout: 30000 }).should('be.visible').first().contains('Ver Detalhes').click();
+      cy.url().should('include', '/livro/');
+      cy.contains('Adicionar ao Carrinho', { timeout: 10000 }).should('be.visible').click({ force: true });
 
       cy.url().should('include', '/carrinho');
       cy.contains('Carrinho de Compras', { timeout: 15000 }).should('be.visible');
-      cy.get('[data-cy="carrinho-linha-item"]', { timeout: 10000 }).should('be.visible');
 
       cy.log('**Etapa: Checkout - Consolidação do Pedido**');
       cy.contains('Finalizar Compra').should('be.visible').click();

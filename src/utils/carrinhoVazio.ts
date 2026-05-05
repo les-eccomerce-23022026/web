@@ -1,4 +1,4 @@
-import type { ICarrinho } from '@/interfaces/carrinho';
+import type { ICarrinho } from '../interfaces/carrinho';
 
 export function criarCarrinhoVazio(): ICarrinho {
   return {

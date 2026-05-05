@@ -1,7 +1,7 @@
 import type { KeyboardEvent } from 'react';
 import { Check, CreditCard, Star } from 'lucide-react';
 import type { ICartaoSalvoPagamento } from '@/interfaces/pagamento';
-import styles from './CartoesSalvosList.module.css';
+import styles from './CartoesSalvosList.style.module.css';
 
 interface CartoesSalvosListProps {
   cartoes: ICartaoSalvoPagamento[];

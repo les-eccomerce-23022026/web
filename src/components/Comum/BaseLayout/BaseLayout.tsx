@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from '@/hooks/nextRouterCompat';
 import { Header } from '@/components/Comum/Header/Header';
 import { Footer } from '@/components/Comum/Footer/Footer';
 import { GlobalErrorBanner } from '@/components/Comum/GlobalErrorBanner/GlobalErrorBanner';

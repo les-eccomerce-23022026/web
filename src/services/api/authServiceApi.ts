@@ -6,8 +6,8 @@ import type {
 } from '@/interfaces/auth';
 import type { IAdmin } from '@/interfaces/admin';
 import { API_ENDPOINTS } from '@/config/apiConfig';
-import { ApiClient } from '@/services/apiClient';
-import type { IAuthService } from '@/services/contracts/authService';
+import { ApiClient } from '../apiClient';
+import type { IAuthService } from '../contracts/authService';
 
 export class AuthServiceApi implements IAuthService {
   async login(payload: ILoginPayload): Promise<ILoginResponse> {

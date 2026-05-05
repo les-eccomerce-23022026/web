@@ -1,6 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react';
-import styles from './GerenciarAdmins.module.css';
-import type { IAdminFormState } from '@/interfaces/admin';
+import styles from './style.module.css';
+import type { IAdminFormState } from '../../../interfaces/admin';
 
 type Props = {
   form: IAdminFormState;

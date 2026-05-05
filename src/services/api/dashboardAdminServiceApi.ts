@@ -1,7 +1,7 @@
 import type { IDashboardAdminInfo } from '@/interfaces/dashboardAdmin';
 import { API_ENDPOINTS } from '@/config/apiConfig';
-import { ApiClient } from '@/services/apiClient';
-import type { IDashboardAdminService } from '@/services/contracts/dashboardAdminService';
+import { ApiClient } from '../apiClient';
+import type { IDashboardAdminService } from '../contracts/dashboardAdminService';
 
 export class DashboardAdminServiceApi implements IDashboardAdminService {
   async getDashboardInfo(): Promise<IDashboardAdminInfo> {

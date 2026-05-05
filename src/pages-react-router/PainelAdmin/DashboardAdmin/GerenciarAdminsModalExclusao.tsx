@@ -1,5 +1,5 @@
-import { Modal } from '@/components/Comum/Modal';
-import type { IAdmin } from '@/interfaces/admin';
+import { Modal } from '../../../components/Comum/Modal';
+import type { IAdmin } from '../../../interfaces/admin';
 
 type Props = {
   isOpen: boolean;

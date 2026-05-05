@@ -1,4 +1,4 @@
-import type { IResumoPagamentosVenda } from '@/interfaces/pagamento';
+import type { IResumoPagamentosVenda } from '../../../interfaces/pagamento';
 
 export function vendaStatusNorm(s: string): string {
   return s.trim().toUpperCase();

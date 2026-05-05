@@ -6,7 +6,7 @@ import {
   Package,
   Truck,
 } from 'lucide-react';
-import type { StatusPedido } from '@/interfaces/pedido';
+import type { StatusPedido } from '../../../interfaces/pedido';
 
 /** Agrupa estilos de badge e barra no CSS module. */
 export type PedidoStatusVariant =

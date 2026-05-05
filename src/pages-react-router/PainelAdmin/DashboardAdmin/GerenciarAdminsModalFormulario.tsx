@@ -1,8 +1,8 @@
-import { Modal } from '@/components/Comum/Modal';
-import styles from './GerenciarAdmins.module.css';
+import { Modal } from '../../../components/Comum/Modal';
+import styles from './style.module.css';
 import { GerenciarAdminsFormNovoAdminCampos } from './GerenciarAdminsFormNovoAdminCampos';
-import type { IAdmin } from '@/interfaces/admin';
-import type { IAdminFormState } from '@/interfaces/admin';
+import type { IAdmin } from '../../../interfaces/admin';
+import type { IAdminFormState } from '../../../interfaces/admin';
 
 type Props = {
   isOpen: boolean;

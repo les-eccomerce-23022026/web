@@ -1,4 +1,4 @@
-import styles from './AutenticacaoCliente.module.css';
+import styles from './style.module.css';
 import { AutenticacaoClienteConviteCadastro } from './AutenticacaoClienteConviteCadastro';
 import { AutenticacaoClienteWizardCadastro } from './AutenticacaoClienteWizardCadastro';
 import type { AutenticacaoClienteCadastroState, AutenticacaoClienteDominios } from './autenticacaoClienteTypes';

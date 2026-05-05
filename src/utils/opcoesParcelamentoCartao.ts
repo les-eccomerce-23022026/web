@@ -1,7 +1,7 @@
 import {
   PARCELAS_CARTAO_MAX,
   type IPoliticaParcelamentoCartao,
-} from '@/interfaces/pagamento';
+} from '../interfaces/pagamento';
 
 /** Uma opção de parcelamento para exibir no select do checkout (valor da linha de cartão). */
 export type OpcaoParcelamentoCartao = {

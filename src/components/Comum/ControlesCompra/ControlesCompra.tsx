@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { adicionarUmAoCarrinho, definirQuantidadeCarrinho } from './controlesCompraCarrinho';
 import { ControlesCompraQuantidade } from './ControlesCompraQuantidade';
@@ -21,7 +21,7 @@ export const ControlesCompra: React.FC<ControlesCompraProps> = ({
   onAction,
 }) => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  const router = useRouter();
   const carrinho = useAppSelector((state) => state.carrinho.data);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
@@ -35,7 +35,7 @@ export const ControlesCompra: React.FC<ControlesCompraProps> = ({
     if (onAction) onAction(e);
     await adicionarUmAoCarrinho(dispatch, usarCarrinhoLocal, livro, quantidade);
     if (redirect) {
-      navigate('/carrinho');
+      router.push('/carrinho');
     }
   };
 

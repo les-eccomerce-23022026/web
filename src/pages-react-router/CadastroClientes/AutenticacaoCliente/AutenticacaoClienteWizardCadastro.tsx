@@ -1,4 +1,4 @@
-import styles from './AutenticacaoCliente.module.css';
+import styles from './style.module.css';
 import { AutenticacaoClienteCadastroPasso1 } from './AutenticacaoClienteCadastroPasso1';
 import { AutenticacaoClienteCadastroPasso2 } from './AutenticacaoClienteCadastroPasso2';
 import { AutenticacaoClienteIndicadorPassosCadastro } from './AutenticacaoClienteIndicadorPassosCadastro';

@@ -1,6 +1,6 @@
-import { Modal } from '@/components/Comum/Modal/Modal';
-import type { IPedido } from '@/interfaces/pedido';
-import styles from './MeusPedidos.module.css';
+import { Modal } from '../../../components/Comum/Modal';
+import type { IPedido } from '../../../interfaces/pedido';
+import styles from './style.module.css';
 
 type Props = {
   pedido: IPedido | null;

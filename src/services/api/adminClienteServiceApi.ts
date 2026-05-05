@@ -1,10 +1,10 @@
-import { ApiClient } from '@/services/apiClient';
+import { ApiClient } from '../apiClient';
 import { API_ENDPOINTS } from '@/config/apiConfig';
 import type { 
   IAdminClienteService, 
   IFiltrosListaClientes, 
   IResultadoListaClientes 
-} from '@/services/contracts/adminClienteService';
+} from '../contracts/adminClienteService';
 
 export class AdminClienteServiceApi implements IAdminClienteService {
   async listarClientes(filtros?: IFiltrosListaClientes): Promise<IResultadoListaClientes> {

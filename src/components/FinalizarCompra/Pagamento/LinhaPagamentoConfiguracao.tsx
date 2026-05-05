@@ -2,7 +2,7 @@ import { AlertCircle } from 'lucide-react';
 import type { LinhaPagamentoCheckout } from '@/types/checkout';
 import type { IPoliticaParcelamentoCartao } from '@/interfaces/pagamento';
 import { opcoesParcelamentoCartaoParaValor } from '@/utils/opcoesParcelamentoCartao';
-import styles from './CheckoutSplitPagamento.module.css';
+import styles from './CheckoutSplitPagamento.style.module.css';
 
 type Props = {
   linha: LinhaPagamentoCheckout;

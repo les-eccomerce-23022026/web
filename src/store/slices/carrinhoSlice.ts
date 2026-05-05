@@ -3,7 +3,13 @@ import { CarrinhoService } from '@/services/carrinhoService';
 import type { ICarrinho, IItemCarrinho } from '@/interfaces/carrinho';
 import type { RootState } from '@/store';
 import { criarCarrinhoVazio } from '@/utils/carrinhoVazio';
-import { logout } from '@/store/slices/authSlice';
+import {
+  adicionarOuAtualizarItemCarrinho,
+  atualizarQuantidadeItemCarrinho,
+  limparItensCarrinho,
+  removerItemCarrinho,
+} from './carrinhoSliceHelpers';
+import { logout } from './authSlice';
 
 interface CarrinhoState {
   data: ICarrinho | null;
@@ -52,55 +58,19 @@ const carrinhoSlice = createSlice({
   reducers: {
     adicionarItem: (state, action: PayloadAction<IItemCarrinho>) => {
       if (!state.data) return;
-
-      const existe = state.data.itens.find((i) => i.uuid === action.payload.uuid);
-      if (existe) {
-        existe.quantidade += action.payload.quantidade;
-        existe.subtotal = existe.quantidade * existe.precoUnitario;
-
-        const subtotal = state.data.itens.reduce((acc, item) => acc + item.subtotal, 0);
-        state.data.resumo.subtotal = subtotal;
-        state.data.resumo.frete = state.data.itens.length ? state.data.fretePadrao.valor : 0;
-        state.data.resumo.total = subtotal + state.data.resumo.frete;
-        return;
-      }
-
-      state.data.itens.push(action.payload);
-
-      const subtotal = state.data.itens.reduce((acc, item) => acc + item.subtotal, 0);
-      state.data.resumo.subtotal = subtotal;
-      state.data.resumo.frete = state.data.itens.length ? state.data.fretePadrao.valor : 0;
-      state.data.resumo.total = subtotal + state.data.resumo.frete;
+      adicionarOuAtualizarItemCarrinho(state.data, action.payload);
     },
     removerItem: (state, action: PayloadAction<string>) => {
-      if (state.data) {
-        state.data.itens = state.data.itens.filter((i) => i.uuid !== action.payload);
-        const subtotal = state.data.itens.reduce((acc, item) => acc + item.subtotal, 0);
-        state.data.resumo.subtotal = subtotal;
-        state.data.resumo.frete = state.data.itens.length ? state.data.fretePadrao.valor : 0;
-        state.data.resumo.total = subtotal + state.data.resumo.frete;
-      }
+      if (!state.data) return;
+      removerItemCarrinho(state.data, action.payload);
     },
     atualizarQuantidade: (state, action: PayloadAction<{ uuid: string; quantidade: number }>) => {
-      if (state.data) {
-        const item = state.data.itens.find((i) => i.uuid === action.payload.uuid);
-        if (item && action.payload.quantidade > 0) {
-          item.quantidade = action.payload.quantidade;
-          item.subtotal = item.quantidade * item.precoUnitario;
-          const subtotal = state.data.itens.reduce((acc, i) => acc + i.subtotal, 0);
-          state.data.resumo.subtotal = subtotal;
-          state.data.resumo.frete = state.data.itens.length ? state.data.fretePadrao.valor : 0;
-          state.data.resumo.total = subtotal + state.data.resumo.frete;
-        }
-      }
+      if (!state.data) return;
+      atualizarQuantidadeItemCarrinho(state.data, action.payload);
     },
     limparCarrinho: (state) => {
-      if (state.data) {
-        state.data.itens = [];
-        state.data.resumo.subtotal = 0;
-        state.data.resumo.frete = 0;
-        state.data.resumo.total = 0;
-      }
+      if (!state.data) return;
+      limparItensCarrinho(state.data);
     },
     /** Atualiza frete e total após seleção de opção em `POST /frete/cotar` (ex.: carrinho). */
     definirFreteResumoCarrinho: (state, action: PayloadAction<{ frete: number }>) => {
@@ -114,29 +84,20 @@ const carrinhoSlice = createSlice({
     builder
       .addCase(fetchCarrinho.pending, (state) => {
         state.status = 'loading';
-        console.log('[SENIOR-DEBUG] fetchCarrinho.pending');
       })
       .addCase(fetchCarrinho.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.data = action.payload;
         state.error = null;
-        console.log('[SENIOR-DEBUG] fetchCarrinho.fulfilled', {
-          itemCount: action.payload?.itens?.length || 0,
-          total: action.payload?.resumo?.total
-        });
       })
       .addCase(fetchCarrinho.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Erro ao carregar o carrinho';
-        console.error('[SENIOR-DEBUG] fetchCarrinho.rejected', action.error);
       })
       .addCase(sincronizarLinhaCarrinho.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.data = action.payload;
         state.error = null;
-        console.log('[SENIOR-DEBUG] sincronizarLinhaCarrinho.fulfilled', {
-          itemCount: action.payload?.itens?.length || 0
-        });
       })
       .addCase(sincronizarLinhaCarrinho.rejected, (state, action) => {
         state.error = action.error.message || 'Erro ao atualizar o carrinho';

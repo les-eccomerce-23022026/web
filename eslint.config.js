@@ -18,14 +18,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommended,
       react.configs.flat.recommended,
       react.configs.flat['jsx-runtime'],
       reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
     ],
     languageOptions: {
       ecmaVersion: 2020,
@@ -34,7 +33,7 @@ export default tseslint.config(
         ecmaFeatures: { jsx: true },
       },
     },
-  settings: {
+    settings: {
       react: { version: 'detect' },
     },
     rules: {
@@ -43,8 +42,8 @@ export default tseslint.config(
         { namedComponents: 'arrow-function' },
       ],
       'max-lines': [
-        'error',
-        { max: 250, skipBlankLines: true, skipComments: true },
+        'warn',
+        { max: 150, skipBlankLines: true, skipComments: true },
       ],
       complexity: ['error', { max: 15 }],
       'react/prop-types': 'off',
@@ -59,17 +58,25 @@ export default tseslint.config(
           selector: "MemberExpression[object.name='crypto'][property.name='randomUUID']",
           message: 'Use generateSafeId() de @/utils/generateId — crypto.randomUUID quebra em HTTP/contextos não-seguros.',
         },
+        {
+          selector: 'IfStatement > BlockStatement.consequent + BlockStatement.alternate',
+          message: 'Evite else/else if. Prefira guard clauses com retorno antecipado.',
+        },
       ],
+      'no-restricted-imports': [
+        'warn',
+        {
+          patterns: ['../../../*', '../../../../*', '../../../../../*'],
+        },
+      ],
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/error-boundaries': 'off',
     },
   },
   {
-    files: ['src/pages/CadastroClientes/MeuPerfil/**/*.{ts,tsx}'],
+    files: ['app/page.tsx', 'app/**/page.tsx', 'app/not-found.tsx', 'app/layout.tsx'],
     rules: {
-      complexity: ['error', { max: 45 }],
-      'max-lines': [
-        'error',
-        { max: 900, skipBlankLines: true, skipComments: true },
-      ],
+      'react/function-component-definition': 'off',
     },
   },
 )

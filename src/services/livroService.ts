@@ -5,10 +5,10 @@
  * - VITE_USE_MOCK=true  → LivroServiceMock  (dados JSON locais, sem HTTP)
  * - VITE_USE_MOCK=false → LivroServiceApi   (chamadas ao backend real)
  */
-import { USE_MOCK } from '@/config/apiConfig';
-import { LivroServiceMock } from '@/services/mock/livroServiceMock';
-import { LivroServiceApi } from '@/services/api/livroServiceApi';
-import type { ILivroService } from '@/services/contracts/livroService';
+import { USE_MOCK } from '../config/apiConfig';
+import { LivroServiceMock } from './mock/livroServiceMock';
+import { LivroServiceApi } from './api/livroServiceApi';
+import type { ILivroService } from './contracts/livroService';
 
 export const LivroService: ILivroService = USE_MOCK
   ? new LivroServiceMock()

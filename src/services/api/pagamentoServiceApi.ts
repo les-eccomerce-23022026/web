@@ -10,9 +10,9 @@ import type {
   TipoPagamento,
   StatusPagamento,
 } from '@/interfaces/pagamento';
-import type { IPagamentoService } from '@/services/contracts/pagamentoService';
+import type { IPagamentoService } from '../contracts/pagamentoService';
 import { API_ENDPOINTS } from '@/config/apiConfig';
-import { ApiClient } from '@/services/apiClient';
+import { ApiClient } from '../apiClient';
 
 function mapStatusPagamentoApi(s: string): StatusPagamento {
   const u = s.toUpperCase();

@@ -1,5 +1,5 @@
-import styles from './AutenticacaoCliente.module.css';
-import type { IEnderecoCliente } from '@/interfaces/pagamento';
+import styles from './style.module.css';
+import type { IEnderecoCliente } from '../../../interfaces/pagamento';
 
 type Props = {
   titulo: string;

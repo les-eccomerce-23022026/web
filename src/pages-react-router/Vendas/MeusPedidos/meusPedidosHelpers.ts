@@ -1,6 +1,5 @@
-import type { StatusPedido, IPedido, IItemPedido } from '@/interfaces/pedido';
-import type { ILivro } from '@/interfaces/livro';
-import styles from './MeusPedidos.module.css';
+import type { StatusPedido, IPedido, IItemPedido } from '../../../interfaces/pedido';
+import type { ILivro } from '../../../interfaces/livro';
 
 export function formatMoeda(n: number): string {
   return `R$ ${n.toFixed(2).replace('.', ',')}`;
@@ -13,17 +12,17 @@ export function tituloItem(item: IItemPedido, livrosMap: Map<string, ILivro>): s
 
 export function getStatusClass(status: StatusPedido): string {
   const map: Record<string, string> = {
-    Entregue: styles.statusEntregue,
-    'Em Trânsito': styles.statusTransito,
-    Preparando: styles.statusPreparando,
-    Pendentes: styles.statusPendente,
-    'Aguardando Pagamento': styles.statusAguardandoPagamento,
-    'Em Processamento': styles.statusProcessamento,
-    'Em Troca': styles.statusEmTroca,
-    'Troca Autorizada': styles.statusTrocaAutorizada,
-    Trocado: styles.statusTrocado,
-    Cancelado: styles.statusCancelado,
-    Devoluções: styles.statusDevolucoes,
+    Entregue: 'status-entregue',
+    'Em Trânsito': 'status-transito',
+    Preparando: 'status-preparando',
+    Pendentes: 'status-pendente',
+    'Aguardando Pagamento': 'status-aguardando-pagamento',
+    'Em Processamento': 'status-processamento',
+    'Em Troca': 'status-em-troca',
+    'Troca Autorizada': 'status-troca-autorizada',
+    Trocado: 'status-trocado',
+    Cancelado: 'status-cancelado',
+    Devoluções: 'status-devolucoes',
   };
   return map[status] || '';
 }

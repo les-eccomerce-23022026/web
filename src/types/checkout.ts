@@ -1,5 +1,5 @@
-import type { ICartaoCreditoInput } from '@/interfaces/pagamento';
-import type { IEnderecoEntregaInput } from '@/interfaces/entrega';
+import type { ICartaoCreditoInput } from '../interfaces/pagamento';
+import type { IEnderecoEntregaInput } from '../interfaces/entrega';
 
 /** Linha de split no checkout (cartão salvo, novo ou PIX). */
 export type LinhaPagamentoCheckout = {

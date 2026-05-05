@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import {
   fetchAllPedidos,
   despacharPedidoThunk,
   confirmarEntregaThunk,
   darBaixaEstoqueThunk,
-} from '@/store/slices/pedidoSlice';
-import type { IPedido, StatusPedido } from '@/interfaces/pedido';
-import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
+} from '../../../store/slices/pedidoSlice';
+import type { IPedido, StatusPedido } from '../../../interfaces/pedido';
+import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
 
 const STATUS_APROVADOS: StatusPedido[] = ['Em Processamento'];
 const STATUS_TRANSITO: StatusPedido[] = ['Em Trânsito'];

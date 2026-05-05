@@ -39,7 +39,7 @@ function getApiBaseUrl(): string {
     return '/api';
   }
   // Server-side: use backend URL directly
-  return process.env.BACKEND_URL || 'http://localhost:3000/api';
+  return process.env.BACKEND_URL || 'http://localhost:3002/api';
 }
 
 /**

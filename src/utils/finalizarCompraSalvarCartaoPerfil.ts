@@ -1,5 +1,5 @@
-import type { ICartaoCreditoInput, ICartaoSalvoPagamento as ICartaoCliente } from '@/interfaces/pagamento';
-import { ClienteService } from '@/services/clienteService';
+import type { ICartaoCreditoInput, ICartaoSalvoPagamento as ICartaoCliente } from '../interfaces/pagamento';
+import { ClienteService } from '../services/clienteService';
 
 /** Monta o payload de `ClienteService.adicionarCartao` a partir do cartão digitado no checkout. */
 export function montarPayloadAdicionarCartaoCheckout(

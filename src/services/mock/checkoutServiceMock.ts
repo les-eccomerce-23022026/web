@@ -1,6 +1,6 @@
 import checkoutMock from '@/mocks/checkoutMock.json';
 import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { ICheckoutService, IVendaInput, IVendaResultado } from '@/services/contracts/checkoutService';
+import type { ICheckoutService, IVendaInput, IVendaResultado } from '../contracts/checkoutService';
 
 export class CheckoutServiceMock implements ICheckoutService {
   async getCheckoutInfo(): Promise<ICheckoutInfo> {

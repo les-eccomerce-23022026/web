@@ -1,10 +1,10 @@
-import type { ICheckoutInfo } from '@/interfaces/checkout';
-import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICupomAplicado, ICartaoCreditoInput, IPagamentoParcial } from '@/interfaces/pagamento';
-import { linhaPagamentoProntaParaLiquidacao } from '@/utils/finalizarCompraLinhasPagamento';
-import type { IFreteOpcao } from '@/interfaces/entrega';
-import type { IEnderecoEntregaInput } from '@/interfaces/entrega';
-import { calcularDescontoCupons } from '@/utils/finalizarCompraCupomTotais';
+import type { ICheckoutInfo } from '../../../interfaces/checkout';
+import type { ICarrinho } from '../../../interfaces/carrinho';
+import type { ICupomAplicado, ICartaoCreditoInput, IPagamentoParcial } from '../../../interfaces/pagamento';
+import { linhaPagamentoProntaParaLiquidacao } from '../../../utils/finalizarCompraLinhasPagamento';
+import type { IFreteOpcao } from '../../../interfaces/entrega';
+import type { IEnderecoEntregaInput } from '../../../interfaces/entrega';
+import { calcularDescontoCupons } from '../../../utils/finalizarCompraCupomTotais';
 
 export function enderecoFinalizarCompraDerivado(
   data: ICheckoutInfo,

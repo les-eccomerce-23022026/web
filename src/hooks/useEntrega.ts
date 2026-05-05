@@ -1,37 +1,31 @@
 import { useState, useCallback, useMemo } from 'react';
-import { EntregaServiceApi } from '@/services/api/entregaServiceApi';
+import { EntregaServiceApi } from '../services/api/entregaServiceApi';
 import type { 
   IEntregaInputDto,
   IEntregaOutputDto,
-  IFreteCalculoInput,
   IFreteCalculoOutput,
   IFreteOpcao
-} from '@/interfaces/entrega';
+} from '../interfaces/entrega';
+import {
+  criarDadosCalculoFrete,
+  criarDadosEntrega,
+  normalizarCepHidratado,
+  normalizarErroEntrega,
+} from './useEntregaHelpers';
 
-/**
- * Valida CEP (deve ter 8 dígitos)
- */
 export function validarCep(cep: string): boolean {
   const cepLimpo = cep.replace(/\D/g, '');
   return cepLimpo.length === 8;
 }
 
-/**
- * Formata CEP para o formato 00000-000
- */
 export function formatarCep(cep: string): string {
   const cepLimpo = cep.replace(/\D/g, '');
-  
   if (cepLimpo.length <= 5) {
     return cepLimpo;
   }
-  
   return cepLimpo.slice(0, 5) + '-' + cepLimpo.slice(5, 8);
 }
 
-/**
- * Hook para gerenciamento de entrega/frete no checkout
- */
 export function useEntrega() {
   const [freteCalculado, setFreteCalculado] = useState<IFreteCalculoOutput | null>(null);
   const [freteSelecionado, setFreteSelecionado] = useState<IFreteOpcao | null>(null);
@@ -42,47 +36,30 @@ export function useEntrega() {
 
   const service = useMemo(() => new EntregaServiceApi(), []);
 
-  /**
-   * Calcula frete para um CEP
-   */
   const calcularFrete = useCallback(async (cep: string, peso?: number, valorTotal?: number) => {
     setLoading(true);
     setError(null);
-    
     try {
       if (!validarCep(cep)) {
         throw new Error('CEP inválido');
       }
-      
-      const dados: IFreteCalculoInput = {
-        cepDestino: cep,
-        peso,
-        valorTotal
-      };
-      
+      const dados = criarDadosCalculoFrete(cep, peso, valorTotal);
       const resultado = await service.calcularFrete(dados);
       setFreteCalculado(resultado);
       setCepDestino(cep);
-      
       return resultado;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Erro ao calcular frete'));
+      setError(normalizarErroEntrega(err, 'Erro ao calcular frete'));
       return null;
     } finally {
       setLoading(false);
     }
   }, [service]);
 
-  /**
-   * Seleciona opção de frete
-   */
   const selecionarFrete = useCallback((frete: IFreteOpcao) => {
     setFreteSelecionado(frete);
   }, []);
 
-  /**
-   * Cadastra entrega para uma venda
-   */
   const cadastrarEntrega = useCallback(async (
     vendaUuid: string,
     endereco: IEntregaInputDto['endereco']
@@ -91,33 +68,26 @@ export function useEntrega() {
       setError(new Error('Selecione uma opção de frete'));
       return null;
     }
-    
     setLoading(true);
     setError(null);
-    
     try {
-      const dados: IEntregaInputDto = {
+      const dados = criarDadosEntrega(
         vendaUuid,
-        tipoFrete: freteSelecionado.tipo,
+        freteSelecionado.tipo,
         endereco,
-        custo: freteSelecionado.valor
-      };
-      
+        freteSelecionado.valor,
+      );
       const entrega = await service.cadastrarEntrega(dados);
       setEntregaCadastrada(entrega);
-      
       return entrega;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Erro ao cadastrar entrega'));
+      setError(normalizarErroEntrega(err, 'Erro ao cadastrar entrega'));
       return null;
     } finally {
       setLoading(false);
     }
   }, [service, freteSelecionado]);
 
-  /**
-   * Limpa estado de frete
-   */
   const limparFrete = useCallback(() => {
     setFreteCalculado(null);
     setFreteSelecionado(null);
@@ -130,8 +100,7 @@ export function useEntrega() {
     (payload: { freteCalculado: IFreteCalculoOutput; opcao: IFreteOpcao; cep: string }) => {
       setFreteCalculado(payload.freteCalculado);
       setFreteSelecionado(payload.opcao);
-      const cepLimpo = payload.cep.replace(/\D/g, '');
-      setCepDestino(cepLimpo.length === 8 ? cepLimpo : payload.cep);
+      setCepDestino(normalizarCepHidratado(payload.cep));
       setError(null);
     },
     [],

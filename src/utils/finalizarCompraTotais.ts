@@ -1,7 +1,7 @@
-import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICupomAplicado, IPagamentoParcial } from '@/interfaces/pagamento';
-import type { OpcoesFinalizarCheckout } from '@/types/checkout';
-import { calcularDescontoCupons } from '@/utils/finalizarCompraCupomTotais';
+import type { ICarrinho } from '../interfaces/carrinho';
+import type { ICupomAplicado, IPagamentoParcial } from '../interfaces/pagamento';
+import type { OpcoesFinalizarCheckout } from '../types/checkout';
+import { calcularDescontoCupons } from './finalizarCompraCupomTotais';
 
 export function totaisFinalizarCompraComFrete(
   carrinho: ICarrinho,
@@ -25,7 +25,9 @@ export function montarLiquidaçõesEfetivasFinalizarCompra(
       pagamentosEfetivos = [
         { referenciaMeioPagamento: opcoes.cartaoSalvoUuid, valor: total, parcelasCartao: 1 },
       ];
-    } else if (opcoes?.novoCartao) {
+      return pagamentosEfetivos;
+    }
+    if (opcoes?.novoCartao) {
       pagamentosEfetivos = [{ referenciaMeioPagamento: 'novo', valor: total, parcelasCartao: 1 }];
     }
   }

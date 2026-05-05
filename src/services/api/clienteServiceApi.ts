@@ -2,10 +2,10 @@ import type { IAtualizarPerfilPayload, IAlterarSenhaPayload, IRegistroClienteCom
 import type { ICliente } from '@/interfaces/cliente';
 import type { IEnderecoCliente, ICartaoSalvoPagamento as ICartaoCliente } from '@/interfaces/pagamento';
 import { API_ENDPOINTS } from '@/config/apiConfig';
-import { ApiClient } from '@/services/apiClient';
-import type { IClienteService } from '@/services/contracts/clienteService';
-import { uuidBandeiraParaNome, validadeMmAaParaIso } from '@/services/api/clienteCartaoApiHelpers';
-import { normalizarPerfilCliente } from '@/services/api/clienteNormalizarPerfil';
+import { ApiClient } from '../apiClient';
+import type { IClienteService } from '../contracts/clienteService';
+import { uuidBandeiraParaNome, validadeMmAaParaIso } from './clienteCartaoApiHelpers';
+import { normalizarPerfilCliente } from './clienteNormalizarPerfil';
 
 export class ClienteServiceApi implements IClienteService {
   async obterPerfil(_userUuid: string): Promise<ICliente> {

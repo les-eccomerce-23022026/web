@@ -1,4 +1,4 @@
-import type { ILivro } from '@/interfaces/livro';
+import type { ILivro } from '../../../interfaces/livro';
 
 export function livroPassaBusca(livro: ILivro, term: string): boolean {
   if (!term) return true;

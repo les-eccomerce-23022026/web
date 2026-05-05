@@ -1,7 +1,7 @@
 import type { ICarrinho } from '@/interfaces/carrinho';
 import { API_ENDPOINTS } from '@/config/apiConfig';
-import { ApiClient } from '@/services/apiClient';
-import type { ICarrinhoService } from '@/services/contracts/carrinhoService';
+import { ApiClient } from '../apiClient';
+import type { ICarrinhoService } from '../contracts/carrinhoService';
 
 export class CarrinhoServiceApi implements ICarrinhoService {
   async getCarrinho(): Promise<ICarrinho> {

@@ -5,10 +5,10 @@
  * - VITE_USE_MOCK=true  → CheckoutServiceMock
  * - VITE_USE_MOCK=false → CheckoutServiceApi
  */
-import { USE_MOCK } from '@/config/apiConfig';
-import { CheckoutServiceMock } from '@/services/mock/checkoutServiceMock';
-import { CheckoutServiceApi } from '@/services/api/checkoutServiceApi';
-import type { ICheckoutService } from '@/services/contracts/checkoutService';
+import { USE_MOCK } from '../config/apiConfig';
+import { CheckoutServiceMock } from './mock/checkoutServiceMock';
+import { CheckoutServiceApi } from './api/checkoutServiceApi';
+import type { ICheckoutService } from './contracts/checkoutService';
 
 export const CheckoutService: ICheckoutService = USE_MOCK
   ? new CheckoutServiceMock()

@@ -1,12 +1,13 @@
 /**
  * Book detail page - Server Component with SSR
- * MVP route for SEO testing
+ * Uses migrated DetalhesLivro component
  */
 
-import { fetchLivroByUuid } from '../../../lib/data/fetchLivro';
-import { buildLivroPageMeta } from '../../../lib/data/buildPageMeta';
+import { fetchLivroByUuid } from 'lib/data/fetchLivro';
+import { buildLivroPageMeta } from 'lib/data/buildPageMeta';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { DetalhesLivro } from 'app/components/DetalhesLivro';
 
 interface PageProps {
   params: Promise<{
@@ -15,40 +16,25 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  try {
-    const { uuid } = await params;
-    const livro = await fetchLivroByUuid(uuid);
-    return buildLivroPageMeta(livro);
-  } catch (error) {
+  const { uuid } = await params;
+  const livro = await fetchLivroByUuid(uuid);
+
+  if (!livro) {
     return {
       title: 'Livro não encontrado - Barnes & Noble',
     };
   }
+
+  return buildLivroPageMeta(livro);
 }
 
 export default async function LivroPage({ params }: PageProps) {
-  try {
-    const { uuid } = await params;
-    const livro = await fetchLivroByUuid(uuid);
+  const { uuid } = await params;
+  const livro = await fetchLivroByUuid(uuid);
 
-    return (
-      <div className="container">
-        <h1>{livro.titulo}</h1>
-        <p>por {livro.autor}</p>
-        <p>Preço: R$ {livro.preco.toFixed(2)}</p>
-        {livro.sinopse && <p>Sinopse: {livro.sinopse}</p>}
-        {livro.imagem && <img src={livro.imagem} alt={livro.titulo} />}
-        <p>ISBN: {livro.isbn}</p>
-        <p>Estoque: {livro.estoque}</p>
-        {livro.categorias && (
-          <p>
-            Categorias: {livro.categorias.join(', ')}
-          </p>
-        )}
-      </div>
-    );
-  } catch (error) {
-    console.error('Error fetching livro:', error);
+  if (!livro) {
     notFound();
   }
+
+  return <DetalhesLivro livro={livro} />;
 }

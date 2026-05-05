@@ -47,6 +47,22 @@
   --bn-border-radius-sm: 4px;
   --bn-border-radius-md: 8px;
   --bn-border-radius-lg: 12px;
+
+  /* Breakpoints Mobile-First (min-width progressivo) */
+  --bp-mobile: 0px;
+  --bp-mobile-lg: 480px;
+  --bp-tablet: 768px;
+  --bp-desktop: 1024px;
+  --bp-desktop-lg: 1440px;
+
+  /* Container Padrão */
+  --container-max-width: 1200px;
+  --container-gutter-mobile: 16px;
+  --container-gutter-tablet: 24px;
+  --container-gutter-desktop: 32px;
+
+  /* Touch Targets (mínimo 44px para mobile) */
+  --touch-target-min: 44px;
 }
 
 * {
@@ -161,9 +177,22 @@ label {
 
 /* Utilitários */
 .container {
-  max-width: 1200px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 var(--container-gutter-mobile);
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .container {
+    padding: 0 var(--container-gutter-tablet);
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--container-gutter-desktop);
+  }
 }
 
 .card {

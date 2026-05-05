@@ -1,0 +1,331 @@
+/* ==========================================================
+   ListaLivrosAdmin.module.css
+   Estilos exclusivos do conteúdo da página Gestão de Catálogo
+   ========================================================== */
+
+.pageContent {
+  width: 100%;
+}
+
+.listCardWrapper {
+  background: var(--bn-bg-card);
+  padding: 25px;
+  border-radius: var(--bn-border-radius-md);
+  box-shadow: var(--bn-shadow-md);
+  border: 1px solid var(--bn-border-light);
+}
+
+/* --- Responsividade Mobile-First --- */
+/* Base: Mobile (0px+) */
+.listaLivrosToolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.toolbarSearchWrapper {
+  max-width: 100%;
+}
+
+.listaLivrosFiltros {
+  flex-wrap: wrap;
+}
+
+.btnAddBook {
+  width: 100%;
+  min-height: var(--touch-target-min);
+}
+
+/* Tablet (768px+) */
+@media (min-width: 768px) {
+  .listaLivrosToolbar {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 20px;
+  }
+
+  .toolbarSearchWrapper {
+    max-width: 500px;
+  }
+
+  .listaLivrosFiltros {
+    flex-wrap: nowrap;
+  }
+
+  .btnAddBook {
+    width: auto;
+  }
+}
+
+.toolbarSearchWrapper {
+  position: relative;
+  flex-grow: 1;
+  max-width: 500px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 14px;
+}
+
+.listaLivrosSearch {
+  width: 100%;
+  padding: 10px 10px 10px 35px;
+  border-radius: var(--bn-border-radius-sm);
+  border: 1px solid var(--bn-border);
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.listaLivrosSearch:focus {
+  outline: none;
+  border-color: var(--bn-primary);
+  box-shadow: 0 0 0 3px rgba(15, 76, 58, 0.1);
+}
+
+.listaLivrosFiltros {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.filterSelect {
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+}
+
+.btnAddBook {
+  padding: 10px 20px;
+}
+
+/* --- Tabela --- */
+/* Base: Mobile (0px+) - tabela com scroll horizontal */
+.listaLivrosTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow-x: auto;
+  display: block;
+}
+
+.listaLivrosTable thead,
+.listaLivrosTable tbody,
+.listaLivrosTable tr,
+.listaLivrosTable td,
+.listaLivrosTable th {
+  display: block;
+}
+
+.listaLivrosTable thead {
+  display: none;
+}
+
+.listaLivrosTable tr {
+  margin-bottom: 16px;
+  border: 1px solid var(--bn-border-light);
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+}
+
+.listaLivrosTd {
+  padding: 8px 0;
+  text-align: right;
+  padding-left: 50%;
+  position: relative;
+  border-bottom: 1px solid var(--bn-border-light);
+}
+
+.listaLivrosTd::before {
+  content: attr(data-label);
+  position: absolute;
+  left: 0;
+  width: 45%;
+  padding-right: 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--bn-text-muted);
+}
+
+.listaLivrosTd:last-child {
+  border-bottom: none;
+}
+
+/* Tablet (768px+) - tabela normal */
+@media (min-width: 768px) {
+  .listaLivrosTable {
+    display: table;
+    overflow-x: visible;
+  }
+
+  .listaLivrosTable thead,
+  .listaLivrosTable tbody,
+  .listaLivrosTable tr {
+    display: table-row;
+  }
+
+  .listaLivrosTable td,
+  .listaLivrosTable th {
+    display: table-cell;
+  }
+
+  .listaLivrosTable thead {
+    display: table-header-group;
+  }
+
+  .listaLivrosTable tr {
+    margin-bottom: 0;
+    border: none;
+    padding: 0;
+    position: static;
+  }
+
+  .listaLivrosTd {
+    padding: 16px 15px;
+    text-align: left;
+    padding-left: 15px;
+    position: static;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .listaLivrosTd::before {
+    display: none;
+  }
+}
+
+.listaLivrosTh {
+  background-color: #f7f9fc;
+  padding: 14px 15px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #eaedf3;
+}
+
+.listaLivrosTd {
+  padding: 16px 15px;
+  font-size: 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.listaLivrosTdRow:hover .listaLivrosTd {
+  background-color: #fcfcfc;
+}
+
+.livroInfoCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.livroInfoCell strong {
+  color: #333;
+  font-size: 15px;
+}
+
+.livroInfoCell span {
+  color: #777;
+  font-size: 13px;
+}
+
+.estoqueBadge {
+  background-color: #eef2f7;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.estoqueBadgeCritico {
+  background-color: #fff1f2;
+  color: #e11d48;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #fda4af;
+}
+
+.listaLivrosStatusActive {
+  background-color: var(--bn-success-light);
+  color: var(--bn-success-text);
+  padding: 5px 10px;
+  border-radius: var(--bn-border-radius-lg);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.listaLivrosStatusInactive {
+  background-color: var(--bn-error-light);
+  color: var(--bn-error-text);
+  padding: 5px 10px;
+  border-radius: var(--bn-border-radius-lg);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.flexActions {
+  display: flex;
+  gap: 8px;
+}
+
+.btnActionAdmin {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.btnActionAdmin.edit {
+  background-color: #f8fafc;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+
+.btnActionAdmin.edit:hover {
+  background-color: #f1f5f9;
+}
+
+.btnActionAdmin.inactivate {
+  background-color: #fff1f2;
+  color: #e11d48;
+  border-color: #fda4af;
+}
+
+.btnActionAdmin.inactivate:hover {
+  background-color: #ffe4e6;
+}
+
+.btnActionAdmin.activate {
+  background-color: #ecfdf5;
+  color: #10b981;
+  border-color: #6ee7b7;
+}
+
+.btnActionAdmin.activate:hover {
+  background-color: #d1fae5;
+}
+
+.textCenter {
+  text-align: center;
+}

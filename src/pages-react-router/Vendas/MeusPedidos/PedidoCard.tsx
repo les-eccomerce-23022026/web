@@ -1,7 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import { CapaLivro } from '@/components/Comum/CapaLivro/CapaLivro';
-import type { IPedido } from '@/interfaces/pedido';
-import type { ILivro } from '@/interfaces/livro';
+import { CapaLivro } from '../../../components/Comum/CapaLivro/CapaLivro.tsx';
+import type { IPedido } from '../../../interfaces/pedido';
+import type { ILivro } from '../../../interfaces/livro';
 import { PedidoTimelineEntrega } from './PedidoTimelineEntrega';
 import { percentualBarraEntrega } from './pedidoEntregaEtapas';
 import { getPedidoStatusVisual, type PedidoStatusVariant } from './pedidoStatusVisual';
@@ -11,7 +10,7 @@ import {
   tituloItem,
   totalUnidades,
 } from './meusPedidosHelpers';
-import styles from './MeusPedidos.module.css';
+import styles from './style.module.css';
 
 type Props = {
   pedido: IPedido;
@@ -34,7 +33,6 @@ export const PedidoCard = ({
   onRastrear,
   onDetalhes,
 }: Props) => {
-  const navigate = useNavigate();
   const statusVisual = getPedidoStatusVisual(pedido.status);
   const StatusIcon = statusVisual.Icon;
   const pctEntrega = percentualBarraEntrega(pedido.status);
@@ -152,7 +150,7 @@ export const PedidoCard = ({
             <button
               type="button"
               className={`btn-secondary ${styles.btnAcao} ${styles.btnAcaoNeutra}`}
-              onClick={() => navigate(`/pedidos/${pedido.uuid}/troca`)}
+              onClick={() => onDetalhes(pedido)}
               data-cy={`btn-solicitar-troca-${pedido.uuid}`}
             >
               Solicitar troca

@@ -1,6 +1,6 @@
 import carrinhoMock from '@/mocks/carrinhoMock.json';
 import type { ICarrinho } from '@/interfaces/carrinho';
-import type { ICarrinhoService } from '@/services/contracts/carrinhoService';
+import type { ICarrinhoService } from '../contracts/carrinhoService';
 import { criarCarrinhoVazio } from '@/utils/carrinhoVazio';
 
 export class CarrinhoServiceMock implements ICarrinhoService {

@@ -1,4 +1,4 @@
-import type { ICarrinho } from '@/interfaces/carrinho';
+import type { ICarrinho } from '../interfaces/carrinho';
 
 /** Assinatura estável do conteúdo do carrinho para invalidar frete/cotação. */
 export function assinaturaItensCarrinho(carrinho: ICarrinho | null | undefined): string {

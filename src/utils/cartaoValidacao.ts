@@ -1,4 +1,4 @@
-import type { ICartaoCreditoInput } from '@/interfaces/pagamento';
+import type { ICartaoCreditoInput } from '../interfaces/pagamento';
 
 /** Algoritmo de Luhn — número apenas com dígitos. */
 export function validarLuhn(numero: string): boolean {
@@ -47,11 +47,13 @@ export function detectarBandeira(numero: string): string | null {
   return null;
 }
 
-function validarNumeroCartao(numeroLimpo: string): string[] {
+export function validarNumeroCartao(numeroLimpo: string): string[] {
   const erros: string[] = [];
   if (numeroLimpo.length < 13 || numeroLimpo.length > 19) {
     erros.push('Número do cartão inválido (13-19 dígitos)');
-  } else if (!validarLuhn(numeroLimpo)) {
+    return erros;
+  }
+  if (!validarLuhn(numeroLimpo)) {
     erros.push('Número do cartão inválido (falha na validação)');
   }
   return erros;
@@ -69,7 +71,7 @@ function validarBandeiraAceita(
   return [];
 }
 
-function validarValidadeMmAa(validade: string): string[] {
+export function validarValidadeMmAa(validade: string): string[] {
   const validadeRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
   if (!validadeRegex.test(validade)) {
     return ['Validade deve estar no formato MM/AA'];
@@ -120,59 +122,21 @@ export interface CartaoCreditoFormState {
   bandeirasPermitidas: string[];
 }
 
-function errosNumeroCartaoForm(s: CartaoCreditoFormState): string[] {
-  const numeroLimpo = s.numero.replace(/\D/g, '');
-  if (numeroLimpo.length < 13 || numeroLimpo.length > 19) {
-    return ['Número do cartão inválido'];
-  }
-  if (!validarLuhn(numeroLimpo)) {
-    return ['Número do cartão inválido (validação falhou)'];
-  }
-  return [];
-}
-
-function errosBandeiraListaForm(s: CartaoCreditoFormState): string[] {
-  if (
-    s.bandeiraDetectada &&
-    s.bandeirasPermitidas.length > 0 &&
-    !s.bandeirasPermitidas.includes(s.bandeiraDetectada)
-  ) {
-    return [`Bandeira ${s.bandeiraDetectada} não é aceita`];
-  }
-  return [];
-}
-
-function errosValidadeExpiracaoForm(s: CartaoCreditoFormState): string[] {
-  const validadeRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
-  if (!validadeRegex.test(s.validade)) {
-    return ['Validade deve estar no formato MM/AA'];
-  }
-  const [mes, ano] = s.validade.split('/').map(Number);
-  const dataAtual = new Date();
-  const anoAtual = dataAtual.getFullYear() % 100;
-  const mesAtual = dataAtual.getMonth() + 1;
-  if (ano < anoAtual || (ano === anoAtual && mes < mesAtual)) {
-    return ['Cartão expirado'];
-  }
-  return [];
-}
-
-function errosCvvTamanhoForm(s: CartaoCreditoFormState): string[] {
-  const cvvMax = s.bandeiraDetectada === 'American Express' ? 4 : 3;
-  if (s.cvv.length !== cvvMax) {
-    return [`CVV deve ter ${cvvMax} dígitos`];
-  }
-  return [];
-}
-
 /** Validação do formulário de novo cartão (MM/AA, regras de CVV por bandeira). */
 export function validarCamposFormularioCartaoCredito(s: CartaoCreditoFormState): string[] {
   const nomeErro = s.nomeTitular.trim().length < 2 ? ['Nome do titular inválido'] : [];
-  return [
-    ...errosNumeroCartaoForm(s),
-    ...errosBandeiraListaForm(s),
-    ...nomeErro,
-    ...errosValidadeExpiracaoForm(s),
-    ...errosCvvTamanhoForm(s),
-  ];
+  const numeroErro = validarNumeroCartao(s.numero.replace(/\D/g, ''));
+  
+  const bandeiraErro = s.bandeiraDetectada &&
+    s.bandeirasPermitidas.length > 0 &&
+    !s.bandeirasPermitidas.includes(s.bandeiraDetectada)
+    ? [`Bandeira ${s.bandeiraDetectada} não é aceita`]
+    : [];
+  
+  const validadeErro = validarValidadeMmAa(s.validade);
+  
+  const cvvMax = s.bandeiraDetectada === 'American Express' ? 4 : 3;
+  const cvvErro = s.cvv.length !== cvvMax ? [`CVV deve ter ${cvvMax} dígitos`] : [];
+  
+  return [...numeroErro, ...bandeiraErro, ...nomeErro, ...validadeErro, ...cvvErro];
 }

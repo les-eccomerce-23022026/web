@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { restoreSession } from '@/store/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { restoreSession } from '../store/slices/authSlice';
 
 /**
  * Hook Senior de Validação Ativa de Sessão.

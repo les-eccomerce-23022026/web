@@ -2,7 +2,7 @@ import pedidosMock from '@/mocks/pedidosMock.json';
 import livrosMock from '@/mocks/listaLivrosAdminMock.json';
 import type { IDashboardAdminInfo, IAtividadeRecente } from '@/interfaces/dashboardAdmin';
 import type { IPedido } from '@/interfaces/pedido';
-import type { IDashboardAdminService } from '@/services/contracts/dashboardAdminService';
+import type { IDashboardAdminService } from '../contracts/dashboardAdminService';
 
 export class DashboardAdminServiceMock implements IDashboardAdminService {
   async getDashboardInfo(): Promise<IDashboardAdminInfo> {

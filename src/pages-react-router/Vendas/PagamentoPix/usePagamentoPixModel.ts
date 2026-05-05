@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { PagamentoService } from '@/services/pagamentoService';
-import { EntregaServiceApi } from '@/services/api/entregaServiceApi';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { PagamentoService } from '../../../services/pagamentoService';
+import { EntregaServiceApi } from '../../../services/api/entregaServiceApi';
 import {
   lerCheckoutPixPendente,
   limparCheckoutPixPendente,
   type CheckoutPixPendentePayload,
-} from '@/utils/checkoutPixPendente';
-import type { IResumoPagamentosVenda } from '@/interfaces/pagamento';
+} from '../../../utils/checkoutPixPendente';
+import type { IResumoPagamentosVenda } from '../../../interfaces/pagamento';
 import { isPagamentoFalhou, vendaStatusNorm } from './pagamentoPixUtils';
 
 const POLL_MS = 3000;
@@ -15,8 +15,8 @@ const POLL_MS = 3000;
 export type PagamentoPixPhase = 'loading' | 'invalid' | 'falha' | 'pagar';
 
 export function usePagamentoPixModel() {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const vendaQuery = searchParams.get('venda') ?? '';
 
   const [payload, setPayload] = useState<CheckoutPixPendentePayload | null>(null);
@@ -49,12 +49,12 @@ export function usePagamentoPixModel() {
         custo: payload.entrega.custoFrete,
       });
       limparCheckoutPixPendente();
-      navigate(`/pedido-confirmado?pedido=${encodeURIComponent(payload.vendaUuid)}`);
+      router.push(`/pedido-confirmado?pedido=${encodeURIComponent(payload.vendaUuid)}`);
     } catch (e) {
       finalizacaoEmAndamento.current = false;
       setErro(e instanceof Error ? e.message : 'Erro ao registrar entrega.');
     }
-  }, [payload, entregaApi, navigate]);
+  }, [payload, entregaApi, router]);
 
   const pagamentoFalhou = useMemo(() => isPagamentoFalhou(resumo), [resumo]);
 
@@ -166,6 +166,6 @@ export function usePagamentoPixModel() {
     aguardandoBackendAinda,
     copiar,
     simularWebhook,
-    navigate,
+    navigate: router.push,
   };
 }

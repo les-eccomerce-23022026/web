@@ -1,7 +1,13 @@
 import { useState } from 'react';
-import { Tag, X } from 'lucide-react';
+import { Tag } from 'lucide-react';
 import type { ICupomDisponivel, ICupomAplicado } from '@/interfaces/pagamento';
-import styles from './CupomInput.module.css';
+import styles from './CupomInput.style.module.css';
+import { CupomAplicadosLista } from './CupomAplicadosLista';
+import { CupomSugestoesLista } from './CupomSugestoesLista';
+import {
+  filtrarCuponsNaoAplicados,
+  validarCodigoCupom,
+} from './cupomInputUtils';
 
 interface CupomInputProps {
   cuponsDisponiveis?: ICupomDisponivel[];
@@ -20,47 +26,43 @@ export const CupomInput = ({
   const [erro, setErro] = useState<string | null>(null);
   const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
 
-  // Filtrar cupons já aplicados
-  const cuponsNaoAplicados = cuponsDisponiveis.filter(
-    c => !cuponsAplicados.some(aplicado => aplicado.uuid === c.uuid)
-  );
-
-  // Filtrar por tipo
-  const cupomPromocionalAplicado = cuponsAplicados.find(c => c.tipo === 'promocional');
+  const cuponsNaoAplicados = filtrarCuponsNaoAplicados(cuponsDisponiveis, cuponsAplicados);
+  const cupomPromocionalAplicado = cuponsAplicados.find((cupom) => cupom.tipo === 'promocional');
 
   const handleAplicar = () => {
+    const resultadoValidacao = validarCodigoCupom({
+      codigoDigitado: codigo,
+      cuponsDisponiveis,
+      cupomPromocionalAplicado,
+    });
+
+    if (resultadoValidacao.erro) {
+      setErro(resultadoValidacao.erro);
+      return;
+    }
+
+    if (!resultadoValidacao.cupom) {
+      return;
+    }
+
     setErro(null);
-    
-    if (!codigo.trim()) {
-      setErro('Digite o código do cupom');
-      return;
-    }
-
-    // Buscar cupom nas sugestões
-    const cupomEncontrado = cuponsDisponiveis.find(
-      c => c.codigo.toLowerCase() === codigo.trim().toLowerCase()
-    );
-
-    if (!cupomEncontrado) {
-      setErro('Cupom inválido ou expirado');
-      return;
-    }
-
-    // Validar cupom promocional único
-    if (cupomEncontrado.tipo === 'promocional' && cupomPromocionalAplicado) {
-      setErro('Apenas um cupom promocional é permitido por compra');
-      return;
-    }
-
-    onAplicar(cupomEncontrado);
+    onAplicar(resultadoValidacao.cupom);
     setCodigo('');
     setMostrarSugestoes(false);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleAplicar();
     }
+  };
+
+  const handleSelecionarSugestao = (cupom: ICupomDisponivel) => {
+    setCodigo(cupom.codigo);
+    setErro(null);
+    onAplicar(cupom);
+    setCodigo('');
+    setMostrarSugestoes(false);
   };
 
   return (
@@ -70,37 +72,7 @@ export const CupomInput = ({
         <h4>Cupons de Desconto</h4>
       </div>
 
-      {/* Cupons aplicados */}
-      {cuponsAplicados.length > 0 && (
-        <div className={styles['cupons-aplicados']} data-cy="checkout-applied-coupons">
-          {cuponsAplicados.map((cupom) => (
-            <div
-              key={cupom.uuid}
-              className={styles['cupom-aplicado']}
-              data-cy={`checkout-coupon-${cupom.codigo}`}
-            >
-              <div className={styles['cupom-info']}>
-                <span className={styles['cupom-codigo']}>{cupom.codigo}</span>
-                <span className={styles['cupom-tipo']}>
-                  {cupom.tipo === 'promocional' ? 'Promocional' : 'Troca'}
-                </span>
-                <span className={styles['cupom-valor']}>
-                  {cupom.tipo === 'promocional'
-                    ? `- ${cupom.valor}%`
-                    : `- R$ ${cupom.valor.toFixed(2).replace('.', ',')}`}
-                </span>
-              </div>
-              <button
-                className={styles['remover-cupom']}
-                onClick={() => onRemover(cupom.uuid)}
-                data-cy={`checkout-coupon-remove-${cupom.codigo}`}
-              >
-                <X size={16} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <CupomAplicadosLista cuponsAplicados={cuponsAplicados} onRemover={onRemover} />
 
       {/* Input de cupom */}
       <div className={styles['cupom-input-wrapper']}>
@@ -140,31 +112,11 @@ export const CupomInput = ({
           </p>
         )}
 
-        {/* Sugestões de cupons */}
-        {mostrarSugestoes && cuponsNaoAplicados.length > 0 && (
-          <div className={styles['cupom-sugestoes']} data-cy="checkout-coupon-suggestions">
-            <p className={styles['sugestoes-titulo']}>Cupons disponíveis:</p>
-            {cuponsNaoAplicados.map((cupom) => (
-              <button
-                key={cupom.uuid}
-                type="button"
-                className={styles['sugestao-item']}
-                onClick={() => {
-                  setCodigo(cupom.codigo);
-                  handleAplicar();
-                }}
-                data-cy={`checkout-coupon-suggestion-${cupom.codigo}`}
-              >
-                <span className={styles['sugestao-codigo']}>{cupom.codigo}</span>
-                <span className={styles['sugestao-valor']}>
-                  {cupom.tipo === 'promocional' 
-                    ? `${cupom.valor}% de desconto` 
-                    : `R$ ${cupom.valor.toFixed(2).replace('.', ',')} de troca`}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
+        <CupomSugestoesLista
+          mostrarSugestoes={mostrarSugestoes}
+          cuponsNaoAplicados={cuponsNaoAplicados}
+          onSelecionarSugestao={handleSelecionarSugestao}
+        />
       </div>
     </div>
   );

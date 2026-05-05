@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { MapPin } from 'lucide-react';
-import styles from './FinalizarCompra.module.css';
-import enderecoStyles from '@/components/FinalizarCompra/Entrega/EnderecoEntregaCard.module.css';
-import { EnderecoEntregaCard } from '@/components/FinalizarCompra/Entrega';
-import type { ICheckoutInfo } from '@/interfaces/checkout';
+import styles from './style.module.css';
+import enderecoStyles from '../../../components/FinalizarCompra/Entrega/style.module.css';
+import { EnderecoEntregaCard } from '../../../components/FinalizarCompra/Entrega';
+import type { ICheckoutInfo } from '../../../interfaces/checkout';
 
 type Props = {
   data: ICheckoutInfo;
@@ -44,7 +44,7 @@ export const FinalizarCompraEnderecoCard = ({
         <p>Nenhum endereço cadastrado</p>
         <span>É necessário cadastrar um endereço para continuar a compra.</span>
         <Link
-          to="/perfil"
+          href="/minha-conta"
           className="btn-secondary"
           data-cy="checkout-add-address-link"
         >

@@ -1,4 +1,4 @@
-import type { IAdminFormState } from '@/interfaces/admin';
+import type { IAdminFormState } from '../../../interfaces/admin';
 
 type Ctx = {
   isAuthenticated: boolean;

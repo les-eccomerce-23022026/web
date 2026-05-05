@@ -1,6 +1,6 @@
-import type { StatusPedido } from '@/interfaces/pedido';
+import type { StatusPedido } from '../../../interfaces/pedido';
 import { statusParaEtapaConcluida } from './pedidoEntregaEtapas';
-import styles from './PedidoTimelineEntrega.module.css';
+import styles from './PedidoTimelineEntrega.style.module.css';
 
 const LABELS = ['Pedido realizado', 'Preparando', 'Em trânsito', 'Entregue'];
 

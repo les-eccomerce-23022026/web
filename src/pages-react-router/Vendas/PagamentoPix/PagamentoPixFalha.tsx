@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import styles from './PagamentoPix.module.css';
+import Link from 'next/link';
+import styles from './style.module.css';
 
 type Props = {
   erroExtra: string | null;
@@ -21,7 +21,7 @@ export const PagamentoPixFalha = ({ erroExtra, onCheckout }: Props) => (
         ocorre ao simular o webhook após o prazo.
       </p>
       <div className={styles.falhaActions}>
-        <Link to="/pedidos">
+        <Link href="/pedidos">
           <button type="button" className={`btn-primary ${styles.falhaBtn}`}>
             Ver Meus pedidos
           </button>

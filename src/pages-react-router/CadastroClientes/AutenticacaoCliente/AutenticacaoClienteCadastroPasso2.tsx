@@ -1,4 +1,4 @@
-import styles from './AutenticacaoCliente.module.css';
+import styles from './style.module.css';
 import { AutenticacaoClienteEnderecoForm } from './AutenticacaoClienteEnderecoForm';
 import type { AutenticacaoClienteCadastroState } from './autenticacaoClienteTypes';
 

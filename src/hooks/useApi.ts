@@ -1,4 +1,4 @@
-import { BASE_URL, API_ENDPOINTS } from '@/config/apiConfig';
+import { BASE_URL, API_ENDPOINTS } from '../config/apiConfig';
 
 /**
  * Hook customizado para fornecer as configurações e rotas da API.

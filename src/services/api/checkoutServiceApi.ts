@@ -1,7 +1,7 @@
 import type { ICheckoutInfo } from '@/interfaces/checkout';
 import { API_ENDPOINTS } from '@/config/apiConfig';
-import { ApiClient } from '@/services/apiClient';
-import type { ICheckoutService, IVendaInput, IVendaResultado } from '@/services/contracts/checkoutService';
+import { ApiClient } from '../apiClient';
+import type { ICheckoutService, IVendaInput, IVendaResultado } from '../contracts/checkoutService';
 
 export class CheckoutServiceApi implements ICheckoutService {
   /**

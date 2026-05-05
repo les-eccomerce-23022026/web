@@ -1,4 +1,4 @@
-import type { ILivro } from '@/interfaces/livro';
+import type { ILivro } from '../../../interfaces/livro';
 
 type FormCadastro = {
   titulo: string;

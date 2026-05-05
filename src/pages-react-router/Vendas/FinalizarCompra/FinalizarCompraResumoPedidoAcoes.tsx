@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from './FinalizarCompra.module.css';
+import styles from './style.module.css';
 
 type Props = {
   totalMenosParcial: number;

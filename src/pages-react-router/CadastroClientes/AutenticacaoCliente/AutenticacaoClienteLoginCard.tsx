@@ -1,5 +1,5 @@
 import { Eye, EyeOff } from 'lucide-react';
-import styles from './AutenticacaoCliente.module.css';
+import styles from './style.module.css';
 import type { AutenticacaoClienteLoginState } from './autenticacaoClienteTypes';
 
 type Props = {

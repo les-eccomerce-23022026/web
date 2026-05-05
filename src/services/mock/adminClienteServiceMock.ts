@@ -4,8 +4,8 @@ import type {
   IFiltrosListaClientes,
   IResultadoListaClientes,
   IClienteAdminItem,
-} from '@/services/contracts/adminClienteService';
-import { aplicarFiltrosListaClientes } from '@/services/mock/adminClienteMockFiltros';
+} from '../contracts/adminClienteService';
+import { aplicarFiltrosListaClientes } from './adminClienteMockFiltros';
 
 export class AdminClienteServiceMock implements IAdminClienteService {
   async listarClientes(filtros?: IFiltrosListaClientes): Promise<IResultadoListaClientes> {

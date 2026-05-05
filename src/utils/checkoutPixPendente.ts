@@ -1,5 +1,5 @@
-import type { IEnderecoEntregaInput } from '@/interfaces/entrega';
-import type { PixPendenteInfo } from '@/utils/finalizarCompraLiquidacaoPagamentos';
+import type { IEnderecoEntregaInput } from '../interfaces/entrega';
+import type { PixPendenteInfo } from './finalizarCompraLiquidacaoPagamentos';
 
 export const STORAGE_KEY_CHECKOUT_PIX = 'checkout_pix_pendente';
 

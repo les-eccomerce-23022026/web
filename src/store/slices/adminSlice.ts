@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import { logout } from '@/store/slices/authSlice';
+import { logout } from './authSlice';
 import type { IAdmin } from '@/interfaces/admin';
 import { AuthService } from '@/services/authService';
 
