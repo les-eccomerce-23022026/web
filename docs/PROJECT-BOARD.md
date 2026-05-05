@@ -7,16 +7,16 @@
 
 ## Board Kanban
 
-| 📋 Todo (3)                                 | 🔄 In Progress (0)                         | ✅ Done (42)                                            |
+| 📋 Todo (8)                                 | 🔄 In Progress (0)                         | ✅ Done (60)                                            |
 | ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
 | T3 · [FRONTEND] Reserva Estoque (RN0044/45) |                                            | A1 · [FRONTEND] Configurar GIT e Repositório            |
-|                                             |                                            | A2 · [FRONTEND] Configurar Redux para Auth              |
-|                                             |                                            | A3 · [BACKEND] Implementar API de Livros                |
-|                                             |                                            | A4 · [FRONTEND] Criar Tela de Carrinho                  |
-|                                             |                                            | A5 · [FRONTEND] Refatoração Mock Data e Serviços        |
-|                                             |                                            | A6 · [FRONTEND] Extrair CSS para Arquivos               |
-|                                             |                                            | A7 · [FRONTEND] Design System com Variáveis             |
-|                                             |                                            | A8 · [FRONTEND] Adicionar Testes E2E (Cypress)          |
+| T4 · [FRONTEND] Inativação/Ativação Livros (RF0012/16) |                                            | A2 · [FRONTEND] Configurar Redux para Auth              |
+| T5 · [FRONTEND] Alteração de Senha (RF0028) |                                            | A3 · [BACKEND] Implementar API de Livros                |
+| T6 · [FRONTEND] Notificação de Troca (RN0046) |                                            | A4 · [FRONTEND] Criar Tela de Carrinho                  |
+| T7 · [FRONTEND] Bloqueio Carrinho (RN0044/45) |                                            | A5 · [FRONTEND] Refatoração Mock Data e Serviços        |
+| T8 · [FRONTEND] Análise Histórico Vendas (RF0055) |                                            | A6 · [FRONTEND] Extrair CSS para Arquivos               |
+| T9 · [FRONTEND] Ranking de Cliente (RN0027) |                                            | A7 · [FRONTEND] Design System com Variáveis             |
+| T10 · [FRONTEND] Recomendação IA (RNF0044) |                                            | A8 · [FRONTEND] Adicionar Testes E2E (Cypress)          |
 |                                             |                                            | A9 · [FRONTEND] Melhorar Layout Home e Catálogo         |
 |                                             |                                            | A10 · [FRONTEND] Responsividade no Footer               |
 |                                             |                                            | A11 · [FRONTEND] Componentizar Breadcrumbs              |
@@ -53,6 +53,22 @@
 |                                             |                                            | A35 · [FRONTEND] Frete ↔ Cotação Checkout               |
 |                                             |                                            | A43 · [FRONTEND] Refino Mocks de Pagamento              |
 |                                             |                                            | A44 · [FRONTEND] Sandbox de Falhas e Estabilização E2E  |
+|                                             |                                            | A45 · [FRONTEND] Script de Automação de Testes E2E     |
+|                                             |                                            | A46 · [FRONTEND] Hidratação de Frete no Checkout       |
+|                                             |                                            | A47 · [FRONTEND] Sistema de Notificações Toast          |
+|                                             |                                            | A48 · [FRONTEND] Suíte E2E Completa do Fluxo de Compra  |
+|                                             |                                            | A49 · [FRONTEND] Testes de Rota Protegida                |
+|                                             |                                            | A50 · [FRONTEND] Testes E2E de Compra com Falhas      |
+|                                             |                                            | A51 · [FRONTEND] Configuração Vitest e esModuleInterop   |
+|                                             |                                            | A52 · [FRONTEND] Logging de Requisições API             |
+|                                             |                                            | A53 · [FRONTEND] Múltiplas Linhas de Pagamento         |
+|                                             |                                            | A54 · [FRONTEND] Validação de Sessão e Pagamentos Recusados |
+|                                             |                                            | A55 · [FRONTEND] Consolidação Jornada de Compra        |
+|                                             |                                            | A56 · [FRONTEND] Otimização Visualização de Pedidos     |
+|                                             |                                            | A57 · [FRONTEND] Refatoração Componentes Checkout        |
+|                                             |                                            | A58 · [FRONTEND] Atualização Endpoints API               |
+|                                             |                                            | A59 · [FRONTEND] Otimização Lógica Carrinho               |
+|                                             |                                            | A60 · [FRONTEND] Refatoração Finalização Checkout        |
 
 ---
 
@@ -104,6 +120,29 @@
 | A32  | FRONTEND | Alinhamento de Documentação de Entrega | Sincronização final dos requisitos RF/RNF/RN com a implementação técnica atual.                                                                 |
 | A33  | FRONTEND | Atualização de BDD e Governança        | Garantia de que os cenários de comportamento reflitam as novas regras de segurança e fluxos de API.                                             |
 | A44  | FRONTEND | Sandbox de Falhas e Estabilização E2E  | **Concluído:** Implementação de testes E2E resilientes para cenários de falha (Pagamento Recusado, CEP Inválido) usando injeção determinística de sandbox no backend. |
+| A45  | FRONTEND | Script de Automação de Testes E2E     | **Concluído:** Script de automação para execução de testes E2E com relatório detalhado. **Commit:** 9753326. |
+| A46  | FRONTEND | Hidratação de Frete no Checkout       | **Concluído:** Melhoria no fluxo de finalização de compra com hidratação de frete e validações. **Commit:** e13cdc5. |
+| A47  | FRONTEND | Sistema de Notificações Toast          | **Concluído:** Implementação de sistema de notificações toast para feedback ao usuário. **Commit:** 303ca60. |
+| A48  | FRONTEND | Suíte E2E Completa do Fluxo de Compra  | **Concluído:** Implementação de suíte E2E completa do fluxo de compra com cobertura abrangente. **Commit:** 1377b44. |
+| A49  | FRONTEND | Testes de Rota Protegida                | **Concluído:** Atualização de testes de rota protegida para autenticação. **Commit:** f7ffa86. |
+| A50  | FRONTEND | Testes E2E de Compra com Falhas      | **Concluído:** Limpeza e atualização de testes Cypress para fluxo de compra com falhas (pagamento recusado, CEP inválido). **Commit:** 28abd25. |
+| A51  | FRONTEND | Configuração Vitest e esModuleInterop   | **Concluído:** Habilitação de esModuleInterop e configuração de Vitest para testes. **Commit:** a051fc9. |
+| A52  | FRONTEND | Logging de Requisições API             | **Concluído:** Adição de logging de requisições e suporte a token na sessão de autenticação. **Commit:** ece05ff. |
+| A53  | FRONTEND | Múltiplas Linhas de Pagamento         | **Concluído:** Implementação de gerenciamento de múltiplas linhas de pagamento com hooks customizados. **Commit:** 3e48127. |
+| A54  | FRONTEND | Validação de Sessão e Pagamentos Recusados | **Concluído:** Melhoria do fluxo de checkout com validação de sessão, tratamento de pagamentos recusados e testes E2E. **Commit:** 5bc1411. |
+| A55  | FRONTEND | Consolidação Jornada de Compra        | **Concluído:** Consolidação da jornada de compra e resiliência do checkout. **Commit:** ff7be0c. |
+| A56  | FRONTEND | Otimização Visualização de Pedidos     | **Concluído:** Otimização da jornada de compra e visualização de pedidos. **Commit:** de224d0. |
+| A57  | FRONTEND | Refatoração Componentes Checkout        | **Concluído:** Refatoração de componentes de checkout para melhor clareza e funcionalidade. **Commits:** 7123f14, fdeb3bd. |
+| A58  | FRONTEND | Atualização Endpoints API               | **Concluído:** Atualização de endpoints API e melhoria no gerenciamento de itens de pedidos. **Commit:** d2e54e3. |
+| A59  | FRONTEND | Otimização Lógica Carrinho               | **Concluído:** Otimização da lógica de atualização de quantidade em componentes do carrinho. **Commit:** 4650d8b. |
+| A60  | FRONTEND | Refatoração Finalização Checkout        | **Concluído:** Melhoria do fluxo de checkout com tratamento de erros e estados de loading. **Commits:** fe5507c, 591da3f. |
+| T4   | FRONTEND | Inativação/Ativação Livros (RF0012/16) | **Negócio:** Permitir que administradores inativem/ativem cadastro de livros com justificativa. |
+| T5   | FRONTEND | Alteração de Senha (RF0028)            | **Negócio:** Permitir que cliente altere apenas a senha sem precisar editar todos os dados cadastrais. |
+| T6   | FRONTEND | Notificação de Troca (RN0046)         | **Negócio:** Sistema notifica o cliente quando o administrador autoriza a troca. |
+| T7   | FRONTEND | Bloqueio Carrinho (RN0044/45)          | **Negócio:** Itens no carrinho ficam bloqueados temporariamente; notificar 5min antes de expirar; se expirar, itens são removidos. |
+| T8   | FRONTEND | Análise Histórico Vendas (RF0055)     | **Negócio:** Consultar histórico de vendas comparando produtos ou categorias por período, apresentado em gráfico de linhas (RNF0043). |
+| T9   | FRONTEND | Ranking de Cliente (RN0027)            | **Negócio:** Exibir ranking numérico do cliente com base no seu perfil de compra. |
+| T10  | FRONTEND | Recomendação IA (RNF0044)              | **Negócio:** IA generativa para recomendações com base no histórico e preferências, chatbot para busca e sugestões. |
 
 ---
 
