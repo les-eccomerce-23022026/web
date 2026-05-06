@@ -1,9 +1,9 @@
 /**
  * Admin Pedidos page
- * Migrated from src/pages-react-router/Vendas/MeusPedidos/MeusPedidos.tsx
+ * Painel administrativo para gerenciar todos os pedidos (despacho e entrega)
  */
-import MeusPedidos from '@/pages-react-router/Vendas/MeusPedidos';
+import { GerenciarPedidos } from '@/pages-react-router/PainelAdmin/GerenciarPedidos';
 
 export default function AdminPedidosPage() {
-  return <MeusPedidos />;
+  return <GerenciarPedidos />;
 }

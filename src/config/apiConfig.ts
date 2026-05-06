@@ -34,6 +34,8 @@ export const API_ENDPOINTS = {
   obterPedidosEmTroca: `${BASE_URL}/admin/trocas`,
   autorizarTroca: (pedidoUuid: string) =>
     `${BASE_URL}/admin/trocas/${pedidoUuid}/autorizar`,
+  rejeitarTroca: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/trocas/${pedidoUuid}/rejeitar`,
   confirmarRecebimentoTroca: (pedidoUuid: string) =>
     `${BASE_URL}/admin/trocas/${pedidoUuid}/confirmar`,
 

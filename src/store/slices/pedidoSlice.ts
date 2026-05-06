@@ -9,6 +9,7 @@ import {
   fetchAllPedidos,
   fetchPedidosCliente,
   fetchPedidosEmTroca,
+  rejeitarTrocaThunk,
   solicitarTrocaThunk,
 } from './pedidoThunks';
 
@@ -33,6 +34,7 @@ export {
   fetchAllPedidos,
   fetchPedidosCliente,
   fetchPedidosEmTroca,
+  rejeitarTrocaThunk,
   solicitarTrocaThunk,
 } from './pedidoThunks';
 
@@ -111,6 +113,9 @@ const pedidoSlice = createSlice({
         atualizarPedidoPorUuid(state, action.payload);
       })
       .addCase(autorizarTrocaThunk.fulfilled, (state, action) => {
+        atualizarPedidoPorUuid(state, action.payload);
+      })
+      .addCase(rejeitarTrocaThunk.fulfilled, (state, action) => {
         atualizarPedidoPorUuid(state, action.payload);
       })
       .addCase(confirmarRecebimentoTrocaThunk.fulfilled, (state, action) => {

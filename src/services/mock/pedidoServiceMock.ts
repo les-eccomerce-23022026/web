@@ -85,6 +85,15 @@ export class PedidoServiceMock implements IPedidoService {
     return delay({ ...pedidosMemoria[index] }, 500);
   }
 
+  async rejeitarTroca(pedidoUuid: string, motivo: string): Promise<IPedido> {
+    console.log('[Mock] Rejeitando troca para pedido:', pedidoUuid, motivo);
+    const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+    if (index === -1) throw new Error('Pedido não encontrado');
+
+    pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Trocado', motivo };
+    return delay({ ...pedidosMemoria[index] }, 500);
+  }
+
   async confirmarRecebimentoTroca(
     pedidoUuid: string,
     retornarEstoque: boolean,

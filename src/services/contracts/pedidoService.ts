@@ -9,6 +9,7 @@ export interface IPedidoService {
   getPedidosEmTroca(): Promise<IPedido[]>;
   solicitarTroca(pedidoUuid: string, motivo: string, itensUuids: string[]): Promise<IPedido>;
   autorizarTroca(pedidoUuid: string): Promise<IPedido>;
+  rejeitarTroca(pedidoUuid: string, motivo: string): Promise<IPedido>;
   confirmarRecebimentoTroca(
     pedidoUuid: string,
     retornarEstoque: boolean,

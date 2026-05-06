@@ -103,11 +103,11 @@ export async function executarFinalizarCheckout(params: {
     await salvarCartoesPerfilSeSolicitado(opcoes?.novosCartoesPorLinha, opcoes?.novoCartao, usuario.uuid);
   } catch (e) {
     const err = e instanceof Error ? e : new Error(String(e));
-    if (onSalvarCartaoCheckoutFalhou) {
-      onSalvarCartaoCheckoutFalhou(err);
+    if (!onSalvarCartaoCheckoutFalhou) {
+      console.warn('[Checkout] Não foi possível salvar o cartão no perfil:', err);
       return;
     }
-    console.warn('[Checkout] Não foi possível salvar o cartão no perfil:', err);
+    onSalvarCartaoCheckoutFalhou(err);
   }
 
   await limparCarrinhoAposPedido(dispatch);

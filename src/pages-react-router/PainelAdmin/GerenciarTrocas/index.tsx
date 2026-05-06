@@ -12,7 +12,7 @@ import styles from './style.module.css';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
 
 function GerenciarTrocas() {
-  const { pedidos, loading, error, autorizarTroca, confirmarRecebimento } = usePedidosTrocaAdmin();
+  const { pedidos, loading, error, autorizarTroca, rejeitarTroca, confirmarRecebimento } = usePedidosTrocaAdmin();
   const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
   const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);
   const livrosParaTitulo = useMemo(
@@ -21,7 +21,9 @@ function GerenciarTrocas() {
   );
 
   const [modalConfirmar, setModalConfirmar] = useState<IPedido | null>(null);
+  const [modalRejeitar, setModalRejeitar] = useState<IPedido | null>(null);
   const [retornarEstoque, setRetornarEstoque] = useState(true);
+  const [motivoRejeicao, setMotivoRejeicao] = useState('');
   const [processando, setProcessando] = useState(false);
 
   if (loading) return <LoadingState message="Carregando solicitações de troca..." />;
@@ -39,6 +41,18 @@ function GerenciarTrocas() {
     setProcessando(true);
     try {
       await autorizarTroca(pedidoUuid);
+    } finally {
+      setProcessando(false);
+    }
+  };
+
+  const handleRejeitar = async () => {
+    if (!modalRejeitar) return;
+    setProcessando(true);
+    try {
+      await rejeitarTroca(modalRejeitar.uuid, motivoRejeicao);
+      setModalRejeitar(null);
+      setMotivoRejeicao('');
     } finally {
       setProcessando(false);
     }
@@ -109,14 +123,27 @@ function GerenciarTrocas() {
                 </td>
                 <td className={styles.colAcoes}>
                   {pedido.status === 'Em Troca' && (
-                    <button
-                      className={`btn-primary ${styles.btnAcao}`}
-                      onClick={() => handleAutorizar(pedido.uuid)}
-                      disabled={processando}
-                      data-cy={`btn-autorizar-${pedido.uuid}`}
-                    >
-                      Autorizar
-                    </button>
+                    <>
+                      <button
+                        className={`btn-primary ${styles.btnAcao}`}
+                        onClick={() => handleAutorizar(pedido.uuid)}
+                        disabled={processando}
+                        data-cy={`btn-autorizar-${pedido.uuid}`}
+                      >
+                        Autorizar
+                      </button>
+                      <button
+                        className={`btn-secondary ${styles.btnAcao}`}
+                        onClick={() => {
+                          setModalRejeitar(pedido);
+                          setMotivoRejeicao('');
+                        }}
+                        disabled={processando}
+                        data-cy={`btn-rejeitar-${pedido.uuid}`}
+                      >
+                        Rejeitar
+                      </button>
+                    </>
                   )}
                   {pedido.status === 'Troca Autorizada' && (
                     <button
@@ -196,6 +223,70 @@ function GerenciarTrocas() {
                 data-cy="btn-confirmar-modal"
               >
                 {processando ? 'Processando...' : 'Confirmar e Gerar Cupom'}
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal de Rejeição de Troca */}
+      <Modal
+        isOpen={modalRejeitar !== null}
+        title="Rejeitar Solicitação de Troca"
+        onClose={() => {
+          setModalRejeitar(null);
+          setMotivoRejeicao('');
+        }}
+      >
+        {modalRejeitar && (
+          <div className={styles.modalContent}>
+            <p>
+              Rejeitar solicitação de troca do pedido{' '}
+              <strong>#{modalRejeitar.uuid.split('-')[1]}</strong>?
+            </p>
+
+            <div className={styles.modalItens}>
+              {modalRejeitar.itens.map((item) => (
+                <div key={item.livroUuid} className={styles.modalItem}>
+                  <span>{getLivroTitulo(item.livroUuid)}</span>
+                  <span>x{item.quantidade}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.motivoContainer}>
+              <label className={styles.label} htmlFor="motivo-rejeicao">
+                Motivo da rejeição <span className={styles.required}>*</span>
+              </label>
+              <textarea
+                id="motivo-rejeicao"
+                className={styles.textarea}
+                value={motivoRejeicao}
+                onChange={(e) => setMotivoRejeicao(e.target.value)}
+                placeholder="Descreva o motivo da rejeição (ex: produto danificado, fora do prazo, etc.)"
+                rows={4}
+                data-cy="motivo-rejeicao-input"
+              />
+            </div>
+
+            <div className={styles.modalAcoes}>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  setModalRejeitar(null);
+                  setMotivoRejeicao('');
+                }}
+                data-cy="btn-cancelar-rejeicao"
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-primary"
+                onClick={handleRejeitar}
+                disabled={processando || !motivoRejeicao.trim()}
+                data-cy="btn-confirmar-rejeicao"
+              >
+                {processando ? 'Processando...' : 'Rejeitar Troca'}
               </button>
             </div>
           </div>

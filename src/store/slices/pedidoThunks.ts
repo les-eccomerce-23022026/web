@@ -45,6 +45,13 @@ export const autorizarTrocaThunk = createAsyncThunk('pedido/autorizarTroca', asy
   return PedidoService.autorizarTroca(pedidoUuid);
 });
 
+export const rejeitarTrocaThunk = createAsyncThunk(
+  'pedido/rejeitarTroca',
+  async (payload: { pedidoUuid: string; motivo: string }) => {
+    return PedidoService.rejeitarTroca(payload.pedidoUuid, payload.motivo);
+  },
+);
+
 export const confirmarRecebimentoTrocaThunk = createAsyncThunk(
   'pedido/confirmarRecebimentoTroca',
   async (payload: { pedidoUuid: string; retornarEstoque: boolean }) => {

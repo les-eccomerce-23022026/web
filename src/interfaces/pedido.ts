@@ -30,6 +30,7 @@ export interface IFormaPagamentoPedido {
 export interface IPedido {
   uuid: string;
   data: string; // ISO 8601
+  dataEntrega?: string; // ISO 8601 - data em que o pedido foi entregue
   clienteUuid: string;
   itens: IItemPedido[];
   total: number;

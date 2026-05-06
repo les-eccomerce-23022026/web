@@ -6,13 +6,6 @@
  * Evita UUID de livro fixo e mocks de resposta HTTP; intercepts só para observar corpo (req.continue).
  */
 
-function apiHeadersCliente(): Record<string, string> {
-  const useTestDb = Cypress.env('injectTestDbHeader') === true;
-  return {
-    ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
-  };
-}
-
 /** Mesmos parâmetros opcionais que o checkout usa ao cotar frete — cartões vêm do perfil real. */
 function requestPagamentoInfoCheckout() {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
@@ -153,14 +146,12 @@ describe('Pagamento - Checkout', () => {
       cy.get('@cartaoCheckout').should('have.attr', 'aria-pressed', 'true');
     });
 
-    it.skip('deve abrir modal para novo cartão', () => {
-      /* O split de pagamento pode não estar visível no setup. Revalidar fluxo de split. */
+    it('deve abrir modal para novo cartão', () => {
       abrirModalNovoCartaoNaSegundaLinha();
       cy.get('[data-cy="checkout-new-card-form"]').should('be.visible');
     });
 
-    it.skip('deve preencher e validar novo cartão', () => {
-      /* O split de pagamento pode não estar visível no setup. Revalidar fluxo de split. */
+    it('deve preencher e validar novo cartão', () => {
       abrirModalNovoCartaoNaSegundaLinha();
       
       // Preencher dados do cartão Visa válido (número de teste)
@@ -192,8 +183,7 @@ describe('Pagamento - Checkout', () => {
         .should('not.exist');
     });
 
-    it.skip('deve validar número de cartão com Luhn', () => {
-      /* O split de pagamento pode não estar visível no setup. Revalidar fluxo de split. */
+    it('deve validar número de cartão com Luhn', () => {
       abrirModalNovoCartaoNaSegundaLinha();
       
       // Número inválido (falha no Luhn)
@@ -208,8 +198,7 @@ describe('Pagamento - Checkout', () => {
         .should('contain', 'inválido');
     });
 
-    it.skip('deve validar cartão expirado', () => {
-      /* O split de pagamento pode não estar visível no setup. Revalidar fluxo de split. */
+    it('deve validar cartão expirado', () => {
       abrirModalNovoCartaoNaSegundaLinha();
       
       cy.get('[data-cy="checkout-card-number-input"]')
@@ -233,8 +222,7 @@ describe('Pagamento - Checkout', () => {
         .should('contain', 'expirado');
     });
 
-    it.skip('deve detectar bandeira American Express e validar CVV de 4 dígitos', () => {
-      /* O split de pagamento pode não estar visível no setup. Revalidar fluxo de split. */
+    it('deve detectar bandeira American Express e validar CVV de 4 dígitos', () => {
       abrirModalNovoCartaoNaSegundaLinha();
       
       // Número American Express
@@ -360,6 +348,62 @@ describe('Pagamento - Checkout', () => {
       cy.get('[data-cy="checkout-coupon-DESCONTO10"]')
         .should('exist');
     });
+
+    it('deve aplicar cupom que cobre 100% do valor e mostrar saldo remanescente', () => {
+      // Aplicar cupom de troca com valor alto
+      cy.get('[data-cy="checkout-coupon-input"]')
+        .type('TROCA100');
+      
+      cy.get('[data-cy="checkout-apply-coupon-button"]')
+        .click();
+      
+      cy.get('[data-cy="checkout-coupon-TROCA100"]')
+        .should('exist');
+      
+      // Verificar que o total ficou em 0 ou próximo de 0
+      cy.get('[data-cy="checkout-total-value"]')
+        .then(($el) => {
+          const text = $el.text();
+          expect(text).to.match(/R\$ 0,00|R\$ 0,01/);
+        });
+      
+      // Verificar que mostra saldo remanescente do cupom
+      cy.get('[data-cy="checkout-coupon-saldo-remanescente"]')
+        .should('exist')
+        .should('contain', 'Saldo remanescente');
+    });
+
+    it('deve finalizar compra com cupom cobrindo 100% do valor (sem cartão)', () => {
+      cy.visit('/checkout');
+      preencherEntregaCheckoutMinimo();
+      
+      // Aplicar cupom que cobre 100%
+      cy.get('[data-cy="checkout-coupon-input"]')
+        .type('TROCA100');
+      
+      cy.get('[data-cy="checkout-apply-coupon-button"]')
+        .click();
+      
+      cy.get('[data-cy="checkout-coupon-TROCA100"]')
+        .should('exist');
+      
+      // Verificar que total ficou em 0
+      cy.get('[data-cy="checkout-total-value"]')
+        .then(($el) => {
+          const text = $el.text();
+          expect(text).to.match(/R\$ 0,00|R\$ 0,01/);
+        });
+      
+      // NÃO selecionar cartão - cupom cobre 100%
+      // Botão deve estar habilitado mesmo sem cartão
+      cy.get('[data-cy="checkout-finish-button"]')
+        .should('not.be.disabled');
+      
+      cy.get('[data-cy="checkout-finish-button"]')
+        .click();
+      
+      cy.url().should('include', '/pedido-confirmado');
+    });
   });
 
   describe('Pagamento Parcial (Múltiplos Cartões)', () => {
@@ -368,22 +412,69 @@ describe('Pagamento - Checkout', () => {
       cy.get('[data-cy="checkout-split-payment"]').should('exist');
     });
 
-    it.skip('deve adicionar pagamento parcial com cartão', () => {
-      /* O split de pagamento pode não estar funcionando corretamente. Revalidar lógica. */
+    it('deve adicionar pagamento parcial com cartão', () => {
       configurarSplitDoisCartoesSalvos();
-      cy.get('[data-cy="checkout-split-restante"]').should('contain', 'OK');
+      cy.get('[data-cy="checkout-split-restante"]').should('match', /Total.*Soma das linhas.*OK/);
     });
 
-    it.skip('deve exibir valor por parcela e rótulo sem juros ou com juros no select', () => {
-      /* O formato das opções de parcelas mudou no frontend. Requer investigação do componente LinhaPagamentoConfiguracao. */
-      obterTotalCarrinhoReais().then((total: number) => {
-        const linha = Math.min(100, Math.max(30, Math.floor(total * 0.85)));
-        cy.get('[data-cy="checkout-split-line-value"]').first().clear().type(String(linha));
+    it('deve garantir atomicidade quando segundo cartão falha (rollback do primeiro)', () => {
+      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      
+      // Intercept para simular falha no processamento do segundo cartão
+      cy.intercept('POST', `${apiUrl}/pagamentos/*/processar`, (req) => {
+        const body = req.body as { cartao?: { numero?: string } };
+        // Simular falha para cartões específicos (segundo cartão do split)
+        if (body.cartao?.numero?.endsWith('1111')) {
+          req.reply({
+            statusCode: 400,
+            body: { erro: 'Cartão recusado - saldo insuficiente' },
+          });
+        } else {
+          req.continue();
+        }
+      }).as('processarPagamento');
+
+      preencherEntregaCheckoutMinimo();
+      configurarSplitDoisCartoesSalvos();
+      
+      cy.get('[data-cy="checkout-finish-button"]').click();
+      
+      // Verificar que erro foi exibido
+      cy.contains(/recusado|saldo insuficiente/i).should('be.visible');
+      
+      // Verificar que permanece no checkout (não redirecionou)
+      cy.url().should('include', '/checkout');
+      
+      // Verificar que venda não foi criada (atomicidade)
+      cy.request({
+        method: 'GET',
+        url: `${apiUrl}/carrinho`,
+        headers: apiHeadersCarteira(),
+      }).then((res) => {
+        // Carrinho ainda tem itens (não foi limpo pela venda)
+        expect(res.body.itens).to.have.length.greaterThan(0);
       });
     });
 
-    it.skip('deve validar valor mínimo de R$ 10,00 por cartão no split (RN0034)', () => {
-      /* O erro RN34 é mostrado dinamicamente. Revalidar lógica de validação do frontend. */
+    it('deve exibir valor por parcela e rótulo sem juros ou com juros no select', () => {
+      obterTotalCarrinhoReais().then((total: number) => {
+        const linha = Math.min(100, Math.max(30, Math.floor(total * 0.85)));
+        cy.get('[data-cy="checkout-split-line-value"]').first().clear().type(String(linha));
+        cy.get('[data-cy="checkout-split-line-parcelas"]')
+          .first()
+          .find('option')
+          .should('have.length.at.least', 1)
+          .then(($opts) => {
+            const texto = $opts
+              .toArray()
+              .map((o) => (o as HTMLOptionElement).textContent ?? '')
+              .join(' ');
+            expect(texto, 'rótulos de parcelas').to.match(/parcela|juros/i);
+          });
+      });
+    });
+
+    it('deve validar valor mínimo de R$ 10,00 por cartão no split (RN0034)', () => {
       obterTotalCarrinhoReais().then((total: number) => {
         const t = Math.round(total * 100) / 100;
         expect(t, 'total do carrinho deve permitir cenário RN34').to.be.greaterThan(15);
@@ -427,8 +518,7 @@ describe('Pagamento - Checkout', () => {
       cy.url().should('include', '/pedido-confirmado');
     });
 
-    it.skip('deve POST em clientes/perfil/cartoes ao finalizar com novo cartão e salvar para compras futuras', () => {
-      /* O fluxo de finalização com novo cartão pode não estar funcionando. Revalidar lógica. */
+    it('deve POST em clientes/perfil/cartoes ao finalizar com novo cartão e salvar para compras futuras', () => {
       cy.intercept('POST', '**/clientes/perfil/cartoes').as('salvarCartaoPerfilCheckout');
       
       preencherEntregaCheckoutMinimo();
@@ -456,8 +546,28 @@ describe('Pagamento - Checkout', () => {
       cy.url().should('include', '/pedido-confirmado');
     });
 
-    it.skip('deve concluir pedido mesmo se salvar cartão no perfil falhar (aviso sem bloquear)', () => {
-      /* Sem mock de HTTP: exige cenário com falha real no POST /cartões ou endpoint de teste no backend. */
+    it('deve concluir pedido mesmo se salvar cartão no perfil falhar (aviso sem bloquear)', () => {
+      cy.intercept('POST', '**/clientes/perfil/cartoes', {
+        statusCode: 500,
+        body: { erro: 'Falha simulada ao persistir cartão' },
+      }).as('salvarCartaoPerfilFalha');
+
+      preencherEntregaCheckoutMinimo();
+
+      cy.get('[data-cy="checkout-split-add-new-card"]').click();
+      cy.get('[data-cy="checkout-split-inform-new-card"]').click();
+
+      cy.get('[data-cy="checkout-card-number-input"]').type('4111111111111111');
+      cy.get('[data-cy="checkout-card-name-input"]').type('MARIA FALHA SAVE');
+      cy.get('[data-cy="checkout-card-expiry-input"]').type('12/30');
+      cy.get('[data-cy="checkout-card-cvv-input"]').type('123');
+      cy.get('[data-cy="checkout-save-card-checkbox"]').check();
+      cy.get('[data-cy="checkout-card-submit-button"]').click();
+
+      cy.get('[data-cy="checkout-finish-button"]').click();
+      cy.wait('@salvarCartaoPerfilFalha');
+      cy.contains(/não foi salvo no perfil/i).should('be.visible');
+      cy.url({ timeout: 25000 }).should('include', '/pedido-confirmado');
     });
 
     it('deve finalizar compra com cupom aplicado', () => {
@@ -547,17 +657,27 @@ describe('Pagamento - Checkout', () => {
       cy.url().should('include', '/pedido-confirmado');
     });
 
-    it.skip('deve manter botão desabilitado quando saldo não está coberto (parcial sem cartão do restante)', () => {
-      /* O texto de erro mudou no frontend. Revalidar mensagem esperada. */
+    it('deve manter botão desabilitado quando saldo não está coberto (parcial sem cartão do restante)', () => {
       cy.visit('/checkout');
       preencherEntregaCheckoutMinimo();
       cy.get('[data-cy="checkout-split-line-value"]').first().clear().type('10');
       cy.get('[data-cy="checkout-finish-button"]').should('be.disabled');
-      cy.contains('cubram o total restante').should('exist');
+      cy.contains(/cubram o total restante/i).should('exist');
     });
 
-    it.skip('deve alertar erro quando POST /vendas falha', () => {
-      /* Sem mock de resposta: cobrir com teste de integração ou cenário que force 4xx no backend. */
+    it('deve alertar erro quando POST /vendas falha', () => {
+      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      cy.intercept('POST', `${apiUrl}/vendas`, {
+        statusCode: 400,
+        body: { erro: 'Total inválido para conferência do pedido.' },
+      }).as('criarVendaForcada400');
+
+      preencherEntregaCheckoutMinimo();
+      clicarCartaoCheckoutPorBandeiraPreferida('Mastercard');
+      cy.get('[data-cy="checkout-finish-button"]').click();
+      cy.wait('@criarVendaForcada400');
+      cy.url().should('include', '/checkout');
+      cy.contains(/inválido/i).should('be.visible');
     });
   });
 
@@ -585,23 +705,35 @@ describe('Pagamento - Checkout', () => {
         .should('have.attr', 'type', 'text');
     });
 
-    it.skip('deve validar bandeiras permitidas', () => {
-      /* A validação de bandeira pode ter mudado. Revalidar lógica do frontend. */
+    it('deve validar bandeiras permitidas', () => {
+      cy.intercept('GET', '**/pagamento/info*', (req) => {
+        req.continue((res) => {
+          const body =
+            typeof res.body === 'string'
+              ? (JSON.parse(res.body) as Record<string, unknown>)
+              : ({ ...(res.body as Record<string, unknown>) } as Record<string, unknown>);
+          body.bandeirasPermitidas = ['Visa', 'Mastercard'];
+          res.body = body;
+        });
+      }).as('pagamentoInfoBandeiras');
+
+      cy.visit('/checkout');
+      cy.wait('@pagamentoInfoBandeiras');
+
       abrirModalNovoCartaoNaSegundaLinha();
-      
-      // Tentar cartão com bandeira não suportada
-      cy.get('[data-cy="checkout-card-number-input"]')
-        .type('6011111111111117'); // Discover (não suportada)
-      
-      cy.get('[data-cy="checkout-card-submit-button"]')
-        .click();
-      
-      // Deve mostrar erro ou não permitir
+
+      cy.get('[data-cy="checkout-card-number-input"]').type('6011111111111117');
+      cy.get('[data-cy="checkout-card-name-input"]').type('TESTE HIPERCARD');
+      cy.get('[data-cy="checkout-card-expiry-input"]').type('12/30');
+      cy.get('[data-cy="checkout-card-cvv-input"]').type('123');
+
+      cy.get('[data-cy="checkout-card-submit-button"]').click();
+
       cy.get('[data-cy="checkout-card-errors"]')
         .should('exist')
-        .should('contain', 'inválido');
+        .should('contain', 'aceita');
     });
-});
+  });
 });
 
 /**

@@ -27,6 +27,22 @@ const itemBarFillByVariant: Record<PedidoStatusVariant, string> = {
   problema: styles.itemBarraFillProblema,
 };
 
+function verificarPrazoTroca(pedido: IPedido): { dentroPrazo: boolean; diasRestantes?: number } {
+  if (!pedido.dataEntrega || pedido.status !== 'Entregue') {
+    return { dentroPrazo: false };
+  }
+
+  const dataEntrega = new Date(pedido.dataEntrega);
+  const hoje = new Date();
+  const diffDias = Math.floor((hoje.getTime() - dataEntrega.getTime()) / (1000 * 60 * 60 * 24));
+  const diasRestantes = 7 - diffDias;
+
+  return {
+    dentroPrazo: diasRestantes > 0,
+    diasRestantes: diasRestantes > 0 ? diasRestantes : 0,
+  };
+}
+
 export const PedidoCard = ({
   pedido,
   livrosMap,
@@ -37,6 +53,7 @@ export const PedidoCard = ({
   const StatusIcon = statusVisual.Icon;
   const pctEntrega = percentualBarraEntrega(pedido.status);
   const barFill = itemBarFillByVariant[statusVisual.variant];
+  const prazoTroca = verificarPrazoTroca(pedido);
 
   return (
     <div
@@ -151,10 +168,21 @@ export const PedidoCard = ({
               type="button"
               className={`btn-secondary ${styles.btnAcao} ${styles.btnAcaoNeutra}`}
               onClick={() => onDetalhes(pedido)}
+              disabled={!prazoTroca.dentroPrazo}
+              title={
+                !prazoTroca.dentroPrazo
+                  ? 'Prazo de 7 dias para solicitação de troca expirado'
+                  : 'Solicitar troca'
+              }
               data-cy={`btn-solicitar-troca-${pedido.uuid}`}
             >
               Solicitar troca
             </button>
+          )}
+          {!prazoTroca.dentroPrazo && pedido.status === 'Entregue' && (
+            <span className={styles.prazoExpirado}>
+              Prazo de troca expirado (7 dias após entrega)
+            </span>
           )}
         </div>
       </div>

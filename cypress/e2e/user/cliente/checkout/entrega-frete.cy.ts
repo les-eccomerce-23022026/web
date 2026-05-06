@@ -55,6 +55,27 @@ function selecionarPrimeiroCartaoCheckout() {
   });
 }
 
+/** Obtém valor do frete SEDEX via API para o CEP informado (desacopla teste de fórmula de simulação) */
+function obterValorFreteSedexApi(cep: string): Cypress.Chainable<number> {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  return cy.request({
+    method: 'POST',
+    url: `${apiUrl}/frete/cotar`,
+    headers: apiHeadersTestDb(),
+    body: {
+      cepDestino: cep.replace('-', ''),
+      pesoKg: 1
+    }
+  }).then((response) => {
+    const opcoes = response.body.opcoes;
+    const sedex = opcoes.find((op: any) => op.tipo === 'SEDEX');
+    if (!sedex) {
+      throw new Error('Opção SEDEX não encontrada na resposta da API');
+    }
+    return sedex.valor;
+  });
+}
+
 describe('Entrega/Frete - Checkout', () => {
   beforeEach(() => {
     const email = (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com';
@@ -196,17 +217,26 @@ describe('Entrega/Frete - Checkout', () => {
     });
 
     it('deve atualizar resumo com valor do frete', () => {
-      cy.get('[data-cy="checkout-freight-option-SEDEX"]')
-        .scrollIntoView()
-        .should('be.visible')
-        .click();
+      const cep = '01000-000';
       
-      cy.get('[data-cy="checkout-summary-list"]')
-        .should('contain', 'Frete')
-        .and('contain', 'R$ 30,00');
+      // Obtém valor do frete via API para desacoplar de fórmula de simulação
+      obterValorFreteSedexApi(cep).then((valorFreteApi) => {
+        const valorFormatado = `R$ ${valorFreteApi.toFixed(2).replace('.', ',')}`;
+        
+        cy.get('[data-cy="checkout-freight-option-SEDEX"]')
+          .scrollIntoView()
+          .should('be.visible')
+          .click();
+        
+        cy.get('[data-cy="checkout-summary-list"]')
+          .should('contain', 'Frete')
+          .and('contain', valorFormatado);
+      });
     });
 
     it('deve atualizar total com frete', () => {
+      const cep = '01000-000';
+      
       // Pega o subtotal atual da tela antes de somar o frete
       cy.get('[data-cy="checkout-summary-list"]')
         .contains(/Subtotal/)
@@ -217,16 +247,19 @@ describe('Entrega/Frete - Checkout', () => {
           if (!match) throw new Error(`Não foi possível encontrar valor em: ${text}`);
           
           const subtotalValue = parseFloat(match[1].replace(',', '.'));
-          const freteSedex = 30.00;
-          const totalEsperado = subtotalValue + freteSedex;
           
-          cy.get('[data-cy="checkout-freight-option-SEDEX"]')
-            .scrollIntoView()
-            .should('be.visible')
-            .click();
-          
-          cy.get('[data-cy="checkout-total-value"]')
-            .should('contain', `R$ ${totalEsperado.toFixed(2).replace('.', ',')}`);
+          // Obtém valor do frete via API para desacoplar de fórmula de simulação
+          obterValorFreteSedexApi(cep).then((freteSedex) => {
+            const totalEsperado = subtotalValue + freteSedex;
+            
+            cy.get('[data-cy="checkout-freight-option-SEDEX"]')
+              .scrollIntoView()
+              .should('be.visible')
+              .click();
+            
+            cy.get('[data-cy="checkout-total-value"]')
+              .should('contain', `R$ ${totalEsperado.toFixed(2).replace('.', ',')}`);
+          });
         });
     });
 
@@ -287,6 +320,58 @@ describe('Entrega/Frete - Checkout', () => {
         .should('contain', 'Endereço selecionado para entrega');
     });
 
+    it('deve permitir adicionar novo endereço no ato da compra', () => {
+      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      
+      // Clicar em botão de adicionar novo endereço
+      cy.get('[data-cy="checkout-add-new-address"]')
+        .scrollIntoView()
+        .should('be.visible')
+        .click();
+      
+      // Verificar que modal de novo endereço abriu
+      cy.get('[data-cy="checkout-new-address-form"]')
+        .should('be.visible');
+      
+      // Preencher dados do novo endereço
+      cy.get('[data-cy="address-logradouro"]')
+        .type('Rua Nova Compra');
+      
+      cy.get('[data-cy="address-numero"]')
+        .type('123');
+      
+      cy.get('[data-cy="address-bairro"]')
+        .type('Centro');
+      
+      cy.get('[data-cy="address-cidade"]')
+        .type('São Paulo');
+      
+      cy.get('[data-cy="address-estado"]')
+        .select('SP');
+      
+      cy.get('[data-cy="address-cep"]')
+        .type('01310-100');
+      
+      cy.get('[data-cy="address-apelido"]')
+        .type('Endereço Compra');
+      
+      // Salvar endereço
+      cy.get('[data-cy="checkout-save-address-button"]')
+        .click();
+      
+      // Verificar que modal fechou
+      cy.get('[data-cy="checkout-new-address-form"]')
+        .should('not.exist');
+      
+      // Verificar que novo endereço foi adicionado à lista
+      cy.get('[data-cy="checkout-addresses"]')
+        .should('contain', 'Rua Nova Compra');
+      
+      // Verificar que novo endereço está selecionado
+      cy.get('[data-cy="checkout-addresses"]')
+        .should('contain', 'Endereço selecionado para entrega');
+    });
+
     it('deve habilitar botão de finalizar apenas com endereço selecionado', () => {
       // Sem endereço nem frete, botão deve estar desabilitado (ou sem pagamento)
       // Nota: o sistema pode exigir Endereço + Frete + Pagamento
@@ -332,46 +417,51 @@ describe('Entrega/Frete - Checkout', () => {
        * Para reativar, as rotas do backend devem estar funcionando com dados reais do seed.
        */
 
+      const cep = '01000-000';
+
       // 1. Selecionar endereço
       cy.get('[data-cy^="checkout-address-item-"]')
         .first()
         .click();
-      
+
       // 2. Calcular frete
       cy.get('[data-cy="checkout-freight-zip-input"]')
-        .type('01000-000');
-      
+        .type(cep);
+
       cy.get('[data-cy="checkout-freight-calculate-button"]')
         .click();
 
       cy.get('[data-cy="checkout-freight-options"]', { timeout: 15000 })
         .should('exist');
-      
+
       // 3. Selecionar frete
       cy.get('[data-cy="checkout-freight-option-SEDEX"]')
         .click();
-      
-      // 4. Verificar resumo atualizado
-      cy.get('[data-cy="checkout-summary-list"]')
-        .should('contain', 'Frete')
-        .and('contain', 'R$ 30,00');
-      
+
+      // 4. Verificar resumo atualizado (valor derivado da API, não fixo)
+      obterValorFreteSedexApi(cep).then((valorFreteApi) => {
+        const valorFormatado = `R$ ${valorFreteApi.toFixed(2).replace('.', ',')}`;
+        cy.get('[data-cy="checkout-summary-list"]')
+          .should('contain', 'Frete')
+          .and('contain', valorFormatado);
+      });
+
       // 5. Selecionar pagamento
       selecionarPrimeiroCartaoCheckout();
-      
+
       // 6. Verificar mensagem de confirmação
       cy.get('[data-cy="checkout-addresses"]')
         .parent()
         .should('contain', 'Endereço selecionado para entrega');
-      
+
       cy.get('[data-cy="checkout-freight-options"]')
         .parent()
         .should('contain', 'Frete SEDEX selecionado');
-      
+
       // 7. Finalizar compra
       cy.get('[data-cy="checkout-finish-button"]')
         .click();
-      
+
       // 8. Redirecionar para confirmação
       cy.url()
         .should('include', '/pedido-confirmado');

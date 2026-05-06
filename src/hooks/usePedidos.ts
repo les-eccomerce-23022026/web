@@ -5,6 +5,7 @@ import {
   fetchPedidosEmTroca,
   solicitarTrocaThunk,
   autorizarTrocaThunk,
+  rejeitarTrocaThunk,
   confirmarRecebimentoTrocaThunk,
 } from '../store/slices/pedidoSlice';
 import type { StatusPedido } from '../interfaces/pedido';
@@ -51,6 +52,12 @@ export function usePedidosTrocaAdmin() {
     [dispatch],
   );
 
+  const rejeitarTroca = useCallback(
+    (pedidoUuid: string, motivo: string) =>
+      dispatch(rejeitarTrocaThunk({ pedidoUuid, motivo })),
+    [dispatch],
+  );
+
   const confirmarRecebimento = useCallback(
     (pedidoUuid: string, retornarEstoque: boolean) =>
       dispatch(confirmarRecebimentoTrocaThunk({ pedidoUuid, retornarEstoque })),
@@ -62,6 +69,7 @@ export function usePedidosTrocaAdmin() {
     loading: status === 'loading',
     error,
     autorizarTroca,
+    rejeitarTroca,
     confirmarRecebimento,
   };
 }

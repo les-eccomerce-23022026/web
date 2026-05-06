@@ -92,6 +92,10 @@ export class PedidoServiceApi implements IPedidoService {
     return ApiClient.put<IPedido>(API_ENDPOINTS.autorizarTroca(pedidoUuid));
   }
 
+  async rejeitarTroca(pedidoUuid: string, motivo: string): Promise<IPedido> {
+    return ApiClient.put<IPedido>(API_ENDPOINTS.rejeitarTroca(pedidoUuid), { motivo });
+  }
+
   async confirmarRecebimentoTroca(
     pedidoUuid: string,
     retornarEstoque: boolean,
