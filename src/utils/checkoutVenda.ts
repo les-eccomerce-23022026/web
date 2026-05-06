@@ -14,11 +14,11 @@ type FreteSelecionado = IFreteOpcao | null | undefined;
 export async function criarVendaCheckout(params: {
   carrinho: ICarrinho;
   usuario: AuthUser;
-  cuponsAplicados: any[];
-  parcelasLiquidacao: any[];
+  cuponsAplicados: unknown[];
+  parcelasLiquidacao: unknown[];
   freteSelecionado: FreteSelecionado;
-  opcoes?: any;
-}): Promise<{ vendaUuid: string; custoFreteNaVenda: number; subtotal: number; frete: number; pagamentosEfetivos: any[] }> {
+  opcoes?: unknown;
+}): Promise<{ vendaUuid: string; custoFreteNaVenda: number; subtotal: number; frete: number; pagamentosEfetivos: unknown[] }> {
   const {
     carrinho,
     usuario,
@@ -29,8 +29,8 @@ export async function criarVendaCheckout(params: {
   } = params;
 
   const frete = freteSelecionado?.valor ?? carrinho.resumo.frete;
-  const { subtotal, total } = totaisFinalizarCompraComFrete(carrinho, frete, cuponsAplicados);
-  const pagamentosEfetivos = montarLiquidaçõesEfetivasFinalizarCompra(opcoes, total, parcelasLiquidacao);
+  const { subtotal, total } = totaisFinalizarCompraComFrete(carrinho, frete, cuponsAplicados as any[]);
+  const pagamentosEfetivos = montarLiquidaçõesEfetivasFinalizarCompra(opcoes as any, total, parcelasLiquidacao as any[]);
 
   const valorTotalPedido = valorTotalPedidoSemCupons(subtotal, frete);
 

@@ -439,8 +439,11 @@ describe('Pagamento - Checkout', () => {
       
       cy.get('[data-cy="checkout-finish-button"]').click();
       
-      // Verificar que erro foi exibido
-      cy.contains(/recusado|saldo insuficiente/i).should('be.visible');
+      // Verificar que erro foi exibido via toast de notificação
+      cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+        .should('be.visible')
+        .and('have.attr', 'data-cy-notification-type', 'error')
+        .and('contain', /recusado|saldo insuficiente/i);
       
       // Verificar que permanece no checkout (não redirecionou)
       cy.url().should('include', '/checkout');
@@ -566,7 +569,13 @@ describe('Pagamento - Checkout', () => {
 
       cy.get('[data-cy="checkout-finish-button"]').click();
       cy.wait('@salvarCartaoPerfilFalha');
-      cy.contains(/não foi salvo no perfil/i).should('be.visible');
+      
+      // Valida aviso via toast de notificação (warning)
+      cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+        .should('be.visible')
+        .and('have.attr', 'data-cy-notification-type', 'warning')
+        .and('contain', /não foi salvo no perfil/i);
+      
       cy.url({ timeout: 25000 }).should('include', '/pedido-confirmado');
     });
 
@@ -677,7 +686,12 @@ describe('Pagamento - Checkout', () => {
       cy.get('[data-cy="checkout-finish-button"]').click();
       cy.wait('@criarVendaForcada400');
       cy.url().should('include', '/checkout');
-      cy.contains(/inválido/i).should('be.visible');
+      
+      // Valida erro via toast de notificação
+      cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+        .should('be.visible')
+        .and('have.attr', 'data-cy-notification-type', 'error')
+        .and('contain', /inválido/i);
     });
   });
 

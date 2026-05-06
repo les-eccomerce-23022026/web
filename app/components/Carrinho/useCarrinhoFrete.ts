@@ -13,7 +13,7 @@ import type { ICarrinho } from '@/interfaces/carrinho';
 export function useCarrinhoFrete(
   entrega: {
     selecionarFrete: (opcao: IFreteOpcao) => void;
-    freteCalculado: any;
+    freteCalculado: { opcoes: any[] };
     cepDestino: string;
     limparFrete: () => void;
   },

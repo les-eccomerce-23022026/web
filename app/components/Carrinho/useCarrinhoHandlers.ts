@@ -5,7 +5,6 @@ import {
   removerItem,
   atualizarQuantidade,
 } from '@/store/slices/carrinhoSlice';
-import { USE_MOCK } from '@/config/apiConfig';
 
 export function useCarrinhoHandlers(usarCarrinhoLocal: boolean) {
   const dispatch = useAppDispatch();

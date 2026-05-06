@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import {

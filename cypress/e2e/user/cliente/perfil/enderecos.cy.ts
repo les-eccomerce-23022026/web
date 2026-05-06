@@ -48,9 +48,14 @@ describe('Cliente - Perfil - Gestão de Endereços', () => {
       cy.get('[data-cy="endereco-tipo-logradouro-select"]').scrollIntoView().should('be.visible').select(end.tipoLogradouro);
 
       ProfilePage.saveAddressButton.scrollIntoView().should('be.visible').click();
-      cy.contains('Endereço salvo!').should('be.visible');
+      
+      // Valida feedback de sucesso via toast de notificação
+      cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+        .should('be.visible')
+        .and('have.attr', 'data-cy-notification-type', 'success')
+        .and('contain', 'Endereço salvo');
+      
       cy.contains(end.apelido).should('be.visible');
-      cy.wait(1000); // Pausa para o vídeo
     });
 
     // Editar o primeiro endereço
@@ -58,21 +63,30 @@ describe('Cliente - Perfil - Gestão de Endereços', () => {
     const apelidoEditado = 'EDITADO ' + Date.now();
     ProfilePage.addressApelidoInput.scrollIntoView().should('be.visible').clear().type(apelidoEditado);
     ProfilePage.saveAddressButton.scrollIntoView().should('be.visible').click();
-    cy.contains('Endereço atualizado!').should('be.visible');
+    
+    // Valida feedback de sucesso via toast de notificação
+    cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+      .should('be.visible')
+      .and('have.attr', 'data-cy-notification-type', 'success')
+      .and('contain', 'Endereço atualizado');
+    
     cy.contains(apelidoEditado).should('be.visible');
-    cy.wait(1000);
 
     // Remover um por um com confirmação visível
     enderecos.forEach(() => {
       ProfilePage.getDeleteButton('endereco', 0).scrollIntoView().should('be.visible').click();
       
-      // Valida o modal com título correto ("Remover Endereço")
-      cy.get('h2').contains('Remover Endereço').should('be.visible');
-      cy.wait(1000); // Pausa para mostrar o modal
+      // Valida o modal com data-cy específico
+      cy.get('[data-cy="modal-overlay"]', { timeout: 10000 }).should('be.visible');
+      cy.get('[data-cy="modal-title"]').should('contain', 'Remover Endereço');
       
       ProfilePage.genericModalConfirmButton.scrollIntoView().should('be.visible').click();
-      cy.contains('Endereço removido!').should('be.visible');
-      cy.wait(1000);
+      
+      // Valida feedback de sucesso via toast de notificação
+      cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+        .should('be.visible')
+        .and('have.attr', 'data-cy-notification-type', 'success')
+        .and('contain', 'Endereço removido');
     });
   });
 });

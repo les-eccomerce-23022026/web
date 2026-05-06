@@ -33,24 +33,20 @@ describe('Cliente - Perfil - Inativação de Conta', () => {
   it('deve permitir inativar a própria conta (Zona de Perigo)', () => {
     cy.visit('/perfil');
     ProfilePage.navigateToTab('perigo');
-    cy.wait(2000);
 
     ProfilePage.deleteAccountButton.should('be.visible').click();
     
-    // Valida modal de perigo
-    cy.get('h2').contains('Inativar Conta').should('be.visible');
-    cy.wait(3000); // Pausa para ver o modal de perigo
+    // Valida modal de perigo usando data-cy específico
+    cy.get('[data-cy="modal-overlay"]').should('be.visible');
+    cy.get('[data-cy="modal-title"]').should('contain', 'Inativar Conta');
 
     ProfilePage.genericModalConfirmButton.click();
     
-    // Ajuste conforme comportamento real: verifica se a mensagem aparece ou se redireciona
-    cy.get('body').then(($body) => {
-      if ($body.text().includes('Conta inativada com sucesso!')) {
-        cy.contains('Conta inativada com sucesso!').should('be.visible');
-      }
-    });
-
-    cy.wait(5000); // Pausa final para processamento
+    // Valida feedback de sucesso via toast de notificação
+    cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+      .should('be.visible')
+      .and('have.attr', 'data-cy-notification-type', 'success')
+      .and('contain', 'Conta inativada');
 
     // Deve redirecionar para login ou home e o acesso deve ser negado
     cy.visit('/perfil');

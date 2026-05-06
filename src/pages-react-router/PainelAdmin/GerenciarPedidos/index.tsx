@@ -1,3 +1,5 @@
+'use client';
+
 import { Package, Truck, CheckCircle, Search, AlertCircle } from 'lucide-react';
 import { useGerenciarPedidos } from './useGerenciarPedidos';
 import type { StatusPedido } from '../../../interfaces/pedido';

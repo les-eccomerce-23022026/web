@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /**
  * Interfaces para módulo de Pagamento
  * Sprint 2 - User Story 3 e 4

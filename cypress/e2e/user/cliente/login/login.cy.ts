@@ -52,9 +52,7 @@ describe('Cliente - Autenticação', () => {
   });
 
   it('deve permitir alternar para a área de cadastro', () => {
-    cy.wait(1000);
     LoginPage.toggleRegister();
     cy.contains('h2', 'Criar Conta').should('be.visible');
-    cy.wait(2000);
   });
 });

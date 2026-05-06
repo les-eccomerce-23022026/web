@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import pagamentoMock from '@/mocks/pagamentoMock.json';
 import { POLITICA_PARCELAMENTO_CARTAO_PADRAO } from '@/interfaces/pagamento';
 import type {

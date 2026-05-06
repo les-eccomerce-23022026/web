@@ -14,7 +14,6 @@ import { apiHeadersCliente } from '../../admin/utils';
 
 describe('Cliente - Solicitação de Troca (UI)', () => {
   let vendaUuid: string;
-  let itemVendaUuid: string;
   let tokenCliente: string;
   let tokenAdmin: string;
 
@@ -156,8 +155,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
                     'Authorization': `Bearer ${tokenCliente}`,
                     ...apiHeadersCliente(),
                   },
-                }).then((vendaRes) => {
-                  itemVendaUuid = vendaRes.body.itens[0].id;
+                }).then(() => {
+                  // itemVendaUuid disponível na resposta se necessário
                 });
               });
             });

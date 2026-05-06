@@ -26,7 +26,6 @@ type NextRouter = {
 type FreteSelecionado = IFreteOpcao | null | undefined;
 
 /** Orquestra validação, criação de venda, liquidação e navegação. */
-// eslint-disable-next-line complexity -- fluxo de checkout integrado em um único ponto de entrada
 export async function executarFinalizarCheckout(params: {
   carrinho: ICarrinho;
   usuario: AuthUser;
@@ -78,8 +77,8 @@ export async function executarFinalizarCheckout(params: {
   });
 
   validarFormaPagamentoETotais(
-    pagamentosEfetivos.reduce((s, p) => s + p.valor, 0),
-    pagamentosEfetivos,
+    (pagamentosEfetivos as any[]).reduce((s: number, p: any) => s + p.valor, 0),
+    pagamentosEfetivos as any[],
   );
 
   let liquidacaoPix: ResultadoLiquidacaoPagamentos | null = null;
@@ -91,7 +90,7 @@ export async function executarFinalizarCheckout(params: {
       frete,
       custoFreteRegistradoNaVenda: custoFreteNaVenda,
       cuponsAplicados,
-      pagamentosEfetivos,
+      pagamentosEfetivos: pagamentosEfetivos as any[],
       opcoes,
       checkoutData,
       enderecoEntrega: enderecoEntrega as IEnderecoEntregaInput,

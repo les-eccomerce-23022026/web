@@ -227,7 +227,6 @@ describe('Fluxo de venda — capturas de tela (entrega 4)', () => {
     cy.get('[data-cy="checkout-coupon-input"]').clear({ force: true });
     cy.get('[data-cy="checkout-coupon-input"]').type('DESCONTO10', { force: true });
     cy.get('[data-cy="checkout-apply-coupon-button"]').click({ force: true });
-    cy.wait(500);
     cy.get('[data-cy="checkout-applied-coupons"]', { timeout: 15000 }).should('be.visible');
     cy.get('[data-cy="checkout-split-restante"]', { timeout: 15000 }).should('contain', 'OK');
 

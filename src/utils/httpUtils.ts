@@ -1,6 +1,8 @@
-interface FetchOptions extends RequestInit {
+interface FetchOptionsParams {
   params?: Record<string, string>;
 }
+
+export interface FetchOptions extends RequestInit, FetchOptionsParams {}
 
 type ApiErrorBody = {
   mensagem?: string;

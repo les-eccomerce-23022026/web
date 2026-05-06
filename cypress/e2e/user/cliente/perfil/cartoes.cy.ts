@@ -54,7 +54,13 @@ describe('Cliente - Perfil - Gestão de Cartões', () => {
       });
       
       ProfilePage.saveCardButton.scrollIntoView().should('be.visible').click();
-      cy.contains('Cartão salvo!').should('be.visible');
+      
+      // Valida feedback de sucesso via toast de notificação
+      cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+        .should('be.visible')
+        .and('have.attr', 'data-cy-notification-type', 'success')
+        .and('contain', 'Cartão salvo');
+      
       cy.contains(nomeDono).should('be.visible');
       
       // Se for o primeiro, define como preferencial para testar o badge
@@ -62,8 +68,6 @@ describe('Cliente - Perfil - Gestão de Cartões', () => {
         ProfilePage.getPreferredButton(0).scrollIntoView().should('be.visible').click();
         ProfilePage.preferredCardBadge.should('be.visible');
       }
-
-      cy.wait(500);
     });
 
     // Validar que todos estão na lista e realizar trocas sucessivas de preferencial
@@ -77,7 +81,6 @@ describe('Cliente - Perfil - Gestão de Cartões', () => {
         if ($body.find(selector).length > 0) {
           cy.get(selector).scrollIntoView().should('be.visible').click();
           ProfilePage.preferredCardBadge.should('be.visible');
-          cy.wait(1000); // Pausa para o vídeo
         }
       });
     });
@@ -87,16 +90,30 @@ describe('Cliente - Perfil - Gestão de Cartões', () => {
     ProfilePage.getEditButton('cartao', 3).scrollIntoView().should('be.visible').click();
     ProfilePage.cardNomeInput.scrollIntoView().should('be.visible').clear().type(novoNomeAmex);
     ProfilePage.saveCardButton.scrollIntoView().should('be.visible').click();
-    cy.contains('Cartão atualizado!').should('be.visible');
+    
+    // Valida feedback de sucesso via toast de notificação
+    cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+      .should('be.visible')
+      .and('have.attr', 'data-cy-notification-type', 'success')
+      .and('contain', 'Cartão atualizado');
+    
     cy.contains(novoNomeAmex).should('be.visible');
 
     // Remover um por um para limpar e testar exclusão múltipla
     bandeiras.forEach(() => {
       ProfilePage.getDeleteButton('cartao', 0).scrollIntoView().should('be.visible').click();
-      cy.get('h2').contains('Remover Cartão').should('be.visible');
+      
+      // Valida o modal com data-cy específico
+      cy.get('[data-cy="modal-overlay"]', { timeout: 10000 }).should('be.visible');
+      cy.get('[data-cy="modal-title"]').should('contain', 'Remover Cartão');
+      
       ProfilePage.genericModalConfirmButton.scrollIntoView().should('be.visible').click();
-      cy.contains('Cartão removido!').should('be.visible');
-      cy.wait(500);
+      
+      // Valida feedback de sucesso via toast de notificação
+      cy.get('[data-cy="notification-toast"]', { timeout: 10000 })
+        .should('be.visible')
+        .and('have.attr', 'data-cy-notification-type', 'success')
+        .and('contain', 'Cartão removido');
     });
   });
 });

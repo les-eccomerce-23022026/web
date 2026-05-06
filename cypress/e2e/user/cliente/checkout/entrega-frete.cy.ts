@@ -68,7 +68,7 @@ function obterValorFreteSedexApi(cep: string): Cypress.Chainable<number> {
     }
   }).then((response) => {
     const opcoes = response.body.opcoes;
-    const sedex = opcoes.find((op: any) => op.tipo === 'SEDEX');
+    const sedex = opcoes.find((op: { tipo: string }) => op.tipo === 'SEDEX');
     if (!sedex) {
       throw new Error('Opção SEDEX não encontrada na resposta da API');
     }
@@ -321,8 +321,6 @@ describe('Entrega/Frete - Checkout', () => {
     });
 
     it('deve permitir adicionar novo endereço no ato da compra', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
       // Clicar em botão de adicionar novo endereço
       cy.get('[data-cy="checkout-add-new-address"]')
         .scrollIntoView()
@@ -411,10 +409,9 @@ describe('Entrega/Frete - Checkout', () => {
   });
 
   describe('Fluxo Completo de Entrega', () => {
-    it.skip('deve completar fluxo de entrega e frete', () => {
-      /* Fluxo completo de finalização requer backend real (POST /vendas, /pagamentos, /entregas).
-       * Este teste foi marcado como skip porque depende de mocks que foram removidos.
-       * Para reativar, as rotas do backend devem estar funcionando com dados reais do seed.
+    it('deve completar fluxo de entrega e frete', () => {
+      /* Fluxo completo de finalização com backend real (POST /vendas, /pagamentos, /entregas).
+       * Usa dados reais do seed e intercept para garantir determinismo.
        */
 
       const cep = '01000-000';
@@ -516,15 +513,16 @@ describe('Entrega/Frete - Checkout', () => {
         .should('exist');
     });
 
-    it.skip('deve validar CEP com 8 dígitos', () => {
+    it('deve validar CEP com 8 dígitos', () => {
       cy.get('[data-cy="checkout-freight-zip-input"]')
         .type('1234567'); // 7 dígitos
       
       cy.get('[data-cy="checkout-freight-calculate-button"]')
         .click();
 
-      cy.get('[data-cy="checkout-freight-options"]')
-        .should('exist');
+      cy.get('[data-cy="checkout-freight-error"]')
+        .should('exist')
+        .and('contain', 'inválido');
     });
 
     it('deve permitir CEP válido com 8 dígitos', () => {

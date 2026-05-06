@@ -30,18 +30,18 @@ export const Modal = ({ isOpen, onClose, title, children, footer, variant = 'def
   if (!isOpen) return null;
 
   return (
-    <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true">
-      <div className={`${styles.modal} ${variant === 'large' ? styles.large : ''}`} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.overlay} onClick={onClose} role="dialog" aria-modal="true" data-cy="modal-overlay">
+      <div className={`${styles.modal} ${variant === 'large' ? styles.large : ''}`} onClick={(e) => e.stopPropagation()} data-cy="modal-content">
         {title && (
           <div className={styles.header}>
-            <h2 className={styles.title}>{title}</h2>
-            <button onClick={onClose} className={styles.closeButton} aria-label="Fechar modal">
+            <h2 className={styles.title} data-cy="modal-title">{title}</h2>
+            <button onClick={onClose} className={styles.closeButton} aria-label="Fechar modal" data-cy="modal-close-button">
               <X size={20} />
             </button>
           </div>
         )}
-        <div className={styles.content}>{children}</div>
-        {footer && <div className={styles.footer}>{footer}</div>}
+        <div className={styles.content} data-cy="modal-body">{children}</div>
+        {footer && <div className={styles.footer} data-cy="modal-footer">{footer}</div>}
       </div>
     </div>
   );

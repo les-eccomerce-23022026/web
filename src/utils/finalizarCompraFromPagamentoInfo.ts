@@ -6,7 +6,7 @@ import {
 } from '../interfaces/pagamento';
 import type { ICheckoutInfo, IEnderecoEntrega, ICartaoSalvo } from '../interfaces/checkout';
 import type { ICarrinho } from '../interfaces/carrinho';
-import { normalizarBandeiraCartao } from './finalizarCompraLiquidacaoPagamentos';
+import { normalizarBandeiraCartao } from './cartaoUtils';
 
 function enderecoEntregaDeCliente(primeiro: IEnderecoCliente): IEnderecoEntrega {
   return {

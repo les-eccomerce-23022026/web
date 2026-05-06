@@ -1,5 +1,10 @@
+import { Suspense } from 'react';
 import { Pagamento } from '../components/Pagamento';
 
 export default function PagamentoPage() {
-  return <Pagamento />;
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <Pagamento />
+    </Suspense>
+  );
 }
