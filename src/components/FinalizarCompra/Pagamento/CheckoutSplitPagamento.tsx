@@ -94,8 +94,8 @@ export const CheckoutSplitPagamento = ({
   return (
     <div className={styles.wrap} data-cy="checkout-split-payment">
       <div data-cy="checkout-partial-payment">
-        <h4 className={styles.sectionTitle}>Pagamento (cartões e PIX)</h4>
-        <p className={styles.pixInfo}>
+        <h4 className={styles.sectionTitle} data-testid="checkout-split-title">Pagamento (cartões e PIX)</h4>
+        <p className={styles.pixInfo} data-testid="checkout-split-description">
           Divida o total em várias linhas. PIX usa cobrança simulada (QR + copia e cola) e confirmação
           via webhook de teste. Valor mínimo de R$ 10,00 por meio quando houver mais de um meio
           (cupons podem deixar um único saldo menor).

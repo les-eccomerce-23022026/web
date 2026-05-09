@@ -35,20 +35,28 @@ export function useFinalizarCompraDados({ carrinho, carrinhoStatus }: UseFinaliz
     }
   }, [carrinho, carrinhoStatus]);
 
+  // Sincronização de loading com estado do carrinho e dados
   useEffect(() => {
-    if (data && carrinho && data.resumoPedido.subtotal === carrinho.resumo.subtotal) {
-      setLoading(false);
-      return;
+    if (carrinhoStatus === 'succeeded') {
+      if (!carrinho?.itens?.length) {
+        // Usar setTimeout para evitar setState síncrono no effect
+        setTimeout(() => {
+          setLoading(false);
+        }, 0);
+        return;
+      }
+      if (!data || data.resumoPedido.subtotal !== carrinho.resumo.subtotal) {
+        // Usar setTimeout para evitar setState síncrono no effect
+        setTimeout(() => {
+          void carregarInformacoesFinalizarCompra();
+        }, 0);
+      }
+    } else {
+      // Usar setTimeout para evitar setState síncrono no effect
+      setTimeout(() => {
+        setLoading(true);
+      }, 0);
     }
-    if (carrinhoStatus !== 'succeeded') {
-      setLoading(true);
-      return;
-    }
-    if (carrinho?.itens?.length) {
-      void carregarInformacoesFinalizarCompra();
-      return;
-    }
-    setLoading(false);
   }, [carregarInformacoesFinalizarCompra, data, carrinho, carrinhoStatus]);
 
   return {

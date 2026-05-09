@@ -21,7 +21,9 @@ export const Header = () => {
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const categoriasMenu = useAppSelector((state) => state.livro.categoriasMenu);
 
+  // Sincroniza o input com o store caso mude externamente (ex: limpando pesquisa)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInputValue(termoStore);
   }, [termoStore]);
 

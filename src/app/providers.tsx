@@ -18,7 +18,9 @@ const ProvidersContent = ({ children }: { children: React.ReactNode }) => {
   }
   const [isMounted, setIsMounted] = useState(false);
   
+  // Sincronização necessária para evitar problemas de hidratação SSR
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
   }, []);
 
@@ -43,10 +45,8 @@ const ProvidersContent = ({ children }: { children: React.ReactNode }) => {
         if (role === 'admin') {
           dispatch(fetchAdmins());
         }
-      } catch (erro) {
-        // Erro ao restaurar sessão - usuário não autenticado ou erro de rede
-        // Continua com ações não dependentes de autenticação
-        dispatch(fetchCategoriasCatalogo());
+      } catch (_erro) {
+        console.error('Erro ao inicializar aplicação:', _erro);
       }
     };
 

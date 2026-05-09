@@ -27,7 +27,9 @@ export const LinhasPagamentoManager = ({ initialLinhas, onChange }: LinhasPagame
     return changed ? next : novosCartoesPorLinha;
   }, [linhasPagamento, novosCartoesPorLinha]);
 
+  // Sincronização necessária para manter estado consistente
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNovosCartoesPorLinha(novosCartoesPorLinhaLimpos);
   }, [novosCartoesPorLinhaLimpos]);
 

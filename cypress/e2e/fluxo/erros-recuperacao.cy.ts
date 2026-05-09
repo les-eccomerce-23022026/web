@@ -114,7 +114,7 @@ describe('Cenários de Erro e Recuperação (UI Real)', () => {
         const novaVendaUuid = dados.vendaUuid;
         
         // Simular timeout
-        cy.intercept('PUT', `**/admin/pedidos/${novaVendaUuid}/despachar`, {
+        cy.intercept('PATCH', `**/admin/pedidos/${novaVendaUuid}/despachar`, {
           delay: 30000, // 30 segundos de delay
         }).as('despacharTimeout');
         
@@ -149,7 +149,7 @@ describe('Cenários de Erro e Recuperação (UI Real)', () => {
       cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
       
       // Simular sessão expirada interceptando requisições
-      cy.intercept('PUT', '**/admin/pedidos/*/despachar', {
+      cy.intercept('PATCH', '**/admin/pedidos/*/despachar', {
         statusCode: 401,
         body: { erro: 'Sessão expirada' },
       }).as('sessaoExpirada');
@@ -181,7 +181,7 @@ describe('Cenários de Erro e Recuperação (UI Real)', () => {
       cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
       
       // Simular sessão expirada
-      cy.intercept('PUT', '**/admin/pedidos/*/despachar', {
+      cy.intercept('PATCH', '**/admin/pedidos/*/despachar', {
         statusCode: 401,
         body: { erro: 'Sessão expirada' },
       }).as('sessaoExpirada');

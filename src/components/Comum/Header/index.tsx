@@ -21,6 +21,7 @@ export const Header = () => {
 
   // Sincroniza o input com o store caso mude externamente (ex: limpando pesquisa)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInputValue(termoStore);
   }, [termoStore]);
 

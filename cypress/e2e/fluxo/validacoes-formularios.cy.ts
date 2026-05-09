@@ -10,11 +10,8 @@
  * Estratégia: E2E UI real focado em validações de frontend
  */
 
-import { apiHeadersTestDb } from '../../support/helpers/checkoutHelpers';
-
 describe('Casos de Borda - Validações de Formulários (UI Real)', () => {
   let vendaUuid: string;
-  let itemVendaUuid: string;
   const emailCliente = Cypress.env('clienteEmail') || 'clientetest@email.com';
   const senhaCliente = Cypress.env('clienteSenha') || '@asdfJKLÇ123';
 
@@ -24,7 +21,6 @@ describe('Casos de Borda - Validações de Formulários (UI Real)', () => {
     // Setup: criar venda entregue para testes de troca
     cy.criarVendaAprovadaApi().then((dados) => {
       vendaUuid = dados.vendaUuid;
-      itemVendaUuid = dados.itemVendaUuid;
     });
     
     cy.despacharPedidoApi(vendaUuid);

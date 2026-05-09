@@ -10,14 +10,7 @@ import { buildUrl, responseToResult, rethrowNetworkError } from '../utils/httpUt
 export class ApiClient {
   private static readonly TIMEOUT_MS = 10000; // 10 segundos
 
-  private static async request<T>(endpoint: string, options: RequestInit & { params?: Record<string, string> } = {}): Promise<T> {
-    const { params, ...fetchOptions } = options;
-    const url = buildUrl(endpoint, params);
-
-    const { store } = await import('../store/index');
-    const state = store.getState() as RootState;
-    const token = state.auth.token;
-
+  private static prepararHeaders(fetchOptions: RequestInit, token: string | null): Headers {
     const headers = new Headers(fetchOptions.headers);
     if (!headers.has('Content-Type') && !(fetchOptions.body instanceof FormData)) {
       headers.set('Content-Type', 'application/json');
@@ -35,6 +28,49 @@ export class ApiClient {
       headers.set('Authorization', `Bearer ${token}`);
     }
 
+    return headers;
+  }
+
+  private static logRequest(method: string | undefined, url: string, hasToken: boolean, hasTestDbHeader: boolean): void {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[SENIOR-DEBUG] API Request: ${method || 'GET'} ${url}`, {
+        hasToken,
+        hasTestDbHeader,
+        windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A'
+      });
+    }
+  }
+
+  private static logResponse(response: Response, url: string): void {
+    if (process.env.NODE_ENV === 'development') {
+      const clone = response.clone();
+      let bodyText = '';
+      try {
+        void clone.text().then((text) => {
+          bodyText = text;
+        });
+      } catch {
+        bodyText = '(could not read body)';
+      }
+
+      console.log(`[SENIOR-DEBUG] API Response: ${response.status} ${url}`, {
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries()),
+        body: bodyText.length > 500 ? bodyText.substring(0, 500) + '...' : bodyText
+      });
+    }
+  }
+
+  private static async request<T>(endpoint: string, options: RequestInit & { params?: Record<string, string> } = {}): Promise<T> {
+    const { params, ...fetchOptions } = options;
+    const url = buildUrl(endpoint, params);
+
+    const { store } = await import('../store/index');
+    const state = store.getState() as RootState;
+    const token = state.auth.token;
+
+    const headers = this.prepararHeaders(fetchOptions, token);
+
     const config: RequestInit = {
       ...fetchOptions,
       headers,
@@ -42,13 +78,7 @@ export class ApiClient {
     };
 
     const hasTestDbHeader = headers.get('x-use-test-db') === 'true';
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[SENIOR-DEBUG] API Request: ${config.method || 'GET'} ${url}`, {
-        hasToken: !!token,
-        hasTestDbHeader,
-        windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A'
-      });
-    }
+    this.logRequest(config.method, url, !!token, hasTestDbHeader);
 
     try {
       // Adicionar timeout para evitar loading infinito
@@ -62,21 +92,7 @@ export class ApiClient {
 
       clearTimeout(timeoutId);
 
-      const clone = response.clone();
-      let bodyText = '';
-      try {
-        bodyText = await clone.text();
-      } catch {
-        bodyText = '(could not read body)';
-      }
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`[SENIOR-DEBUG] API Response: ${response.status} ${url}`, {
-          ok: response.ok,
-          headers: Object.fromEntries(response.headers.entries()),
-          body: bodyText.length > 500 ? bodyText.substring(0, 500) + '...' : bodyText
-        });
-      }
+      this.logResponse(response, url);
       return await responseToResult<T>(url, response);
     } catch (error: unknown) {
       if (process.env.NODE_ENV === 'development') {

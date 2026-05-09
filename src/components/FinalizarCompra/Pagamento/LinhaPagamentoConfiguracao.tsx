@@ -27,6 +27,7 @@ export const LinhaPagamentoConfiguracao = ({
           <select
             id={`parcelas-linha-${linha.id}`}
             className={styles.selectCartao}
+            data-testid="checkout-parcelas-select"
             value={linha.parcelasCartao ?? 1}
             onChange={(e) => {
               const n = parseInt(e.target.value, 10);
@@ -66,7 +67,7 @@ export const LinhaPagamentoConfiguracao = ({
             aria-invalid={abaixoMin}
           />
           {abaixoMin ? (
-            <span className={styles.valorErroIcon} title="Mínimo R$ 10,00 nesta linha">
+            <span className={styles.valorErroIcon} title="Mínimo R$ 10,00 nesta linha" data-testid="parcelas-error-icon">
               <AlertCircle size={18} aria-hidden />
             </span>
           ) : null}

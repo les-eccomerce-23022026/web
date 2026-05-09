@@ -790,3 +790,87 @@ describe('Pagamento — checkout sem cartões salvos (cliente novo via API)', ()
     cy.get('[data-cy="checkout-finish-button"]').should('be.disabled');
   });
 });
+
+/**
+ * RN0069 - Parcelamento Mínimo R$ 80,00
+ * Valida que valores abaixo de R$ 80,00 não são elegíveis para parcelamento
+ */
+describe('RN0069 - Parcelamento Mínimo R$ 80,00', () => {
+  beforeEach(() => {
+    cy.setupCheckoutNetworkSpies();
+    cy.loginClienteSeed();
+    cy.garantirEnderecoApi();
+    cy.prepararCarrinhoComUmLivroHidratado();
+  });
+
+  it('deve exibir apenas opção à vista quando valor da linha < R$ 80,00', () => {
+    preencherEntregaCheckoutMinimo();
+    
+    // Configurar linha de pagamento com valor abaixo de R$ 80,00
+    cy.get('[data-cy="checkout-split-line-value"]')
+      .first()
+      .clear()
+      .type('50.00');
+    
+    // Verificar que select de parcelas tem apenas 1 opção (à vista)
+    cy.get('[data-cy="checkout-split-line-parcelas"]')
+      .find('option')
+      .should('have.length', 1);
+    
+    cy.get('[data-cy="checkout-split-line-parcelas"]')
+      .find('option')
+      .first()
+      .should('contain', 'à vista');
+  });
+
+  it('deve exibir múltiplas opções de parcelamento quando valor da linha >= R$ 80,00', () => {
+    preencherEntregaCheckoutMinimo();
+    
+    // Configurar linha de pagamento com valor acima de R$ 80,00
+    cy.get('[data-cy="checkout-split-line-value"]')
+      .first()
+      .clear()
+      .type('100.00');
+    
+    // Verificar que select de parcelas tem múltiplas opções
+    cy.get('[data-cy="checkout-split-line-parcelas"]')
+      .find('option')
+      .should('have.length.greaterThan', 1);
+    
+    // Verificar que existe opção 2x
+    cy.get('[data-cy="checkout-split-line-parcelas"]')
+      .find('option')
+      .eq(1)
+      .should('contain', '2x');
+  });
+
+  it('deve bloquear parcelamento no limite exato de R$ 79,99', () => {
+    preencherEntregaCheckoutMinimo();
+    
+    // Configurar linha com valor exatamente no limite (R$ 79,99)
+    cy.get('[data-cy="checkout-split-line-value"]')
+      .first()
+      .clear()
+      .type('79.99');
+    
+    // Verificar que select de parcelas tem apenas 1 opção
+    cy.get('[data-cy="checkout-split-line-parcelas"]')
+      .find('option')
+      .should('have.length', 1);
+  });
+
+  it('deve permitir parcelamento a partir de R$ 80,00', () => {
+    preencherEntregaCheckoutMinimo();
+    
+    // Configurar linha com valor mínimo elegível (R$ 80,00)
+    cy.get('[data-cy="checkout-split-line-value"]')
+      .first()
+      .clear()
+      .type('80.00');
+    
+    // Verificar que select de parcelas tem múltiplas opções
+    cy.get('[data-cy="checkout-split-line-parcelas"]')
+      .find('option')
+      .should('have.length.greaterThan', 1);
+  });
+});

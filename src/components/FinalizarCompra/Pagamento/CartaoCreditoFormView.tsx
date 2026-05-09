@@ -45,7 +45,7 @@ const SalvarCartaoCheckboxBlock = ({
       <span>Salvar cartão para compras futuras</span>
     </label>
     {dicaSalvarCartaoOpcional ? (
-      <p className={styles['cartao-form-hint']} data-cy="checkout-save-card-hint">
+      <p className={styles['cartao-form-hint']} data-cy="checkout-save-card-hint" data-testid="checkout-card-save-hint">
         {dicaSalvarCartaoOpcional}
       </p>
     ) : null}

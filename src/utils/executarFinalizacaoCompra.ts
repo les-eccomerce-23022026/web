@@ -3,7 +3,7 @@ import type { AuthUser } from '../store/slices/authSlice';
 import type { ICarrinho } from '../interfaces/carrinho';
 import type { ICupomAplicado, IPagamentoParcial } from '../interfaces/pagamento';
 import type { ICheckoutInfo } from '../interfaces/checkout';
-import type { IEnderecoEntregaInput, IEntregaInputDto } from '../interfaces/entrega';
+import type { IEntregaInputDto } from '../interfaces/entrega';
 import { limparCarrinhoAposPedido } from './finalizarCompraPedido';
 import type { ResultadoLiquidacaoPagamentos } from './finalizarCompraLiquidacaoPagamentos';
 import type { OpcoesFinalizarCheckout } from '../types/checkout';
@@ -77,12 +77,15 @@ export async function executarFinalizarCheckout(params: {
   });
 
   validarFormaPagamentoETotais(
-    (pagamentosEfetivos as any[]).reduce((s: number, p: any) => s + p.valor, 0),
-    pagamentosEfetivos as any[],
+    pagamentosEfetivos.reduce((s: number, p: IPagamentoParcial) => s + p.valor, 0),
+    pagamentosEfetivos,
   );
 
   let liquidacaoPix: ResultadoLiquidacaoPagamentos | null = null;
   if (!USE_MOCK) {
+    if (!enderecoEntrega) {
+      throw new Error('Endereço de entrega é obrigatório para checkout na API real');
+    }
     liquidacaoPix = await liquidarPagamentosEEntregaNaApi({
       pagamentoService,
       vendaUuid,
@@ -90,10 +93,10 @@ export async function executarFinalizarCheckout(params: {
       frete,
       custoFreteRegistradoNaVenda: custoFreteNaVenda,
       cuponsAplicados,
-      pagamentosEfetivos: pagamentosEfetivos as any[],
+      pagamentosEfetivos,
       opcoes,
       checkoutData,
-      enderecoEntrega: enderecoEntrega as IEnderecoEntregaInput,
+      enderecoEntrega: enderecoEntrega!,
       cadastrarEntrega,
     });
   }

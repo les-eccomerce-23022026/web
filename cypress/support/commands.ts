@@ -611,7 +611,7 @@ Cypress.Commands.add('criarVendaAprovadaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   const headers = apiHeadersTestDb();
 
-  return cy.loginAdminApi().then((tokenAdmin) => {
+  return cy.loginAdminApi().then(() => {
     return cy.loginClienteSeed().then(() => {
       return cy.obterPrimeiroLivroUuidDoCatalogo().then((livroUuid) => {
         // Adicionar ao carrinho
@@ -690,13 +690,12 @@ Cypress.Commands.add('criarVendaAprovadaApi', () => {
 
 Cypress.Commands.add('despacharPedidoApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
-
-  cy.loginAdminApi();
   cy.request({
-    method: 'PUT',
+    method: 'PATCH',
     url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-    headers,
+    headers: {
+      Authorization: `Bearer ${Cypress.env('adminToken')}`,
+    },
   });
 });
 
@@ -706,7 +705,7 @@ Cypress.Commands.add('confirmarEntregaApi', (vendaUuid: string) => {
 
   cy.loginAdminApi();
   cy.request({
-    method: 'PUT',
+    method: 'PATCH',
     url: `${apiUrl}/admin/pedidos/${vendaUuid}/entrega`,
     headers,
   });

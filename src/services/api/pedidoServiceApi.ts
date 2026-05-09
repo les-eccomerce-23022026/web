@@ -66,11 +66,11 @@ export class PedidoServiceApi implements IPedidoService {
   }
 
   async despacharPedido(pedidoUuid: string): Promise<IPedido> {
-    return ApiClient.put<IPedido>(API_ENDPOINTS.despacharPedido(pedidoUuid));
+    return ApiClient.patch<IPedido>(API_ENDPOINTS.despacharPedido(pedidoUuid));
   }
 
   async confirmarEntrega(pedidoUuid: string): Promise<IPedido> {
-    return ApiClient.put<IPedido>(API_ENDPOINTS.confirmarEntrega(pedidoUuid));
+    return ApiClient.patch<IPedido>(API_ENDPOINTS.confirmarEntrega(pedidoUuid));
   }
 
   async getPedidosEmTroca(): Promise<IPedido[]> {
@@ -89,18 +89,18 @@ export class PedidoServiceApi implements IPedidoService {
   }
 
   async autorizarTroca(pedidoUuid: string): Promise<IPedido> {
-    return ApiClient.put<IPedido>(API_ENDPOINTS.autorizarTroca(pedidoUuid));
+    return ApiClient.patch<IPedido>(API_ENDPOINTS.autorizarTroca(pedidoUuid));
   }
 
   async rejeitarTroca(pedidoUuid: string, motivo: string): Promise<IPedido> {
-    return ApiClient.put<IPedido>(API_ENDPOINTS.rejeitarTroca(pedidoUuid), { motivo });
+    return ApiClient.patch<IPedido>(API_ENDPOINTS.rejeitarTroca(pedidoUuid), { motivo });
   }
 
   async confirmarRecebimentoTroca(
     pedidoUuid: string,
     retornarEstoque: boolean,
   ): Promise<{ pedido: IPedido; cupomGerado: ICupomTroca }> {
-    return ApiClient.put<{ pedido: IPedido; cupomGerado: ICupomTroca }>(
+    return ApiClient.patch<{ pedido: IPedido; cupomGerado: ICupomTroca }>(
       API_ENDPOINTS.confirmarRecebimentoTroca(pedidoUuid),
       { retornarEstoque },
     );

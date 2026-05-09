@@ -20,7 +20,6 @@ import { apiHeadersTestDb } from '../../support/helpers/checkoutHelpers';
 
 describe('Fluxo Completo Cross-Domain - Cliente Compra → Troca → Cupom (UI Real)', () => {
   let vendaUuid: string;
-  let itemVendaUuid: string;
   let cupomTrocaCodigo: string;
   const emailCliente = Cypress.env('clienteEmail') || 'clientetest@email.com';
   const senhaCliente = Cypress.env('clienteSenha') || '@asdfJKLÇ123';
@@ -98,7 +97,6 @@ describe('Fluxo Completo Cross-Domain - Cliente Compra → Troca → Cupom (UI R
               headers: apiHeadersTestDb(),
             }).then((res) => {
               vendaUuid = res.body[0].uuid;
-              itemVendaUuid = res.body[0].itens[0].uuid;
             });
           }
         });
@@ -317,7 +315,6 @@ describe('Fluxo Completo Cross-Domain - Cliente Compra → Troca → Cupom (UI R
       // Setup via API: criar venda entregue
       cy.criarVendaAprovadaApi().then((dados) => {
         vendaUuid = dados.vendaUuid;
-        itemVendaUuid = dados.itemVendaUuid;
       });
       
       cy.despacharPedidoApi(vendaUuid);

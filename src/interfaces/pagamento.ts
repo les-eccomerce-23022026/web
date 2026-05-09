@@ -9,6 +9,9 @@ export type TipoPagamento = 'cartao_credito' | 'cupom_troca' | 'cupom_promociona
 /** Máximo de parcelas no cartão (checkout). */
 export const PARCELAS_CARTAO_MAX = 12;
 
+/** Valor mínimo para parcelamento no cartão (RN0069). */
+export const VALOR_MINIMO_PARCELAMENTO = 80.0;
+
 /** Política de parcelamento no cartão (`GET /pagamento/info` → checkout). */
 export interface IPoliticaParcelamentoCartao {
   parcelasMaximas: number;
