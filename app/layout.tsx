@@ -8,6 +8,7 @@ import type { Metadata } from 'next';
 import { Providers } from '../src/app/providers';
 import { Header } from './components/Header/index';
 import { Footer } from './components/Footer/index';
+import '../src/index.css';
 
 export const metadata: Metadata = {
   title: 'Barnes & Noble - Livraria Online',
@@ -28,7 +29,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <Header />
-          <main>{children}</main>
+          <main className="container">{children}</main>
           <Footer />
         </Providers>
       </body>

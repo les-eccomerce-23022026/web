@@ -8,6 +8,8 @@ import { buildUrl, responseToResult, rethrowNetworkError } from '../utils/httpUt
  * - 401 em rotas autenticadas: encerra sessão (logoutSession). Login com credenciais inválidas não dispara logout global.
  */
 export class ApiClient {
+  private static readonly TIMEOUT_MS = 10000; // 10 segundos
+
   private static async request<T>(endpoint: string, options: RequestInit & { params?: Record<string, string> } = {}): Promise<T> {
     const { params, ...fetchOptions } = options;
     const url = buildUrl(endpoint, params);
@@ -40,14 +42,26 @@ export class ApiClient {
     };
 
     const hasTestDbHeader = headers.get('x-use-test-db') === 'true';
-    console.log(`[SENIOR-DEBUG] API Request: ${config.method || 'GET'} ${url}`, {
-      hasToken: !!token,
-      hasTestDbHeader,
-      windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A'
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[SENIOR-DEBUG] API Request: ${config.method || 'GET'} ${url}`, {
+        hasToken: !!token,
+        hasTestDbHeader,
+        windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A'
+      });
+    }
 
     try {
-      const response = await fetch(url, config);
+      // Adicionar timeout para evitar loading infinito
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT_MS);
+
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
       const clone = response.clone();
       let bodyText = '';
       try {
@@ -56,14 +70,18 @@ export class ApiClient {
         bodyText = '(could not read body)';
       }
 
-      console.log(`[SENIOR-DEBUG] API Response: ${response.status} ${url}`, {
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries()),
-        body: bodyText.length > 500 ? bodyText.substring(0, 500) + '...' : bodyText
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[SENIOR-DEBUG] API Response: ${response.status} ${url}`, {
+          ok: response.ok,
+          headers: Object.fromEntries(response.headers.entries()),
+          body: bodyText.length > 500 ? bodyText.substring(0, 500) + '...' : bodyText
+        });
+      }
       return await responseToResult<T>(url, response);
     } catch (error: unknown) {
-      console.error(`[SENIOR-DEBUG] API Network Error: ${url}`, error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`[SENIOR-DEBUG] API Network Error: ${url}`, error);
+      }
       return rethrowNetworkError(error);
     }
   }

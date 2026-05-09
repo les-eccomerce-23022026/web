@@ -138,7 +138,13 @@ const livroSlice = createSlice({
         state.statusAdmin = 'failed';
         state.errorAdmin = action.error.message || 'Erro ao carregar livros';
       })
-      .addCase(logout, () => ({ ...initialState }));
+      .addCase(logout, (state) => {
+        // Limpar apenas dados sensíveis (admin), manter dados públicos (catálogo)
+        state.livrosAdmin = [];
+        state.statusAdmin = 'idle';
+        state.errorAdmin = null;
+        // Não limpar livrosDestaque, categoriasMenu e outros dados públicos
+      });
   },
 });
 

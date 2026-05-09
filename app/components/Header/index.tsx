@@ -67,7 +67,7 @@ export const Header = () => {
           <div className={styles['header-actions']}>
             {isAuthenticated ? (
               <>
-                <Link href="/perfil" className={styles['action-icon']} data-cy="header-user-profile" title={`Olá, ${user?.nome}`}>
+                <Link href="/minha-conta" className={styles['action-icon']} data-cy="header-user-profile" title={`Olá, ${user?.nome}`}>
                   <User size={22} strokeWidth={2} />
                 </Link>
                 <Link href="/pedidos" className={styles['action-icon']} data-cy="header-pedidos-link" title="Meus Pedidos">

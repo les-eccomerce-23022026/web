@@ -61,11 +61,21 @@ async function responseToResult<T>(url: string, response: Response): Promise<T> 
 function rethrowNetworkError(error: unknown): never {
   console.error('[API Error]:', error);
   const err = error as Error;
-  if (err?.message === 'Failed to fetch') {
+
+  // Erro de timeout (AbortController)
+  if (err?.name === 'AbortError') {
     throw new Error(
-      'Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.',
+      'Tempo de conexão esgotado. O servidor não respondeu em 10 segundos. Verifique se o backend está rodando em localhost:3002.',
     );
   }
+
+  // Erro de rede (Failed to fetch)
+  if (err?.message === 'Failed to fetch') {
+    throw new Error(
+      'Não foi possível conectar ao servidor. Verifique se o backend está rodando em localhost:3002 e tente novamente.',
+    );
+  }
+
   throw error;
 }
 

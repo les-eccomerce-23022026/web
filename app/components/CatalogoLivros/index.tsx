@@ -35,6 +35,26 @@ export const CatalogoLivros = () => {
 
   const totalPaginas = Math.max(1, Math.ceil(totalCatalogo / itensPorPaginaCatalogo) || 1);
 
+  const handlePaginaAnterior = () => {
+    if (paginaCatalogo > 1) {
+      void dispatch(fetchLivros({ 
+        pagina: paginaCatalogo - 1, 
+        itensPorPagina: itensPorPaginaCatalogo, 
+        ordenacao: 'recentes' 
+      }));
+    }
+  };
+
+  const handleProximaPagina = () => {
+    if (paginaCatalogo < totalPaginas) {
+      void dispatch(fetchLivros({ 
+        pagina: paginaCatalogo + 1, 
+        itensPorPagina: itensPorPaginaCatalogo, 
+        ordenacao: 'recentes' 
+      }));
+    }
+  };
+
   if (loading) {
     return <LoadingState message="Carregando o catálogo..." />;
   }
@@ -80,8 +100,8 @@ export const CatalogoLivros = () => {
               paginaAtual={paginaCatalogo}
               totalPaginas={totalPaginas}
               totalItens={totalCatalogo}
-              onPaginaAnterior={() => {}}
-              onProximaPagina={() => {}}
+              onPaginaAnterior={handlePaginaAnterior}
+              onProximaPagina={handleProximaPagina}
             />
           )}
         </>

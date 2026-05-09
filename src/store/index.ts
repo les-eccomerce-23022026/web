@@ -43,8 +43,8 @@ export const store = configureStore({
 
 export const persistor = persistStore(store);
 
-// Debug: Log persistência
-if (typeof window !== 'undefined') {
+// Debug: Log persistência (apenas em desenvolvimento)
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   persistor.subscribe(() => {
     const state = store.getState();
     console.log('[REDUX-PERSIST DEBUG] Estado persistido:', {

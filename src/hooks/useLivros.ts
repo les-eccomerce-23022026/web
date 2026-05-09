@@ -5,7 +5,7 @@ import { useAppSelector } from '../store/hooks';
 
 export function useLivrosDestaque() {
   const livros = useAppSelector((state) => state.livro.livrosDestaque);
-  const termoBusca = useAppSelector((state) => state.livro.termoBusca).toLowerCase();
+  const termoBusca = useAppSelector((state) => state.livro.termoBusca)?.toLowerCase() || '';
   const loading = useAppSelector((state) => state.livro.statusDestaque === 'loading');
   const error = useAppSelector((state) =>
     state.livro.statusDestaque === 'failed' ? new Error(state.livro.errorDestaque || 'Erro') : null,

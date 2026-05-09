@@ -32,19 +32,14 @@ export const Footer = () => {
           <h3>Minha Conta</h3>
           <ul>
             <li><Link href="/minha-conta">Meus Dados</Link></li>
-            <li><Link href="/meus-pedidos">Meus Pedidos</Link></li>
-            <li><Link href="/enderecos">Endereços</Link></li>
-            <li><Link href="/cartoes">Cartões</Link></li>
+            <li><Link href="/pedidos">Meus Pedidos</Link></li>
           </ul>
         </div>
 
         <div className="footer-column">
           <h3>Suporte</h3>
           <ul>
-            <li><Link href="/central-ajuda">Central de Ajuda</Link></li>
-            <li><Link href="/politica-trocas">Política de Trocas</Link></li>
-            <li><Link href="/fale-conosco">Fale Conosco</Link></li>
-            <li><Link href="/termos-uso">Termos de Uso</Link></li>
+            <li><Link href="/minha-conta">Fale Conosco</Link></li>
           </ul>
         </div>
       </div>
