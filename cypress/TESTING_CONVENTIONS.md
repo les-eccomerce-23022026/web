@@ -29,6 +29,11 @@
 | **Frete / CEP / jornada longa na UI** | `e2e/user/cliente/checkout/entrega-frete.cy.ts` | Catálogo → checkout; sensível a Redux. |
 | **Regras via API** (cupom, RN0034, política parcelas) | `e2e/integration/pagamento-api.cy.ts` | Menos flakiness que UI. |
 | **SEO/SSR** (validação de HTML, meta tags, Open Graph) | `e2e/seo/` (nova pasta) | `cy.request` sem `db:reset:all`; valida `generateMetadata` Next.js. |
+| **Fluxo completo cross-domain** (cliente compra → admin despacha → admin entrega → cliente solicita troca → admin autoriza → admin confirma recebimento → cliente usa cupom) | `e2e/fluxo/fluxo-completo-cross-domain.cy.ts` | E2E UI real cobrindo ciclo completo de venda e troca. |
+| **Atualização de endereço em falha** (cliente cadastra endereço via UI → admin redespacha → entrega) | `e2e/fluxo/cliente-atualiza-endereco-falha.cy.ts` | Converte ações de API para UI real no fluxo de recuperação. |
+| **Validações de formulários** (motivo de troca vazio, endereço incompleto, limite de caracteres, login/registro) | `e2e/fluxo/validacoes-formularios.cy.ts` | Casos de borda de validação frontend. |
+| **Erros e recuperação** (erro de rede, timeout, sessão expirada, conflito de edição) | `e2e/fluxo/erros-recuperacao.cy.ts` | Cenários de erro com simulação via `cy.intercept`. |
+| **Múltiplas falhas consecutivas** (3 falhas → cancelamento automático) | `e2e/fluxo/multiplas-falhas-consecutivas.cy.ts` | Regra de negócio de cancelamento após 3 falhas. |
 
 Lista atual de `.skip` em checkout de pagamento: `grep -n "it\\.skip" web/cypress/e2e/user/cliente/checkout/pagamento.cy.ts`.
 

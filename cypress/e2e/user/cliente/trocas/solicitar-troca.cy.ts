@@ -226,48 +226,48 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
     });
 
     it('deve exibir lista de itens do pedido', () => {
-      cy.contains('Selecione os itens para troca').should('be.visible');
-      cy.get('input[type="checkbox"]').should('have.length.at.least', 1);
+      cy.get('[data-cy="troca-itens-titulo"]').should('be.visible');
+      cy.get('[data-cy^="troca-item-checkbox-"]').should('have.length.at.least', 1);
     });
 
     it('deve permitir selecionar item para troca', () => {
-      cy.get('input[type="checkbox"]').first().check();
-      cy.get('input[type="checkbox"]').first().should('be.checked');
+      cy.get('[data-cy^="troca-item-checkbox-"]').first().check();
+      cy.get('[data-cy^="troca-item-checkbox-"]').first().should('be.checked');
     });
 
     it('deve permitir desmarcar item selecionado', () => {
-      cy.get('input[type="checkbox"]').first().check();
-      cy.get('input[type="checkbox"]').first().uncheck();
-      cy.get('input[type="checkbox"]').first().should('not.be.checked');
+      cy.get('[data-cy^="troca-item-checkbox-"]').first().check();
+      cy.get('[data-cy^="troca-item-checkbox-"]').first().uncheck();
+      cy.get('[data-cy^="troca-item-checkbox-"]').first().should('not.be.checked');
     });
 
     it('deve exibir erro ao tentar solicitar sem selecionar itens', () => {
-      cy.contains('Solicitar Troca').click();
+      cy.get('[data-cy="btn-solicitar-troca"]').click();
       
-      cy.contains('Selecione pelo menos um item').should('be.visible');
+      cy.get('[data-cy="erro-selecionar-item"]').should('be.visible');
     });
   });
 
   describe('Preenchimento de Motivo', () => {
     beforeEach(() => {
       cy.visit(`/pedidos/${vendaUuid}/troca`);
-      cy.get('input[type="checkbox"]').first().check();
+      cy.get('[data-cy^="troca-item-checkbox-"]').first().check();
     });
 
     it('deve exibir campo de motivo da troca', () => {
-      cy.contains('Motivo da troca:').should('be.visible');
-      cy.get('textarea').should('be.visible');
+      cy.get('[data-cy="troca-motivo-label"]').should('be.visible');
+      cy.get('[data-cy="troca-motivo-input"]').should('be.visible');
     });
 
     it('deve permitir preencher motivo da troca', () => {
-      cy.get('textarea').type('Produto com defeito de fabricação');
-      cy.get('textarea').should('have.value', 'Produto com defeito de fabricação');
+      cy.get('[data-cy="troca-motivo-input"]').type('Produto com defeito de fabricação');
+      cy.get('[data-cy="troca-motivo-input"]').should('have.value', 'Produto com defeito de fabricação');
     });
 
     it('deve exibir erro ao tentar solicitar sem motivo', () => {
-      cy.contains('Solicitar Troca').click();
+      cy.get('[data-cy="btn-solicitar-troca"]').click();
       
-      cy.contains('Informe o motivo da troca').should('be.visible');
+      cy.get('[data-cy="erro-motivo-obrigatorio"]').should('be.visible');
     });
   });
 
@@ -277,33 +277,33 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
     });
 
     it('deve solicitar troca com sucesso', () => {
-      cy.get('input[type="checkbox"]').first().check();
-      cy.get('textarea').type('Produto com defeito');
+      cy.get('[data-cy^="troca-item-checkbox-"]').first().check();
+      cy.get('[data-cy="troca-motivo-input"]').type('Produto com defeito');
       
-      cy.contains('Solicitar Troca').click();
+      cy.get('[data-cy="btn-solicitar-troca"]').click();
       
-      cy.contains('Troca Solicitada com Sucesso').should('be.visible');
-      cy.contains('Redirecionando para Meus Pedidos').should('be.visible');
+      cy.get('[data-cy="sucesso-troca"]').should('be.visible');
+      cy.get('[data-cy="redirecionando-mensagem"]').should('be.visible');
       
       cy.url({ timeout: 5000 }).should('include', '/pedidos');
     });
 
     it('deve desabilitar botão durante envio', () => {
-      cy.get('input[type="checkbox"]').first().check();
-      cy.get('textarea').type('Produto com defeito');
+      cy.get('[data-cy^="troca-item-checkbox-"]').first().check();
+      cy.get('[data-cy="troca-motivo-input"]').type('Produto com defeito');
       
       cy.intercept('POST', '**/vendas/*/troca', {
         delay: 2000,
       }).as('solicitarTroca');
       
-      cy.contains('Solicitar Troca').click();
+      cy.get('[data-cy="btn-solicitar-troca"]').click();
       
-      cy.contains('Enviando...').should('be.visible');
-      cy.contains('Solicitar Troca').should('be.disabled');
+      cy.get('[data-cy="btn-enviando"]').should('be.visible');
+      cy.get('[data-cy="btn-solicitar-troca"]').should('be.disabled');
     });
 
     it('deve permitir cancelar solicitação', () => {
-      cy.contains('Cancelar').click();
+      cy.get('[data-cy="btn-cancelar-troca"]').click();
       
       cy.url().should('include', '/pedidos');
     });
@@ -316,13 +316,13 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
         body: { erro: 'Erro ao processar solicitação de troca' },
       }).as('solicitarTrocaFalha');
       
-      cy.get('input[type="checkbox"]').first().check();
-      cy.get('textarea').type('Produto com defeito');
+      cy.get('[data-cy^="troca-item-checkbox-"]').first().check();
+      cy.get('[data-cy="troca-motivo-input"]').type('Produto com defeito');
       
-      cy.contains('Solicitar Troca').click();
+      cy.get('[data-cy="btn-solicitar-troca"]').click();
       cy.wait('@solicitarTrocaFalha');
       
-      cy.contains('Erro ao solicitar troca').should('be.visible');
+      cy.get('[data-cy="erro-troca"]').should('be.visible');
     });
   });
 
@@ -335,9 +335,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
         method: 'POST',
         url: `${apiUrl}/admin/pedidos/${vendaUuid}/atualizar-data-entrega`,
         headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
           'Content-Type': 'application/json; charset=utf-8',
-          ...(Cypress.env('injectTestDbHeader') === true ? { 'x-use-test-db': 'true' } : {}),
+          ...apiHeadersTestDb(),
         },
         body: {
           dataEntrega: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
@@ -346,8 +345,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
       }).then(() => {
         cy.visit(`/pedidos/${vendaUuid}/troca`);
         
-        cy.contains('Apenas pedidos com status').should('be.visible');
-        cy.contains('Entregue').should('be.visible');
+        cy.get('[data-cy="erro-prazo-expirado"]').should('be.visible');
+        cy.get('[data-cy="erro-status-entregue"]').should('be.visible');
       });
     });
 
@@ -359,9 +358,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
         method: 'POST',
         url: `${apiUrl}/admin/pedidos/${vendaUuid}/atualizar-data-entrega`,
         headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
           'Content-Type': 'application/json; charset=utf-8',
-          ...(Cypress.env('injectTestDbHeader') === true ? { 'x-use-test-db': 'true' } : {}),
+          ...apiHeadersTestDb(),
         },
         body: {
           dataEntrega: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
@@ -370,8 +368,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
       }).then(() => {
         cy.visit(`/pedidos/${vendaUuid}/troca`);
         
-        cy.contains(/7 dias/i).should('be.visible');
-        cy.contains(/prazo/i).should('be.visible');
+        cy.get('[data-cy="info-prazo-7-dias"]').should('be.visible');
+        cy.get('[data-cy="info-prazo-texto"]').should('be.visible');
       });
     });
 
@@ -383,9 +381,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
         method: 'POST',
         url: `${apiUrl}/admin/pedidos/${vendaUuid}/atualizar-data-entrega`,
         headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
           'Content-Type': 'application/json; charset=utf-8',
-          ...(Cypress.env('injectTestDbHeader') === true ? { 'x-use-test-db': 'true' } : {}),
+          ...apiHeadersTestDb(),
         },
         body: {
           dataEntrega: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
@@ -395,8 +392,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
         cy.visit(`/pedidos/${vendaUuid}/troca`);
         
         // Deve exibir a página normalmente (não bloqueada)
-        cy.contains('Solicitar Troca').should('be.visible');
-        cy.get('input[type="checkbox"]').should('have.length.at.least', 1);
+        cy.get('[data-cy="btn-solicitar-troca"]').should('be.visible');
+        cy.get('[data-cy^="troca-item-checkbox-"]').should('have.length.at.least', 1);
       });
     });
   });
@@ -410,9 +407,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
         method: 'POST',
         url: `${apiUrl}/admin/pedidos/${vendaUuid}/atualizar-data-entrega`,
         headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
           'Content-Type': 'application/json; charset=utf-8',
-          ...(Cypress.env('injectTestDbHeader') === true ? { 'x-use-test-db': 'true' } : {}),
+          ...apiHeadersTestDb(),
         },
         body: {
           dataEntrega: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
@@ -421,7 +417,7 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
       }).then(() => {
         cy.visit(`/pedidos/${vendaUuid}/troca`);
         
-        cy.contains('Solicitar Troca')
+        cy.get('[data-cy="btn-solicitar-troca"]')
           .should('be.disabled');
       });
     });
@@ -434,9 +430,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
         method: 'POST',
         url: `${apiUrl}/admin/pedidos/${vendaUuid}/atualizar-data-entrega`,
         headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
           'Content-Type': 'application/json; charset=utf-8',
-          ...(Cypress.env('injectTestDbHeader') === true ? { 'x-use-test-db': 'true' } : {}),
+          ...apiHeadersTestDb(),
         },
         body: {
           dataEntrega: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
@@ -445,8 +440,8 @@ describe('Cliente - Solicitação de Troca (UI)', () => {
       }).then(() => {
         cy.visit(`/pedidos/${vendaUuid}/troca`);
         
-        cy.contains(/4 dias/i).should('be.visible');
-        cy.contains(/restantes/i).should('be.visible');
+        cy.get('[data-cy="contador-dias-restantes"]').should('contain', '4');
+        cy.get('[data-cy="texto-restantes"]').should('be.visible');
       });
     });
   });

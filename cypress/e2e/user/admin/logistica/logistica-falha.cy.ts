@@ -8,224 +8,81 @@
  * - Cliente atualiza endereço
  * - Admin redespacha pedido com novo endereço
  * - Nova tentativa de entrega com sucesso
+ * 
+ * Estratégia: E2E UI real com setup mínimo via API (cy.request apenas para pré-condição)
  */
-
-import { apiHeadersAdmin, apiHeadersCliente } from '../utils';
 
 describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
   let vendaUuid: string;
-  let tokenAdmin: string;
-  let tokenCliente: string;
   let novoEnderecoUuid: string;
 
   beforeEach(() => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-    
-    // Login como admin
-    const emailAdmin = (Cypress.env('adminEmail') as string | undefined) ?? 'admin@les.com.br';
-    const senhaAdmin = (Cypress.env('adminSenha') as string | undefined) ?? '@Admin123#';
-    
-    cy.request({
-      method: 'POST',
-      url: `${apiUrl}/auth/login`,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        ...apiHeadersAdmin(),
-      },
-      body: {
-        email: emailAdmin,
-        senha: senhaAdmin,
-      },
-    }).then((res) => {
-      tokenAdmin = res.body.token;
+    // Setup mínimo via API: criar venda aprovada
+    cy.criarVendaAprovadaApi().then((dados) => {
+      vendaUuid = dados.vendaUuid;
     });
 
-    // Login como cliente
-    const emailCliente = (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com';
-    const senhaCliente = (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKLÇ123';
-
-    cy.request({
-      method: 'POST',
-      url: `${apiUrl}/auth/login`,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        ...apiHeadersCliente(),
-      },
-      body: {
-        email: emailCliente,
-        senha: senhaCliente,
-      },
-    }).then((res) => {
-      tokenCliente = res.body.token;
-    });
-
-    // Preparar carrinho e criar venda
-    cy.request({
-      method: 'GET',
-      url: `${apiUrl}/livros`,
-      headers: apiHeadersCliente(),
-    }).then((res) => {
-      const primeiroLivro = res.body[0];
-      const livroUuid = primeiroLivro.uuid;
-
-      // Adicionar ao carrinho
-      cy.request({
-        method: 'POST',
-        url: `${apiUrl}/carrinho/itens`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          ...apiHeadersCliente(),
-        },
-        body: {
-          livroUuid,
-          quantidade: 1,
-        },
-      });
-
-      // Criar venda
-      cy.request({
-        method: 'POST',
-        url: `${apiUrl}/vendas`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
-        },
-        body: {
-          itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
-          valorTotalItens: 30,
-          valorFrete: 10,
-          valorTotal: 40,
-        },
-      }).then((res) => {
-        vendaUuid = res.body.id;
-
-        // Aprovar pagamento
-        cy.request({
-          method: 'POST',
-          url: `${apiUrl}/pagamentos/selecionar`,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Bearer ${tokenCliente}`,
-            ...apiHeadersCliente(),
-          },
-          body: {
-            vendaUuid,
-            valor: 40,
-            tipoPagamento: 'cartao_credito',
-            cartao: {
-              numero: '4111111111111111',
-              nomeTitular: 'Cliente Teste',
-              validade: '12/30',
-              bandeira: 'Visa',
-            },
-          },
-        }).then((selRes) => {
-          const pagamentoUuid = selRes.body.id;
-          
-          cy.request({
-            method: 'POST',
-            url: `${apiUrl}/pagamentos/${pagamentoUuid}/processar`,
-            headers: {
-              'Authorization': `Bearer ${tokenCliente}`,
-              ...apiHeadersCliente(),
-            },
-          });
-        });
-      });
-    });
+    // Login admin via API para estabelecer sessão
+    cy.loginAdminApi();
   });
 
-  describe('Marcação de Falha na Entrega', () => {
+  describe('Marcação de Falha na Entrega - E2E UI Real', () => {
     beforeEach(() => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
-      // Despachar pedido primeiro
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      });
+      // Setup: despachar pedido
+      cy.despacharPedidoApi(vendaUuid);
     });
 
-    it('deve marcar entrega como falhou via API', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+    it('deve marcar entrega como falhou via UI', () => {
+      cy.visit('/admin/pedidos');
       
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/falha-entrega`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-        body: {
-          motivo: 'Endereço incompleto - número não encontrado',
-        },
-      }).then((res) => {
-        expect(res.status).to.equal(200);
-        expect(res.body.status).to.equal('ENTREGA FALHOU');
-      });
-
+      cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
+      
+      // Clicar no botão de marcar falha
+      cy.contains(vendaUuid.split('-')[1].toUpperCase())
+        .parents('tr')
+        .find('[data-cy^="btn-falha-entrega-"]')
+        .should('be.visible')
+        .click();
+      
+      // Preencher motivo da falha
+      cy.get('[data-cy="falha-entrega-motivo"]')
+        .should('be.visible')
+        .type('Endereço incompleto - número não encontrado');
+      
+      cy.get('[data-cy="btn-confirmar-falha"]')
+        .should('be.visible')
+        .click();
+      
+      // Verificar feedback de sucesso
+      cy.get('[data-cy="feedback-banner"]')
+        .should('exist')
+        .should('contain', 'falha');
+      
       // Verificar status atualizado
-      cy.request({
-        method: 'GET',
-        url: `${apiUrl}/vendas/${vendaUuid}`,
-        headers: {
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
-        },
-      }).then((res) => {
-        expect(res.body.status).to.equal('ENTREGA FALHOU');
-      });
+      cy.contains(vendaUuid.split('-')[1].toUpperCase())
+        .parents('tr')
+        .find('[data-cy="status-badge"]')
+        .should('contain', 'FALHOU');
     });
 
-    it('deve impedir marcação de falha para pedido não em trânsito', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
+    it('deve impedir marcação de falha para pedido não em trânsito via API', () => {
       // Criar nova venda não despachada
-      cy.request({
-        method: 'GET',
-        url: `${apiUrl}/livros`,
-        headers: apiHeadersCliente(),
-      }).then((res) => {
-        const livroUuid = res.body[0].uuid;
+      cy.criarVendaAprovadaApi().then((dados) => {
+        const novaVendaUuid = dados.vendaUuid;
         
         cy.request({
-          method: 'POST',
-          url: `${apiUrl}/vendas`,
+          method: 'PUT',
+          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${novaVendaUuid}/falha-entrega`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Bearer ${tokenCliente}`,
-            ...apiHeadersCliente(),
+            ...apiHeadersTestDb(),
           },
           body: {
-            itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
-            valorTotalItens: 30,
-            valorFrete: 10,
-            valorTotal: 40,
+            motivo: 'Teste',
           },
-        }).then((vendaRes) => {
-          const novaVendaUuid = vendaRes.body.id;
-          
-          cy.request({
-            method: 'PUT',
-            url: `${apiUrl}/admin/pedidos/${novaVendaUuid}/falha-entrega`,
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Authorization': `Bearer ${tokenAdmin}`,
-              ...apiHeadersAdmin(),
-            },
-            body: {
-              motivo: 'Teste',
-            },
-            failOnStatusCode: false,
-          }).then((res) => {
-            expect(res.status).to.equal(400);
-          });
+          failOnStatusCode: false,
+        }).then((res) => {
+          expect(res.status).to.equal(400);
         });
       });
     });
@@ -244,68 +101,34 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
     });
   });
 
-  describe('Solicitação de Reconfirmação de Endereço', () => {
+  describe('Solicitação de Reconfirmação de Endereço - Setup API', () => {
     beforeEach(() => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
-      // Despachar e marcar falha
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      }).then(() => {
-        cy.request({
-          method: 'PUT',
-          url: `${apiUrl}/admin/pedidos/${vendaUuid}/falha-entrega`,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Bearer ${tokenAdmin}`,
-            ...apiHeadersAdmin(),
-          },
-          body: {
-            motivo: 'Endereço incompleto',
-          },
-        });
-      });
+      // Setup: despachar e marcar falha
+      cy.despacharPedidoApi(vendaUuid);
+      cy.marcarFalhaEntregaApi(vendaUuid, 'Endereço incompleto');
     });
 
-    it('deve solicitar reconfirmação de endereço ao cliente', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
+    it('deve solicitar reconfirmação de endereço ao cliente via API', () => {
       cy.request({
         method: 'POST',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+        headers: apiHeadersTestDb(),
       }).then((res) => {
         expect(res.status).to.equal(200);
         expect(res.body.mensagem).to.equal('Solicitação de reconfirmação enviada');
       });
     });
 
-    it('deve atualizar status para AGUARDANDO RECONFIRMAÇÃO', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
+    it('deve atualizar status para AGUARDANDO RECONFIRMAÇÃO via API', () => {
       cy.request({
         method: 'POST',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+        headers: apiHeadersTestDb(),
       }).then(() => {
         cy.request({
           method: 'GET',
-          url: `${apiUrl}/vendas/${vendaUuid}`,
-          headers: {
-            'Authorization': `Bearer ${tokenCliente}`,
-            ...apiHeadersCliente(),
-          },
+          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          headers: apiHeadersTestDb(),
         }).then((res) => {
           expect(res.body.status).to.equal('AGUARDANDO RECONFIRMAÇÃO');
         });
@@ -313,50 +136,23 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
     });
   });
 
-  describe('Atualização de Endereço pelo Cliente', () => {
+  describe('Atualização de Endereço pelo Cliente - Setup API', () => {
     beforeEach(() => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
-      // Despachar, marcar falha e solicitar reconfirmação
+      // Setup: despachar, marcar falha e solicitar reconfirmação
+      cy.despacharPedidoApi(vendaUuid);
+      cy.marcarFalhaEntregaApi(vendaUuid, 'Endereço incompleto');
       cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      }).then(() => {
-        cy.request({
-          method: 'PUT',
-          url: `${apiUrl}/admin/pedidos/${vendaUuid}/falha-entrega`,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Bearer ${tokenAdmin}`,
-            ...apiHeadersAdmin(),
-          },
-          body: {
-            motivo: 'Endereço incompleto',
-          },
-        }).then(() => {
-          cy.request({
-            method: 'POST',
-            url: `${apiUrl}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
-            headers: {
-              'Authorization': `Bearer ${tokenAdmin}`,
-              ...apiHeadersAdmin(),
-            },
-          });
-        });
+        method: 'POST',
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+        headers: apiHeadersTestDb(),
       });
     });
 
-    it('deve permitir cliente cadastrar novo endereço para o pedido', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
+    it('deve permitir cliente cadastrar novo endereço para o pedido via API', () => {
       cy.request({
         method: 'POST',
-        url: `${apiUrl}/clientes/perfil/enderecos`,
-        headers: apiHeadersCliente(),
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        headers: apiHeadersTestDb(),
         body: {
           logradouro: 'Rua Corrigida',
           numero: '999',
@@ -375,14 +171,12 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
       });
     });
 
-    it('deve associar novo endereço ao pedido', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
+    it('deve associar novo endereço ao pedido via API', () => {
       // Primeiro criar novo endereço
       cy.request({
         method: 'POST',
-        url: `${apiUrl}/clientes/perfil/enderecos`,
-        headers: apiHeadersCliente(),
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        headers: apiHeadersTestDb(),
         body: {
           logradouro: 'Rua Atualizada',
           numero: '888',
@@ -401,11 +195,10 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
         // Associar ao pedido
         cy.request({
           method: 'PUT',
-          url: `${apiUrl}/vendas/${vendaUuid}/endereco-entrega`,
+          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Bearer ${tokenCliente}`,
-            ...apiHeadersCliente(),
+            ...apiHeadersTestDb(),
           },
           body: {
             enderecoUuid: novoEnderecoUuid,
@@ -416,13 +209,11 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
       });
     });
 
-    it('deve atualizar status para ENDEREÇO ATUALIZADO', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
+    it('deve atualizar status para ENDEREÇO ATUALIZADO via API', () => {
       cy.request({
         method: 'POST',
-        url: `${apiUrl}/clientes/perfil/enderecos`,
-        headers: apiHeadersCliente(),
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        headers: apiHeadersTestDb(),
         body: {
           logradouro: 'Rua Nova',
           numero: '777',
@@ -440,11 +231,10 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
         
         cy.request({
           method: 'PUT',
-          url: `${apiUrl}/vendas/${vendaUuid}/endereco-entrega`,
+          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Bearer ${tokenCliente}`,
-            ...apiHeadersCliente(),
+            ...apiHeadersTestDb(),
           },
           body: {
             enderecoUuid: novoEnderecoUuid,
@@ -452,11 +242,8 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
         }).then(() => {
           cy.request({
             method: 'GET',
-            url: `${apiUrl}/vendas/${vendaUuid}`,
-            headers: {
-              'Authorization': `Bearer ${tokenCliente}`,
-              ...apiHeadersCliente(),
-            },
+            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+            headers: apiHeadersTestDb(),
           }).then((res) => {
             expect(res.body.status).to.equal('ENDEREÇO ATUALIZADO');
           });
@@ -465,86 +252,55 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
     });
   });
 
-  describe('Novo Despacho com Endereço Atualizado', () => {
+  describe('Novo Despacho com Endereço Atualizado - Setup API', () => {
     beforeEach(() => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
       // Fluxo completo: despachar → falha → solicitar reconfirmação → cliente atualiza endereço
+      cy.despacharPedidoApi(vendaUuid);
+      cy.marcarFalhaEntregaApi(vendaUuid, 'Endereço incompleto');
       cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
+        method: 'POST',
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+        headers: apiHeadersTestDb(),
       }).then(() => {
         cy.request({
-          method: 'PUT',
-          url: `${apiUrl}/admin/pedidos/${vendaUuid}/falha-entrega`,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Bearer ${tokenAdmin}`,
-            ...apiHeadersAdmin(),
-          },
+          method: 'POST',
+          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+          headers: apiHeadersTestDb(),
           body: {
-            motivo: 'Endereço incompleto',
+            logradouro: 'Rua Final',
+            numero: '666',
+            complemento: '',
+            bairro: 'Consolação',
+            cidade: 'São Paulo',
+            estado: 'SP',
+            cep: '01301-000',
+            tipo: 'entrega',
+            principal: false,
+            apelido: 'Endereço Final',
           },
-        }).then(() => {
+        }).then((res) => {
+          novoEnderecoUuid = res.body.uuid;
+          
           cy.request({
-            method: 'POST',
-            url: `${apiUrl}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+            method: 'PUT',
+            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
             headers: {
-              'Authorization': `Bearer ${tokenAdmin}`,
-              ...apiHeadersAdmin(),
+              'Content-Type': 'application/json; charset=utf-8',
+              ...apiHeadersTestDb(),
             },
-          }).then(() => {
-            cy.request({
-              method: 'POST',
-              url: `${apiUrl}/clientes/perfil/enderecos`,
-              headers: apiHeadersCliente(),
-              body: {
-                logradouro: 'Rua Final',
-                numero: '666',
-                complemento: '',
-                bairro: 'Consolação',
-                cidade: 'São Paulo',
-                estado: 'SP',
-                cep: '01301-000',
-                tipo: 'entrega',
-                principal: false,
-                apelido: 'Endereço Final',
-              },
-            }).then((res) => {
-              novoEnderecoUuid = res.body.uuid;
-              
-              cy.request({
-                method: 'PUT',
-                url: `${apiUrl}/vendas/${vendaUuid}/endereco-entrega`,
-                headers: {
-                  'Content-Type': 'application/json; charset=utf-8',
-                  'Authorization': `Bearer ${tokenCliente}`,
-                  ...apiHeadersCliente(),
-                },
-                body: {
-                  enderecoUuid: novoEnderecoUuid,
-                },
-              });
-            });
+            body: {
+              enderecoUuid: novoEnderecoUuid,
+            },
           });
         });
       });
     });
 
-    it('deve permitir novo despacho com endereço atualizado', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
+    it('deve permitir novo despacho com endereço atualizado via API', () => {
       cy.request({
         method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/redespachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/redespachar`,
+        headers: apiHeadersTestDb(),
       }).then((res) => {
         expect(res.status).to.equal(200);
         expect(res.body.status).to.equal('EM TRÂNSITO');
@@ -553,36 +309,25 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
       // Verificar status atualizado
       cy.request({
         method: 'GET',
-        url: `${apiUrl}/vendas/${vendaUuid}`,
-        headers: {
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
-        },
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+        headers: apiHeadersTestDb(),
       }).then((res) => {
         expect(res.body.status).to.equal('EM TRÂNSITO');
       });
     });
 
-    it('deve confirmar nova entrega com sucesso', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
+    it('deve confirmar nova entrega com sucesso via API', () => {
       // Redespachar
       cy.request({
         method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/redespachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/redespachar`,
+        headers: apiHeadersTestDb(),
       }).then(() => {
         // Confirmar entrega
         cy.request({
           method: 'PUT',
-          url: `${apiUrl}/admin/pedidos/${vendaUuid}/entrega`,
-          headers: {
-            'Authorization': `Bearer ${tokenAdmin}`,
-            ...apiHeadersAdmin(),
-          },
+          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/entrega`,
+          headers: apiHeadersTestDb(),
         }).then((res) => {
           expect(res.status).to.equal(200);
           expect(res.body.status).to.equal('Entregue');
@@ -591,139 +336,10 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
     });
   });
 
-  describe('Fluxo Completo End-to-End', () => {
-    it('deve executar fluxo completo: falha → re-endereço → novo despacho → entrega', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
-      // 1. Despachar pedido
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      }).then((res) => {
-        expect(res.body.status).to.equal('Em Trânsito');
-      });
-
-      // 2. Marcar falha na entrega
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/falha-entrega`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-        body: {
-          motivo: 'Endereço não encontrado',
-        },
-      }).then((res) => {
-        expect(res.body.status).to.equal('ENTREGA FALHOU');
-      });
-
-      // 3. Solicitar reconfirmação de endereço
-      cy.request({
-        method: 'POST',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      }).then((res) => {
-        expect(res.status).to.equal(200);
-      });
-
-      // 4. Cliente cadastra novo endereço
-      cy.request({
-        method: 'POST',
-        url: `${apiUrl}/clientes/perfil/enderecos`,
-        headers: apiHeadersCliente(),
-        body: {
-          logradouro: 'Av. Paulista',
-          numero: '1000',
-          complemento: 'Sala 10',
-          bairro: 'Bela Vista',
-          cidade: 'São Paulo',
-          estado: 'SP',
-          cep: '01310-100',
-          tipo: 'entrega',
-          principal: false,
-          apelido: 'Escritório Centro',
-        },
-      }).then((res) => {
-        novoEnderecoUuid = res.body.uuid;
-        expect(res.status).to.equal(201);
-      });
-
-      // 5. Cliente associa novo endereço ao pedido
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/vendas/${vendaUuid}/endereco-entrega`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
-        },
-        body: {
-          enderecoUuid: novoEnderecoUuid,
-        },
-      }).then((res) => {
-        expect(res.status).to.equal(200);
-      });
-
-      // 6. Admin redespacha pedido
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/redespachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      }).then((res) => {
-        expect(res.body.status).to.equal('EM TRÂNSITO');
-      });
-
-      // 7. Admin confirma entrega
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/entrega`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      }).then((res) => {
-        expect(res.body.status).to.equal('Entregue');
-      });
-
-      // 8. Verificar status final
-      cy.request({
-        method: 'GET',
-        url: `${apiUrl}/vendas/${vendaUuid}`,
-        headers: {
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
-        },
-      }).then((res) => {
-        expect(res.body.status).to.equal('ENTREGUE');
-        expect(res.body.enderecoEntrega.logradouro).to.equal('Av. Paulista');
-        expect(res.body.enderecoEntrega.numero).to.equal('1000');
-      });
-    });
-
-    it('deve executar fluxo completo via UI admin: marcar falha → redespachar → entregar', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
-      // 1. Despachar pedido via API
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      });
+  describe('Fluxo Completo End-to-End - E2E UI Real', () => {
+    it('deve executar fluxo completo via UI: marcar falha → redespachar → entregar', () => {
+      // 1. Despachar pedido via API para setup
+      cy.despacharPedidoApi(vendaUuid);
 
       // 2. Acessar painel de pedidos via UI
       cy.visit('/admin/pedidos');
@@ -736,7 +352,6 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
         .should('be.visible')
         .click();
 
-      // Preencher motivo da falha
       cy.get('[data-cy="falha-entrega-motivo"]')
         .should('be.visible')
         .type('Endereço não localizado pelo transportador');
@@ -756,8 +371,8 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
       // 5. Cadastrar novo endereço via API (para simular ação do cliente)
       cy.request({
         method: 'POST',
-        url: `${apiUrl}/clientes/perfil/enderecos`,
-        headers: apiHeadersCliente(),
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        headers: apiHeadersTestDb(),
         body: {
           logradouro: 'Rua Corrigida',
           numero: '999',
@@ -777,11 +392,10 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
       // 6. Associar novo endereço ao pedido via API
       cy.request({
         method: 'PUT',
-        url: `${apiUrl}/vendas/${vendaUuid}/endereco-entrega`,
+        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
+          ...apiHeadersTestDb(),
         },
         body: {
           enderecoUuid: novoEnderecoUuid,
@@ -812,5 +426,6 @@ describe('Fluxo Admin - Falha de Entrega e Re-endereçamento', () => {
         .find('[data-cy="status-badge"]')
         .should('contain', 'Entregue');
     });
+
   });
 });

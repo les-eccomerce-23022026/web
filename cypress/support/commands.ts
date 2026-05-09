@@ -56,6 +56,16 @@ declare global {
        * Monta o carrinho via API + visita ao checkout. Sem `livroUuid`, usa o primeiro livro do GET /livros.
        */
       prepararCarrinhoComUmLivroHidratado(opts?: { livroUuid?: string; quantidade?: number }): Chainable<void>;
+      /** Comandos para testes de admin - fluxo de despacho e entrega */
+      criarVendaAprovadaApi(): Chainable<{ vendaUuid: string; itemVendaUuid: string }>;
+      despacharPedidoApi(vendaUuid: string): Chainable<void>;
+      confirmarEntregaApi(vendaUuid: string): Chainable<void>;
+      marcarFalhaEntregaApi(vendaUuid: string, motivo: string): Chainable<void>;
+      solicitarTrocaApi(vendaUuid: string, itemVendaUuid: string, motivo: string): Chainable<void>;
+      autorizarTrocaApi(vendaUuid: string): Chainable<void>;
+      confirmarRecebimentoTrocaApi(vendaUuid: string): Chainable<void>;
+      /** Login admin via API para testes de painel */
+      loginAdminApi(): Chainable<string>;
     }
   }
 }
@@ -567,6 +577,198 @@ Cypress.Commands.add('prepararCarrinhoComUmLivroHidratado', (opts?: { livroUuid?
     expect(res.body.livros, 'pelo menos um livro no catálogo').to.be.an('array').with.length.greaterThan(0);
     const uuid = res.body.livros[0].uuid;
     montar(uuid);
+  });
+});
+
+/**
+ * Comandos reutilizáveis para testes de admin - fluxo de despacho, entrega e trocas
+ */
+
+Cypress.Commands.add('loginAdminApi', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const emailAdmin = (Cypress.env('adminEmail') as string | undefined) ?? 'admin@les.com.br';
+  const senhaAdmin = (Cypress.env('adminSenha') as string | undefined) ?? '@Admin123#';
+  const headers = apiHeadersTestDb();
+
+  return cy.request({
+    method: 'POST',
+    url: `${apiUrl}/auth/login`,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      ...headers,
+    },
+    body: {
+      email: emailAdmin,
+      senha: senhaAdmin,
+    },
+  }).then((res) => {
+    expect(res.status).to.equal(200);
+    return res.body.token;
+  });
+});
+
+Cypress.Commands.add('criarVendaAprovadaApi', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+
+  return cy.loginAdminApi().then((tokenAdmin) => {
+    return cy.loginClienteSeed().then(() => {
+      return cy.obterPrimeiroLivroUuidDoCatalogo().then((livroUuid) => {
+        // Adicionar ao carrinho
+        cy.request({
+          method: 'POST',
+          url: `${apiUrl}/carrinho/itens`,
+          headers,
+          body: {
+            livroUuid,
+            quantidade: 1,
+          },
+        });
+
+        // Criar venda
+        return cy.request({
+          method: 'POST',
+          url: `${apiUrl}/vendas`,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            ...headers,
+          },
+          body: {
+            itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
+            valorTotalItens: 30,
+            valorFrete: 10,
+            valorTotal: 40,
+          },
+        }).then((res) => {
+          const vendaUuid = res.body.id;
+
+          // Aprovar pagamento
+          cy.request({
+            method: 'POST',
+            url: `${apiUrl}/pagamentos/selecionar`,
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              ...headers,
+            },
+            body: {
+              vendaUuid,
+              valor: 40,
+              tipoPagamento: 'cartao_credito',
+              cartao: {
+                numero: '4111111111111111',
+                nomeTitular: 'Cliente Teste',
+                validade: '12/30',
+                bandeira: 'Visa',
+              },
+            },
+          }).then((selRes) => {
+            const pagamentoUuid = selRes.body.id;
+
+            cy.request({
+              method: 'POST',
+              url: `${apiUrl}/pagamentos/${pagamentoUuid}/processar`,
+              headers,
+            });
+          });
+
+          // Obter item UUID
+          return cy.request({
+            method: 'GET',
+            url: `${apiUrl}/vendas/${vendaUuid}`,
+            headers,
+          }).then((vendaRes) => {
+            return {
+              vendaUuid,
+              itemVendaUuid: vendaRes.body.itens[0].id,
+            };
+          });
+        });
+      });
+    });
+  });
+});
+
+Cypress.Commands.add('despacharPedidoApi', (vendaUuid: string) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+
+  cy.loginAdminApi();
+  cy.request({
+    method: 'PUT',
+    url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
+    headers,
+  });
+});
+
+Cypress.Commands.add('confirmarEntregaApi', (vendaUuid: string) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+
+  cy.loginAdminApi();
+  cy.request({
+    method: 'PUT',
+    url: `${apiUrl}/admin/pedidos/${vendaUuid}/entrega`,
+    headers,
+  });
+});
+
+Cypress.Commands.add('marcarFalhaEntregaApi', (vendaUuid: string, motivo: string) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+
+  cy.loginAdminApi();
+  cy.request({
+    method: 'PUT',
+    url: `${apiUrl}/admin/pedidos/${vendaUuid}/falha-entrega`,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      ...headers,
+    },
+    body: {
+      motivo,
+    },
+  });
+});
+
+Cypress.Commands.add('solicitarTrocaApi', (vendaUuid: string, itemVendaUuid: string, motivo: string) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+
+  cy.request({
+    method: 'POST',
+    url: `${apiUrl}/vendas/${vendaUuid}/troca`,
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      ...headers,
+    },
+    body: {
+      motivo,
+      itensUuids: [itemVendaUuid],
+    },
+  });
+});
+
+Cypress.Commands.add('autorizarTrocaApi', (vendaUuid: string) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+
+  cy.loginAdminApi();
+  cy.request({
+    method: 'POST',
+    url: `${apiUrl}/vendas/${vendaUuid}/troca/autorizar`,
+    headers,
+  });
+});
+
+Cypress.Commands.add('confirmarRecebimentoTrocaApi', (vendaUuid: string) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDb();
+
+  cy.loginAdminApi();
+  cy.request({
+    method: 'PUT',
+    url: `${apiUrl}/vendas/${vendaUuid}/troca/confirmar-recebimento`,
+    headers,
   });
 });
 

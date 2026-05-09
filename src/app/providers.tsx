@@ -13,7 +13,9 @@ import { NotificationProvider, NotificationContainer } from '../components/Comum
 import { useActiveSessionValidation } from '../hooks/useActiveSessionValidation';
 
 const ProvidersContent = ({ children }: { children: React.ReactNode }) => {
-  console.log('[SENIOR-DEBUG] Providers Rendering');
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[SENIOR-DEBUG] Providers Rendering');
+  }
   const [isMounted, setIsMounted] = useState(false);
   
   useEffect(() => {
@@ -24,23 +26,31 @@ const ProvidersContent = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
   
   // 🔥 Ativa a validação de sessão em background (Senior UX)
-  // Só executa no client side após montagem
-  if (isMounted) {
-    useActiveSessionValidation();
-  }
+  // O hook já tem sua própria lógica para não executar quando não está autenticado
+  useActiveSessionValidation();
 
   useEffect(() => {
     if (!isMounted) return;
 
     // Restaura a sessão antes de qualquer outra busca para evitar redirect prematuro
-    dispatch(restoreSession()).finally(() => {
-      dispatch(fetchCarrinho());
-      dispatch(fetchCategoriasCatalogo());
-      const role = store.getState().auth.user?.role;
-      if (role === 'admin') {
-        dispatch(fetchAdmins());
+    const inicializarAplicacao = async () => {
+      try {
+        await dispatch(restoreSession()).unwrap();
+        // Só executa ações dependentes após restoreSession ter sucesso
+        dispatch(fetchCarrinho());
+        dispatch(fetchCategoriasCatalogo());
+        const role = store.getState().auth.user?.role;
+        if (role === 'admin') {
+          dispatch(fetchAdmins());
+        }
+      } catch (erro) {
+        // Erro ao restaurar sessão - usuário não autenticado ou erro de rede
+        // Continua com ações não dependentes de autenticação
+        dispatch(fetchCategoriasCatalogo());
       }
-    });
+    };
+
+    void inicializarAplicacao();
   }, [dispatch, isMounted]);
 
   return (

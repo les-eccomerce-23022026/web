@@ -6,165 +6,50 @@
  * - Listar todos os pedidos (painel admin)
  * - Despachar pedido EM PROCESSAMENTO → EM TRÂNSITO
  * - Confirmar entrega EM TRÂNSITO → ENTREGUE
+ * 
+ * Estratégia: E2E UI real com setup mínimo via API (cy.request apenas para pré-condição)
  */
-
-import { apiHeadersAdmin, apiHeadersCliente } from './utils';
 
 describe('Fluxo Admin - Despacho e Entrega', () => {
   let vendaUuid: string;
-  let tokenAdmin: string;
-  let tokenCliente: string;
 
   beforeEach(() => {
-    // Login como admin
-    const emailAdmin = (Cypress.env('adminEmail') as string | undefined) ?? 'admin@les.com.br';
-    const senhaAdmin = (Cypress.env('adminSenha') as string | undefined) ?? '@Admin123#';
-    
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-    
-    // Obter token admin
-    cy.request({
-      method: 'POST',
-      url: `${apiUrl}/auth/login`,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        ...apiHeadersAdmin(),
-      },
-      body: {
-        email: emailAdmin,
-        senha: senhaAdmin,
-      },
-    }).then((res) => {
-      tokenAdmin = res.body.token;
+    // Setup mínimo via API: criar venda aprovada
+    cy.criarVendaAprovadaApi().then((dados) => {
+      vendaUuid = dados.vendaUuid;
     });
 
-    // Login como cliente e criar venda
-    const emailCliente = (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com';
-    const senhaCliente = (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKLÇ123';
-
-    cy.request({
-      method: 'POST',
-      url: `${apiUrl}/auth/login`,
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8',
-        ...apiHeadersCliente(),
-      },
-      body: {
-        email: emailCliente,
-        senha: senhaCliente,
-      },
-    }).then((res) => {
-      tokenCliente = res.body.token;
-    });
-
-    // Preparar carrinho e criar venda
-    cy.request({
-      method: 'GET',
-      url: `${apiUrl}/livros`,
-      headers: apiHeadersCliente(),
-    }).then((res) => {
-      const primeiroLivro = res.body[0];
-      const livroUuid = primeiroLivro.uuid;
-
-      // Adicionar ao carrinho
-      cy.request({
-        method: 'POST',
-        url: `${apiUrl}/carrinho/itens`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          ...apiHeadersCliente(),
-        },
-        body: {
-          livroUuid,
-          quantidade: 1,
-        },
-      });
-
-      // Criar venda
-      cy.request({
-        method: 'POST',
-        url: `${apiUrl}/vendas`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
-        },
-        body: {
-          itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
-          valorTotalItens: 30,
-          valorFrete: 10,
-          valorTotal: 40,
-        },
-      }).then((res) => {
-        vendaUuid = res.body.id;
-
-        // Aprovar pagamento
-        cy.request({
-          method: 'POST',
-          url: `${apiUrl}/pagamentos/selecionar`,
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Bearer ${tokenCliente}`,
-            ...apiHeadersCliente(),
-          },
-          body: {
-            vendaUuid,
-            valor: 40,
-            tipoPagamento: 'cartao_credito',
-            cartao: {
-              numero: '4111111111111111',
-              nomeTitular: 'Cliente Teste',
-              validade: '12/30',
-              bandeira: 'Visa',
-            },
-          },
-        }).then((selRes) => {
-          const pagamentoUuid = selRes.body.id;
-          
-          cy.request({
-            method: 'POST',
-            url: `${apiUrl}/pagamentos/${pagamentoUuid}/processar`,
-            headers: {
-              'Authorization': `Bearer ${tokenCliente}`,
-              ...apiHeadersCliente(),
-            },
-          });
-        });
-      });
-    });
+    // Login admin via API para estabelecer sessão
+    cy.loginAdminApi();
   });
 
-  describe('Listagem de Pedidos', () => {
-    it('deve exibir lista de todos os pedidos no painel admin', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
-      cy.request({
-        method: 'GET',
-        url: `${apiUrl}/admin/pedidos`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      }).then((res) => {
-        expect(res.status).to.equal(200);
-        expect(res.body).to.be.an('array');
-        expect(res.body.length).to.be.greaterThan(0);
-      });
-    });
-
-    it('deve filtrar pedidos por busca', () => {
+  describe('Listagem de Pedidos (UI)', () => {
+    it('deve exibir lista de pedidos no painel admin via UI', () => {
       cy.visit('/admin/pedidos');
       
-      // Agregar carregamento
       cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
+      cy.get('[data-cy="pedidos-painel"]').should('exist');
       
-      // Verificar campo de busca
-      cy.get('[data-cy="checkout-filtro-busca"]')
-        .should('exist')
-        .type(vendaUuid.split('-')[1]);
+      // Verificar que o pedido criado aparece na lista
+      cy.contains(vendaUuid.split('-')[1].toUpperCase()).should('be.visible');
     });
 
-    it('deve filtrar pedidos por status', () => {
+    it('deve filtrar pedidos por busca via UI', () => {
+      cy.visit('/admin/pedidos');
+      
+      cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
+      
+      // Verificar campo de busca e filtrar
+      cy.get('[data-cy="checkout-filtro-busca"]')
+        .should('exist')
+        .clear()
+        .type(vendaUuid.split('-')[1]);
+      
+      // Verificar que apenas o pedido filtrado aparece
+      cy.contains(vendaUuid.split('-')[1].toUpperCase()).should('be.visible');
+    });
+
+    it('deve filtrar pedidos por status via UI', () => {
       cy.visit('/admin/pedidos');
       
       cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
@@ -172,50 +57,41 @@ describe('Fluxo Admin - Despacho e Entrega', () => {
       cy.get('[data-cy="filtro-status-pedidos"]')
         .should('exist')
         .select('Em Processamento');
+      
+      // Verificar que status APROVADA aparece na tabela
+      cy.contains('APROVADA').should('be.visible');
     });
   });
 
-  describe('Despacho de Pedido (RF0038)', () => {
-    it('deve despachar pedido EM PROCESSAMENTO para EM TRÂNSITO', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  describe('Despacho de Pedido (RF0038) - E2E UI Real', () => {
+    it('deve despachar pedido APROVADA para EM TRÂNSITO via UI', () => {
+      cy.visit('/admin/pedidos');
       
-      // Verificar status inicial
-      cy.request({
-        method: 'GET',
-        url: `${apiUrl}/vendas/${vendaUuid}`,
-        headers: {
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
-        },
-      }).then((res) => {
-        expect(res.body.status).to.equal('APROVADA');
-      });
-
-      // Despachar via API
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      }).then((res) => {
-        expect(res.status).to.equal(200);
-        expect(res.body.uuid).to.equal(vendaUuid);
-        expect(res.body.status).to.equal('Em Trânsito');
-      });
-
-      // Verificar status atualizado
-      cy.request({
-        method: 'GET',
-        url: `${apiUrl}/vendas/${vendaUuid}`,
-        headers: {
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
-        },
-      }).then((res) => {
-        expect(res.body.status).to.equal('EM TRÂNSITO');
-      });
+      cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
+      
+      // Verificar status inicial na UI
+      cy.contains(vendaUuid.split('-')[1].toUpperCase())
+        .parents('tr')
+        .find('[data-cy="status-badge"]')
+        .should('contain', 'APROVADA');
+      
+      // Clicar no botão de despachar
+      cy.contains(vendaUuid.split('-')[1].toUpperCase())
+        .parents('tr')
+        .find('[data-cy^="btn-despachar-"]')
+        .should('be.visible')
+        .click();
+      
+      // Verificar feedback de sucesso na UI
+      cy.get('[data-cy="feedback-banner"]')
+        .should('exist')
+        .should('contain', 'despachado');
+      
+      // Verificar status atualizado na UI
+      cy.contains(vendaUuid.split('-')[1].toUpperCase())
+        .parents('tr')
+        .find('[data-cy="status-badge"]')
+        .should('contain', 'Em Trânsito');
     });
 
     it('deve exibir botão de despachar na UI para pedidos aprovados', () => {
@@ -231,100 +107,63 @@ describe('Fluxo Admin - Despacho e Entrega', () => {
         .should('be.visible');
     });
 
-    it('deve despachar pedido via UI', () => {
+    it('deve impedir despacho de pedido já em trânsito via UI', () => {
+      // Primeiro despachar via API para setup
+      cy.despacharPedidoApi(vendaUuid);
+      
       cy.visit('/admin/pedidos');
       
       cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
       
-      // Clicar no botão de despachar
+      // Verificar que botão de despachar não aparece para pedido em trânsito
       cy.contains(vendaUuid.split('-')[1].toUpperCase())
         .parents('tr')
         .find('[data-cy^="btn-despachar-"]')
-        .click();
+        .should('not.exist');
       
-      // Verificar feedback de sucesso
-      cy.get('[data-cy="feedback-banner"]')
+      // Verificar que botão de confirmar entrega aparece
+      cy.contains(vendaUuid.split('-')[1].toUpperCase())
+        .parents('tr')
+        .find('[data-cy^="btn-confirmar-entrega-"]')
         .should('exist')
-        .should('contain', 'despachado');
+        .should('be.visible');
+    });
+  });
+
+  describe('Confirmação de Entrega (RF0039) - E2E UI Real', () => {
+    beforeEach(() => {
+      // Setup: despachar pedido via API
+      cy.despacharPedidoApi(vendaUuid);
+    });
+
+    it('deve confirmar entrega EM TRÂNSITO para ENTREGUE via UI', () => {
+      cy.visit('/admin/pedidos');
       
-      // Verificar que status mudou
+      cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
+      
+      // Verificar status inicial na UI
       cy.contains(vendaUuid.split('-')[1].toUpperCase())
         .parents('tr')
         .find('[data-cy="status-badge"]')
         .should('contain', 'Em Trânsito');
-    });
-
-    it('deve impedir despacho de pedido já em trânsito', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
       
-      // Primeiro despacho
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      });
-
-      // Tentar despachar novamente
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-        failOnStatusCode: false,
-      }).then((res) => {
-        expect(res.status).to.equal(400);
-        expect(res.body.sucesso).to.equal(false);
-      });
-    });
-  });
-
-  describe('Confirmação de Entrega (RF0039)', () => {
-    beforeEach(() => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      // Clicar no botão de confirmar entrega
+      cy.contains(vendaUuid.split('-')[1].toUpperCase())
+        .parents('tr')
+        .find('[data-cy^="btn-confirmar-entrega-"]')
+        .should('be.visible')
+        .click();
       
-      // Despachar pedido primeiro
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      });
-    });
-
-    it('deve confirmar entrega EM TRÂNSITO para ENTREGUE', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      // Verificar feedback de sucesso na UI
+      cy.get('[data-cy="feedback-banner"]')
+        .should('exist')
+        .should('contain', 'entregue');
       
-      // Confirmar entrega via API
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/entrega`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-      }).then((res) => {
-        expect(res.status).to.equal(200);
-        expect(res.body.status).to.equal('Entregue');
-      });
-
-      // Verificar status atualizado
-      cy.request({
-        method: 'GET',
-        url: `${apiUrl}/vendas/${vendaUuid}`,
-        headers: {
-          'Authorization': `Bearer ${tokenCliente}`,
-          ...apiHeadersCliente(),
-        },
-      }).then((res) => {
-        expect(res.body.status).to.equal('ENTREGUE');
-      });
+      // Verificar status atualizado na UI
+      cy.contains(vendaUuid.split('-')[1].toUpperCase())
+        .parents('tr')
+        .find('[data-cy="status-badge"]')
+        .should('contain', 'Entregue');
     });
 
     it('deve exibir botão de confirmar entrega na UI para pedidos em trânsito', () => {
@@ -340,44 +179,27 @@ describe('Fluxo Admin - Despacho e Entrega', () => {
         .should('be.visible');
     });
 
-    it('deve confirmar entrega via UI', () => {
-      cy.visit('/admin/pedidos');
-      
-      cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
-      
-      // Clicar no botão de confirmar entrega
-      cy.contains(vendaUuid.split('-')[1].toUpperCase())
-        .parents('tr')
-        .find('[data-cy^="btn-confirmar-entrega-"]')
-        .click();
-      
-      // Verificar feedback de sucesso
-      cy.get('[data-cy="feedback-banner"]')
-        .should('exist')
-        .should('contain', 'entregue');
-      
-      // Verificar que status mudou
-      cy.contains(vendaUuid.split('-')[1].toUpperCase())
-        .parents('tr')
-        .find('[data-cy="status-badge"]')
-        .should('contain', 'Entregue');
-    });
-
-    it('deve impedir confirmação de entrega de pedido não em trânsito', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-      
-      // Tentar confirmar entrega sem despachar
-      cy.request({
-        method: 'PUT',
-        url: `${apiUrl}/admin/pedidos/${vendaUuid}/entrega`,
-        headers: {
-          'Authorization': `Bearer ${tokenAdmin}`,
-          ...apiHeadersAdmin(),
-        },
-        failOnStatusCode: false,
-      }).then((res) => {
-        expect(res.status).to.equal(400);
-        expect(res.body.sucesso).to.equal(false);
+    it('deve impedir confirmação de entrega de pedido não em trânsito via UI', () => {
+      // Criar nova venda não despachada
+      cy.criarVendaAprovadaApi().then((dados) => {
+        const novaVendaUuid = dados.vendaUuid;
+        
+        cy.visit('/admin/pedidos');
+        
+        cy.get('[data-cy="loading"]', { timeout: 10000 }).should('not.exist');
+        
+        // Verificar que botão de confirmar entrega não aparece para pedido aprovado
+        cy.contains(novaVendaUuid.split('-')[1].toUpperCase())
+          .parents('tr')
+          .find('[data-cy^="btn-confirmar-entrega-"]')
+          .should('not.exist');
+        
+        // Verificar que botão de despachar aparece
+        cy.contains(novaVendaUuid.split('-')[1].toUpperCase())
+          .parents('tr')
+          .find('[data-cy^="btn-despachar-"]')
+          .should('exist')
+          .should('be.visible');
       });
     });
   });
