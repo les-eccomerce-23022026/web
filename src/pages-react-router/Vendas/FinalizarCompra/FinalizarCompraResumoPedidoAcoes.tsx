@@ -57,7 +57,7 @@ export const FinalizarCompraResumoPedidoAcoes = ({
               : `${styles['checkout-total-label']} ${styles['checkout-total-label-saldo']}`
           }
         >
-          {coberto ? 'Coberto' : 'Saldo a definir'}
+          {coberto ? 'Total a pagar' : 'Saldo restante'}
         </span>
         <span
           className={

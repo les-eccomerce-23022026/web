@@ -45,7 +45,7 @@ export const Header = () => {
   };
 
   return (
-    <header className={styles['header-container']}>
+    <header className={styles['header-container']} suppressHydrationWarning>
       {/* Top Header - Verde Primário (full-width) */}
       <div className={styles['header-top']}>
         {/* Container interno centraliza o conteúdo com max-width */}

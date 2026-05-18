@@ -57,7 +57,7 @@ export default function MeusPedidosPage() {
     return m;
   }, [livrosMerged]);
 
-  const { pedidos, loading, error } = usePedidos();
+  const { pedidos, loading, error } = usePedidos(user?.uuid);
   const [abaGrupo, setAbaGrupo] = useState<AbaGrupo>('todos');
   const [pedidoSelecionado, setPedidoSelecionado] = useState<IPedido | null>(null);
   const [modalDetalhesAberto, setModalDetalhesAberto] = useState(false);

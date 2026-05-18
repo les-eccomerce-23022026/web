@@ -1,6 +1,7 @@
 import styles from './style.module.css';
 import { AutenticacaoClienteCadastroPasso1 } from './AutenticacaoClienteCadastroPasso1';
 import { AutenticacaoClienteCadastroPasso2 } from './AutenticacaoClienteCadastroPasso2';
+import { AutenticacaoClienteCadastroPasso3 } from './AutenticacaoClienteCadastroPasso3';
 import { AutenticacaoClienteIndicadorPassosCadastro } from './AutenticacaoClienteIndicadorPassosCadastro';
 import type { AutenticacaoClienteCadastroState, AutenticacaoClienteDominios } from './autenticacaoClienteTypes';
 
@@ -24,5 +25,7 @@ export const AutenticacaoClienteWizardCadastro = ({ registerState, dominios }: P
     )}
 
     {registerState.regStep === 2 && <AutenticacaoClienteCadastroPasso2 registerState={registerState} />}
+
+    {registerState.regStep === 3 && <AutenticacaoClienteCadastroPasso3 registerState={registerState} />}
   </>
 );

@@ -36,7 +36,7 @@ export const LivroCard = ({ livro, quantidadeNoCarrinho }: LivroCardProps) => (
       </div>
     </div>
     <div className="cartao-livro__preco-container">
-      <p className="cartao-livro__preco">R$ {livro.preco.toFixed(2).replace('.', ',')}</p>
+      <p className="cartao-livro__preco">R$ {Number(livro.preco).toFixed(2).replace('.', ',')}</p>
     </div>
     <div className="cartao-livro__acao">
       <Link href={`/livro/${livro.uuid}`} className="botao btn-secondary">

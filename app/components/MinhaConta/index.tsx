@@ -1,5 +1,5 @@
-import MeuPerfil from '@/pages-react-router/CadastroClientes/MeuPerfil';
+import { Autenticacao } from './Autenticacao';
 
 export const MinhaConta = () => {
-  return <MeuPerfil />;
+  return <Autenticacao />;
 };

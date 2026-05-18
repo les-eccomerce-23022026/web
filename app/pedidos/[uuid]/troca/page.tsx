@@ -5,11 +5,12 @@
  * Migrated from src/pages-react-router/Vendas/SolicitarTroca/SolicitarTroca.tsx
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { solicitarTrocaThunk } from '@/store/slices/pedidoSlice';
+import { PedidoService } from '@/services/pedidoService';
 import type { IItemPedido } from '@/interfaces/pedido';
 import styles from '@/pages-react-router/Vendas/SolicitarTroca/style.module.css';
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
@@ -33,9 +34,39 @@ export default function SolicitarTrocaPage() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState('');
   const [sucesso, setSucesso] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  const [pedidoLocal, setPedidoLocal] = useState<typeof pedidos[0] | null>(null);
 
-  const pedido = pedidos.find((p) => p.uuid === uuid);
+  // Busca o pedido no Redux state primeiro
+  const pedidoRedux = pedidos.find((p) => p.uuid === uuid);
+  
+  // Se não encontrou no Redux, busca via API
+  useEffect(() => {
+    if (!pedidoRedux && !pedidoLocal && !carregando) {
+      console.log('[SolicitarTrocaPage] Pedido não encontrado no Redux, buscando via API para UUID:', uuid);
+      setCarregando(true);
+      PedidoService.getPedidosByCliente('')
+        .then((todosPedidos) => {
+          const pedidoEncontrado = todosPedidos.find((p) => p.uuid === uuid);
+          if (pedidoEncontrado) {
+            console.log('[SolicitarTrocaPage] Pedido encontrado via API:', pedidoEncontrado.uuid);
+            setPedidoLocal(pedidoEncontrado);
+          } else {
+            console.log('[SolicitarTrocaPage] Pedido não encontrado via API');
+          }
+        })
+        .catch((err) => {
+          console.error('[SolicitarTrocaPage] Erro ao buscar pedido via API:', err);
+        })
+        .finally(() => {
+          setCarregando(false);
+        });
+    }
+  }, [uuid, pedidoRedux, pedidoLocal, carregando]);
 
+  const pedido = pedidoRedux || pedidoLocal;
+
+  if (carregando) return <div className={styles['solicitar-troca-erro']}>Carregando pedido...</div>;
   if (!pedido) return <div className={styles['solicitar-troca-erro']}>Pedido não encontrado.</div>;
   if (pedido.status !== 'Entregue') {
     return <div className={styles['solicitar-troca-erro']}>Apenas pedidos com status &apos;Entregue&apos; podem ser trocados (RN0043).</div>;

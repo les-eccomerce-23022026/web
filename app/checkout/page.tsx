@@ -6,7 +6,8 @@
  */
 
 import { useState, useMemo } from 'react';
-import styles from '@/pages-react-router/Vendas/FinalizarCompra/style.module.css';
+import { useRouter } from 'next/navigation';
+import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
 import { useAppSelector } from '@/store/hooks';
 import { FinalizarCompraPedidoCarregado } from '@/pages-react-router/Vendas/FinalizarCompra/FinalizarCompraPedidoCarregado';
@@ -15,6 +16,7 @@ import { FinalizarCompraSkeleton } from '@/pages-react-router/Vendas/FinalizarCo
 export default function CheckoutPage() {
   const hook = useFinalizarCompra();
   const carrinho = useAppSelector((state) => state.carrinho.data);
+  const router = useRouter();
 
   // Calcula o endereço inicial usando useMemo
   const enderecoInicial = useMemo(() => {
@@ -29,10 +31,37 @@ export default function CheckoutPage() {
     return <FinalizarCompraSkeleton />;
   }
   if (hook.error) {
-    return <p className={styles['checkout-status-message']}>Erro ao carregar checkout.</p>;
+    return (
+      <div className="empty-state-container" style={{ marginTop: '2rem' }}>
+        <div className="empty-state-icon">
+          <ShoppingBag size={64} strokeWidth={1.5} />
+        </div>
+        <h3 className="empty-state-title">Erro ao carregar checkout</h3>
+        <p className="empty-state-message">
+          Ocorreu um erro ao tentar carregar os dados do checkout. Por favor, tente novamente mais tarde.
+        </p>
+        <button className="btn-primary" onClick={() => router.push('/')}>
+          Voltar para a página inicial
+        </button>
+      </div>
+    );
   }
   if (!hook.data) {
-    return <p className={styles['checkout-status-message']}>Nenhum dado de checkout encontrado.</p>;
+    return (
+      <div className="empty-state-container" style={{ marginTop: '2rem' }}>
+        <div className="empty-state-icon">
+          <ShoppingBag size={64} strokeWidth={1.5} />
+        </div>
+        <h3 className="empty-state-title">Carrinho vazio</h3>
+        <p className="empty-state-message">
+          Seu carrinho de compras está vazio. Adicione livros ao carrinho para prosseguir com o checkout.
+        </p>
+        <button className="btn-primary" onClick={() => router.push('/')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+          Explorar Livros
+          <ArrowRight size={16} />
+        </button>
+      </div>
+    );
   }
 
   return (

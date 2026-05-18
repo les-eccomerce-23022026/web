@@ -258,6 +258,56 @@
   font-size: 0.9rem;
 }
 
+.erroCard {
+  background: #fff;
+  border: 2px solid var(--bn-error, #c62828);
+  border-radius: var(--bn-border-radius-lg);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--bn-shadow-md);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.erroIcon {
+  color: var(--bn-error, #c62828);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.erroTitle {
+  font-family: var(--font-serif);
+  color: var(--bn-error, #c62828);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+}
+
+.erroMessage {
+  color: var(--bn-text-body);
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.erroContext {
+  color: var(--bn-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.erroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
 .falhaCard {
   margin-top: 0.5rem;
   text-align: left;

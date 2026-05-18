@@ -19,6 +19,7 @@ interface IVendaApi {
     precoUnitario: number;
   }>;
   criadoEm: string;
+  dataEntrega?: string; // Data de entrega (ISO 8601)
 }
 
 function mapStatusVendaParaPedido(s: string): StatusPedido {
@@ -43,6 +44,7 @@ function vendaApiParaPedido(v: IVendaApi): IPedido {
   return {
     uuid: v.id,
     data: dataIso,
+    dataEntrega: v.dataEntrega,
     clienteUuid: v.usuarioUuid,
     total: v.totalVenda,
     status: mapStatusVendaParaPedido(v.status),

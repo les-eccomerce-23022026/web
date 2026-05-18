@@ -117,13 +117,22 @@ export function useAutenticacaoCliente() {
   };
 
   const handleNextStep = () => {
-    if (!validateStep1()) return;
-    setRegStep(2);
+    setRegError('');
+    if (regStep === 1) {
+      if (!validateStep1()) return;
+      setRegStep(2);
+    } else if (regStep === 2) {
+      setRegStep(3);
+    }
   };
 
   const handlePrevStep = () => {
     setRegError('');
-    setRegStep(1);
+    if (regStep === 2) {
+      setRegStep(1);
+    } else if (regStep === 3) {
+      setRegStep(2);
+    }
   };
 
   const validateEndereco = (

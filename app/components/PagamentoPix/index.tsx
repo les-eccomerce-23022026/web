@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { usePagamentoPixModel } from '@/pages-react-router/Vendas/PagamentoPix/usePagamentoPixModel';
 import { PagamentoPixFalha } from '@/pages-react-router/Vendas/PagamentoPix/PagamentoPixFalha';
 import { PagamentoPixPagarView } from '@/pages-react-router/Vendas/PagamentoPix/PagamentoPixPagarView';
@@ -12,12 +13,26 @@ const PagamentoPixConteudo = () => {
   if (model.phase === 'invalid') {
     return (
       <div className={styles.wrap}>
-        <p className={styles.erro} role="alert">
-          {model.erro}
-        </p>
-        <button type="button" className="btn-primary" onClick={() => model.navigate('/checkout')}>
-          Voltar ao checkout
-        </button>
+        <div className={styles.erroCard} role="alert">
+          <div className={styles.erroIcon}>
+            <AlertTriangle size={48} strokeWidth={1.5} />
+          </div>
+          <h2 className={styles.erroTitle}>Sessão de pagamento inválida</h2>
+          <p className={styles.erroMessage}>
+            {model.erro}
+          </p>
+          <p className={styles.erroContext}>
+            A sessão de pagamento pode ter expirado após 15 minutos de inatividade. Inicie um novo checkout para concluir sua compra.
+          </p>
+          <div className={styles.erroActions}>
+            <button type="button" className="btn-primary" onClick={() => model.navigate('/checkout')}>
+              Voltar ao checkout
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => model.navigate('/pedidos')}>
+              Ver Meus Pedidos
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

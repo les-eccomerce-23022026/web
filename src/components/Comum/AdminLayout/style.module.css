@@ -231,7 +231,7 @@
   }
 }
 
-/* Desktop (1024px+) - grid com sidebar maior */
+/* Desktop (1024px+) - grid com sidebar maior (igual ao original) */
 @media (min-width: 1024px) {
   .dashboardGrid {
     grid-template-columns: 260px 1fr;

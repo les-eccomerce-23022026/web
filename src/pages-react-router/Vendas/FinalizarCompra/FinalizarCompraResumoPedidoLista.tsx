@@ -37,8 +37,8 @@ export const FinalizarCompraResumoPedidoLista = ({
       )}
       {valorPagoParcialmente > 0 && (
         <li className={styles['checkout-summary-item-discount']}>
-          <span>Coberto (cartões/PIX):</span>
-          <span>- R$ {valorPagoParcialmente.toFixed(2).replace('.', ',')}</span>
+          <span>Valor coberto por cupons/créditos:</span>
+          <span>R$ {valorPagoParcialmente.toFixed(2).replace('.', ',')}</span>
         </li>
       )}
     </ul>

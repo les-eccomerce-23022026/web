@@ -132,7 +132,7 @@ export const FinalizarCompraPedidoCarregado = ({
     temFormaPagamentoFinalizarCompra(
       cuponsAplicados.length,
       parcelasLiquidacao,
-      {},
+      novosCartoesPorLinha,
       null,
       null,
     ) && rnOk;
@@ -140,7 +140,7 @@ export const FinalizarCompraPedidoCarregado = ({
   const saldoPagamentoOk = pagamentoCobreSaldoFinalizarCompra(
     resumo.total,
     parcelasLiquidacao,
-    {},
+    novosCartoesPorLinha,
     null,
     null,
   );

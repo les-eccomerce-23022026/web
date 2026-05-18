@@ -28,9 +28,11 @@ export default function RootLayout({
       </head>
       <body>
         <Providers>
-          <Header />
-          <main className="container">{children}</main>
-          <Footer />
+          <div className="app-wrapper">
+            <Header />
+            <main className="container">{children}</main>
+            <Footer />
+          </div>
         </Providers>
       </body>
     </html>

@@ -31,9 +31,45 @@ export const SolicitarTroca = () => {
 
   const pedido = pedidos.find((p) => p.uuid === uuid);
 
-  if (!pedido) return <ErrorState message="Pedido não encontrado." />;
+  if (!pedido) {
+    return (
+      <ErrorState
+        title="Pedido não encontrado"
+        message="O pedido informado não foi localizado em seu histórico. Verifique se o número do pedido está correto ou acesse a lista completa de seus pedidos."
+        actions={[
+          {
+            label: 'Ver Meus Pedidos',
+            onClick: () => router.push('/pedidos'),
+            variant: 'primary',
+          },
+          {
+            label: 'Página Inicial',
+            onClick: () => router.push('/'),
+            variant: 'secondary',
+          },
+        ]}
+      />
+    );
+  }
   if (pedido.status !== 'Entregue') {
-    return <ErrorState message="Apenas pedidos com status 'Entregue' podem ser trocados (RN0043)." />;
+    return (
+      <ErrorState
+        title="Troca não disponível"
+        message="Apenas pedidos com status 'Entregue' podem ser trocados (RN0043). Este pedido ainda está em trânsito ou já foi processado."
+        actions={[
+          {
+            label: 'Ver Detalhes do Pedido',
+            onClick: () => router.push(`/pedidos/${pedido.uuid}`),
+            variant: 'primary',
+          },
+          {
+            label: 'Ver Meus Pedidos',
+            onClick: () => router.push('/pedidos'),
+            variant: 'secondary',
+          },
+        ]}
+      />
+    );
   }
 
   const getLivroTitulo = (livroUuid: string): string => {

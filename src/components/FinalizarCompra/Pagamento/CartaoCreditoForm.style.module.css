@@ -148,17 +148,33 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 640px) {
+/* --- Responsividade Mobile-First --- */
+/* Base: Mobile (0px+) - layout empilhado */
+.form-row {
+  grid-template-columns: 1fr;
+}
+
+.form-actions {
+  flex-direction: column-reverse;
+}
+
+.form-actions .btn-secondary,
+.form-actions .btn-primary {
+  width: 100%;
+}
+
+/* Desktop (640px+) - layout horizontal (igual ao original) */
+@media (min-width: 640px) {
   .form-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
   
   .form-actions {
-    flex-direction: column-reverse;
+    flex-direction: row;
   }
   
   .form-actions .btn-secondary,
   .form-actions .btn-primary {
-    width: 100%;
+    width: auto;
   }
 }

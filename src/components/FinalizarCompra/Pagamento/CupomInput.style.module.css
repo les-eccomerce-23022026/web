@@ -177,17 +177,33 @@
   font-weight: 500;
 }
 
-@media (max-width: 640px) {
+/* --- Responsividade Mobile-First --- */
+/* Base: Mobile (0px+) - layout empilhado */
+.cupom-input-group {
+  flex-direction: column;
+}
+
+.cupom-input-group button {
+  width: 100%;
+}
+
+.cupom-sugestoes {
+  box-shadow: none;
+  border: 1px dashed var(--border-color, #e0e0e0);
+}
+
+/* Desktop (640px+) - layout horizontal (igual ao original) */
+@media (min-width: 640px) {
   .cupom-input-group {
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .cupom-input-group button {
-    width: 100%;
+    width: auto;
   }
 
   .cupom-sugestoes {
-    box-shadow: none;
-    border: 1px dashed var(--border-color, #e0e0e0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color, #e0e0e0);
   }
 }

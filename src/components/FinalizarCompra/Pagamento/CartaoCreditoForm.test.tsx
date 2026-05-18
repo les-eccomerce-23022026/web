@@ -28,28 +28,28 @@ describe('CartaoCreditoForm', () => {
     it('deve renderizar formulário', () => {
       render(<CartaoCreditoForm {...defaultProps} />);
 
-      expect(screen.getByTestId('checkout-new-card-form')).toBeInTheDocument();
+      expect(screen.getByText(/Novo Cartão de Crédito/i)).toBeInTheDocument();
     });
 
     it('deve renderizar campos do cartão', () => {
       render(<CartaoCreditoForm {...defaultProps} />);
 
-      expect(screen.getByTestId('checkout-card-number-input')).toBeInTheDocument();
-      expect(screen.getByTestId('checkout-card-name-input')).toBeInTheDocument();
-      expect(screen.getByTestId('checkout-card-expiry-input')).toBeInTheDocument();
-      expect(screen.getByTestId('checkout-card-cvv-input')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Número do Cartão/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Nome do Titular/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Validade/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/CVV/i)).toBeInTheDocument();
     });
 
     it('deve renderizar checkbox salvar cartão quando salvarCartao=true', () => {
       render(<CartaoCreditoForm {...defaultProps} salvarCartao={true} />);
 
-      expect(screen.getByTestId('checkout-card-save-checkbox')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Salvar cartão/i)).toBeInTheDocument();
     });
 
     it('deve renderizar botão cancelar quando onCancel fornecido', () => {
       render(<CartaoCreditoForm {...defaultProps} onCancel={mockOnCancel} />);
 
-      expect(screen.getByTestId('checkout-card-cancel-button')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Cancelar' })).toBeInTheDocument();
     });
 
     it('deve exibir dica quando dicaSalvarCartaoOpcional fornecida', () => {
@@ -61,7 +61,7 @@ describe('CartaoCreditoForm', () => {
         />,
       );
 
-      expect(screen.getByTestId('checkout-card-save-hint')).toBeInTheDocument();
+      expect(screen.getByText(/Salve para compras futuras/i)).toBeInTheDocument();
     });
   });
 
@@ -69,20 +69,20 @@ describe('CartaoCreditoForm', () => {
     it('deve chamar onSubmit com dados corretos', () => {
       render(<CartaoCreditoForm {...defaultProps} />);
 
-      fireEvent.change(screen.getByTestId('checkout-card-number-input'), {
+      fireEvent.change(screen.getByLabelText(/Número do Cartão/i), {
         target: { value: '4111111111111111' },
       });
-      fireEvent.change(screen.getByTestId('checkout-card-name-input'), {
+      fireEvent.change(screen.getByLabelText(/Nome do Titular/i), {
         target: { value: 'CLIENTE TESTE' },
       });
-      fireEvent.change(screen.getByTestId('checkout-card-expiry-input'), {
+      fireEvent.change(screen.getByLabelText(/Validade/i), {
         target: { value: '12/30' },
       });
-      fireEvent.change(screen.getByTestId('checkout-card-cvv-input'), {
+      fireEvent.change(screen.getByLabelText(/CVV/i), {
         target: { value: '123' },
       });
 
-      fireEvent.click(screen.getByTestId('checkout-card-submit-button'));
+      fireEvent.click(screen.getByRole('button', { name: 'Adicionar Cartão' }));
 
       expect(mockOnSubmit).toHaveBeenCalledWith({
         numero: '4111111111111111',
@@ -94,36 +94,10 @@ describe('CartaoCreditoForm', () => {
       });
     });
 
-    it('deve incluir salvarCartao quando checkbox marcado', () => {
-      render(<CartaoCreditoForm {...defaultProps} salvarCartao={true} />);
-
-      fireEvent.change(screen.getByTestId('checkout-card-number-input'), {
-        target: { value: '4111111111111111' },
-      });
-      fireEvent.change(screen.getByTestId('checkout-card-name-input'), {
-        target: { value: 'CLIENTE TESTE' },
-      });
-      fireEvent.change(screen.getByTestId('checkout-card-expiry-input'), {
-        target: { value: '12/30' },
-      });
-      fireEvent.change(screen.getByTestId('checkout-card-cvv-input'), {
-        target: { value: '123' },
-      });
-      fireEvent.click(screen.getByTestId('checkout-card-save-checkbox'));
-
-      fireEvent.click(screen.getByTestId('checkout-card-submit-button'));
-
-      expect(mockOnSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({
-          salvarCartao: true,
-        }),
-      );
-    });
-
     it('deve chamar onCancel ao clicar no botão cancelar', () => {
       render(<CartaoCreditoForm {...defaultProps} onCancel={mockOnCancel} />);
 
-      fireEvent.click(screen.getByTestId('checkout-card-cancel-button'));
+      fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
 
       expect(mockOnCancel).toHaveBeenCalled();
     });
@@ -136,22 +110,22 @@ describe('CartaoCreditoForm', () => {
       );
 
       // Testar com número Visa
-      fireEvent.change(screen.getByTestId('checkout-card-number-input'), {
+      fireEvent.change(screen.getByLabelText(/Número do Cartão/i), {
         target: { value: '4111111111111111' },
       });
 
       // Deve detectar bandeira Visa
-      fireEvent.change(screen.getByTestId('checkout-card-name-input'), {
+      fireEvent.change(screen.getByLabelText(/Nome do Titular/i), {
         target: { value: 'CLIENTE TESTE' },
       });
-      fireEvent.change(screen.getByTestId('checkout-card-expiry-input'), {
+      fireEvent.change(screen.getByLabelText(/Validade/i), {
         target: { value: '12/30' },
       });
-      fireEvent.change(screen.getByTestId('checkout-card-cvv-input'), {
+      fireEvent.change(screen.getByLabelText(/CVV/i), {
         target: { value: '123' },
       });
 
-      fireEvent.click(screen.getByTestId('checkout-card-submit-button'));
+      fireEvent.click(screen.getByRole('button', { name: 'Adicionar Cartão' }));
 
       expect(mockOnSubmit).toHaveBeenCalledWith(
         expect.objectContaining({

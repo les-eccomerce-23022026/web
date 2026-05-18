@@ -15,7 +15,11 @@ export function usePedidos(clienteUuid?: string) {
   const { pedidos, status, error } = useAppSelector((state) => state.pedido);
 
   useEffect(() => {
-    if (!clienteUuid) return;
+    if (!clienteUuid) {
+      console.log('[usePedidos] clienteUuid não fornecido, pulando busca de pedidos');
+      return;
+    }
+    console.log('[usePedidos] Iniciando busca de pedidos para cliente:', clienteUuid);
     dispatch(fetchPedidosCliente(clienteUuid));
   }, [dispatch, clienteUuid]);
 

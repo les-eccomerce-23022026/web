@@ -77,7 +77,7 @@
   }
 }
 
-/* Desktop (1024px+) - grid auto-fit */
+/* Desktop (1024px+) - grid auto-fit (igual ao original) */
 @media (min-width: 1024px) {
   .footer-content {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

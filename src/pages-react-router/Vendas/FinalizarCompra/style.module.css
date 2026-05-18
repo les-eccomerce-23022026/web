@@ -244,3 +244,36 @@
 .checkout-status-message {
   padding: 20px;
 }
+
+/* Desktop (768px+) - layout grid (igual ao original) */
+@media (min-width: 768px) {
+  .checkout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+  }
+
+  .checkout-ou-novo {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .checkout-btn-novo-cartao {
+    width: auto;
+  }
+
+  .checkout-form-row {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .checkout-input-group {
+    flex-direction: row;
+  }
+
+  .checkout-summary-card {
+    position: sticky;
+    top: 20px;
+    margin-top: 0;
+  }
+}

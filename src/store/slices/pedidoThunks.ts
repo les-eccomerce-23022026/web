@@ -4,7 +4,10 @@ import { PedidoService } from '@/services/pedidoService';
 import { LivroService } from '@/services/livroService';
 
 export const fetchPedidosCliente = createAsyncThunk('pedido/fetchPedidosCliente', async (clienteUuid: string) => {
-  return PedidoService.getPedidosByCliente(clienteUuid);
+  console.log('[pedidoThunks] fetchPedidosCliente - Buscando pedidos do cliente:', clienteUuid);
+  const pedidos = await PedidoService.getPedidosByCliente(clienteUuid);
+  console.log('[pedidoThunks] fetchPedidosCliente - Pedidos recebidos:', pedidos.length, pedidos);
+  return pedidos;
 });
 
 export const fetchAllPedidos = createAsyncThunk('pedido/fetchAllPedidos', async (statusFiltro?: string[]) => {
