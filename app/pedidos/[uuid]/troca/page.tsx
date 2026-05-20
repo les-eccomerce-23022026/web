@@ -66,10 +66,26 @@ export default function SolicitarTrocaPage() {
 
   const pedido = pedidoRedux || pedidoLocal;
 
-  if (carregando) return <div className={styles['solicitar-troca-erro']}>Carregando pedido...</div>;
-  if (!pedido) return <div className={styles['solicitar-troca-erro']}>Pedido não encontrado.</div>;
+  if (carregando) {
+    return (
+      <div className={styles['solicitar-troca-erro']} data-cy="troca-carregando">
+        Carregando pedido...
+      </div>
+    );
+  }
+  if (!pedido) {
+    return (
+      <div className={styles['solicitar-troca-erro']} data-cy="troca-erro">
+        Pedido não encontrado.
+      </div>
+    );
+  }
   if (pedido.status !== 'Entregue') {
-    return <div className={styles['solicitar-troca-erro']}>Apenas pedidos com status &apos;Entregue&apos; podem ser trocados (RN0043).</div>;
+    return (
+      <div className={styles['solicitar-troca-erro']} data-cy="troca-erro">
+        Apenas pedidos com status &apos;Entregue&apos; podem ser trocados (RN0043).
+      </div>
+    );
   }
 
   const getLivroTitulo = (livroUuid: string): string => {
@@ -113,7 +129,7 @@ export default function SolicitarTrocaPage() {
   if (sucesso) {
     return (
       <div className={styles['solicitar-troca-page']}>
-        <div className={`card ${styles['solicitar-troca-sucesso']}`}>
+        <div className={`card ${styles['solicitar-troca-sucesso']}`} data-cy="sucesso-troca">
           <h1>Troca Solicitada com Sucesso!</h1>
           <p>Redirecionando para Meus Pedidos...</p>
         </div>
@@ -144,6 +160,7 @@ export default function SolicitarTrocaPage() {
             >
               <input
                 type="checkbox"
+                data-cy={`troca-item-checkbox-${item.livroUuid}`}
                 checked={itensSelecionados.includes(item.livroUuid)}
                 onChange={() => toggleItem(item.livroUuid)}
               />
@@ -162,6 +179,7 @@ export default function SolicitarTrocaPage() {
           </label>
           <textarea
             id="motivo"
+            data-cy="troca-motivo-input"
             value={motivo}
             onChange={(e) => setMotivo(e.target.value)}
             rows={4}
@@ -169,7 +187,11 @@ export default function SolicitarTrocaPage() {
           />
         </div>
 
-        {erro && <p className={styles['solicitar-troca-erro']}>{erro}</p>}
+        {erro && (
+          <p className={styles['solicitar-troca-erro']} data-cy="troca-erro">
+            {erro}
+          </p>
+        )}
 
         <div className={styles['solicitar-troca-acoes']}>
           <button
@@ -180,7 +202,9 @@ export default function SolicitarTrocaPage() {
             Cancelar
           </button>
           <button
+            type="button"
             className="btn-primary"
+            data-cy="btn-solicitar-troca"
             onClick={handleSubmit}
             disabled={enviando || itensSelecionados.length === 0}
           >
