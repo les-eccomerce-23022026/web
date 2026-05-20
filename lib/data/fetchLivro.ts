@@ -4,6 +4,8 @@
  * They avoid Redux dependencies and browser-only APIs for SSR compatibility.
  */
 
+import { headers } from 'next/headers';
+
 export interface LivroMetadata {
   uuid: string;
   titulo: string;
@@ -43,6 +45,49 @@ function getApiBaseUrl(): string {
 }
 
 /**
+ * Get headers for API calls, including x-loja-id for multi-tenancy
+ * In SSR, reads headers from the original Next.js request
+ * In client-side, uses browser headers and window flag
+ */
+async function getApiHeaders(): Promise<Record<string, string>> {
+  const baseHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (typeof window === 'undefined') {
+    // Server-side: read headers from the original Next.js request
+    try {
+      const requestHeaders = await headers();
+      const lojaId = requestHeaders.get('x-loja-id');
+      const useTestDb = requestHeaders.get('x-use-test-db');
+      
+      if (lojaId) {
+        baseHeaders['x-loja-id'] = lojaId;
+      } else {
+        // Fallback to environment variable if header not set
+        const defaultLojaId = process.env.DEFAULT_LOJA_ID || '1';
+        baseHeaders['x-loja-id'] = defaultLojaId;
+      }
+      
+      if (useTestDb) {
+        baseHeaders['x-use-test-db'] = useTestDb;
+      }
+    } catch {
+      // Headers not available in some contexts, use defaults
+      const defaultLojaId = process.env.DEFAULT_LOJA_ID || '1';
+      baseHeaders['x-loja-id'] = defaultLojaId;
+    }
+  } else {
+    // Client-side: add x-use-test-db if flag is set
+    if ((window as Window & { __USE_TEST_DB__?: boolean }).__USE_TEST_DB__) {
+      baseHeaders['x-use-test-db'] = 'true';
+    }
+  }
+
+  return baseHeaders;
+}
+
+/**
  * Fetch book details by UUID - works on server and client
  */
 export async function fetchLivroByUuid(
@@ -52,9 +97,7 @@ export async function fetchLivroByUuid(
   const apiBaseUrl = baseUrl || getApiBaseUrl();
   const url = `${apiBaseUrl}/livros/${uuid}`;
   const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: await getApiHeaders(),
     cache: 'no-store', // Disable cache for real-time data
   });
 
@@ -86,9 +129,7 @@ export async function fetchCatalogoLivros(
 
   const url = `${apiBaseUrl}/livros?${queryParams.toString()}`;
   const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: await getApiHeaders(),
     cache: 'no-store',
   });
 
@@ -108,9 +149,7 @@ export async function fetchCategoriasMenu(
   const apiBaseUrl = baseUrl || getApiBaseUrl();
   const url = `${apiBaseUrl}/categorias/catalogo`;
   const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: await getApiHeaders(),
     cache: 'no-store',
   });
 

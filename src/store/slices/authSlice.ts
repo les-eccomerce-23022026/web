@@ -19,7 +19,11 @@ export interface AuthUser {
 
 interface AuthState {
   isAuthenticated: boolean;
-  /** Apenas ambiente mock: prefixo mock-token (não é JWT). API real usa cookie HttpOnly. */
+  /** 
+   * Token JWT (apenas testes) ou mock-token (ambiente mock).
+   * ⚠️ SEGURANÇA: Em produção, o JWT NUNCA deve ser armazenado aqui.
+   * Use cookie HttpOnly do backend. Este campo é apenas para testes.
+   */
   token: string | null;
   user: AuthUser | null;
   authError: string | null;
@@ -60,7 +64,9 @@ const authSlice = createSlice({
   reducers: {
     loginSuccess: (state, action: PayloadAction<{ token?: string; user: AuthUser | null }>) => {
       state.isAuthenticated = true;
-      state.token = action.payload.token ?? null;
+      // ⚠️ SEGURANÇA: Em produção, NÃO armazenar token no Redux (apenas em cookie HttpOnly)
+      const isProduction = process.env.NODE_ENV === 'production';
+      state.token = isProduction ? null : (action.payload.token ?? null);
       state.user = action.payload.user;
       state.authError = null;
       state.sessionLoading = false;
@@ -68,7 +74,8 @@ const authSlice = createSlice({
         limparSessaoArmazenada();
         return;
       }
-      salvarSessaoArmazenada(action.payload.user, action.payload.token);
+      // Em produção, salvar apenas user (sem token) no sessionStorage
+      salvarSessaoArmazenada(action.payload.user, isProduction ? null : action.payload.token);
     },
     logout: (state) => {
       state.isAuthenticated = false;
@@ -87,10 +94,12 @@ const authSlice = createSlice({
       .addCase(restoreSession.fulfilled, (state, action) => {
         if (action.payload) {
           state.isAuthenticated = true;
-          state.token = action.payload.token ?? state.token;
+          // ⚠️ SEGURANÇA: Em produção, não restaurar token do sessionStorage
+          const isProduction = process.env.NODE_ENV === 'production';
+          state.token = isProduction ? null : (action.payload.token ?? state.token);
           state.user = action.payload.user;
           if (action.payload.user) {
-            salvarSessaoArmazenada(action.payload.user, state.token);
+            salvarSessaoArmazenada(action.payload.user, isProduction ? null : state.token);
           }
         }
         state.sessionLoading = false;

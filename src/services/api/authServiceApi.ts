@@ -14,6 +14,7 @@ export class AuthServiceApi implements IAuthService {
     const responseData = await ApiClient.post<ILoginResponse>(API_ENDPOINTS.login, payload);
     return {
       token: responseData.token,
+      refreshTokenExpiresAt: responseData.refreshTokenExpiresAt,
       user: responseData.user,
     };
   }

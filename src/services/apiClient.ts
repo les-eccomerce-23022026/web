@@ -24,7 +24,10 @@ export class ApiClient {
       headers.set('x-use-test-db', 'true');
     }
 
-    if (token && token.split('.').length === 3) {
+    // ⚠️ SEGURANÇA: Bearer header APENAS em testes.
+    // Em produção, usa cookie HttpOnly (credentials: 'include').
+    // Nunca enviar JWT via Authorization header em produção (vulnerável a XSS).
+    if (token && token.split('.').length === 3 && process.env.NODE_ENV === 'test') {
       headers.set('Authorization', `Bearer ${token}`);
     }
 

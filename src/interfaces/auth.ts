@@ -10,6 +10,7 @@ export interface IUsuario {
 
 export interface ILoginResponse {
   token?: string;
+  refreshTokenExpiresAt?: string;
   user: IUsuario;
 }
 
