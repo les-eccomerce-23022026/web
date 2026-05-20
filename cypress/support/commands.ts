@@ -237,6 +237,14 @@ export function apiHeadersTestDb(): Record<string, string> {
   };
 }
 
+/** Loja padrão do seed (multi-tenancy — evita `loj_id` null no carrinho). */
+export function apiHeadersTestDbComLoja(lojId = 1): Record<string, string> {
+  return {
+    ...apiHeadersTestDb(),
+    'x-loja-id': String(lojId),
+  };
+}
+
 interface PagamentoInfoResponse {
   enderecosCliente: unknown[];
   cartoesCliente?: unknown[];
@@ -326,11 +334,7 @@ Cypress.Commands.add('loginApi', (email, senha) => {
 
 Cypress.Commands.add('createCartApi', (items) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const useTestDb = Cypress.env('injectTestDbHeader') === true;
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json; charset=utf-8',
-    ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
-  };
+  const headers = apiHeadersTestDbComLoja();
   
   // Limpa o carrinho primeiro para garantir estado puro
   cy.request({
@@ -353,11 +357,7 @@ Cypress.Commands.add('createCartApi', (items) => {
 
 Cypress.Commands.add('adicionarAoCarrinhoApi', (livroUuid, quantidade = 1) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const useTestDb = Cypress.env('injectTestDbHeader') === true;
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json; charset=utf-8',
-    ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
-  };
+  const headers = apiHeadersTestDbComLoja();
 
   cy.request({
     method: 'POST',
@@ -369,11 +369,7 @@ Cypress.Commands.add('adicionarAoCarrinhoApi', (livroUuid, quantidade = 1) => {
 
 Cypress.Commands.add('limparCarrinhoApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const useTestDb = Cypress.env('injectTestDbHeader') === true;
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json; charset=utf-8',
-    ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
-  };
+  const headers = apiHeadersTestDbComLoja();
 
   cy.request({
     method: 'DELETE',
@@ -586,8 +582,15 @@ Cypress.Commands.add('prepararCarrinhoComUmLivroHidratado', (opts?: { livroUuid?
 
 Cypress.Commands.add('loginAdminApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const emailAdmin = (Cypress.env('adminEmail') as string | undefined) ?? 'admin@les.com.br';
-  const senhaAdmin = (Cypress.env('adminSenha') as string | undefined) ?? '@Admin123#';
+  /** Alinhado ao seed `005_seed_usuarios_teste.sql` (mesmo par do BDD 7ª entrega). */
+  const emailAdmin =
+    (Cypress.env('adminEmail') as string | undefined) ??
+    (Cypress.env('admin') as { email?: string } | undefined)?.email ??
+    'admintest@email.com';
+  const senhaAdmin =
+    (Cypress.env('adminSenha') as string | undefined) ??
+    (Cypress.env('admin') as { senha?: string } | undefined)?.senha ??
+    '@asdfJKL\u00C7123';
   const headers = apiHeadersTestDb();
 
   return cy.request({
@@ -609,7 +612,7 @@ Cypress.Commands.add('loginAdminApi', () => {
 
 Cypress.Commands.add('criarVendaAprovadaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersTestDbComLoja();
 
   return cy.loginAdminApi().then(() => {
     return cy.loginClienteSeed().then(() => {
@@ -690,18 +693,19 @@ Cypress.Commands.add('criarVendaAprovadaApi', () => {
 
 Cypress.Commands.add('despacharPedidoApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersTestDbComLoja();
+
+  cy.loginAdminApi();
   cy.request({
     method: 'PATCH',
     url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-    headers: {
-      Authorization: `Bearer ${Cypress.env('adminToken')}`,
-    },
+    headers,
   });
 });
 
 Cypress.Commands.add('confirmarEntregaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersTestDbComLoja();
 
   cy.loginAdminApi();
   cy.request({
@@ -713,7 +717,7 @@ Cypress.Commands.add('confirmarEntregaApi', (vendaUuid: string) => {
 
 Cypress.Commands.add('marcarFalhaEntregaApi', (vendaUuid: string, motivo: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersTestDbComLoja();
 
   cy.loginAdminApi();
   cy.request({
@@ -731,7 +735,7 @@ Cypress.Commands.add('marcarFalhaEntregaApi', (vendaUuid: string, motivo: string
 
 Cypress.Commands.add('solicitarTrocaApi', (vendaUuid: string, itemVendaUuid: string, motivo: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersTestDbComLoja();
 
   cy.request({
     method: 'POST',
@@ -749,7 +753,7 @@ Cypress.Commands.add('solicitarTrocaApi', (vendaUuid: string, itemVendaUuid: str
 
 Cypress.Commands.add('autorizarTrocaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersTestDbComLoja();
 
   cy.loginAdminApi();
   cy.request({
@@ -761,7 +765,7 @@ Cypress.Commands.add('autorizarTrocaApi', (vendaUuid: string) => {
 
 Cypress.Commands.add('confirmarRecebimentoTrocaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersTestDbComLoja();
 
   cy.loginAdminApi();
   cy.request({

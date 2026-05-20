@@ -78,6 +78,10 @@ beforeEach(() => {
       const apiUrl = Cypress.env('apiUrl');
       if (apiUrl && req.url.includes(apiUrl)) {
         req.headers['x-use-test-db'] = 'true';
+        // Multi-tenancy: garante que x-loja-id seja enviado em todas as requests à API
+        if (!req.headers['x-loja-id']) {
+          req.headers['x-loja-id'] = '1';
+        }
       }
     });
   }

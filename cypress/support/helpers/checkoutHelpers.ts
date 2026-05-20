@@ -15,6 +15,14 @@ export function apiHeadersTestDb(): Record<string, string> {
   };
 }
 
+/** Headers de API com loja padrão do seed (multi-tenancy / loj_id no carrinho). */
+export function apiHeadersTestDbComLoja(lojId = 1): Record<string, string> {
+  return {
+    ...apiHeadersTestDb(),
+    'x-loja-id': String(lojId),
+  };
+}
+
 /**
  * Interface para cartão do cliente
  */

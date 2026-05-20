@@ -30,6 +30,7 @@
 | **Regras via API** (cupom, RN0034, política parcelas) | `e2e/integration/pagamento-api.cy.ts` | Menos flakiness que UI. |
 | **SEO/SSR** (validação de HTML, meta tags, Open Graph) | `e2e/seo/` (nova pasta) | `cy.request` sem `db:reset:all`; valida `generateMetadata` Next.js. |
 | **Fluxo completo cross-domain** (cliente compra → admin despacha → admin entrega → cliente solicita troca → admin autoriza → admin confirma recebimento → cliente usa cupom) | `e2e/fluxo/fluxo-completo-cross-domain.cy.ts` | E2E UI real cobrindo ciclo completo de venda e troca. |
+| **Casos de uso 7ª entrega (UI / telas)** | `e2e/casos-uso-entrega-7-ui/cdu00*-ui-*.cy.ts` | Paridade com `casos-uso-entrega-7/` (API); `npm run test:e2e:entrega-7-ui:run`. |
 | **Atualização de endereço em falha** (cliente cadastra endereço via UI → admin redespacha → entrega) | `e2e/fluxo/cliente-atualiza-endereco-falha.cy.ts` | Converte ações de API para UI real no fluxo de recuperação. |
 | **Validações de formulários** (motivo de troca vazio, endereço incompleto, limite de caracteres, login/registro) | `e2e/fluxo/validacoes-formularios.cy.ts` | Casos de borda de validação frontend. |
 | **Erros e recuperação** (erro de rede, timeout, sessão expirada, conflito de edição) | `e2e/fluxo/erros-recuperacao.cy.ts` | Cenários de erro com simulação via `cy.intercept`. |
