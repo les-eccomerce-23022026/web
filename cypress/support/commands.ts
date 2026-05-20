@@ -1,13 +1,6 @@
-// ***********************************************
-// This example commands.ts shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
+// Comandos customizados Cypress para testes E2E do e-commerce de livros
 
+import { apiHeadersBancoTestes, apiHeadersBancoTestesComLoja } from './helpers/checkoutHelpers';
 import { registerCheckoutApiAliases } from './intercepts/checkoutApi';
 
 declare global {
@@ -15,26 +8,26 @@ declare global {
   namespace Cypress {
     interface Chainable {
       login(email: string, password: string): Chainable<void>;
-      loginApi(email: string, password: string): Chainable<void>;
-      createCartApi(items: { livroUuid: string; quantidade: number }[]): Chainable<void>;
+      autenticarViaApi(email: string, password: string): Chainable<void>;
+      criarCarrinhoViaApi(items: { livroUuid: string; quantidade: number }[]): Chainable<void>;
       loginProgramatico(userType: 'admin' | 'cliente'): Chainable<void>;
       /** Sessão de cliente via API real (banco de testes) — uso em checkout e fluxos autenticados. */
       loginCliente(): Chainable<void>;
-      /** Login via API com credenciais de `Cypress.env('cliente')` (seed do banco de testes). */
-      loginClienteSeed(): Chainable<void>;
+      /** Autenticação via API com credenciais de dados de teste. */
+      autenticarClienteDadosTeste(): Chainable<void>;
       /** Catálogo → detalhe do 1º livro → Comprar Agora (data-cy de detalhe). */
-      adicionarPrimeiroLivroAoCarrinhoPelaTelaDetalhe(): Chainable<void>;
+      adicionarPrimeiroLivroCarrinhoDetalhe(): Chainable<void>;
       getDataCy(value: string): Chainable<JQuery<HTMLElement>>;
       getNewUser(): Chainable<{ nome: string, cpf: string, email: string, senha: string }>;
-      adicionarAoCarrinhoApi(livroUuid: string, quantidade?: number): Chainable<void>;
-      limparCarrinhoApi(): Chainable<void>;
+      adicionarAoCarrinhoViaApi(livroUuid: string, quantidade?: number): Chainable<void>;
+      limparCarrinhoViaApi(): Chainable<void>;
       /** Garante pelo menos um endereço via GET /pagamento/info + POST se vazio. */
-      garantirEnderecoApi(): Chainable<void>;
+      garantirEnderecoViaApi(): Chainable<void>;
       /** Remove todos os cartões salvos do cliente autenticado (API real). */
-      removerTodosCartoesSalvosApi(): Chainable<void>;
+      limparCartoesSalvosViaApi(): Chainable<void>;
       /** Primeiro livro do catálogo público GET /livros (dados reais do banco). */
-      obterPrimeiroLivroUuidDoCatalogo(): Chainable<string>;
-      removerEnderecosUsuarioApi(): Chainable<void>;
+      obterPrimeiroLivroCatalogo(): Chainable<string>;
+      removerEnderecosUsuarioViaApi(): Chainable<void>;
       /** Aliases GET pagamento/info, POST/GET carrinho — chamar no beforeEach antes das ações. */
       setupCheckoutNetworkSpies(): Chainable<void>;
       /**
@@ -46,34 +39,47 @@ declare global {
        * Exige intercept `freteCotar` no spec. CEP só dígitos ou formatado como a UI aceita.
        * Evita `force: true` com scroll + espera de rede.
        */
-      checkoutPreencherFretePac(cep: string): Chainable<void>;
+      checkoutPreencherFretePadrao(cep: string): Chainable<void>;
       checkoutAplicarCupom(codigo: string): Chainable<void>;
-      /** Catálogo UI ou seed via API (createCartApi). */
+      /** Catálogo UI ou seed via API (criarCarrinhoViaApi). */
       prepararCarrinhoComUmLivro(
         opts: { via: 'api'; livroUuid: string; quantidade?: number } | { via: 'ui' },
       ): Chainable<void>;
       /**
        * Monta o carrinho via API + visita ao checkout. Sem `livroUuid`, usa o primeiro livro do GET /livros.
        */
-      prepararCarrinhoComUmLivroHidratado(opts?: { livroUuid?: string; quantidade?: number }): Chainable<void>;
+      prepararCarrinhoSincronizado(opts?: { livroUuid?: string; quantidade?: number }): Chainable<void>;
       /** Comandos para testes de admin - fluxo de despacho e entrega */
-      criarVendaAprovadaApi(): Chainable<{ vendaUuid: string; itemVendaUuid: string }>;
-      despacharPedidoApi(vendaUuid: string): Chainable<void>;
-      confirmarEntregaApi(vendaUuid: string): Chainable<void>;
-      marcarFalhaEntregaApi(vendaUuid: string, motivo: string): Chainable<void>;
-      solicitarTrocaApi(vendaUuid: string, itemVendaUuid: string, motivo: string): Chainable<void>;
-      autorizarTrocaApi(vendaUuid: string): Chainable<void>;
-      confirmarRecebimentoTrocaApi(vendaUuid: string): Chainable<void>;
+      criarVendaAprovadaViaApi(): Chainable<{ vendaUuid: string; itemVendaUuid: string }>;
+      despacharPedidoViaApi(vendaUuid: string): Chainable<void>;
+      confirmarEntregaViaApi(vendaUuid: string): Chainable<void>;
+      marcarFalhaEntregaViaApi(vendaUuid: string, motivo: string): Chainable<void>;
+      solicitarTrocaViaApi(vendaUuid: string, itemVendaUuid: string, motivo: string): Chainable<void>;
+      autorizarTrocaViaApi(vendaUuid: string): Chainable<void>;
+      confirmarRecebimentoTrocaViaApi(vendaUuid: string): Chainable<void>;
       /** Login admin via API para testes de painel */
-      loginAdminApi(): Chainable<string>;
+      autenticarAdministradorViaApi(): Chainable<string>;
     }
   }
 }
 
-/**
- * Gera um usuário dinâmico para testes de registro e perfil.
- */
-/** CPFs com dígitos verificadores válidos (backend/README — cadastro de cliente). */
+// ============================================
+// CONSTANTES E UTILITÁRIOS
+// ============================================
+
+const API_URL = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+const USE_TEST_DB = Cypress.env('injectTestDbHeader') === true;
+
+const getHeaders = (extraHeaders: Record<string, string> = {}): Record<string, string> => ({
+  'Content-Type': 'application/json; charset=utf-8',
+  ...extraHeaders,
+});
+
+const getTestDbHeaders = (): Record<string, string> => ({
+  'Content-Type': 'application/json; charset=utf-8',
+  ...(USE_TEST_DB ? { 'x-use-test-db': 'true' } : {}),
+});
+
 const CPFS_CADASTRO_VALIDOS = [
   '245.699.622-46',
   '019.364.721-47',
@@ -92,6 +98,19 @@ const CPFS_CADASTRO_VALIDOS = [
   '952.426.835-38',
 ];
 
+// ============================================
+// DECLARAÇÃO DE TIPOS
+// ============================================
+
+interface PagamentoInfoResponse {
+  enderecosCliente: unknown[];
+  cartoesCliente?: unknown[];
+}
+
+// ============================================
+// COMANDOS DE UTILIDADE
+// ============================================
+
 Cypress.Commands.add('getNewUser', () => {
   const cpf = CPFS_CADASTRO_VALIDOS[Math.floor(Math.random() * CPFS_CADASTRO_VALIDOS.length)];
   return cy.wrap({
@@ -102,14 +121,19 @@ Cypress.Commands.add('getNewUser', () => {
   });
 });
 
-/**
- * Login via UI - Útil para testar o fluxo completo de login e feedbacks visuais.
- */
+Cypress.Commands.add('getDataCy', (value) => {
+  return cy.get(`[data-cy="${value}"]`);
+});
+
+// ============================================
+// COMANDOS DE AUTENTICAÇÃO
+// ============================================
+
 Cypress.Commands.add('loginCliente', () => {
   cy.loginProgramatico('cliente');
 });
 
-Cypress.Commands.add('loginClienteSeed', () => {
+Cypress.Commands.add('autenticarClienteDadosTeste', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   /** Mesmas credenciais do `005_seed_usuarios_teste.sql` (senha com Ç como U+00C7). */
   const email =
@@ -135,6 +159,26 @@ Cypress.Commands.add('loginClienteSeed', () => {
         `Login seed falhou (${res.status}): ${JSON.stringify(res.body)} — rode o seed 005 no Postgres do backend. Response body: ${JSON.stringify(res.body, null, 2)}`,
       );
     }
+  });
+});
+
+Cypress.Commands.add('autenticarViaApi', (email, senha) => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const useTestDb = Cypress.env('injectTestDbHeader') === true;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json; charset=utf-8',
+    ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
+  };
+
+  cy.request({
+    method: 'POST',
+    url: `${apiUrl}/auth/login`,
+    headers,
+    body: { email, senha },
+  }).then((response) => {
+    expect(response.status).to.eq(200);
+    const masked = email.includes('@') ? `${email[0]}***@${email.split('@')[1]}` : '***';
+    cy.log(`[autenticarViaApi] sessão API OK (${masked}) — cookie deve espelhar no browser no próximo visit`);
   });
 });
 
@@ -228,31 +272,13 @@ Cypress.Commands.add('loginProgramatico', (userType: 'admin' | 'cliente') => {
   }
 });
 
-/** Headers padrão para requests autenticados com banco de testes. */
-export function apiHeadersTestDb(): Record<string, string> {
-  const useTestDb = Cypress.env('injectTestDbHeader') === true;
-  return {
-    'Content-Type': 'application/json; charset=utf-8',
-    ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
-  };
-}
+// ============================================
+// COMANDOS DE CARRINHO
+// ============================================
 
-/** Loja padrão do seed (multi-tenancy — evita `loj_id` null no carrinho). */
-export function apiHeadersTestDbComLoja(lojId = 1): Record<string, string> {
-  return {
-    ...apiHeadersTestDb(),
-    'x-loja-id': String(lojId),
-  };
-}
-
-interface PagamentoInfoResponse {
-  enderecosCliente: unknown[];
-  cartoesCliente?: unknown[];
-}
-
-Cypress.Commands.add('garantirEnderecoApi', () => {
+Cypress.Commands.add('garantirEnderecoViaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersBancoTestes();
 
   cy.request<PagamentoInfoResponse>({
     method: 'GET',
@@ -289,7 +315,7 @@ Cypress.Commands.add('garantirEnderecoApi', () => {
   });
 });
 
-Cypress.Commands.add('adicionarPrimeiroLivroAoCarrinhoPelaTelaDetalhe', () => {
+Cypress.Commands.add('adicionarPrimeiroLivroCarrinhoDetalhe', () => {
   cy.log('**Navegando para Home para selecionar livro**');
   cy.visit('/');
   
@@ -308,11 +334,7 @@ Cypress.Commands.add('adicionarPrimeiroLivroAoCarrinhoPelaTelaDetalhe', () => {
     .click();
 });
 
-Cypress.Commands.add('getDataCy', (value) => {
-  return cy.get(`[data-cy="${value}"]`);
-});
-
-Cypress.Commands.add('loginApi', (email, senha) => {
+Cypress.Commands.add('autenticarViaApi', (email, senha) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   const useTestDb = Cypress.env('injectTestDbHeader') === true;
   const headers: Record<string, string> = {
@@ -328,13 +350,13 @@ Cypress.Commands.add('loginApi', (email, senha) => {
   }).then((response) => {
     expect(response.status).to.eq(200);
     const masked = email.includes('@') ? `${email[0]}***@${email.split('@')[1]}` : '***';
-    cy.log(`[loginApi] sessão API OK (${masked}) — cookie deve espelhar no browser no próximo visit`);
+    cy.log(`[autenticarViaApi] sessão API OK (${masked}) — cookie deve espelhar no browser no próximo visit`);
   });
 });
 
-Cypress.Commands.add('createCartApi', (items) => {
+Cypress.Commands.add('criarCarrinhoViaApi', (items) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
   
   // Limpa o carrinho primeiro para garantir estado puro
   cy.request({
@@ -355,9 +377,9 @@ Cypress.Commands.add('createCartApi', (items) => {
   });
 });
 
-Cypress.Commands.add('adicionarAoCarrinhoApi', (livroUuid, quantidade = 1) => {
+Cypress.Commands.add('adicionarAoCarrinhoViaApi', (livroUuid, quantidade = 1) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
 
   cy.request({
     method: 'POST',
@@ -367,9 +389,9 @@ Cypress.Commands.add('adicionarAoCarrinhoApi', (livroUuid, quantidade = 1) => {
   });
 });
 
-Cypress.Commands.add('limparCarrinhoApi', () => {
+Cypress.Commands.add('limparCarrinhoViaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
 
   cy.request({
     method: 'DELETE',
@@ -379,7 +401,7 @@ Cypress.Commands.add('limparCarrinhoApi', () => {
   });
 });
 
-Cypress.Commands.add('removerTodosCartoesSalvosApi', () => {
+Cypress.Commands.add('limparCartoesSalvosViaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   const useTestDb = Cypress.env('injectTestDbHeader') === true;
   const headers: Record<string, string> = {
@@ -416,9 +438,9 @@ export interface CatalogoResponse {
   livros: LivroResponse[];
 }
 
-Cypress.Commands.add('obterPrimeiroLivroUuidDoCatalogo', () => {
+Cypress.Commands.add('obterPrimeiroLivroCatalogo', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersBancoTestes();
 
   return cy
     .request<CatalogoResponse>({
@@ -437,7 +459,7 @@ Cypress.Commands.add('obterPrimeiroLivroUuidDoCatalogo', () => {
     });
 });
 
-Cypress.Commands.add('removerEnderecosUsuarioApi', () => {
+Cypress.Commands.add('removerEnderecosUsuarioViaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   const useTestDb = Cypress.env('injectTestDbHeader') === true;
   const headers: Record<string, string> = {
@@ -470,10 +492,9 @@ Cypress.Commands.add('setupCheckoutNetworkSpies', () => {
   registerCheckoutApiAliases();
 });
 
-/**
- * Snapshot legível no Command Log / terminal-report quando há timeout em URL ou em `@pagamentoInfo`.
- * Não substitui assert; só correlaciona “checkout em branco”, toast de erro e botão desabilitado.
- */
+// ============================================
+// COMANDOS DE CHECKOUT
+// ============================================
 Cypress.Commands.add('logCheckoutDiagnosticContext', (label = 'checkout') => {
   const tag = `[E2E:${label}]`;
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
@@ -511,7 +532,7 @@ Cypress.Commands.add('logCheckoutDiagnosticContext', (label = 'checkout') => {
   });
 });
 
-Cypress.Commands.add('checkoutPreencherFretePac', (cep: string) => {
+Cypress.Commands.add('checkoutPreencherFretePadrao', (cep: string) => {
   cy.get('[data-cy="checkout-freight-zip-input"]').scrollIntoView().clear().type(cep);
   cy.get('[data-cy="checkout-freight-calculate-button"]').scrollIntoView().should('be.visible').click();
   cy.wait('@freteCotar', { timeout: 15000 });
@@ -530,26 +551,26 @@ Cypress.Commands.add(
   'prepararCarrinhoComUmLivro',
   (opts: { via: 'api'; livroUuid: string; quantidade?: number } | { via: 'ui' }) => {
     if (opts.via === 'api') {
-      cy.createCartApi([{ livroUuid: opts.livroUuid, quantidade: opts.quantidade ?? 1 }]);
+      cy.criarCarrinhoViaApi([{ livroUuid: opts.livroUuid, quantidade: opts.quantidade ?? 1 }]);
     } else {
-      cy.adicionarPrimeiroLivroAoCarrinhoPelaTelaDetalhe();
+      cy.adicionarPrimeiroLivroCarrinhoDetalhe();
     }
   },
 );
 
 /**
- * Versão hidratada de prepararCarrinhoComUmLivro para suítes que precisam de estado Redux sincronizado.
+ * Versão sincronizada de prepararCarrinhoComUmLivro para suítes que precisam de estado Redux sincronizado.
  * Após createCart via API, visita o checkout e sincroniza pela UI.
  * `livroUuid` opcional: quando omitido, usa o primeiro título retornado por GET /livros (banco real).
  */
-Cypress.Commands.add('prepararCarrinhoComUmLivroHidratado', (opts?: { livroUuid?: string; quantidade?: number }) => {
+Cypress.Commands.add('prepararCarrinhoSincronizado', (opts?: { livroUuid?: string; quantidade?: number }) => {
   const quantidade = opts?.quantidade ?? 1;
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersBancoTestes();
   const checkoutTimeout = Cypress.env('checkoutTimeout') ? Number(Cypress.env('checkoutTimeout')) : 20000;
 
   const montar = (livroUuid: string) => {
-    cy.createCartApi([{ livroUuid, quantidade }]);
+    cy.criarCarrinhoViaApi([{ livroUuid, quantidade }]);
     cy.visit('/checkout');
     cy.get('[data-cy="checkout-payment-section-title"]', { timeout: checkoutTimeout }).should('be.visible');
     cy.get('[data-cy="checkout-coupon-input"]', { timeout: checkoutTimeout }).scrollIntoView().should('be.visible');
@@ -576,11 +597,14 @@ Cypress.Commands.add('prepararCarrinhoComUmLivroHidratado', (opts?: { livroUuid?
   });
 });
 
+// ============================================
+// COMANDOS DE ADMIN
+// ============================================
 /**
  * Comandos reutilizáveis para testes de admin - fluxo de despacho, entrega e trocas
  */
 
-Cypress.Commands.add('loginAdminApi', () => {
+Cypress.Commands.add('autenticarAdministradorViaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   /** Alinhado ao seed `005_seed_usuarios_teste.sql` (mesmo par do BDD 7ª entrega). */
   const emailAdmin =
@@ -591,7 +615,7 @@ Cypress.Commands.add('loginAdminApi', () => {
     (Cypress.env('adminSenha') as string | undefined) ??
     (Cypress.env('admin') as { senha?: string } | undefined)?.senha ??
     '@asdfJKL\u00C7123';
-  const headers = apiHeadersTestDb();
+  const headers = apiHeadersBancoTestes();
 
   return cy.request({
     method: 'POST',
@@ -610,13 +634,13 @@ Cypress.Commands.add('loginAdminApi', () => {
   });
 });
 
-Cypress.Commands.add('criarVendaAprovadaApi', () => {
+Cypress.Commands.add('criarVendaAprovadaViaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
 
-  return cy.loginAdminApi().then(() => {
-    return cy.loginClienteSeed().then(() => {
-      return cy.obterPrimeiroLivroUuidDoCatalogo().then((livroUuid) => {
+  return cy.autenticarAdministradorViaApi().then(() => {
+    return cy.autenticarClienteDadosTeste().then(() => {
+      return cy.obterPrimeiroLivroCatalogo().then((livroUuid) => {
         // Adicionar ao carrinho
         cy.request({
           method: 'POST',
@@ -691,11 +715,11 @@ Cypress.Commands.add('criarVendaAprovadaApi', () => {
   });
 });
 
-Cypress.Commands.add('despacharPedidoApi', (vendaUuid: string) => {
+Cypress.Commands.add('despacharPedidoViaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.loginAdminApi();
+  cy.autenticarAdministradorViaApi();
   cy.request({
     method: 'PATCH',
     url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
@@ -703,11 +727,11 @@ Cypress.Commands.add('despacharPedidoApi', (vendaUuid: string) => {
   });
 });
 
-Cypress.Commands.add('confirmarEntregaApi', (vendaUuid: string) => {
+Cypress.Commands.add('confirmarEntregaViaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.loginAdminApi();
+  cy.autenticarAdministradorViaApi();
   cy.request({
     method: 'PATCH',
     url: `${apiUrl}/admin/pedidos/${vendaUuid}/entrega`,
@@ -715,11 +739,11 @@ Cypress.Commands.add('confirmarEntregaApi', (vendaUuid: string) => {
   });
 });
 
-Cypress.Commands.add('marcarFalhaEntregaApi', (vendaUuid: string, motivo: string) => {
+Cypress.Commands.add('marcarFalhaEntregaViaApi', (vendaUuid: string, motivo: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.loginAdminApi();
+  cy.autenticarAdministradorViaApi();
   cy.request({
     method: 'PUT',
     url: `${apiUrl}/admin/pedidos/${vendaUuid}/falha-entrega`,
@@ -733,9 +757,9 @@ Cypress.Commands.add('marcarFalhaEntregaApi', (vendaUuid: string, motivo: string
   });
 });
 
-Cypress.Commands.add('solicitarTrocaApi', (vendaUuid: string, itemVendaUuid: string, motivo: string) => {
+Cypress.Commands.add('solicitarTrocaViaApi', (vendaUuid: string, itemVendaUuid: string, motivo: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
 
   cy.request({
     method: 'POST',
@@ -751,11 +775,11 @@ Cypress.Commands.add('solicitarTrocaApi', (vendaUuid: string, itemVendaUuid: str
   });
 });
 
-Cypress.Commands.add('autorizarTrocaApi', (vendaUuid: string) => {
+Cypress.Commands.add('autorizarTrocaViaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.loginAdminApi();
+  cy.autenticarAdministradorViaApi();
   cy.request({
     method: 'POST',
     url: `${apiUrl}/vendas/${vendaUuid}/troca/autorizar`,
@@ -763,11 +787,11 @@ Cypress.Commands.add('autorizarTrocaApi', (vendaUuid: string) => {
   });
 });
 
-Cypress.Commands.add('confirmarRecebimentoTrocaApi', (vendaUuid: string) => {
+Cypress.Commands.add('confirmarRecebimentoTrocaViaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersTestDbComLoja();
+  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.loginAdminApi();
+  cy.autenticarAdministradorViaApi();
   cy.request({
     method: 'PUT',
     url: `${apiUrl}/vendas/${vendaUuid}/troca/confirmar-recebimento`,

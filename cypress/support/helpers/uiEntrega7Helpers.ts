@@ -45,13 +45,13 @@ export function aguardarCadeiaFinalizacaoCheckoutUi(opts?: { selecionarPagamento
   });
 }
 
-export function loginClienteSeedUi(): void {
-  cy.loginClienteSeed();
-  cy.limparCarrinhoApi();
+export function autenticarClienteDadosTesteUi(): void {
+  cy.autenticarClienteDadosTeste();
+  cy.limparCarrinhoViaApi();
 }
 
 export function loginAdminUi(): void {
-  cy.loginAdminApi();
+  cy.autenticarAdministradorViaApi();
 }
 
 /** Trecho curto do UUID exibido nas tabelas admin e cards de pedido. */
@@ -92,13 +92,13 @@ export function jornadaCatalogoAteCheckoutUi(): void {
   cy.wait('@pagamentoInfo', { timeout: 25000 });
 }
 
-export function selecionarEnderecoFretePacCheckoutUi(cep = '01310100'): void {
+export function selecionarEnderecoFretePadraoCheckoutUi(cep = '01310100'): void {
   cy.get('[data-cy^="checkout-address-item-"]', { timeout: 25000 })
     .should('be.visible')
     .first()
     .scrollIntoView()
     .click();
-  cy.checkoutPreencherFretePac(cep);
+  cy.checkoutPreencherFretePadrao(cep);
 }
 
 export function selecionarPrimeiroCartaoSalvoCheckoutUi(): void {
@@ -122,7 +122,7 @@ export function finalizarCompraCheckoutUi(opts?: { selecionarPagamentoVezes?: nu
 /** Checkout completo a partir do catálogo (CDU001 / CDU005). */
 export function realizarCompraCompletaNaUi(opts?: { cupomCodigo?: string }): void {
   jornadaCatalogoAteCheckoutUi();
-  selecionarEnderecoFretePacCheckoutUi();
+  selecionarEnderecoFretePadraoCheckoutUi();
   if (opts?.cupomCodigo) {
     cy.checkoutAplicarCupom(opts.cupomCodigo);
     cy.get(`[data-cy="checkout-coupon-${opts.cupomCodigo}"]`, { timeout: 10000 }).should('be.visible');
@@ -133,8 +133,8 @@ export function realizarCompraCompletaNaUi(opts?: { cupomCodigo?: string }): voi
   });
 }
 
-export function visitarCheckoutComCarrinhoHidratadoUi(): void {
-  cy.prepararCarrinhoComUmLivroHidratado();
+export function visitarCheckoutComCarrinhoSincronizadoUi(): void {
+  cy.prepararCarrinhoSincronizado();
   cy.visit('/checkout');
   cy.contains('h1', 'Finalizar Compra', { timeout: 30000 }).should('be.visible');
   cy.wait('@pagamentoInfo', { timeout: 25000 });
@@ -262,7 +262,7 @@ export function cadastrarCartaoMinhaContaUi(dados: {
     .and('contain', 'Cartão');
 }
 
-export function configurarSplitDoisCartoesUi(valorLinha1: number, valorLinha2: number): void {
+export function configurarPagamentoDivididoDoisCartoesUi(valorLinha1: number, valorLinha2: number): void {
   cy.get('[data-cy="checkout-split-line-value"]').first().clear().type(String(valorLinha1));
   cy.get('[data-cy="checkout-split-add-saved-card"]').click();
   cy.get('[data-cy="checkout-split-line-card-select"]').eq(1).should('exist');

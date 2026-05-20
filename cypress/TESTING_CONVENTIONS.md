@@ -19,24 +19,94 @@
 - Localização: `CheckoutSplitPagamento.tsx` linha 152
 - Nota: O erro é mostrado dinamicamente quando a validação falha
 
-## Mapa de suítes (cenário → arquivo → papel)
+## Estrutura de Testes E2E por Domínio
 
-| Cenário | Arquivo | Observação |
-|--------|---------|------------|
-| **Happy path único** (login UI → carrinho → checkout → frete PAC → cupom DESCONTO10 → cartão → venda) | `e2e/fluxo/cliente-login-compra-feliz.cy.ts` | **Um** `it` longo; não cobre split, dois cupons, parcial, etc. |
-| **Outros sucessos** (cupom+troca, parcial, split cartão+PIX, resumos, `cotacaoUuid`, …) | `e2e/user/cliente/checkout/pagamento.cy.ts` | Vários `it` ativos; ainda há `it.skip` (modal novo cartão, Luhn, RN0034 na UI, …). |
-| **Falhas / validações** (sem endereço+frete, cupom inválido, CEP inexistente, teto sandbox) | `e2e/fluxo/cliente-login-compra-falhas.cy.ts` | Livro(s) via `GET /livros` / `obterPrimeiroLivroUuidDoCatalogo`. |
-| **Frete / CEP / jornada longa na UI** | `e2e/user/cliente/checkout/entrega-frete.cy.ts` | Catálogo → checkout; sensível a Redux. |
-| **Regras via API** (cupom, RN0034, política parcelas) | `e2e/integration/pagamento-api.cy.ts` | Menos flakiness que UI. |
-| **SEO/SSR** (validação de HTML, meta tags, Open Graph) | `e2e/seo/` (nova pasta) | `cy.request` sem `db:reset:all`; valida `generateMetadata` Next.js. |
-| **Fluxo completo cross-domain** (cliente compra → admin despacha → admin entrega → cliente solicita troca → admin autoriza → admin confirma recebimento → cliente usa cupom) | `e2e/fluxo/fluxo-completo-cross-domain.cy.ts` | E2E UI real cobrindo ciclo completo de venda e troca. |
-| **Casos de uso 7ª entrega (UI / telas)** | `e2e/casos-uso-entrega-7-ui/cdu00*-ui-*.cy.ts` | Paridade com `casos-uso-entrega-7/` (API); `npm run test:e2e:entrega-7-ui:run`. |
-| **Atualização de endereço em falha** (cliente cadastra endereço via UI → admin redespacha → entrega) | `e2e/fluxo/cliente-atualiza-endereco-falha.cy.ts` | Converte ações de API para UI real no fluxo de recuperação. |
-| **Validações de formulários** (motivo de troca vazio, endereço incompleto, limite de caracteres, login/registro) | `e2e/fluxo/validacoes-formularios.cy.ts` | Casos de borda de validação frontend. |
-| **Erros e recuperação** (erro de rede, timeout, sessão expirada, conflito de edição) | `e2e/fluxo/erros-recuperacao.cy.ts` | Cenários de erro com simulação via `cy.intercept`. |
-| **Múltiplas falhas consecutivas** (3 falhas → cancelamento automático) | `e2e/fluxo/multiplas-falhas-consecutivas.cy.ts` | Regra de negócio de cancelamento após 3 falhas. |
+A reorganização dos testes E2E segue uma estrutura baseada em domínios de negócio, facilitando a manutenção e localização de testes.
 
-Lista atual de `.skip` em checkout de pagamento: `grep -n "it\\.skip" web/cypress/e2e/user/cliente/checkout/pagamento.cy.ts`.
+### Diretórios por Domínio
+
+```
+cypress/e2e/
+├── autenticacao/          # Login, registro, proteção de rotas, permissões
+├── clientes/              # Perfil, endereços, cartões, inativação
+├── catalogo/              # Home, listagem de livros, detalhes do livro
+├── carrinho/              # Gerenciar itens, cotar frete
+├── vendas/                # Fluxo de compra, checkout, validações
+├── pagamentos/            # Cartões, cupons, salvamento no checkout
+├── entregas/              # Despacho, confirmação, cotação de frete
+├── trocas/                # Solicitação, autorização, recebimento, cupom
+├── admin/                 # Dashboard administrativo
+├── responsividade/       # Testes mobile-first
+└── user/                  # Utils e helpers legados (preservados)
+```
+
+### Mapa de Suítes (Domínio → Capacidade → Arquivo)
+
+| Domínio | Capacidade | Arquivo | Observação |
+|---------|-----------|---------|------------|
+| **Autenticação** | Login Cliente | `autenticacao/login-cliente.cy.ts` | Fluxo de login do cliente |
+| **Autenticação** | Login Administrador | `autenticacao/login-admin.cy.ts` | Fluxo de login do admin |
+| **Autenticação** | Registro de Cliente | `autenticacao/registro-cliente.cy.ts` | Wizard de registro |
+| **Autenticação** | Proteção de Rotas | `autenticacao/protecao-rotas-cliente.cy.ts` | Acesso não autorizado |
+| **Autenticação** | Permissões Admin | `autenticacao/permissoes-admin.cy.ts` | Controle de acesso admin |
+| **Clientes** | Dados Básicos | `clientes/perfil-dados-basicos.cy.ts` | Atualização de perfil |
+| **Clientes** | Troca de Senha | `clientes/perfil-trocar-senha.cy.ts` | Alteração de senha |
+| **Clientes** | Gerenciar Endereços | `clientes/gerenciar-enderecos.cy.ts` | CRUD de endereços |
+| **Clientes** | Limite de Endereços | `clientes/limite-enderecos.cy.ts` | RN0021 |
+| **Clientes** | Gerenciar Cartões | `clientes/gerenciar-cartoes.cy.ts` | CRUD de cartões |
+| **Clientes** | Inativação de Conta | `clientes/inativar-conta.cy.ts` | RN0008 |
+| **Clientes** | Registrar Cartão/Endereço | `clientes/registrar-cartao-e-endereco-checkout.cy.ts` | CDU003 |
+| **Clientes** | Falha ao Atualizar Endereço | `clientes/atualizar-endereco-falha.cy.ts` | RF0038, RF0039 |
+| **Catálogo** | Home e Listagem | `catalogo/home-listagem.cy.ts` | Exibição de livros |
+| **Catálogo** | Conteúdo dos Livros | `catalogo/home-conteudo-livros.cy.ts` | Validação de conteúdo |
+| **Catálogo** | Detalhes do Livro | `catalogo/detalhes-livro.cy.ts` | Página do produto |
+| **Carrinho** | Gerenciar Itens e Frete | `carrinho/gerenciar-carrinho-e-cotar-frete.cy.ts` | Operações de carrinho |
+| **Vendas** | Caminho Feliz | `vendas/caminho-feliz-compra.cy.ts` | Fluxo principal |
+| **Vendas** | Realizar Compra Completa | `vendas/realizar-compra-completa.cy.ts` | CDU001 |
+| **Vendas** | Falhas Recuperáveis | `vendas/falhas-na-compra.cy.ts` | Validações de checkout |
+| **Vendas** | Múltiplas Falhas | `vendas/multiplas-falhas-consecutivas.cy.ts` | Cancelamento automático |
+| **Vendas** | Validações de Formulários | `vendas/validacoes-de-formularios.cy.ts` | Casos de borda |
+| **Vendas** | Fluxo Ponta a Ponta | `vendas/fluxo-ponta-a-ponta.cy.ts` | Cliente + Admin |
+| **Vendas** | Evidências Visuais | `vendas/evidencias-visuais-compra.cy.ts` | Screenshots |
+| **Vendas** | Etapas do Checkout | `vendas/etapas-do-checkout.cy.ts` | Passos do checkout |
+| **Pagamentos** | Combinações de Pagamento | `pagamentos/combinacoes-de-pagamento.cy.ts` | CDU002 |
+| **Pagamentos** | Aprovação da Venda | `pagamentos/pagamento-aprovado.cy.ts` | CDU005 |
+| **Pagamentos** | Cartões e Cupons | `pagamentos/pagamento-no-checkout.cy.ts` | Salvamento no checkout |
+| **Pagamentos** | Parcelamento Mínimo | `pagamentos/pagamento-no-checkout.cy.ts` | RN0069 |
+| **Pagamentos** | Cadastrar Endereço | `pagamentos/cadastrar-endereco-no-checkout.cy.ts` | Cadastro no checkout |
+| **Entregas** | Despachar Pedido | `entregas/despachar-pedido.cy.ts` | CDU007, RF0038 |
+| **Entregas** | Despacho e Confirmação | `entregas/despacho-e-confirmacao-admin.cy.ts` | Fluxo admin |
+| **Entregas** | Falha e Reendereçamento | `entregas/falha-de-entrega-e-reenderecamento.cy.ts` | Recuperação de entrega |
+| **Entregas** | Confirmar Entrega | `entregas/confirmar-entregue.cy.ts` | CDU010, RF0039 |
+| **Entregas** | Cotação de Frete | `entregas/cotacao-de-frete-no-checkout.cy.ts` | Cálculo de frete |
+| **Trocas** | Solicitar Troca | `trocas/solicitar-troca-cliente.cy.ts` | CDU004, RF0041 |
+| **Trocas** | Autorizar/Rejeitar | `trocas/autorizar-ou-rejeitar-troca.cy.ts` | CDU006, RF0042 |
+| **Trocas** | Confirmar Recebimento | `trocas/confirmar-recebimento.cy.ts` | CDU008, RF0044 |
+| **Trocas** | Validações | `trocas/solicitar-troca-validacoes.cy.ts` | RF0040, RF0043 |
+| **Trocas** | Fluxo Administrativo | `trocas/fluxo-administrativo-trocas.cy.ts` | Gestão de trocas |
+| **Trocas** | Geração de Cupom | `trocas/cupom-gerado-pela-troca.cy.ts` | CDU009, RF0046 |
+| **Admin** | Dashboard | `admin/dashboard.cy.ts` | Painel administrativo |
+| **Responsividade** | Jornadas Cliente | `responsividade/jornadas-criticas-cliente.cy.ts` | Mobile-first |
+| **Responsividade** | Painel Admin | `responsividade/painel-administrativo.cy.ts` | Mobile-first |
+
+### Convenções de Nomenclatura
+
+**Arquivos:**
+- Formato: `kebab-case` + sufixo `.cy.ts`
+- Exemplo: `login-cliente.cy.ts`, `gerenciar-enderecos.cy.ts`
+
+**Blocos `describe`:**
+- Formato: `describe('<Domínio> — <Capacidade>', () => ...)`
+- Exemplo: `describe('Vendas — Realizar Compra Completa (CDU001)', () => ...)`
+
+**Blocos `it`:**
+- Formato: `it('deve <ação observável>[(RF000X, RN00YY)]', () => ...)`
+- Exemplo: `it('deve exibir o cabeçalho com logo e links (RF0005)', () => ...)`
+
+**Proibido:**
+- Sufixos técnicos: `(UI Real)`, `(E2E)`, `TDD`, `via UI`, `via API`, `cdu00X-ui-...`
+- snake_case em nomes de arquivos
+- Termos técnicos genéricos: `entity`, `record`, `transaction`, `data`, `item`
 
 ## Ambiente: `injectTestDbHeader` e `apiUrl`
 
@@ -79,21 +149,26 @@ Backend na porta 3000 sem Vite: acrescentar `--env apiUrl=http://localhost:3000/
 
 ## Estratégia de Testes
 
-### Testes E2E (UI)
-- Foco: Fluxo completo de usuário
-- Dependência: UI renderizada corretamente
-- Uso: Validar experiência de usuário final
+### Política API-Driven Only
 
-### Testes de Integração API-first
-- Foco: Lógica de negócio
-- Dependência: Apenas API backend
-- Uso: Validar regras de negócio sem depender de UI
-- Localização: `cypress/e2e/integration/`
+Este projeto adota uma estratégia de testes E2E **API-driven only**, onde todos os testes Cypress exercitam o fluxo real de usuário em páginas/componentes contra o backend local, sem stubs falsos.
+
+**Critério de Decisão:**
+- ✅ **PRESERVAR**: Spec executa fluxo real em página/componente + usa `cy.request`/`cy.loginApi`/UI real contra backend local
+- ❌ **EXCLUIR**: Spec usa `cy.intercept(url, { statusCode, body, ... })` para stubar resposta falsa
+- ❌ **EXCLUIR**: Spec é unitário (`*.test.ts`/`*.test.tsx`)
+- ❌ **EXCLUIR**: Spec valida apenas CSS/visual/SSR/API isolada
+- ✅ **OK**: `cy.intercept(url).as(...)` apenas como spy (sem body) → API real
+
+### Testes E2E (UI)
+- Foco: Fluxo completo de usuário contra backend real
+- Dependência: UI renderizada corretamente + backend local
+- Uso: Validar experiência de usuário final em jornadas críticas
+- Localização: `cypress/e2e/fluxo/`, `cypress/e2e/user/`, `cypress/e2e/shop/`, `cypress/e2e/casos-uso-entrega-7-ui/`, `cypress/e2e/ui-ux/` (apenas jornadas reais)
 
 ### Testes Unitários
-- Foco: Funções e componentes isolados
-- Dependência: Nenhuma (mocks)
-- Uso: Validar lógica específica
+- **NÃO UTILIZADOS** neste projeto
+- Motivo: Decisão de focar em testes E2E API-driven para validar fluxos de usuário completos
 
 ## Helpers Cypress
 

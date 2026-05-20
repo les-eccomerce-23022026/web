@@ -4,7 +4,9 @@
     "lib": ["es2017", "dom"],
     "types": ["cypress", "node"],
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
   },
   "include": ["**/*.ts"]
 }

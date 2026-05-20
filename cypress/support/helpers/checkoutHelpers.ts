@@ -8,7 +8,7 @@
 /**
  * Headers para requests autenticados com banco de testes
  */
-export function apiHeadersTestDb(): Record<string, string> {
+export function apiHeadersBancoTestes(): Record<string, string> {
   const useTestDb = Cypress.env('injectTestDbHeader') === true;
   return {
     ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
@@ -16,9 +16,9 @@ export function apiHeadersTestDb(): Record<string, string> {
 }
 
 /** Headers de API com loja padrão do seed (multi-tenancy / loj_id no carrinho). */
-export function apiHeadersTestDbComLoja(lojId = 1): Record<string, string> {
+export function apiHeadersBancoTestesComLoja(lojId = 1): Record<string, string> {
   return {
-    ...apiHeadersTestDb(),
+    ...apiHeadersBancoTestes(),
     'x-loja-id': String(lojId),
   };
 }
@@ -49,7 +49,7 @@ export function obterCartoesCliente() {
     method: 'GET',
     url: `${apiUrl}/pagamento/info`,
     qs: { cepDestino: '01310100', pesoKg: 1 },
-    headers: apiHeadersTestDb(),
+    headers: apiHeadersBancoTestes(),
   }).its('body.cartoesCliente');
 }
 
@@ -141,12 +141,12 @@ export function validarRestanteAjuste() {
 /**
  * Obtém o valor total do carrinho via API
  */
-export function obterTotalCarrinhoApi() {
+export function obterTotalCarrinhoViaApi() {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   return cy.request({
     method: 'GET',
     url: `${apiUrl}/carrinho`,
-    headers: apiHeadersTestDb(),
+    headers: apiHeadersBancoTestes(),
   }).its('body.resumo.total');
 }
 
@@ -163,7 +163,7 @@ export function criarUsuarioTeste() {
     url: `${apiUrl}/clientes/registro`,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
-      ...apiHeadersTestDb(),
+      ...apiHeadersBancoTestes(),
     },
     body: {
       nome: `Test User ${timestamp}`,

@@ -3,7 +3,7 @@
  * e ao script `backend/testar-cenarios-bdd-7-entrega.sh`.
  */
 
-import { apiHeadersTestDb } from './checkoutHelpers';
+import { apiHeadersBancoTestes } from './checkoutHelpers';
 
 export const BDD_ENTREGA_7 = {
   docReferencia: 'backend/docs/EXPORT-BDD-7-ENTREGA-API.md',
@@ -11,12 +11,12 @@ export const BDD_ENTREGA_7 = {
   tipoFrete: 'PAC',
   enderecoEntrega: 'Endereço de Teste',
   entregador: 'Transportadora Padrão',
-  cupomOnly: {
-    idIntencao: 'CUPOM-ONLY',
+  cupomApenas: {
+    identificadorIntencao: 'CUPOM-ONLY',
     segredoConfirmacao: 'CUPOM-ONLY',
   },
   erros: {
-    payloadInvalido: 'Payload inválido',
+    dadosInvalidos: 'Dados inválidos',
     prazoTrocaExpirado: 'Prazo de 7 dias para troca expirado',
     custoEntregaInvalido: 'Custo da entrega não confere',
     entregaNaoEncontrada: 'Entrega não encontrada',
@@ -49,8 +49,22 @@ export interface VendaCriadaBdd {
   valorFrete: number;
 }
 
+export interface RespostaPagamentoBdd {
+  sucesso: boolean;
+  status: string;
+}
+
+export interface RespostaVendaBdd {
+  status: string;
+}
+
+export interface RespostaTrocaBdd {
+  status: string;
+  erro?: string;
+}
+
 export interface IntencaoPagamentoBdd {
-  idIntencao: string;
+  identificadorIntencao: string;
   segredoConfirmacao: string;
 }
 
@@ -109,12 +123,12 @@ export function logRespostaBdd(rotulo: string, response: Cypress.Response<unknow
 
 export function loginClienteBdd(): void {
   const { email, senha } = credenciaisClienteBdd();
-  cy.loginApi(email, senha);
+  cy.autenticarViaApi(email, senha);
 }
 
 export function loginAdminBdd(): void {
   const { email, senha } = credenciaisAdminBdd();
-  cy.loginApi(email, senha);
+  cy.autenticarViaApi(email, senha);
 }
 
 export function obterPrimeiroLivroBdd(): Cypress.Chainable<LivroCatalogoBdd> {
@@ -122,7 +136,7 @@ export function obterPrimeiroLivroBdd(): Cypress.Chainable<LivroCatalogoBdd> {
     .request({
       method: 'GET',
       url: `${apiUrlBdd()}/livros`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
       qs: { pagina: 1, itensPorPagina: 1, ordenacao: 'recentes' },
     })
     .then((response) => {
@@ -141,7 +155,7 @@ export function obterPerfilClienteBdd(): Cypress.Chainable<{
     .request({
       method: 'GET',
       url: `${apiUrlBdd()}/clientes/perfil`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
     })
     .then((response) => {
       expect(response.status).to.equal(200);
@@ -170,7 +184,7 @@ export function criarVendaBdd(opts: {
       .request({
         method: 'POST',
         url: `${apiUrlBdd()}/vendas`,
-        headers: apiHeadersTestDb(),
+        headers: apiHeadersBancoTestes(),
         body: {
           enderecoUuid,
           cartaoUuid,
@@ -210,14 +224,14 @@ export function registrarIntencaoPagamentoBdd(
     .request({
       method: 'POST',
       url: `${apiUrlBdd()}/pagamentos/intencao-pagamento`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
       body: { valorTotal },
     })
     .then((response) => {
       logRespostaBdd('POST /api/pagamentos/intencao-pagamento', response);
       expect(response.status).to.equal(201);
       return {
-        idIntencao: response.body.idIntencao as string,
+        identificadorIntencao: response.body.idIntencao as string,
         segredoConfirmacao: response.body.segredoConfirmacao as string,
       };
     });
@@ -234,7 +248,7 @@ export function processarPagamentoCheckoutBdd(opts: {
   const body: Record<string, unknown> = {
     vendaUuid: opts.vendaUuid,
     valorTotal: opts.valorTotal,
-    idIntencao: opts.intencao.idIntencao,
+    idIntencao: opts.intencao.identificadorIntencao,
     segredoConfirmacao: opts.intencao.segredoConfirmacao,
     pagamentosCartao: opts.pagamentosCartao,
   };
@@ -246,7 +260,7 @@ export function processarPagamentoCheckoutBdd(opts: {
     .request({
       method: 'POST',
       url: `${apiUrlBdd()}/pagamento/processar`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
       body,
     })
     .then((response) => {
@@ -255,10 +269,10 @@ export function processarPagamentoCheckoutBdd(opts: {
     });
 }
 
-export function processarPagamentoCartaoUnicoBdd(
+export function finalizarPagamentoCheckoutBdd(
   vendaUuid: string,
   valorTotal: number,
-): Cypress.Chainable<Cypress.Response<unknown>> {
+): Cypress.Chainable<Cypress.Response<RespostaPagamentoBdd>> {
   return registrarIntencaoPagamentoBdd(valorTotal).then((intencao) =>
     processarPagamentoCheckoutBdd({
       vendaUuid,
@@ -266,20 +280,21 @@ export function processarPagamentoCartaoUnicoBdd(
       intencao,
       pagamentosCartao: [{ valor: valorTotal, parcelasCartao: 1 }],
     }).then((response) => {
-      if (response.status !== 200 || response.body.sucesso !== true || response.body.status !== 'APROVADA') {
+      const body = response.body as RespostaPagamentoBdd;
+      if (response.status !== 200 || body.sucesso !== true || body.status !== 'APROVADA') {
         throw new Error(`Pagamento não aprovado: ${JSON.stringify(response.body)}`);
       }
-      return response;
+      return response as Cypress.Response<RespostaPagamentoBdd>;
     }),
   );
 }
 
-export function consultarVendaBdd(vendaUuid: string): Cypress.Chainable<Cypress.Response<unknown>> {
+export function consultarVendaBdd(vendaUuid: string): Cypress.Chainable<Cypress.Response<RespostaVendaBdd>> {
   return cy.request({
     method: 'GET',
     url: `${apiUrlBdd()}/vendas/${vendaUuid}`,
-    headers: apiHeadersTestDb(),
-  });
+    headers: apiHeadersBancoTestes(),
+  }) as Cypress.Chainable<Cypress.Response<RespostaVendaBdd>>;
 }
 
 /** Requer sessão admin ativa (chamar `loginAdminBdd()` antes, fora de `.then()`). */
@@ -291,7 +306,7 @@ export function agendarEntregaBdd(
     .request({
       method: 'POST',
       url: `${apiUrlBdd()}/entregas`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
       body: {
         vendaUuid,
         tipoFrete: BDD_ENTREGA_7.tipoFrete,
@@ -308,15 +323,16 @@ export function agendarEntregaBdd(
     });
 }
 
-export function confirmarEntregaBdd(entregaUuid: string): Cypress.Chainable<void> {
+export function confirmarEntregaBdd(entregaUuid: string): Cypress.Chainable<Cypress.Response<void>> {
   return cy
     .request({
       method: 'PATCH',
       url: `${apiUrlBdd()}/entregas/${entregaUuid}/confirmar`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
     })
     .then((response) => {
       expect(response.status).to.equal(204);
+      return response as Cypress.Response<void>;
     });
 }
 
@@ -329,16 +345,17 @@ export function criarEntregaEConfirmarBdd(
   );
 }
 
-export function registrarFalhaEntregaBdd(entregaUuid: string): Cypress.Chainable<void> {
+export function registrarFalhaEntregaBdd(entregaUuid: string): Cypress.Chainable<Cypress.Response<void>> {
   return cy
     .request({
       method: 'PATCH',
       url: `${apiUrlBdd()}/entregas/${entregaUuid}/falha`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
     })
     .then((response) => {
       logRespostaBdd('PATCH /api/entregas/:uuid/falha', response);
       expect(response.status).to.equal(204);
+      return response as Cypress.Response<void>;
     });
 }
 
@@ -359,8 +376,9 @@ export function criarPedidoEntregueBdd(opts: {
   return cy.get<VendaCriadaBdd>('@bddVendaTmp').then((venda) =>
     criarEntregaEConfirmarBdd(venda.vendaUuid, venda.valorFrete).then((entregaUuid) =>
       consultarVendaBdd(venda.vendaUuid).then((consulta) => {
-        if (consulta.body.status !== 'ENTREGUE') {
-          throw new Error(`Status esperado ENTREGUE, recebido: ${consulta.body.status}`);
+        const body = consulta.body as RespostaVendaBdd;
+        if (body.status !== 'ENTREGUE') {
+          throw new Error(`Status esperado ENTREGUE, recebido: ${body.status}`);
         }
         return {
           vendaUuid: venda.vendaUuid,
@@ -384,7 +402,7 @@ export function solicitarTrocaBdd(
     .request({
       method: 'POST',
       url: `${apiUrlBdd()}/vendas/${vendaUuid}/troca`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
       body: { motivo, itensUuids: [itemUuid] },
       failOnStatusCode,
     })
@@ -395,19 +413,20 @@ export function solicitarTrocaBdd(
 }
 
 /** Requer sessão admin ativa. */
-export function autorizarTrocaAdminBdd(vendaUuid: string): Cypress.Chainable<Cypress.Response<unknown>> {
+export function autorizarTrocaAdminBdd(vendaUuid: string): Cypress.Chainable<Cypress.Response<RespostaVendaBdd>> {
   return cy
     .request({
       method: 'PATCH',
       url: `${apiUrlBdd()}/admin/pedidos/${vendaUuid}/autorizar-troca`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
     })
     .then((response) => {
       logRespostaBdd('PATCH /api/admin/pedidos/:uuid/autorizar-troca', response);
-      if (response.status !== 200 || response.body.status !== 'TROCA AUTORIZADA') {
+      const body = response.body as RespostaVendaBdd;
+      if (response.status !== 200 || body.status !== 'TROCA AUTORIZADA') {
         throw new Error(`Autorização de troca falhou: ${JSON.stringify(response.body)}`);
       }
-      return response;
+      return response as Cypress.Response<RespostaVendaBdd>;
     });
 }
 
@@ -419,7 +438,7 @@ export function rejeitarTrocaAdminBdd(
     .request({
       method: 'PATCH',
       url: `${apiUrlBdd()}/admin/pedidos/${vendaUuid}/rejeitar-troca`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
       body: { motivo },
     })
     .then((response) => {
@@ -437,7 +456,7 @@ export function confirmarRecebimentoTrocaAdminBdd(
     .request({
       method: 'PATCH',
       url: `${apiUrlBdd()}/admin/pedidos/${vendaUuid}/confirmar-recebimento`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
       body: { retornarEstoque },
     })
     .then((response) => {
@@ -456,7 +475,7 @@ export function listarEntregasPorVendaBdd(vendaUuid: string): Cypress.Chainable<
     .request({
       method: 'GET',
       url: `${apiUrlBdd()}/entregas`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
       qs: { vendaUuid },
     })
     .then((response) => {
@@ -477,7 +496,8 @@ export function criarPedidoComTrocaSolicitadaBdd(opts: {
   loginClienteBdd();
   return cy.get<PedidoEntregueBdd>('@bddPedidoTrocaTmp').then((pedido) =>
     solicitarTrocaBdd(pedido.vendaUuid, pedido.itemUuid, motivo).then((troca) => {
-      if (troca.status !== 200 || troca.body.status !== 'EM TROCA') {
+      const body = troca.body as RespostaTrocaBdd;
+      if (troca.status !== 200 || body.status !== 'EM TROCA') {
         throw new Error(`Falha ao solicitar troca: ${JSON.stringify(troca.body)}`);
       }
       return { ...pedido, motivoTroca: motivo };
@@ -487,19 +507,19 @@ export function criarPedidoComTrocaSolicitadaBdd(opts: {
 
 // --- Cenários BDD numerados (export) ---
 
-export function executarBddCenario2PayloadInvalido(): void {
-  logEtapaBdd('BDD Cenário 2 — Falha no pagamento (payload inválido)');
+export function executarCenarioFalhaPagamentoDadosInvalidos(): void {
+  logEtapaBdd('BDD Cenário 2 — Falha no pagamento (dados inválidos)');
   loginClienteBdd();
   cy.request({
     method: 'POST',
     url: `${apiUrlBdd()}/pagamento/processar`,
-    headers: apiHeadersTestDb(),
+    headers: apiHeadersBancoTestes(),
     body: {},
     failOnStatusCode: false,
   }).then((response) => {
     logRespostaBdd('POST /api/pagamento/processar', response);
     expect(response.status).to.equal(400);
-    expect(response.body.erro).to.equal(BDD_ENTREGA_7.erros.payloadInvalido);
+    expect(response.body.erro).to.equal(BDD_ENTREGA_7.erros.dadosInvalidos);
   });
 }
 
@@ -508,7 +528,7 @@ export function obterPrimeiroCupomTrocaBdd(): Cypress.Chainable<CupomTrocaBdd> {
     .request({
       method: 'GET',
       url: `${apiUrlBdd()}/cupom/disponiveis`,
-      headers: apiHeadersTestDb(),
+      headers: apiHeadersBancoTestes(),
     })
     .then((response) => {
       logRespostaBdd('GET /api/cupom/disponiveis', response);
@@ -530,7 +550,7 @@ export function obterPrimeiroCupomTrocaBdd(): Cypress.Chainable<CupomTrocaBdd> {
     });
 }
 
-export function executarBddCenario3PagamentoCupom100(livroUuid: string): void {
+export function executarCenarioPagamentoIntegralCupomTroca(livroUuid: string): void {
   logEtapaBdd('BDD Cenário 3 — Pagamento integral com cupom de troca');
   loginClienteBdd();
 
@@ -545,12 +565,12 @@ export function executarBddCenario3PagamentoCupom100(livroUuid: string): void {
       cy.request({
         method: 'POST',
         url: `${apiUrlBdd()}/pagamento/processar`,
-        headers: apiHeadersTestDb(),
+        headers: apiHeadersBancoTestes(),
         body: {
           vendaUuid: venda.vendaUuid,
           valorTotal: 0,
-          idIntencao: BDD_ENTREGA_7.cupomOnly.idIntencao,
-          segredoConfirmacao: BDD_ENTREGA_7.cupomOnly.segredoConfirmacao,
+          idIntencao: BDD_ENTREGA_7.cupomApenas.identificadorIntencao,
+          segredoConfirmacao: BDD_ENTREGA_7.cupomApenas.segredoConfirmacao,
           pagamentosCartao: [],
           cuponsAplicados: [
             { uuid: cupom.uuid, codigo: cupom.codigo, tipo: 'troca', valor: cupom.valor },
@@ -568,7 +588,7 @@ export function executarBddCenario3PagamentoCupom100(livroUuid: string): void {
   });
 }
 
-export function executarBddCenario7PrazoTrocaExpirado(livroUuid: string, precoUnitario: number): void {
+export function executarCenarioPrazoTrocaExpirado(livroUuid: string, precoUnitario: number): void {
   logEtapaBdd('BDD Cenário 7 — Prazo de 7 dias expirado');
   criarPedidoEntregueBdd({ livroUuid, precoUnitario, quantidade: 1 }).as('bddPedidoC7');
   cy.get<PedidoEntregueBdd>('@bddPedidoC7').then((pedido) => {
@@ -583,8 +603,9 @@ export function executarBddCenario7PrazoTrocaExpirado(livroUuid: string, precoUn
         if (troca.status !== 400) {
           throw new Error(`Status esperado 400, recebido ${troca.status}`);
         }
-        if (troca.body.erro !== BDD_ENTREGA_7.erros.prazoTrocaExpirado) {
-          throw new Error(`Erro inesperado: ${troca.body.erro}`);
+        const body = troca.body as RespostaTrocaBdd;
+        if (body.erro !== BDD_ENTREGA_7.erros.prazoTrocaExpirado) {
+          throw new Error(`Erro inesperado: ${body.erro}`);
         }
       });
     });
