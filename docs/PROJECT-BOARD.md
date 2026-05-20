@@ -7,10 +7,10 @@
 
 ## Board Kanban
 
-| 📋 Todo (8)                                 | 🔄 In Progress (0)                         | ✅ Done (60)                                            |
+| 📋 Todo (8)                                 | 🔄 In Progress (0)                         | ✅ Done (61)                                            |
 | ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
-| T3 · [FRONTEND] Reserva Estoque (RN0044/45) |                                            | A1 · [FRONTEND] Configurar GIT e Repositório            |
-| T4 · [FRONTEND] Inativação/Ativação Livros (RF0012/16) |                                            | A2 · [FRONTEND] Configurar Redux para Auth              |
+| T3 · [FRONTEND] Reserva Estoque (RN0044/45) |                                            | A61 · [FRONTEND] Refresh Token Automático               |
+| T4 · [FRONTEND] Inativação/Ativação Livros (RF0012/16) |                                            | A1 · [FRONTEND] Configurar GIT e Repositório            |
 | T5 · [FRONTEND] Alteração de Senha (RF0028) |                                            | A3 · [BACKEND] Implementar API de Livros                |
 | T6 · [FRONTEND] Notificação de Troca (RN0046) |                                            | A4 · [FRONTEND] Criar Tela de Carrinho                  |
 | T7 · [FRONTEND] Bloqueio Carrinho (RN0044/45) |                                            | A5 · [FRONTEND] Refatoração Mock Data e Serviços        |
@@ -136,6 +136,7 @@
 | A58  | FRONTEND | Atualização Endpoints API               | **Concluído:** Atualização de endpoints API e melhoria no gerenciamento de itens de pedidos. **Commit:** d2e54e3. |
 | A59  | FRONTEND | Otimização Lógica Carrinho               | **Concluído:** Otimização da lógica de atualização de quantidade em componentes do carrinho. **Commit:** 4650d8b. |
 | A60  | FRONTEND | Refatoração Finalização Checkout        | **Concluído:** Melhoria do fluxo de checkout com tratamento de erros e estados de loading. **Commits:** fe5507c, 591da3f. |
+| A61  | FRONTEND | Refresh Token Automático               | **Concluído:** Implementação de retry automático ao receber 401, chamando /auth/refresh e repetindo requisição original. Preserva refreshTokenExpiresAt no contrato. |
 | T4   | FRONTEND | Inativação/Ativação Livros (RF0012/16) | **Negócio:** Permitir que administradores inativem/ativem cadastro de livros com justificativa. |
 | T5   | FRONTEND | Alteração de Senha (RF0028)            | **Negócio:** Permitir que cliente altere apenas a senha sem precisar editar todos os dados cadastrais. |
 | T6   | FRONTEND | Notificação de Troca (RN0046)         | **Negócio:** Sistema notifica o cliente quando o administrador autoriza a troca. |
