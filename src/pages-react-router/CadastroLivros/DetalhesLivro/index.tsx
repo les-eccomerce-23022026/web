@@ -7,13 +7,19 @@ import { ErrorState } from '../../../components/Comum/ErrorState/ErrorState.tsx'
 import { CapaLivro } from '../../../components/Comum/CapaLivro/CapaLivro.tsx';
 import { ControlesCompra } from '../../../components/Comum/ControlesCompra/ControlesCompra.tsx';
 
+const recarregarPagina = () => {
+  if (typeof window !== 'undefined') {
+    window.location.reload();
+  }
+};
+
 export const DetalhesLivro = () => {
   const params = useParams();
   const uuid = (params.uuid as string) || '';
   const { livro: data, loading, error } = useDetalhesLivro(uuid);
 
   if (loading) return <LoadingState message="Buscando detalhes do livro..." />;
-  if (error) return <ErrorState message="Não foi possível carregar os detalhes do livro." onRetry={() => window.location.reload()} />;
+  if (error) return <ErrorState message="Não foi possível carregar os detalhes do livro." onRetry={recarregarPagina} />;
   if (!data) return <p className={styles['detalhes-status-message']}>Livro não encontrado.</p>;
 
 

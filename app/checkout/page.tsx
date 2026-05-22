@@ -26,6 +26,7 @@ export default function CheckoutPage() {
   }, [hook.data?.enderecosDisponiveis]);
 
   const [enderecoSelecionado, setEnderecoSelecionado] = useState<string | null>(enderecoInicial);
+  const [enderecoCobrancaSelecionado, setEnderecoCobrancaSelecionado] = useState<string | null>(null);
 
   if (hook.loading) {
     return <FinalizarCompraSkeleton />;
@@ -71,6 +72,8 @@ export default function CheckoutPage() {
       carrinho={carrinho}
       enderecoSelecionado={enderecoSelecionado}
       setEnderecoSelecionado={setEnderecoSelecionado}
+      enderecoCobrancaSelecionado={enderecoCobrancaSelecionado}
+      setEnderecoCobrancaSelecionado={setEnderecoCobrancaSelecionado}
     />
   );
 }

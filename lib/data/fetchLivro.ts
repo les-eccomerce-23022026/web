@@ -41,7 +41,7 @@ function getApiBaseUrl(): string {
     return '/api';
   }
   // Server-side: use backend URL directly
-  return process.env.BACKEND_URL || 'http://localhost:3002/api';
+  return process.env.BACKEND_URL || 'http://localhost:3000/api';
 }
 
 /**
@@ -128,6 +128,7 @@ export async function fetchCatalogoLivros(
   if (params.ordenacao) queryParams.append('ordenacao', params.ordenacao);
 
   const url = `${apiBaseUrl}/livros?${queryParams.toString()}`;
+  
   const response = await fetch(url, {
     headers: await getApiHeaders(),
     cache: 'no-store',

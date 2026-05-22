@@ -33,7 +33,7 @@ function verificarPrazoTroca(pedido: IPedido): { dentroPrazo: boolean; diasResta
   }
 
   const dataEntrega = new Date(pedido.dataEntrega);
-  const hoje = new Date();
+  const hoje = typeof window !== 'undefined' ? new Date() : dataEntrega;
   const diffDias = Math.floor((hoje.getTime() - dataEntrega.getTime()) / (1000 * 60 * 60 * 24));
   const diasRestantes = 7 - diffDias;
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import styles from './style.module.css';
 
 type Props = {
@@ -76,23 +77,31 @@ export const FinalizarCompraResumoPedidoAcoes = ({
         onClick={() => {
           setErrorLocal(null);
           if (!enderecoOk) {
-            setErrorLocal('Selecione um endereço');
+            setErrorLocal('Selecione um endereço de entrega para continuar');
             return;
           }
           if (!freteSelecionado) {
-            setErrorLocal('Selecione uma opção de frete');
+            setErrorLocal('Selecione uma opção de frete para calcular o custo de entrega');
             return;
           }
           if (!temFormaPagamento || !saldoPagamentoOk) {
-            setErrorLocal('Configure a forma de pagamento corretamente');
+            setErrorLocal('Configure a forma de pagamento que cubra o valor total do pedido');
             return;
           }
           onFinalizar();
         }}
         disabled={disabled}
+        aria-busy={finalizando}
         data-cy="checkout-finish-button"
       >
-        {finalizando ? 'Processando...' : 'Concluir Pedido'}
+        {finalizando ? (
+          <>
+            <Loader2 className={styles['btn-spinner']} size={18} />
+            Processando...
+          </>
+        ) : (
+          'Concluir Pedido'
+        )}
       </button>
 
       {errorLocal && (

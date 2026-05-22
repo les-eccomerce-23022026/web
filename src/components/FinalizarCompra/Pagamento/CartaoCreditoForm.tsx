@@ -29,6 +29,11 @@ export const CartaoCreditoForm = ({
     >
       <CartaoCreditoFormView
         erros={f.erros}
+        touched={f.touched}
+        handleCampoTocado={f.handleCampoTocado}
+        validacaoNumero={f.validacaoNumero}
+        validacaoValidade={f.validacaoValidade}
+        validacaoCvv={f.validacaoCvv}
         numero={f.numero}
         nomeTitular={f.nomeTitular}
         validade={f.validade}

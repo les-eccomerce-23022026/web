@@ -1,4 +1,4 @@
-import { MapPin, Home, Building } from 'lucide-react';
+import { MapPin, Home, Building, Check } from 'lucide-react';
 import type { IEnderecoCliente } from '@/interfaces/pagamento';
 import styles from './style.module.css';
 export { FreteCalculo } from './FreteCalculo';
@@ -40,64 +40,76 @@ export const EnderecoEntregaCard = ({
 
   return (
     <div className={styles['enderecos-list']} data-cy="checkout-addresses">
-      {enderecos.map((endereco) => (
-        <div
-          key={endereco.uuid}
-          className={`${styles['endereco-item']} ${selecionado === endereco.uuid ? styles['selecionado'] : ''}`}
-          onClick={() => onSelect(endereco.uuid)}
-          data-cy={`checkout-address-item-${endereco.uuid}`}
-          data-selected={selecionado === endereco.uuid}
-        >
-          <div className={styles['endereco-conteudo']}>
-            <div className={styles['endereco-icon']}>
-              {endereco.tipo === 'cobranca' ? (
-                <Building size={24} />
-              ) : (
-                <Home size={24} />
-              )}
-            </div>
-            
-            <div className={styles['endereco-info']}>
-              <div className={styles['endereco-header']}>
-                <span className={styles['endereco-tipo']}>
-                  {endereco.tipo === 'cobranca' ? 'Cobrança' : endereco.tipo === 'entrega' ? 'Entrega' : 'Ambos'}
-                </span>
-                {endereco.principal && (
-                  <span className={styles['principal-badge']}>Principal</span>
+      {enderecos.map((endereco) => {
+        const isSel = selecionado === endereco.uuid;
+        return (
+          <div
+            key={endereco.uuid}
+            className={`${styles['endereco-item']} ${isSel ? styles['selecionado'] : ''}`}
+            onClick={() => onSelect(endereco.uuid)}
+            role="radio"
+            aria-checked={isSel}
+            aria-label={`Endereço ${endereco.tipo}, ${endereco.logradouro}, ${endereco.numero}, ${endereco.cidade}/${endereco.estado}. ${isSel ? 'Selecionado' : 'Não selecionado'}`}
+            data-cy={`checkout-address-item-${endereco.uuid}`}
+            data-selected={isSel}
+          >
+            <div className={styles['endereco-conteudo']}>
+              <div className={styles['endereco-icon']}>
+                {endereco.tipo === 'cobranca' ? (
+                  <Building size={24} />
+                ) : (
+                  <Home size={24} />
                 )}
               </div>
-              
-              <p className={styles['endereco-logradouro']}>
-                {endereco.logradouro}, {endereco.numero}
-                {endereco.complemento && ` - ${endereco.complemento}`}
-              </p>
-              
-              <p className={styles['endereco-complemento']}>
-                {endereco.bairro} - {endereco.cidade}/{endereco.estado}
-              </p>
-              
-              <p className={styles['endereco-cep']}>
-                CEP: {endereco.cep}
-              </p>
+
+              <div className={styles['endereco-info']}>
+                <div className={styles['endereco-header']}>
+                  <span className={styles['endereco-tipo']}>
+                    {endereco.tipo === 'cobranca' ? 'Cobrança' : endereco.tipo === 'entrega' ? 'Entrega' : 'Ambos'}
+                  </span>
+                  {endereco.principal && (
+                    <span className={styles['principal-badge']}>Principal</span>
+                  )}
+                </div>
+
+                <p className={styles['endereco-logradouro']}>
+                  {endereco.logradouro}, {endereco.numero}
+                  {endereco.complemento && ` - ${endereco.complemento}`}
+                </p>
+
+                <p className={styles['endereco-complemento']}>
+                  {endereco.bairro} - {endereco.cidade}/{endereco.estado}
+                </p>
+
+                <p className={styles['endereco-cep']}>
+                  CEP: {endereco.cep}
+                </p>
+              </div>
+
+              {isSel && (
+                <div className={styles['check-indicator']} aria-hidden="true">
+                  <Check size={20} strokeWidth={2.5} />
+                </div>
+              )}
             </div>
+
+            {onEdit && (
+              <div className={styles['endereco-actions']}>
+                <button
+                  className={styles['action-btn']}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(endereco.uuid);
+                  }}
+                  data-cy={`checkout-address-edit-${endereco.uuid}`}
+                >
+                  Editar
+                </button>
+              </div>
+            )}
           </div>
-          
-          {onEdit && (
-            <div className={styles['endereco-actions']}>
-              <button
-                className={styles['action-btn']}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(endereco.uuid);
-                }}
-                data-cy={`checkout-address-edit-${endereco.uuid}`}
-              >
-                Editar
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

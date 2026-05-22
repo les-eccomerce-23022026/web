@@ -15,6 +15,8 @@ interface ModalProps {
 
 export const Modal = ({ isOpen, onClose, title, children, footer, variant = 'default' }: ModalProps) => {
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       return () => {

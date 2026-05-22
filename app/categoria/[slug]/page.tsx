@@ -26,7 +26,7 @@ export default async function CategoriaPage({ params }: PageProps) {
     pagina: 1,
     itensPorPagina: 10,
     categoria: slug
-  });
+  }, 'http://127.0.0.1:3000/api');
 
   if (!catalogo) {
     return (

@@ -64,7 +64,7 @@ export const GerenciarPedidos = () => {
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-cy="pedidos-painel">
       {/* Header */}
       <div className={styles.headerSection}>
         <div>

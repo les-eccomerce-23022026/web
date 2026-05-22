@@ -85,7 +85,11 @@ export const CatalogoLivros = () => {
       <ErrorState
         title="Oops! Tivemos um problema"
         message="Não foi possível carregar o catálogo no momento. Nossa equipe já foi notificada."
-        onRetry={() => window.location.reload()}
+        onRetry={() => {
+          if (typeof window !== 'undefined') {
+            window.location.reload();
+          }
+        }}
       />
     );
   }
@@ -161,7 +165,7 @@ export const CatalogoLivros = () => {
                     <p className="cartao-livro__preco">R$ {book.preco.toFixed(2).replace('.', ',')}</p>
                   </div>
                   <div className="cartao-livro__acao" onClick={(e) => e.stopPropagation()}>
-                    <Link to={`/livro/${book.uuid}`} className="botao btn-secondary">
+                    <Link href={`/livro/${book.uuid}`} className="botao btn-secondary">
                       Ver Detalhes
                     </Link>
                     <ControlesCompra livro={book} variant="card" className="cartao-livro__linha-compra" />

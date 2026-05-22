@@ -184,6 +184,7 @@ export default function SolicitarTrocaPage() {
             onChange={(e) => setMotivo(e.target.value)}
             rows={4}
             placeholder="Descreva o motivo da troca..."
+            maxLength={500}
           />
         </div>
 

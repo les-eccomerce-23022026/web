@@ -3,6 +3,11 @@ import type { ChangeEvent } from 'react';
 import styles from './CartaoCreditoForm.style.module.css';
 
 type Props = {
+  touched: Record<string, boolean>;
+  handleCampoTocado: (campo: string) => void;
+  validacaoNumero: { error: string | null };
+  validacaoValidade: { error: string | null };
+  validacaoCvv: { error: string | null };
   numero: string;
   nomeTitular: string;
   validade: string;
@@ -19,6 +24,11 @@ type Props = {
 };
 
 export const CartaoCreditoFormCampos = ({
+  touched,
+  handleCampoTocado,
+  validacaoNumero,
+  validacaoValidade,
+  validacaoCvv,
   numero,
   nomeTitular,
   validade,
@@ -43,11 +53,17 @@ export const CartaoCreditoFormCampos = ({
             type="text"
             value={numero}
             onChange={onNumeroChange}
+            onBlur={() => handleCampoTocado('numero')}
             placeholder="0000 0000 0000 0000"
             maxLength={23}
             required
             data-cy="checkout-card-number-input"
           />
+          {(touched.numero && validacaoNumero.error) && (
+            <p className={styles['error-message']}>
+              {validacaoNumero.error}
+            </p>
+          )}
           {bandeiraDetectada ? (
             <span className={styles['bandeira-badge']} data-cy="checkout-card-brand">
               {bandeiraDetectada}
@@ -63,6 +79,7 @@ export const CartaoCreditoFormCampos = ({
           type="text"
           value={nomeTitular}
           onChange={onNomeChange}
+          onBlur={() => handleCampoTocado('nomeTitular')}
           placeholder="NOME DO TITULAR"
           required
           data-cy="checkout-card-name-input"
@@ -77,11 +94,17 @@ export const CartaoCreditoFormCampos = ({
             type="text"
             value={validade}
             onChange={onValidadeChange}
+            onBlur={() => handleCampoTocado('validade')}
             placeholder="MM/AA"
             maxLength={5}
             required
             data-cy="checkout-card-expiry-input"
           />
+          {(touched.validade && validacaoValidade.error) && (
+            <p className={styles['error-message']}>
+              {validacaoValidade.error}
+            </p>
+          )}
         </div>
 
         <div className={styles['form-group']}>
@@ -92,11 +115,17 @@ export const CartaoCreditoFormCampos = ({
               type={mostrarCvv ? 'text' : 'password'}
               value={cvv}
               onChange={onCvvChange}
+              onBlur={() => handleCampoTocado('cvv')}
               placeholder={cvvPlaceholder}
               maxLength={cvvMaxLength}
               required
               data-cy="checkout-card-cvv-input"
             />
+            {(touched.cvv && validacaoCvv.error) && (
+              <p className={styles['error-message']}>
+                {validacaoCvv.error}
+              </p>
+            )}
             <button
               type="button"
               className={styles['toggle-cvv']}

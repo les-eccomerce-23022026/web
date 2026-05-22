@@ -42,7 +42,7 @@ export const CarrinhoResumo = ({
       <hr className="carrinho-total-separator" />
       <h2 className="carrinho-total-header">Total: R$ {total.toFixed(2).replace('.', ',')}</h2>
 
-      <Link href="/pagamento">
+      <Link href="/checkout">
         <button
           className="btn-primary carrinho-btn-finalizar"
           data-cy="carrinho-finalizar-compra"

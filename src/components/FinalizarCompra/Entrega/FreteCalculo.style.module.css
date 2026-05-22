@@ -75,6 +75,37 @@
   color: var(--error-color, #c00);
 }
 
+.validacao-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--error-color, #c00);
+  animation: fadeIn 0.2s ease-in;
+}
+
+.validacao-sucesso {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8125rem;
+  color: var(--success-color, #090);
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .loading-bar {
   width: 100%;
   height: 4px;
@@ -148,6 +179,27 @@
   align-items: center;
   gap: 1rem;
   flex: 1;
+  position: relative;
+}
+
+.check-indicator {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color, #0066cc);
+  animation: checkPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes checkPop {
+  0% {
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+  }
 }
 
 .opcao-tipo {

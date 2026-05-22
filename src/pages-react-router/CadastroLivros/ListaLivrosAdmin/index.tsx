@@ -29,7 +29,11 @@ function ListaLivrosAdmin() {
   const [justificativaCategoria, setJustificativaCategoria] = useState('');
 
   if (loading) return <LoadingState message="Buscando catálogo de livros..." />;
-  if (error) return <ErrorState message="Não foi possível carregar a lista de livros." onRetry={() => window.location.reload()} />;
+  if (error) return <ErrorState message="Não foi possível carregar a lista de livros." onRetry={() => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  }} />;
 
   const solicitarTrocaStatus = (uuid: string) => {
     setLivroPendenteStatus(uuid);

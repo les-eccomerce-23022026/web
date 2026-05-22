@@ -8,6 +8,11 @@ import { detectarAmex, obterConfiguracaoCvv } from './cartaoCreditoFormViewUtils
 
 type Props = {
   erros: string[];
+  touched: Record<string, boolean>;
+  handleCampoTocado: (campo: string) => void;
+  validacaoNumero: { error: string | null };
+  validacaoValidade: { error: string | null };
+  validacaoCvv: { error: string | null };
   numero: string;
   nomeTitular: string;
   validade: string;
@@ -54,6 +59,11 @@ const SalvarCartaoCheckboxBlock = ({
 
 export const CartaoCreditoFormView = ({
   erros,
+  touched,
+  handleCampoTocado,
+  validacaoNumero,
+  validacaoValidade,
+  validacaoCvv,
   numero,
   nomeTitular,
   validade,
@@ -83,6 +93,11 @@ export const CartaoCreditoFormView = ({
       <CartaoCreditoFormErros erros={erros} />
 
       <CartaoCreditoFormCampos
+        touched={touched}
+        handleCampoTocado={handleCampoTocado}
+        validacaoNumero={validacaoNumero}
+        validacaoValidade={validacaoValidade}
+        validacaoCvv={validacaoCvv}
         numero={numero}
         nomeTitular={nomeTitular}
         validade={validade}

@@ -11,7 +11,9 @@ import type { LinhaPagamentoCheckout } from '../../../types/checkout';
 type Props = {
   data: ICheckoutInfo;
   enderecoSelecionado: string | null;
+  enderecoCobrancaSelecionado?: string | null;
   onSelectEndereco: (uuid: string | null) => void;
+  onSelectEnderecoCobranca?: (uuid: string | null) => void;
   entregaParaFreteCalculo: FreteCalculoEntregaApi;
   freteSelecionado: IFreteOpcao | null;
   onFreteSelecionado: (frete: IFreteOpcao) => void;
@@ -34,7 +36,9 @@ export const FinalizarCompraColunaPrincipal = (p: Props) => (
     <FinalizarCompraEnderecoCard
       data={p.data}
       enderecoSelecionado={p.enderecoSelecionado}
+      enderecoCobrancaSelecionado={p.enderecoCobrancaSelecionado}
       onSelectEndereco={p.onSelectEndereco}
+      onSelectEnderecoCobranca={p.onSelectEnderecoCobranca}
     />
     <FinalizarCompraFreteCard
       entregaParaFreteCalculo={p.entregaParaFreteCalculo}

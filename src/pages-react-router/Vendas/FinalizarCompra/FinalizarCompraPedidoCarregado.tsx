@@ -30,6 +30,8 @@ type Props = {
   carrinho: ICarrinho | null | undefined;
   enderecoSelecionado: string | null;
   setEnderecoSelecionado: (v: string | null) => void;
+  enderecoCobrancaSelecionado?: string | null;
+  setEnderecoCobrancaSelecionado?: (v: string | null) => void;
 };
 
 export const FinalizarCompraPedidoCarregado = ({
@@ -38,6 +40,8 @@ export const FinalizarCompraPedidoCarregado = ({
   carrinho,
   enderecoSelecionado,
   setEnderecoSelecionado,
+  enderecoCobrancaSelecionado,
+  setEnderecoCobrancaSelecionado,
 }: Props) => {
   const {
     finalizando,
@@ -172,7 +176,9 @@ export const FinalizarCompraPedidoCarregado = ({
         <FinalizarCompraColunaPrincipal
           data={data}
           enderecoSelecionado={enderecoSelecionado}
+          enderecoCobrancaSelecionado={enderecoCobrancaSelecionado}
           onSelectEndereco={setEnderecoSelecionado}
+          onSelectEnderecoCobranca={setEnderecoCobrancaSelecionado}
           entregaParaFreteCalculo={entregaParaFreteCalculo}
           freteSelecionado={freteSelecionado}
           onFreteSelecionado={selecionarFrete}

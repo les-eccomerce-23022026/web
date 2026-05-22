@@ -12,6 +12,7 @@ export interface ICatalogoLivrosResposta {
 export interface ICategoriaMenu {
   slug: string;
   nome: string;
+  contadorProdutos: number;
 }
 
 export interface IFiltroCatalogoLivros {

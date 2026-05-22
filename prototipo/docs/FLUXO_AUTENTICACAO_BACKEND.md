@@ -137,7 +137,7 @@ Sendo o cadastro público exclusivamente dedicado à criação de clientes, a l�
 - Esta funcionalidade acontecerá em uma rota fechada (ex: `POST /api/admin/registro`) e exigirá a apresentação de um Token JWT válido com a claim de `role: "admin"` provida através do header `Authorization` na requisição.
 - O frontend deve enviar `Authorization: Bearer <token>` e o backend deve validar a role via token.
 - Mesmo na rota de admin, prefira que o backend **force** `role = "admin"` (não confiar em `role` enviada no body).
-- Alternativamente, o primeiro admin do sistema (Administrador Mestre) será cadastrado manualmente via script de inicialização do Banco de Dados (Seeders / DML Executado na base de Produção).
+- Alternativamente, os administradores do sistema serão cadastrados via script de inicialização do Banco de Dados (Seeders / DML Executado na base de Produção).
 
 ---
 

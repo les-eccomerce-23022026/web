@@ -1,4 +1,4 @@
-import { MapPin } from 'lucide-react';
+import { MapPin, AlertCircle, CheckCircle } from 'lucide-react';
 import styles from './FreteCalculo.style.module.css';
 
 interface FreteCepInputProps {
@@ -18,6 +18,28 @@ export const FreteCepInput = ({
   onKeyPress,
   error
 }: FreteCepInputProps) => {
+  const validarCEP = (valor: string): { valido: boolean; mensagem?: string } => {
+    const cepLimpo = valor.replace(/\D/g, '');
+    if (cepLimpo.length === 0) return { valido: true };
+    if (cepLimpo.length < 8) return { valido: false, mensagem: 'CEP deve ter 8 dígitos' };
+    if (!/^\d{8}$/.test(cepLimpo)) return { valido: false, mensagem: 'CEP inválido' };
+    return { valido: true };
+  };
+
+  const validacao = validarCEP(cep);
+  const mostrarValidacao = cep.length > 0 && !loading;
+
+  const formatarCEP = (valor: string): string => {
+    const cepLimpo = valor.replace(/\D/g, '');
+    if (cepLimpo.length <= 5) return cepLimpo;
+    return `${cepLimpo.slice(0, 5)}-${cepLimpo.slice(5, 9)}`;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valorFormatado = formatarCEP(e.target.value);
+    onCepChange(valorFormatado);
+  };
+
   return (
     <div className={styles['cep-input-wrapper']}>
       <div className={styles['cep-input-group']}>
@@ -28,10 +50,12 @@ export const FreteCepInput = ({
               id="cep-destino"
               type="text"
               value={cep}
-              onChange={(e) => onCepChange(e.target.value)}
+              onChange={handleChange}
               onKeyPress={onKeyPress}
               placeholder="00000-000"
               maxLength={9}
+              aria-invalid={!validacao.valido}
+              aria-describedby={validacao.mensagem ? 'cep-erro' : undefined}
               data-cy="checkout-freight-zip-input"
             />
             <MapPin size={18} className={styles['cep-icon']} />
@@ -41,13 +65,27 @@ export const FreteCepInput = ({
           type="button"
           className="btn-secondary"
           onClick={() => void onCalcular()}
-          disabled={loading}
+          disabled={loading || !validacao.valido}
           aria-busy={loading}
           data-cy="checkout-freight-calculate-button"
         >
           Calcular
         </button>
       </div>
+
+      {mostrarValidacao && !validacao.valido && validacao.mensagem && (
+        <div className={styles['validacao-inline']} role="alert" id="cep-erro">
+          <AlertCircle size={14} />
+          <span>{validacao.mensagem}</span>
+        </div>
+      )}
+
+      {mostrarValidacao && validacao.valido && cep.length === 9 && (
+        <div className={styles['validacao-sucesso']} role="status">
+          <CheckCircle size={14} />
+          <span>CEP válido</span>
+        </div>
+      )}
 
       {loading && (
         <div className={styles['loading-bar']} role="status" aria-label="Calculando frete">

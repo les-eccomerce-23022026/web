@@ -30,6 +30,8 @@ export function usePagamentoPixModel() {
   const finalizacaoEmAndamento = useRef(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const p = lerCheckoutPixPendente();
     if (!p || p.vendaUuid !== vendaQuery) {
       setErro('Sessão de pagamento PIX inválida ou expirada. Refaça o checkout.');
@@ -59,7 +61,7 @@ export function usePagamentoPixModel() {
   const pagamentoFalhou = useMemo(() => isPagamentoFalhou(resumo), [resumo]);
 
   useEffect(() => {
-    if (!payload || pagamentoFalhou) return;
+    if (!payload || pagamentoFalhou || typeof window === 'undefined') return;
 
     let cancelled = false;
 
@@ -89,11 +91,18 @@ export function usePagamentoPixModel() {
   }, [payload, finalizarAposPagamento, pagamentoFalhou]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const id = window.setInterval(() => setNowMs(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, []);
 
   const copiar = useCallback(async (texto: string, idx: number) => {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      setErro('Não foi possível copiar. Copie manualmente.');
+      return;
+    }
+    
     try {
       await navigator.clipboard.writeText(texto);
       setCopiadoIdx(idx);

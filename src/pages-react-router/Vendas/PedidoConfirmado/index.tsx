@@ -1,4 +1,5 @@
 import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './style.module.css';
 
@@ -9,6 +10,13 @@ import styles from './style.module.css';
 export const PedidoConfirmado = () => {
   const searchParams = useSearchParams();
   const pedidoUuid = searchParams.get('pedido');
+  const [dataAtual, setDataAtual] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setDataAtual(new Date().toLocaleDateString('pt-BR'));
+    }
+  }, []);
 
   return (
     <div className={styles['confirmado-page']}>
@@ -23,7 +31,7 @@ export const PedidoConfirmado = () => {
 
         <div className={styles['confirmado-info']}>
           <p><strong>Número do Pedido:</strong> {pedidoUuid}</p>
-          <p><strong>Data:</strong> {new Date().toLocaleDateString('pt-BR')}</p>
+          <p><strong>Data:</strong> {dataAtual}</p>
           <p><strong>Status Atual:</strong> EM PROCESSAMENTO</p>
           <p>
             Você receberá atualizações sobre o status do seu pedido.

@@ -1,4 +1,5 @@
 import type { IFreteOpcao } from '@/interfaces/entrega';
+import { Check } from 'lucide-react';
 import { formatarValorFrete } from './freteCalculoUtils';
 import styles from './FreteCalculo.style.module.css';
 
@@ -13,6 +14,9 @@ export const FreteOpcaoItem = ({ opcao, selecionado, onSelecionar }: FreteOpcaoI
     <div
       className={`${styles['opcao-frete']} ${selecionado ? styles['selecionado'] : ''}`}
       onClick={() => onSelecionar(opcao)}
+      role="radio"
+      aria-checked={selecionado}
+      aria-label={`Opção de frete ${opcao.tipo}, prazo ${opcao.prazo}, valor ${opcao.valor === 0 ? 'grátis' : formatarValorFrete(opcao.valor)}. ${selecionado ? 'Selecionado' : 'Não selecionado'}`}
       data-cy={`checkout-freight-option-${opcao.tipo}`}
       data-selected={selecionado}
     >
@@ -32,6 +36,12 @@ export const FreteOpcaoItem = ({ opcao, selecionado, onSelecionar }: FreteOpcaoI
             <span>R$ {formatarValorFrete(opcao.valor)}</span>
           )}
         </div>
+
+        {selecionado && (
+          <div className={styles['check-indicator']} aria-hidden="true">
+            <Check size={20} strokeWidth={2.5} />
+          </div>
+        )}
       </div>
     </div>
   );

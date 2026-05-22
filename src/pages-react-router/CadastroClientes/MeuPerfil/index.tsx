@@ -141,6 +141,7 @@ function MeuPerfil() {
                 onFocus={() => nomeMask.onFocus(true)}
                 onBlur={() => nomeMask.onBlur(cliente?.nome || '')}
                 placeholder="Seu nome completo"
+                maxLength={100}
               />
             </div>
           </div>
@@ -418,6 +419,7 @@ function MeuPerfil() {
                     onChange={(e) =>
                       enderecoState.setNovoEndCep(e.target.value)
                     }
+                    maxLength={9}
                   />
                 </div>
               </div>

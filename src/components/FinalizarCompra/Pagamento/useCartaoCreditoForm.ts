@@ -2,8 +2,11 @@ import { useState, useMemo, useCallback, type ChangeEvent, type FormEvent } from
 import {
   detectarBandeira,
   validarCamposFormularioCartaoCredito,
+  validarNumeroCartao,
+  validarValidadeMmAa,
 } from '@/utils/cartaoValidacao';
 import type { ICartaoCreditoInput } from '@/interfaces/pagamento';
+import { useDebounceValidation } from '@/hooks/useDebounceValidation';
 
 export function useCartaoCreditoForm(
   bandeirasPermitidas: string[],
@@ -17,6 +20,39 @@ export function useCartaoCreditoForm(
   const [salvar, setSalvar] = useState(salvarCartaoInicial);
   const [mostrarCvv, setMostrarCvv] = useState(false);
   const [erros, setErros] = useState<string[]>([]);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Validação com debounce para número do cartão
+  const validacaoNumero = useDebounceValidation<string>({
+    validationFn: (num) => {
+      const numeroLimpo = num.replace(/\D/g, '');
+      const errosNum = validarNumeroCartao(numeroLimpo);
+      return errosNum.length > 0 ? errosNum[0] : null;
+    },
+    delay: 300,
+  });
+
+  // Validação com debounce para validade
+  const validacaoValidade = useDebounceValidation<string>({
+    validationFn: (val) => {
+      const errosVal = validarValidadeMmAa(val);
+      return errosVal.length > 0 ? errosVal[0] : null;
+    },
+    delay: 300,
+  });
+
+  // Validação com debounce para CVV
+  const validacaoCvv = useDebounceValidation<string>({
+    validationFn: (cvvVal) => {
+      const cvvLimpo = cvvVal.replace(/\D/g, '');
+      const cvvMax = bandeiraDetectada === 'American Express' ? 4 : 3;
+      if (cvvLimpo.length !== cvvMax && cvvLimpo.length > 0) {
+        return `CVV deve ter ${cvvMax} dígitos`;
+      }
+      return null;
+    },
+    delay: 300,
+  });
 
   const bandeiraDetectada = useMemo(() => detectarBandeira(numero), [numero]);
 
@@ -28,7 +64,8 @@ export function useCartaoCreditoForm(
     valor = valor.replace(/(\d{4})(?=\d)/g, '$1 ');
     setNumero(valor);
     setErros([]);
-  }, []);
+    validacaoNumero.validate(valor);
+  }, [validacaoNumero]);
 
   const handleValidadeChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     let valor = e.target.value.replace(/\D/g, '');
@@ -40,7 +77,8 @@ export function useCartaoCreditoForm(
     }
     setValidade(valor);
     setErros([]);
-  }, []);
+    validacaoValidade.validate(valor);
+  }, [validacaoValidade]);
 
   const handleCvvChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -51,8 +89,9 @@ export function useCartaoCreditoForm(
       }
       setCvv(valor);
       setErros([]);
+      validacaoCvv.validate(valor);
     },
-    [bandeiraDetectada],
+    [bandeiraDetectada, validacaoCvv],
   );
 
   const validarFormulario = useCallback((): boolean => {
@@ -86,6 +125,10 @@ export function useCartaoCreditoForm(
     [validarFormulario, onSubmit, numero, nomeTitular, validade, cvv, bandeiraDetectada, salvar],
   );
 
+  const handleCampoTocado = useCallback((campo: string) => {
+    setTouched((prev) => ({ ...prev, [campo]: true }));
+  }, []);
+
   return {
     numero,
     nomeTitular,
@@ -97,7 +140,12 @@ export function useCartaoCreditoForm(
     mostrarCvv,
     setMostrarCvv,
     erros,
+    touched,
+    handleCampoTocado,
     bandeiraDetectada,
+    validacaoNumero,
+    validacaoValidade,
+    validacaoCvv,
     handleNumeroChange,
     handleValidadeChange,
     handleCvvChange,
