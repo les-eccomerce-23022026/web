@@ -8,18 +8,64 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutSession } from '@/store/slices/authSlice';
 import { setTermoBusca } from '@/store/slices/livroSlice';
 import styles from '@/components/Comum/Header/style.module.css';
+import { STORE_INSTANCE_ID } from '@/store/index';
 
 export const Header = () => {
+  const [mounted, setMounted] = useState(false);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Evita hydration mismatch: SSR e 1ª pintura do cliente usam UI de visitante
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
   const carrinho = useAppSelector((state) => state.carrinho.data);
   const termoStore = useAppSelector((state) => state.livro.termoBusca);
   const [inputValue, setInputValue] = useState(termoStore);
 
   const quantidadeItens = carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) || 0;
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, sessionLoading } = useAppSelector((state) => state.auth);
   const categoriasMenu = useAppSelector((state) => state.livro.categoriasMenu);
+  const exibirAutenticado = mounted && isAuthenticated;
+
+  // #region agent log
+  if (typeof fetch !== 'undefined') {
+    fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8ec46' },
+      body: JSON.stringify({
+        sessionId: 'a8ec46',
+        runId: 'post-fix',
+        hypothesisId: 'A,C',
+        location: 'Header/index.tsx:render',
+        message: 'Header render auth snapshot',
+        data: {
+          storeInstanceId: STORE_INSTANCE_ID,
+          isServer: typeof window === 'undefined',
+          mounted,
+          isAuthenticated,
+          exibirAutenticado,
+          userNome: user?.nome ?? null,
+          sessionLoading,
+          pathname,
+          uiBranch: exibirAutenticado ? 'authenticated' : 'guest',
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+  }
+  // #endregion
+
+  // Debug hydration mismatch
+  useEffect(() => {
+    console.log('[Header] Renderizado');
+    console.log('[Header] isAuthenticated:', isAuthenticated);
+    console.log('[Header] user:', user);
+    console.log('[Header] sessionLoading:', sessionLoading);
+    console.log('[Header] pathname:', pathname);
+  }, [isAuthenticated, user, sessionLoading, pathname]);
 
   // Sincroniza o input com o store caso mude externamente (ex: limpando pesquisa)
   useEffect(() => {
@@ -67,7 +113,7 @@ export const Header = () => {
           </form>
 
           <div className={styles['header-actions']}>
-            {isAuthenticated ? (
+            {exibirAutenticado ? (
               <>
                 <Link href="/minha-conta" className={styles['action-icon']} data-cy="header-user-profile" title={`Olá, ${user?.nome}`}>
                   <User size={22} strokeWidth={2} />
@@ -98,7 +144,7 @@ export const Header = () => {
               )}
             </Link>
 
-            {user?.role === 'admin' && (
+            {mounted && user?.role === 'admin' && (
               <Link href="/admin" className={`${styles['action-icon']} ${styles['admin-icon']}`} data-cy="header-admin-link" title="Administração">
                 <ShieldCheck size={22} strokeWidth={2} />
               </Link>

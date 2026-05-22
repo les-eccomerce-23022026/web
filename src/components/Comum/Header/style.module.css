@@ -173,6 +173,39 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.notifications-container {
+  position: relative;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: var(--bn-error);
+  color: var(--bn-text-light);
+  font-size: 10px;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid var(--bn-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 .admin-icon {
   color: var(--bn-secondary);
 }
@@ -216,6 +249,27 @@
 .nav-links .nav-link-highlight:hover {
   color: #a02622;
   border-bottom: 2px solid #a02622;
+}
+
+.nav-link-with-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.category-count {
+  background-color: var(--bn-secondary);
+  color: var(--bn-text-main);
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
 }
 
 /* --- Responsividade Mobile-First --- */

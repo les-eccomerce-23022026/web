@@ -8,6 +8,7 @@ import livroReducer from './slices/livroSlice';
 import pedidoReducer from './slices/pedidoSlice';
 import clienteReducer from './slices/clienteSlice';
 import cotacaoFreteReducer from './slices/cotacaoFreteSlice';
+import notificacoesReducer from './slices/notificacoesSlice';
 
 // Configuração de persistência para Next.js
 const persistConfig = {
@@ -27,9 +28,12 @@ const rootReducer = combineReducers({
   livro: livroReducer,
   pedido: pedidoReducer,
   cliente: clienteReducer,
+  notificacoes: notificacoesReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const STORE_INSTANCE_ID = `${typeof window === 'undefined' ? 'srv' : 'cli'}-${Math.random().toString(36).slice(2, 9)}`;
 
 export const store = configureStore({
   reducer: persistedReducer,
@@ -42,6 +46,31 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
+
+// #region agent log
+if (typeof fetch !== 'undefined') {
+  const auth = store.getState().auth;
+  fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8ec46' },
+    body: JSON.stringify({
+      sessionId: 'a8ec46',
+      runId: 'post-fix',
+      hypothesisId: 'A',
+      location: 'store/index.ts:store-created',
+      message: 'Redux store created',
+      data: {
+        storeInstanceId: STORE_INSTANCE_ID,
+        isServer: typeof window === 'undefined',
+        authIsAuthenticated: auth.isAuthenticated,
+        authUserNome: auth.user?.nome ?? null,
+        authSessionLoading: auth.sessionLoading,
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+}
+// #endregion
 
 // Debug: Log persistência (apenas em desenvolvimento)
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {

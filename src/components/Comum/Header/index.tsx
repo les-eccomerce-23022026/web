@@ -1,10 +1,13 @@
+'use client';
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Search, User, LogOut, ShoppingCart, ShieldCheck, Package } from "lucide-react";
+import { Search, User, LogOut, ShoppingCart, ShieldCheck, Package, Bell } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logoutSession } from "@/store/slices/authSlice";
 import { setTermoBusca } from "@/store/slices/livroSlice";
+import { useNotificacoes } from "@/hooks/useNotificacoes";
 import styles from "./Header.module.css";
 
 export const Header = () => {
@@ -14,10 +17,24 @@ export const Header = () => {
   const carrinho = useAppSelector(state => state.carrinho.data);
   const termoStore = useAppSelector(state => state.livro.termoBusca);
   const [inputValue, setInputValue] = useState(termoStore);
-  
-  const quantidadeItens = carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) || 0;
+  const [quantidadeItens, setQuantidadeItens] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
   const categoriasMenu = useAppSelector((state) => state.livro.categoriasMenu);
+  const { quantidadeNaoLidas } = useNotificacoes();
+
+  // Marca quando o componente montou no cliente
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Sincroniza quantidade de itens do carrinho quando muda
+  useEffect(() => {
+    if (isMounted) {
+      setQuantidadeItens(carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) || 0);
+    }
+  }, [carrinho, isMounted]);
 
   // Sincroniza o input com o store caso mude externamente (ex: limpando pesquisa)
   useEffect(() => {
@@ -76,6 +93,12 @@ export const Header = () => {
                 <Link href="/pedidos" className={styles['action-icon']} data-cy="header-pedidos-link" title="Meus Pedidos">
                   <Package size={22} strokeWidth={2} />
                 </Link>
+                <Link href="/notificacoes" className={`${styles['action-icon']} ${styles['notifications-container']}`} data-cy="header-notificacoes-link" title="Notificações">
+                  <Bell size={22} strokeWidth={2} />
+                  {quantidadeNaoLidas > 0 && (
+                    <span className={styles['notification-badge']} suppressHydrationWarning>{quantidadeNaoLidas}</span>
+                  )}
+                </Link>
                 <button 
                   className={`${styles['action-icon']} ${styles['logout-btn']}`} 
                   type="button"
@@ -92,9 +115,9 @@ export const Header = () => {
               </Link>
             )}
             
-            <Link href="/carrinho" className={`${styles['action-icon']} ${styles['cart-container']}`} data-cy="header-cart-link" title="Carrinho">
+            <Link href="/carrinho" className={`${styles['action-icon']} ${styles['cart-container']}`} data-cy="header-cart-link" title="Carrinho" suppressHydrationWarning>
               <ShoppingCart size={22} strokeWidth={2} />
-              {quantidadeItens > 0 && (
+              {isMounted && quantidadeItens > 0 && (
                 <span className={styles['cart-badge']}>{quantidadeItens}</span>
               )}
             </Link>
@@ -112,8 +135,9 @@ export const Header = () => {
       <nav className={styles['header-nav']}>
         <div className={`container ${styles['nav-links']}`}>
           {categoriasMenu.map((c) => (
-            <Link key={c.slug} href={`/categoria/${c.slug}`}>
+            <Link key={c.slug} href={`/categoria/${c.slug}`} className={styles['nav-link-with-count']}>
               {c.nome}
+              <span className={styles['category-count']}>{c.contadorProdutos}</span>
             </Link>
           ))}
           <Link href="/mais-vendidos" className={styles['header-link']}>
