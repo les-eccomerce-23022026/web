@@ -28,7 +28,7 @@ export const API_ENDPOINTS = {
   // Pedidos (histórico do cliente — backend: GET /minhas-vendas)
   obterPedidosCliente: `${BASE_URL}/minhas-vendas`,
   solicitarTroca: (pedidoUuid: string) =>
-    `${BASE_URL}/pedidos/${pedidoUuid}/troca`,
+    `${BASE_URL}/vendas/${pedidoUuid}/troca`,
 
   // Trocas (Admin)
   obterPedidosEmTroca: `${BASE_URL}/admin/trocas`,
@@ -64,6 +64,7 @@ export const API_ENDPOINTS = {
   // Autenticação
   login: `${BASE_URL}/auth/login`,
   logout: `${BASE_URL}/auth/logout`,
+  refresh: `${BASE_URL}/auth/refresh`,
   /** GET /auth/me — cookie HttpOnly ou Bearer (testes); devolve o usuário autenticado. */
   me: `${BASE_URL}/auth/me`,
   registrarCliente: `${BASE_URL}/clientes/registro`,
