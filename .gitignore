@@ -36,6 +36,9 @@ cypress.env.json
 AGENTS.md
 CHANGES.md
 .agents
+.windsurf
+.cursor
+.gemini
 *.txt
 
 *.log
