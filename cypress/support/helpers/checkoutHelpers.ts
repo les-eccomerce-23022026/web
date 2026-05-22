@@ -7,12 +7,19 @@
 
 /**
  * Headers para requests autenticados com banco de testes
+ * Inclui token JWT no header Authorization quando disponível (para chamadas API via cy.request)
  */
 export function apiHeadersBancoTestes(): Record<string, string> {
   const useTestDb = Cypress.env('injectTestDbHeader') === true;
-  return {
+  const authToken = Cypress.env('authToken') as string | undefined;
+  const headers: Record<string, string> = {
     ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
   };
+  // Incluir token no header Authorization para chamadas API subsequentes
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+  return headers;
 }
 
 /** Headers de API com loja padrão do seed (multi-tenancy / loj_id no carrinho). */
@@ -83,14 +90,16 @@ export function selecionarCartaoPorUltimosDigitos(ultimosDigitos: string) {
 /**
  * Clica em um elemento com retry e scrollIntoView
  * Reduz flaky tests devido a problemas de timing
+ * Lock: aguarda elemento estar estável e clicável antes de interagir
  */
 export function clicarElementoSeguro(seletor: string, options?: { timeout?: number }) {
   const timeout = options?.timeout || 10000;
   
   cy.get(seletor, { timeout })
     .should('exist')
-    .scrollIntoView()
     .should('be.visible')
+    .should('not.be.disabled')
+    .scrollIntoView()
     .click({ force: true });
 }
 
@@ -108,6 +117,7 @@ export function aguardarElementoClicavel(seletor: string, options?: { timeout?: 
 
 /**
  * Preenche um campo de input com retry
+ * Lock: aguarda campo estar estável antes de digitar
  */
 export function preencherCampoSeguro(seletor: string, valor: string, options?: { timeout?: number }) {
   const timeout = options?.timeout || 10000;
@@ -117,7 +127,7 @@ export function preencherCampoSeguro(seletor: string, valor: string, options?: {
     .should('be.visible')
     .scrollIntoView()
     .clear()
-    .type(valor);
+    .type(valor, { delay: 50 });
 }
 
 /**
@@ -136,6 +146,23 @@ export function validarRestanteOk() {
 export function validarRestanteAjuste() {
   cy.get('[data-cy="checkout-split-restante"]')
     .should('contain', 'Ajuste');
+}
+
+/** Converte texto monetário BR (ex.: "R$ 123,45") em número. */
+export function parseMoedaBrParaNumero(texto: string): number {
+  const limpo = texto.replace(/[^\d,.-]/g, '').trim();
+  if (!limpo) return 0;
+  const normalizado = limpo.includes(',')
+    ? limpo.replace(/\./g, '').replace(',', '.')
+    : limpo;
+  const n = parseFloat(normalizado);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** Extrai o total após cupons do texto E2E em `checkout-split-restante`. */
+export function extrairTotalAposCuponsDoRestante(texto: string): number {
+  const m = texto.match(/Total[^R]*R\$\s*([\d.,]+)/i);
+  return m ? parseMoedaBrParaNumero(m[1]) : 0;
 }
 
 /**

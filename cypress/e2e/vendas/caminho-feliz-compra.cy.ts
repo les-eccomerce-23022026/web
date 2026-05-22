@@ -77,12 +77,22 @@ describe('Vendas — Caminho Feliz da Compra', () => {
         .scrollIntoView()
         .click();
 
+      cy.log('**UX CHECK: Verificar micro-interações de seleção**');
+      cy.get('[data-cy^="checkout-card-item-"]').first().should('have.attr', 'aria-pressed', 'true');
+      cy.log('✅ Micro-interação de cartão: aria-pressed=true confirmado');
+
       cy.log('**Finalização: Registro do Pedido no Backend**');
       cy.get('[data-cy="checkout-finish-button"]')
         .should('be.visible')
         .should('not.be.disabled')
         .scrollIntoView()
         .click();
+
+      cy.log('**UX CHECK: Verificar feedback intermediário (loading no botão)**');
+      cy.get('[data-cy="checkout-finish-button"]')
+        .should('have.attr', 'aria-busy', 'true')
+        .should('contain', 'Processando...');
+      cy.log('✅ Feedback intermediário: botão em estado de loading confirmado');
 
       /* ---------- Cadeia de waits espelhando a ordem real de chamadas ---------- */
 

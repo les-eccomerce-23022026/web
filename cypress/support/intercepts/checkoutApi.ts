@@ -14,7 +14,21 @@ export function registerCheckoutApiAliases(): void {
   cy.intercept('GET', '**/pagamento/info', (req) => {
     if (verbose) console.log('[e2e] intercept pagamento/info req →', req.url);
     req.continue((res) => {
-      if (verbose) console.log('[e2e] intercept pagamento/info res ←', res.statusCode, req.url);
+      const body = res.body as { cartoesCliente?: unknown[]; enderecosCliente?: unknown[] } | undefined;
+      const qtdCartoes = Array.isArray(body?.cartoesCliente) ? body.cartoesCliente.length : 0;
+      const qtdEnderecos = Array.isArray(body?.enderecosCliente) ? body.enderecosCliente.length : 0;
+      if (verbose) {
+        console.log(
+          '[e2e] intercept pagamento/info res ←',
+          res.statusCode,
+          `cartoes=${qtdCartoes}`,
+          `enderecos=${qtdEnderecos}`,
+          req.url,
+        );
+      }
+      if (res.statusCode !== 200) {
+        console.warn('[e2e:lock] GET pagamento/info falhou:', res.statusCode, JSON.stringify(body));
+      }
     });
   }).as('pagamentoInfo');
 

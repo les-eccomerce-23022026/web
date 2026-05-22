@@ -5,29 +5,25 @@ export class RegisterPage {
   static get emailInput() { return cy.getDataCy('register-email-input'); }
   static get nascimentoInput() { return cy.getDataCy('register-nascimento-input'); }
   static get senhaInput() { return cy.getDataCy('register-senha-input'); }
-  static get senhaToggle() { return cy.getDataCy('register-password-toggle'); }
-  static get confirmacaoSenhaInput() { return cy.getDataCy('register-confirmacao-senha-input'); }
-  static get confirmacaoSenhaToggle() { return cy.getDataCy('register-confirm-password-toggle'); }
-  static get nextStepButton() { return cy.getDataCy('register-next-step-button'); }
+  static get senhaToggle() { return cy.get('.toggleButton').eq(0); }
+  static get confirmacaoSenhaInput() { return cy.getDataCy('register-confirmar-senha-input'); }
+  static get confirmacaoSenhaToggle() { return cy.get('.toggleButton').eq(1); }
+  static get dddInput() { return cy.getDataCy('register-ddd-input'); }
+  static get telefoneInput() { return cy.getDataCy('register-telefone-input'); }
+  static get step2NextButton() { return cy.contains('Finalizar Cadastro'); }
+  static get nextStepButton() { return cy.getDataCy('register-step1-next-button'); }
 
   // Step 2
   static get submitButton() { return cy.getDataCy('register-submit-button'); }
 
-  static fillStep1(user: { nome: string; cpf: string; email: string; senha: string; dataNascimento?: string }) {
+  static fillStep1(user: { nome: string; cpf: string; email: string; dataNascimento?: string }) {
     this.nomeInput.clear().type(user.nome);
     this.cpfInput.clear().type(user.cpf);
     this.emailInput.clear().type(user.email);
     this.nascimentoInput.clear().type(user.dataNascimento || '1990-01-01');
     
-    // DDD e Numero (seletores por label conforme vimos no teste)
-    cy.get('label').contains('DDD').parent().find('input').clear().type('11');
-    cy.get('label').contains('Número').parent().find('input').clear().type('999887766');
-
-    this.senhaInput.clear().type(user.senha);
-    this.senhaToggle.click();
-    
-    this.confirmacaoSenhaInput.clear().type(user.senha);
-    this.confirmacaoSenhaToggle.click();
+    // Gênero (selecionar opção padrão)
+    cy.getDataCy('register-genero-select').select('Masculino');
   }
 
   static fillAddress(address: { logradouro: string; numero: string; cep: string; bairro: string; cidade: string; estado: string }) {
