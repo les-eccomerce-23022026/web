@@ -20,6 +20,10 @@ export const AutenticacaoClienteWizardCadastro = ({ registerState, dominios }: P
       <p className={styles['auth-message-error']}>{registerState.regError}</p>
     )}
 
+    {registerState.regSuccess && (
+      <p className={styles['auth-message-success']}>{registerState.regSuccess}</p>
+    )}
+
     {registerState.regStep === 1 && (
       <AutenticacaoClienteCadastroPasso1 registerState={registerState} dominios={dominios} />
     )}

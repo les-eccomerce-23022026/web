@@ -3,6 +3,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import styles from './style.module.css';
 import type { AutenticacaoClienteCadastroState } from './autenticacaoClienteTypes';
 import { REGEX_SENHA_FORTE } from './autenticacaoClienteValidacao';
+import { useDebounceValidation } from '../../../hooks/useDebounceValidation';
 
 type Props = {
   registerState: AutenticacaoClienteCadastroState;
@@ -10,8 +11,42 @@ type Props = {
 
 export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
   const [errosCampo, setErrosCampo] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
+
+  // Validação com debounce para senha
+  const validacaoSenha = useDebounceValidation<string>({
+    validationFn: (senha) => {
+      if (!REGEX_SENHA_FORTE.test(senha)) {
+        return 'A senha deve conter pelo menos 8 caracteres, maiúsculas, minúsculas, números e especiais.';
+      }
+      return null;
+    },
+    delay: 300,
+  });
+
+  // Validação com debounce para confirmação de senha
+  const validacaoConfirmacaoSenha = useDebounceValidation<string>({
+    validationFn: (confirmacao) => {
+      if (registerState.regSenha !== confirmacao) {
+        return 'As senhas não coincidem.';
+      }
+      return null;
+    },
+    delay: 300,
+  });
+
+  // Validação com debounce para telefone
+  const validacaoTelefone = useDebounceValidation<{ ddd: string; numero: string }>({
+    validationFn: (telefone) => {
+      if (!telefone.ddd || !telefone.numero) {
+        return 'Telefone (DDD e Número) é obrigatório.';
+      }
+      return null;
+    },
+    delay: 300,
+  });
 
   const validarTelefone = () => {
     if (!registerState.regTelefone.ddd || !registerState.regTelefone.numero) {
@@ -46,6 +81,10 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
     }
   };
 
+  const handleCampoTocado = (campo: string) => {
+    setTouched((prev) => ({ ...prev, [campo]: true }));
+  };
+
   return (
     <div className={styles.stepContent}>
       <div className="form-group">
@@ -72,8 +111,12 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
               onChange={(e) => {
                 registerState.setRegTelefone({ ...registerState.regTelefone, ddd: e.target.value });
                 limparErroCampo('telefone');
+                validacaoTelefone.validate({ ...registerState.regTelefone, ddd: e.target.value });
               }}
-              onBlur={validarTelefone}
+              onBlur={() => {
+                handleCampoTocado('telefone');
+                validarTelefone();
+              }}
               maxLength={2}
               data-cy="register-ddd-input"
             />
@@ -86,15 +129,24 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
               onChange={(e) => {
                 registerState.setRegTelefone({ ...registerState.regTelefone, numero: e.target.value });
                 limparErroCampo('telefone');
+                validacaoTelefone.validate({ ...registerState.regTelefone, numero: e.target.value });
               }}
-              onBlur={validarTelefone}
+              onBlur={() => {
+                handleCampoTocado('telefone');
+                validarTelefone();
+              }}
               maxLength={9}
               data-cy="register-telefone-input"
             />
           </div>
         </div>
-        {errosCampo.telefone && (
-          <p className={styles['auth-message-error']} style={{ marginTop: '4px', fontSize: '12px' }}>
+        {(touched.telefone && validacaoTelefone.error) && (
+          <p className={styles['auth-message-error-field']}>
+            {validacaoTelefone.error}
+          </p>
+        )}
+        {(!touched.telefone && errosCampo.telefone) && (
+          <p className={styles['auth-message-error-field']}>
             {errosCampo.telefone}
           </p>
         )}
@@ -109,8 +161,12 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
             onChange={(e) => {
               registerState.setRegSenha(e.target.value);
               limparErroCampo('senha');
+              validacaoSenha.validate(e.target.value);
             }}
-            onBlur={validarSenha}
+            onBlur={() => {
+              handleCampoTocado('senha');
+              validarSenha();
+            }}
             className={errosCampo.senha ? styles['input-error'] : ''}
             data-cy="register-senha-input"
           />
@@ -123,8 +179,13 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
           </button>
         </div>
         <p className={styles.passwordHint}>Mín. 8 caracteres, letras maiúsculas/minúsculas, números e especiais</p>
-        {errosCampo.senha && (
-          <p className={styles['auth-message-error']} style={{ marginTop: '4px', fontSize: '12px' }}>
+        {(touched.senha && validacaoSenha.error) && (
+          <p className={styles['auth-message-error-field']}>
+            {validacaoSenha.error}
+          </p>
+        )}
+        {(!touched.senha && errosCampo.senha) && (
+          <p className={styles['auth-message-error-field']}>
             {errosCampo.senha}
           </p>
         )}
@@ -139,8 +200,12 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
             onChange={(e) => {
               registerState.setRegConfirmaSenha(e.target.value);
               limparErroCampo('confirmacaoSenha');
+              validacaoConfirmacaoSenha.validate(e.target.value);
             }}
-            onBlur={validarConfirmacaoSenha}
+            onBlur={() => {
+              handleCampoTocado('confirmacaoSenha');
+              validarConfirmacaoSenha();
+            }}
             className={errosCampo.confirmacaoSenha ? styles['input-error'] : ''}
             data-cy="register-confirmar-senha-input"
           />
@@ -152,8 +217,13 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
             {mostrarConfirmacao ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
-        {errosCampo.confirmacaoSenha && (
-          <p className={styles['auth-message-error']} style={{ marginTop: '4px', fontSize: '12px' }}>
+        {(touched.confirmacaoSenha && validacaoConfirmacaoSenha.error) && (
+          <p className={styles['auth-message-error-field']}>
+            {validacaoConfirmacaoSenha.error}
+          </p>
+        )}
+        {(!touched.confirmacaoSenha && errosCampo.confirmacaoSenha) && (
+          <p className={styles['auth-message-error-field']}>
             {errosCampo.confirmacaoSenha}
           </p>
         )}
@@ -168,11 +238,11 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
         </button>
         <button
           className={`btn-primary ${styles['login-btn-register']}`}
-          onClick={registerState.handleNextStep}
-          disabled={!!errosCampo.telefone || !!errosCampo.senha || !!errosCampo.confirmacaoSenha}
-          data-cy="register-step2-next-button"
+          onClick={registerState.handleRegister}
+          disabled={!!errosCampo.telefone || !!errosCampo.senha || !!errosCampo.confirmacaoSenha || registerState.isRegistering}
+          data-cy="register-submit-button"
         >
-          Próximo: Endereço →
+          {registerState.isRegistering ? 'Cadastrando...' : 'Finalizar Cadastro'}
         </button>
       </div>
     </div>

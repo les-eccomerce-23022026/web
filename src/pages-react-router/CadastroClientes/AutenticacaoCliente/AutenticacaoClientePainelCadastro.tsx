@@ -10,6 +10,9 @@ type Props = {
 
 export const AutenticacaoClientePainelCadastro = ({ registerState, dominios }: Props) => (
   <div className={`card ${styles['register-box-card']}`}>
+    {registerState.regSuccess && (
+      <p className={styles['auth-message-success']}>{registerState.regSuccess}</p>
+    )}
     {!registerState.showRegister ? (
       <AutenticacaoClienteConviteCadastro registerState={registerState} />
     ) : (

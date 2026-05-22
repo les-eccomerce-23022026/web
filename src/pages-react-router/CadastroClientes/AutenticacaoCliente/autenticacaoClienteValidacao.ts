@@ -1,6 +1,7 @@
 import type { ITelefone } from '../../../interfaces/cliente';
 import type { Genero } from '../../../interfaces/cliente';
 import type { IEnderecoCliente } from '../../../interfaces/pagamento';
+import { validarCpf } from '../../../utils/validacaoCpf';
 
 export const REGEX_SENHA_FORTE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,}$/;
 export const REGEX_CPF_COM_MASCARA = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
@@ -23,9 +24,15 @@ function erroNomeStep1(regNome: string): string | null {
 
 function erroCpfStep1(regCpf: string): string | null {
   const cpfLimpo = regCpf.trim();
-  const ok =
+  const formatoValido =
     REGEX_CPF_COM_MASCARA.test(cpfLimpo) || REGEX_CPF_SEM_MASCARA.test(cpfLimpo);
-  return ok ? null : 'CPF inválido. Use 000.000.000-00 ou apenas 11 números.';
+  if (!formatoValido) {
+    return 'CPF inválido. Use 000.000.000-00 ou apenas 11 números.';
+  }
+  if (!validarCpf(cpfLimpo)) {
+    return 'CPF inválido. Verifique os dígitos informados.';
+  }
+  return null;
 }
 
 function erroEmailStep1(regEmail: string): string | null {
@@ -35,22 +42,9 @@ function erroEmailStep1(regEmail: string): string | null {
   return null;
 }
 
-function erroSenhaStep1(regSenha: string, regConfirmaSenha: string): string | null {
-  if (!REGEX_SENHA_FORTE.test(regSenha)) {
-    return 'A senha deve conter pelo menos 8 caracteres, maiúsculas, minúsculas, números e especiais.';
-  }
-  if (regSenha !== regConfirmaSenha) {
-    return 'As senhas não coincidem.';
-  }
-  return null;
-}
-
-function erroDataETelefoneStep1(f: Step1Fields): string | null {
+function erroDataStep1(f: Step1Fields): string | null {
   if (!f.regDataNascimento) {
     return 'Data de nascimento é obrigatória.';
-  }
-  if (!f.regTelefone.ddd || !f.regTelefone.numero) {
-    return 'Telefone (DDD e Número) é obrigatório.';
   }
   return null;
 }
@@ -60,8 +54,7 @@ export function mensagemErroCadastroStep1(f: Step1Fields): string | null {
     erroNomeStep1(f.regNome) ??
     erroCpfStep1(f.regCpf) ??
     erroEmailStep1(f.regEmail) ??
-    erroSenhaStep1(f.regSenha, f.regConfirmaSenha) ??
-    erroDataETelefoneStep1(f)
+    erroDataStep1(f)
   );
 }
 

@@ -38,9 +38,13 @@ export interface IRegistroClienteCompletoPayload {
   genero: Genero;
   dataNascimento: string;
   telefone: ITelefone;
-  enderecoCobranca: Omit<IEnderecoCliente, 'uuid'>;
-  enderecoEntrega: Omit<IEnderecoCliente, 'uuid'>;
-  enderecoEntregaIgualCobranca: boolean;
+  enderecoCobranca?: Omit<IEnderecoCliente, 'uuid'>;
+  enderecoEntrega?: Omit<IEnderecoCliente, 'uuid'>;
+  enderecoEntregaIgualCobranca?: boolean;
+  querSerAdmin?: boolean;
+  nomeFantasiaLoja?: string;
+  tipoPessoaLoja?: 'PF' | 'PJ';
+  cnpjLoja?: string;
 }
 
 export interface IAtualizarPerfilPayload {

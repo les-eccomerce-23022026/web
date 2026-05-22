@@ -5,7 +5,6 @@ export interface IUsuario {
   cpf?: string;
   cpfMascarado?: string;
   role: "cliente" | "admin";
-  eAdminMestre?: boolean;
 }
 
 export interface ILoginResponse {

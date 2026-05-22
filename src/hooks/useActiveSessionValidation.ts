@@ -22,7 +22,7 @@ export const useActiveSessionValidation = () => {
   }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || typeof window === 'undefined') return;
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {

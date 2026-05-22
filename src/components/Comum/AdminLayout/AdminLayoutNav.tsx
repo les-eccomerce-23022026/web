@@ -10,18 +10,17 @@ import {
   Package,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import styles from './AdminLayout.module.css';
+import styles from './style.module.css';
 
 type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
-  requiresMestre?: boolean;
 };
 
 const MENU_PRINCIPAL: NavItem[] = [
   { href: '/admin', label: 'Dashboard Analytics', icon: LayoutDashboard },
-  { href: '/admin/administradores', label: 'Gerenciar Administradores', icon: Settings, requiresMestre: true },
+  { href: '/admin/administradores', label: 'Gerenciar Administradores', icon: Settings },
   { href: '/admin/livros', label: 'Gestão de Catálogo', icon: BookOpen },
   { href: '/admin/estoque', label: 'Controle de Estoque', icon: Archive },
   { href: '/admin/pedidos', label: 'Gerenciar Pedidos', icon: Package },
@@ -32,14 +31,11 @@ const MENU_ATENDIMENTO: NavItem[] = [
   { href: '/admin/clientes', label: 'Gestão de Clientes', icon: Users },
 ];
 
-type Props = { eAdminMestre?: boolean };
-
-export const AdminLayoutNav = ({ eAdminMestre }: Props) => {
+export const AdminLayoutNav = () => {
   const pathname = usePathname();
   const isActive = (path: string) => pathname === path;
 
   const renderItem = (item: NavItem) => {
-    if (item.requiresMestre && !eAdminMestre) return null;
     const Icon = item.icon;
     return (
       <li key={item.href}>

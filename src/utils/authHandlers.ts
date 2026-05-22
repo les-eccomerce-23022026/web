@@ -54,8 +54,13 @@ async function tentarRenovarToken(): Promise<{ token: string; user: unknown }> {
 async function handleUnauthorized<T>(url: string, response: Response): Promise<T> {
   console.warn('[SENIOR-DEBUG] ApiClient - 401 Unauthorized detected', { url });
   
-  // Não tentar refresh para rotas de login, logout ou refresh
-  if (url.includes('/auth/login') || url.includes('/auth/logout') || url.includes('/auth/refresh')) {
+  // Rotas em que 401 é esperado (sem sessão) — não dispara logout global
+  if (
+    url.includes('/auth/login') ||
+    url.includes('/auth/logout') ||
+    url.includes('/auth/refresh') ||
+    url.includes('/auth/me')
+  ) {
     const errorData = (await response.json().catch(() => ({}))) as ApiErrorBody;
     const msg = errorData.mensagem || errorData.erro || 'Credenciais inválidas.';
     throw new Error(msg);

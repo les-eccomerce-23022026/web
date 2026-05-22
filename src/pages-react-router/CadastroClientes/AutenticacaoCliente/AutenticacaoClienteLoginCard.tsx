@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import styles from './style.module.css';
 import type { AutenticacaoClienteLoginState } from './autenticacaoClienteTypes';
+import { useDebounceValidation } from '../../../hooks/useDebounceValidation';
 
 type Props = {
   loginState: AutenticacaoClienteLoginState;
@@ -11,17 +12,24 @@ export const AutenticacaoClienteLoginCard = ({ loginState }: Props) => {
   const [emailError, setEmailError] = useState('');
   const [senhaError, setSenhaError] = useState('');
 
+  // Validação com debounce para email
+  const validacaoEmail = useDebounceValidation<string>({
+    validationFn: (email) => {
+      if (!email.trim()) {
+        return 'E-mail é obrigatório.';
+      }
+      if (!email.includes('@')) {
+        return 'Informe um e-mail válido.';
+      }
+      return null;
+    },
+    delay: 300,
+  });
+
   const validarEmail = (valor: string) => {
-    if (!valor.trim()) {
-      setEmailError('E-mail é obrigatório.');
-      return;
-    }
-    if (!valor.includes('@')) {
-      setEmailError('Informe um e-mail válido.');
-      return;
-    }
-    setEmailError('');
+    validacaoEmail.validate(valor);
   };
+
 
   const validarSenha = (valor: string) => {
     if (!valor.trim()) {
@@ -43,16 +51,19 @@ export const AutenticacaoClienteLoginCard = ({ loginState }: Props) => {
           onChange={(e) => {
             loginState.setEmail(e.target.value);
             if (emailError) setEmailError('');
+            validacaoEmail.validate(e.target.value);
           }}
-          onBlur={() => validarEmail(loginState.email)}
+          onBlur={() => {
+            validarEmail(loginState.email);
+          }}
           className={`${styles.passwordInput} ${emailError ? styles['input-error'] : ''}`}
           aria-invalid={!!emailError}
           aria-describedby={emailError ? 'email-error-message' : undefined}
           data-cy="login-email-input"
         />
-        {emailError && (
-          <p className={styles['auth-message-error']} id="email-error-message" style={{ marginTop: '4px', fontSize: '12px' }}>
-            {emailError}
+        {validacaoEmail.error && (
+          <p className={styles['auth-message-error-field']} id="email-error-message">
+            {validacaoEmail.error}
           </p>
         )}
       </div>
@@ -68,7 +79,9 @@ export const AutenticacaoClienteLoginCard = ({ loginState }: Props) => {
               loginState.setSenha(e.target.value);
               if (senhaError) setSenhaError('');
             }}
-            onBlur={() => validarSenha(loginState.senha)}
+            onBlur={() => {
+              validarSenha(loginState.senha);
+            }}
             aria-invalid={!!senhaError}
             aria-describedby={senhaError ? 'senha-error-message' : undefined}
             data-cy="login-password-input"
@@ -84,7 +97,7 @@ export const AutenticacaoClienteLoginCard = ({ loginState }: Props) => {
           </button>
         </div>
         {senhaError && (
-          <p className={styles['auth-message-error']} id="senha-error-message" style={{ marginTop: '4px', fontSize: '12px' }}>
+          <p className={styles['auth-message-error-field']} id="senha-error-message">
             {senhaError}
           </p>
         )}
