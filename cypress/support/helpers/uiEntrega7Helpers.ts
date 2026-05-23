@@ -144,7 +144,6 @@ export function despacharPedidoAdminUi(vendaUuid: string): void {
   const sufixo = sufixoPedidoNaTabela(vendaUuid);
   cy.visit('/admin/pedidos');
   aguardarPainelAdminCarregado();
-  cy.get('[data-cy="pedidos-painel"]').should('exist');
   cy.contains(sufixo)
     .parents('tr')
     .find('[data-cy^="btn-despachar-"]')

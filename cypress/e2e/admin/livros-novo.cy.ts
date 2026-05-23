@@ -148,7 +148,7 @@ describe('Admin — Criar Novo Livro', () => {
         preco: '49.90',
         categoria: 'tecnologia',
         sinopse: 'Sinopse do livro de teste',
-        isbn: '9781234567890',
+        isbn: '978-85-325-2963-1',
         editora: 'Editora Teste',
         anoPublicacao: '2024',
         quantidadeEstoque: '10',
@@ -186,7 +186,7 @@ describe('Admin — Criar Novo Livro', () => {
       cy.get('input[name="preco"]').type('29.90');
       cy.get('select[name="categoria"]').select('tecnologia');
       cy.get('textarea[name="sinopse"]').type('Sinopse teste');
-      cy.get('input[name="isbn"]').type('9781234567891');
+      cy.get('input[name="isbn"]').type('978-85-325-1077-6');
       cy.get('input[name="editora"]').type('Editora Teste');
       cy.get('input[name="anoPublicacao"]').type('2024');
       cy.get('input[name="quantidadeEstoque"]').type('5');
@@ -212,7 +212,7 @@ describe('Admin — Criar Novo Livro', () => {
       cy.get('select[name="categoria"]').select('tecnologia');
       cy.get('textarea[name="sinopse"]').type('Sinopse teste');
       // ISBN que pode já existir no banco
-      cy.get('input[name="isbn"]').type('9781234567890');
+      cy.get('input[name="isbn"]').type('978-85-325-2963-1');
       cy.get('input[name="editora"]').type('Editora Teste');
       cy.get('input[name="anoPublicacao"]').type('2024');
       cy.get('input[name="quantidadeEstoque"]').type('5');
@@ -249,7 +249,7 @@ describe('Admin — Criar Novo Livro', () => {
       cy.get('input[name="preco"]').type('abc');
       cy.get('select[name="categoria"]').select('tecnologia');
       cy.get('textarea[name="sinopse"]').type('Sinopse teste');
-      cy.get('input[name="isbn"]').type('9781234567892');
+      cy.get('input[name="isbn"]').type('978-85-250-6166-5');
       cy.get('input[name="editora"]').type('Editora Teste');
       cy.get('input[name="anoPublicacao"]').type('2024');
       cy.get('input[name="quantidadeEstoque"]').type('5');

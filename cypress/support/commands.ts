@@ -82,6 +82,8 @@ declare global {
       autenticarAdminLojaB(): Chainable<void>;
       criarVendaLojaA(livroUuid: string): Chainable<{ vendaUuid: string; itemVendaUuid: string }>;
       criarVendaLojaB(livroUuid: string): Chainable<{ vendaUuid: string; itemVendaUuid: string }>;
+      /** Logout do usuário atual. */
+      logout(): Chainable<void>;
     }
   }
 }
@@ -1103,6 +1105,24 @@ Cypress.Commands.add('solicitarTrocaViaApi', (vendaUuid: string, itemVendaUuid: 
   });
 });
 
+Cypress.Commands.add('logout', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersBancoTestes();
+
+  cy.request({
+    method: 'POST',
+    url: `${apiUrl}/auth/logout`,
+    headers,
+    failOnStatusCode: false, // Logout pode falhar se não estiver autenticado
+  }).then(() => {
+    cy.clearCookie('authToken');
+    cy.clearCookie('x-use-test-db');
+    cy.clearCookie('x-loja-id');
+    cy.clearCookie('x-loja-uuid');
+    cy.visit('/');
+  });
+});
+
 Cypress.Commands.add('autorizarTrocaViaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   const headers = apiHeadersBancoTestesComLoja();
@@ -1139,236 +1159,327 @@ Cypress.Commands.add('criarAmbienteMultiLoja', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
   const headers = apiHeadersBancoTestes();
 
+  // Em desenvolvimento, o seed SQL 033_seed_multi_loja_testes.sql já deve ter criado as lojas
+  // Em testes, tentamos usar o bootstrap
   cy.request({
     method: 'POST',
     url: `${apiUrl}/admin/bootstrap`,
-    headers,
+    headers: {
+      ...headers,
+      'x-test-bootstrap-key': Cypress.env('testBootstrapKey') || 'test-key-123',
+    },
     failOnStatusCode: false,
   }).then((res) => {
-    if (res.status !== 200 && res.status !== 201) {
-      cy.log('[criarAmbienteMultiLoja] Aviso: bootstrap admin pode não ter criado lojas de teste');
+    const statusValido = res.status === 200 || res.status === 201;
+    
+    if (!statusValido) {
+      cy.log('[criarAmbienteMultiLoja] Bootstrap não executado (esperado em dev). Assumindo seed SQL já criou lojas A e B.');
     }
   });
 });
 
 /**
- * Autentica como admin da Loja A (loja-a-multi-tenancy, loj_id=18)
- * Para testes de UI, faz login via UI e define cookie x-loja-id
+ * Autentica como admin da Loja A (loja-a-multi-tenancy)
+ * Para testes de UI, faz login via UI e define cookie x-loja-uuid
  */
 Cypress.Commands.add('autenticarAdminLojaA', () => {
-  // Definir cookie x-loja-id antes do login
-  cy.setCookie('x-loja-id', '18');
-  cy.setCookie('x-use-test-db', 'true');
-  
-  // Fazer login via UI
-  cy.visit('/minha-conta');
-  cy.getDataCy('login-email-input').type('admin_loja_a@email.com');
-  cy.getDataCy('login-password-input').type('SenhaAdminA123!');
-  cy.getDataCy('login-submit-button').click();
-  
-  // Aguardar redirecionamento para confirmar login
-  cy.url().should('not.include', '/minha-conta');
-  cy.log('[autenticarAdminLojaA] Login via UI realizado com sucesso para Loja A (loj_id=18)');
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersBancoTestes();
+
+  // Primeiro, obter o UUID da Loja A via API
+  cy.request({
+    method: 'GET',
+    url: `${apiUrl}/admin/lojas`,
+    headers,
+  }).then((res) => {
+    const lojaA = res.body.dados.find((l: { slug: string }) => l.slug === 'loja-a-multi-tenancy');
+    
+    if (!lojaA) {
+      throw new Error('Loja A não encontrada');
+    }
+    
+    // Definir cookie x-loja-uuid antes do login
+    cy.setCookie('x-loja-uuid', lojaA.uuid);
+    cy.setCookie('x-use-test-db', 'true');
+    
+    // Fazer login via UI
+    cy.visit('/minha-conta');
+    cy.getDataCy('login-email-input').type('admin_loja_a@email.com');
+    cy.getDataCy('login-password-input').type('SenhaAdminA123!');
+    cy.getDataCy('login-submit-button').click();
+    
+    // Aguardar redirecionamento para confirmar login
+    cy.url().should('not.include', '/minha-conta');
+    cy.log(`[autenticarAdminLojaA] Login via UI realizado com sucesso para Loja A (uuid=${lojaA.uuid})`);
+  });
 });
 
 /**
- * Autentica como admin da Loja B (loja-b-multi-tenancy, loj_id=19)
- * Para testes de UI, faz login via UI e define cookie x-loja-id
+ * Autentica como admin da Loja B (loja-b-multi-tenancy)
+ * Para testes de UI, faz login via UI e define cookie x-loja-uuid
  */
 Cypress.Commands.add('autenticarAdminLojaB', () => {
-  // Definir cookie x-loja-id antes do login
-  cy.setCookie('x-loja-id', '19');
-  cy.setCookie('x-use-test-db', 'true');
-  
-  // Fazer login via UI
-  cy.visit('/minha-conta');
-  cy.getDataCy('login-email-input').type('admin_loja_b@email.com');
-  cy.getDataCy('login-password-input').type('SenhaAdminB123!');
-  cy.getDataCy('login-submit-button').click();
-  
-  // Aguardar redirecionamento para confirmar login
-  cy.url().should('not.include', '/minha-conta');
-  cy.log('[autenticarAdminLojaB] Login via UI realizado com sucesso para Loja B (loj_id=19)');
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersBancoTestes();
+
+  // Primeiro, obter o UUID da Loja B via API
+  cy.request({
+    method: 'GET',
+    url: `${apiUrl}/admin/lojas`,
+    headers,
+  }).then((res) => {
+    const lojaB = res.body.dados.find((l: { slug: string }) => l.slug === 'loja-b-multi-tenancy');
+    
+    if (!lojaB) {
+      throw new Error('Loja B não encontrada');
+    }
+    
+    // Definir cookie x-loja-uuid antes do login
+    cy.setCookie('x-loja-uuid', lojaB.uuid);
+    cy.setCookie('x-use-test-db', 'true');
+    
+    // Fazer login via UI
+    cy.visit('/minha-conta');
+    cy.getDataCy('login-email-input').type('admin_loja_b@email.com');
+    cy.getDataCy('login-password-input').type('SenhaAdminB123!');
+    cy.getDataCy('login-submit-button').click();
+    
+    // Aguardar redirecionamento para confirmar login
+    cy.url().should('not.include', '/minha-conta');
+    cy.log(`[autenticarAdminLojaB] Login via UI realizado com sucesso para Loja B (uuid=${lojaB.uuid})`);
+  });
 });
 
 /**
- * Cria uma venda vinculada à Loja A (loj_id=18)
+ * Cria uma venda vinculada à Loja A (loja-a-multi-tenancy)
  */
 Cypress.Commands.add('criarVendaLojaA', (livroUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja(18); // Loja A
+  const headers = apiHeadersBancoTestes();
 
-  return cy.autenticarClienteDadosTeste()
-    .then(() => {
-      // Adicionar ao carrinho com loj_id=18
-      return cy.request({
-        method: 'POST',
-        url: `${apiUrl}/carrinho/itens`,
-        headers,
-        body: {
-          livroUuid,
-          quantidade: 1,
-        },
-      });
-    })
-    .then(() => {
-      // Criar venda
-      return cy.request({
-        method: 'POST',
-        url: `${apiUrl}/vendas`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          ...headers,
-        },
-        body: {
-          itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
-          valorTotalItens: 30,
-          valorFrete: 10,
-          valorTotal: 40,
-        },
-      });
-    })
-    .then((res) => {
-      const vendaUuid = res.body.venda?.id || res.body.id;
-      if (!vendaUuid) {
-        throw new Error(`UUID da venda não encontrado: ${JSON.stringify(res.body)}`);
-      }
-      return { vendaUuid, livroUuid };
-    })
-    .then(({ vendaUuid }) => {
-      // Selecionar pagamento
-      return cy.request({
-        method: 'POST',
-        url: `${apiUrl}/pagamentos/selecionar`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          ...headers,
-        },
-        body: {
-          vendaUuid,
-          valor: 40,
-          tipoPagamento: 'cartao_credito',
-          cartao: {
-            numero: '4111111111111111',
-            nomeTitular: 'Cliente Teste',
-            validade: '12/30',
-            bandeira: 'Visa',
-          },
-        },
-      }).then((selRes) => {
-        const pagamentoUuid = selRes.body.id;
-        if (!pagamentoUuid) {
-          throw new Error(`Pagamento UUID não encontrado: ${JSON.stringify(selRes.body)}`);
-        }
-        // Processar pagamento
+  return cy.request({
+    method: 'GET',
+    url: `${apiUrl}/admin/lojas`,
+    headers,
+  }).then((res) => {
+    const lojaA = res.body.dados.find((l: { slug: string }) => l.slug === 'loja-a-multi-tenancy');
+    
+    if (!lojaA) {
+      throw new Error('Loja A não encontrada');
+    }
+    
+    return cy.autenticarClienteDadosTeste()
+      .then(() => {
+        // Definir cookie x-loja-uuid para Loja A
+        cy.setCookie('x-loja-uuid', lojaA.uuid);
+      })
+      .then(() => {
         return cy.request({
           method: 'POST',
-          url: `${apiUrl}/pagamentos/${pagamentoUuid}/processar`,
-          headers,
-        }).then(() => vendaUuid);
+          url: `${apiUrl}/carrinho/itens`,
+          headers: {
+            ...headers,
+            'x-loja-uuid': lojaA.uuid,
+          },
+          body: {
+            livroUuid,
+            quantidade: 1,
+          },
+        });
+      })
+      .then(() => {
+        return cy.request({
+          method: 'POST',
+          url: `${apiUrl}/vendas`,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            ...headers,
+            'x-loja-uuid': lojaA.uuid,
+          },
+          body: {
+            itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
+            valorTotalItens: 30,
+            valorFrete: 10,
+            valorTotal: 40,
+          },
+        });
+      })
+      .then((res) => {
+        const vendaUuid = res.body.venda?.id || res.body.id;
+        
+        if (!vendaUuid) {
+          throw new Error(`UUID da venda não encontrado: ${JSON.stringify(res.body)}`);
+        }
+        
+        return { vendaUuid, livroUuid };
+      })
+      .then(({ vendaUuid }) => {
+        return cy.request({
+          method: 'POST',
+          url: `${apiUrl}/pagamentos/selecionar`,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            ...headers,
+            'x-loja-uuid': lojaA.uuid,
+          },
+          body: {
+            vendaUuid,
+            valor: 40,
+            tipoPagamento: 'cartao_credito',
+            cartao: {
+              numero: '4111111111111111',
+              nomeTitular: 'Cliente Teste',
+              validade: '12/30',
+              bandeira: 'Visa',
+            },
+          },
+        }).then((selRes) => {
+          const pagamentoUuid = selRes.body.id;
+          
+          if (!pagamentoUuid) {
+            throw new Error(`Pagamento UUID não encontrado: ${JSON.stringify(selRes.body)}`);
+          }
+          
+          return cy.request({
+            method: 'POST',
+            url: `${apiUrl}/pagamentos/${pagamentoUuid}/processar`,
+            headers: {
+              ...headers,
+              'x-loja-uuid': lojaA.uuid,
+            },
+          }).then(() => vendaUuid);
+        });
+      })
+      .then((vendaUuid) => {
+        return cy.request({
+          method: 'GET',
+          url: `${apiUrl}/vendas/${vendaUuid}`,
+          headers: {
+            ...headers,
+            'x-loja-uuid': lojaA.uuid,
+          },
+        }).then((vendaRes) => ({
+          vendaUuid,
+          itemVendaUuid: vendaRes.body.itens[0].id,
+        }));
       });
-    })
-    .then((vendaUuid) => {
-      // Obter item UUID
-      return cy.request({
-        method: 'GET',
-        url: `${apiUrl}/vendas/${vendaUuid}`,
-        headers,
-      }).then((vendaRes) => ({
-        vendaUuid,
-        itemVendaUuid: vendaRes.body.itens[0].id,
-      }));
-    });
+  });
 });
 
 /**
- * Cria uma venda vinculada à Loja B (loj_id=19)
+ * Cria uma venda vinculada à Loja B (loja-b-multi-tenancy)
  */
 Cypress.Commands.add('criarVendaLojaB', (livroUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja(19); // Loja B
+  const headers = apiHeadersBancoTestes();
 
-  return cy.autenticarClienteDadosTeste()
-    .then(() => {
-      // Adicionar ao carrinho com loj_id=19
-      return cy.request({
-        method: 'POST',
-        url: `${apiUrl}/carrinho/itens`,
-        headers,
-        body: {
-          livroUuid,
-          quantidade: 1,
-        },
-      });
-    })
-    .then(() => {
-      // Criar venda
-      return cy.request({
-        method: 'POST',
-        url: `${apiUrl}/vendas`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          ...headers,
-        },
-        body: {
-          itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
-          valorTotalItens: 30,
-          valorFrete: 10,
-          valorTotal: 40,
-        },
-      });
-    })
-    .then((res) => {
-      const vendaUuid = res.body.venda?.id || res.body.id;
-      if (!vendaUuid) {
-        throw new Error(`UUID da venda não encontrado: ${JSON.stringify(res.body)}`);
-      }
-      return { vendaUuid, livroUuid };
-    })
-    .then(({ vendaUuid }) => {
-      // Selecionar pagamento
-      return cy.request({
-        method: 'POST',
-        url: `${apiUrl}/pagamentos/selecionar`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          ...headers,
-        },
-        body: {
-          vendaUuid,
-          valor: 40,
-          tipoPagamento: 'cartao_credito',
-          cartao: {
-            numero: '4111111111111111',
-            nomeTitular: 'Cliente Teste',
-            validade: '12/30',
-            bandeira: 'Visa',
-          },
-        },
-      }).then((selRes) => {
-        const pagamentoUuid = selRes.body.id;
-        if (!pagamentoUuid) {
-          throw new Error(`Pagamento UUID não encontrado: ${JSON.stringify(selRes.body)}`);
-        }
-        // Processar pagamento
+  return cy.request({
+    method: 'GET',
+    url: `${apiUrl}/admin/lojas`,
+    headers,
+  }).then((res) => {
+    const lojaB = res.body.dados.find((l: { slug: string }) => l.slug === 'loja-b-multi-tenancy');
+    
+    if (!lojaB) {
+      throw new Error('Loja B não encontrada');
+    }
+    
+    return cy.autenticarClienteDadosTeste()
+      .then(() => {
+        // Definir cookie x-loja-uuid para Loja B
+        cy.setCookie('x-loja-uuid', lojaB.uuid);
+      })
+      .then(() => {
         return cy.request({
           method: 'POST',
-          url: `${apiUrl}/pagamentos/${pagamentoUuid}/processar`,
-          headers,
-        }).then(() => vendaUuid);
+          url: `${apiUrl}/carrinho/itens`,
+          headers: {
+            ...headers,
+            'x-loja-uuid': lojaB.uuid,
+          },
+          body: {
+            livroUuid,
+            quantidade: 1,
+          },
+        });
+      })
+      .then(() => {
+        return cy.request({
+          method: 'POST',
+          url: `${apiUrl}/vendas`,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            ...headers,
+            'x-loja-uuid': lojaB.uuid,
+          },
+          body: {
+            itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
+            valorTotalItens: 30,
+            valorFrete: 10,
+            valorTotal: 40,
+          },
+        });
+      })
+      .then((res) => {
+        const vendaUuid = res.body.venda?.id || res.body.id;
+        
+        if (!vendaUuid) {
+          throw new Error(`UUID da venda não encontrado: ${JSON.stringify(res.body)}`);
+        }
+        
+        return { vendaUuid, livroUuid };
+      })
+      .then(({ vendaUuid }) => {
+        return cy.request({
+          method: 'POST',
+          url: `${apiUrl}/pagamentos/selecionar`,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            ...headers,
+            'x-loja-uuid': lojaB.uuid,
+          },
+          body: {
+            vendaUuid,
+            valor: 40,
+            tipoPagamento: 'cartao_credito',
+            cartao: {
+              numero: '4111111111111111',
+              nomeTitular: 'Cliente Teste',
+              validade: '12/30',
+              bandeira: 'Visa',
+            },
+          },
+        }).then((selRes) => {
+          const pagamentoUuid = selRes.body.id;
+          
+          if (!pagamentoUuid) {
+            throw new Error(`Pagamento UUID não encontrado: ${JSON.stringify(selRes.body)}`);
+          }
+          
+          return cy.request({
+            method: 'POST',
+            url: `${apiUrl}/pagamentos/${pagamentoUuid}/processar`,
+            headers: {
+              ...headers,
+              'x-loja-uuid': lojaB.uuid,
+            },
+          }).then(() => vendaUuid);
+        });
+      })
+      .then((vendaUuid) => {
+        return cy.request({
+          method: 'GET',
+          url: `${apiUrl}/vendas/${vendaUuid}`,
+          headers: {
+            ...headers,
+            'x-loja-uuid': lojaB.uuid,
+          },
+        }).then((vendaRes) => ({
+          vendaUuid,
+          itemVendaUuid: vendaRes.body.itens[0].id,
+        }));
       });
-    })
-    .then((vendaUuid) => {
-      // Obter item UUID
-      return cy.request({
-        method: 'GET',
-        url: `${apiUrl}/vendas/${vendaUuid}`,
-        headers,
-      }).then((vendaRes) => ({
-        vendaUuid,
-        itemVendaUuid: vendaRes.body.itens[0].id,
-      }));
-    });
+  });
 });
 
 export {};

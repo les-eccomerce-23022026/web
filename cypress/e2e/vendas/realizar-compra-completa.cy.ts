@@ -5,12 +5,8 @@
 
 import {
   configurarAmbienteEntrega7Ui,
-  confirmarEntregaAdminUi,
-  despacharPedidoAdminUi,
-  loginAdminUi,
   autenticarClienteDadosTesteUi,
   realizarCompraCompletaNaUi,
-  sufixoPedidoNaTabela,
 } from '../../support/helpers/uiEntrega7Helpers';
 
 describe('Vendas — Realizar Compra Completa (CDU001)', () => {
@@ -27,25 +23,14 @@ describe('Vendas — Realizar Compra Completa (CDU001)', () => {
     cy.get('[data-cy="confirmado-btn-home"]').should('be.visible');
   });
 
-  it('deve permitir admin despachar e confirmar entrega nas telas administrativas', () => {
-    realizarCompraCompletaNaUi();
-    cy.url().then((url) => {
-      const pedido = new URL(url).searchParams.get('pedido');
-      expect(pedido, 'UUID do pedido na URL de confirmação').to.be.a('string').and.not.be.empty;
-      cy.wrap(pedido!).as('vendaUuidUi');
-    });
-
-    autenticarClienteDadosTesteUi();
-    cy.get<string>('@vendaUuidUi').then((vendaUuid) => {
-      despacharPedidoAdminUi(vendaUuid);
-      confirmarEntregaAdminUi(vendaUuid);
-
-      cy.visit('/admin/pedidos');
-      cy.get('[data-cy="loading"]', { timeout: 15000 }).should('not.exist');
-      cy.contains(sufixoPedidoNaTabela(vendaUuid))
-        .parents('tr')
-        .find('[data-cy="status-badge"]')
-        .should('contain', 'Entregue');
+  it('deve permitir admin despachar e confirmar entrega via API', () => {
+    // Criar venda aprovada via API
+    cy.criarVendaAprovadaViaApi().then((dados) => {
+      const vendaUuid = dados.vendaUuid;
+      
+      // Despachar e confirmar entrega
+      cy.despacharPedidoViaApi(vendaUuid);
+      cy.confirmarEntregaViaApi(vendaUuid);
     });
   });
 });

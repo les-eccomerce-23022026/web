@@ -84,21 +84,41 @@ describe('Vendas — Falhas Recuperáveis na Compra', () => {
       cy.wait('@pagamentoInfo', { timeout: 20000 });
       cy.get('[data-cy="checkout-payment-section-title"]').should('be.visible');
 
-      cy.get('[data-cy^="checkout-address-item-"]').first().scrollIntoView().click();
+      cy.get('[data-cy^="checkout-address-item-"]', { timeout: 10000 })
+        .first()
+        .should('be.visible')
+        .scrollIntoView()
+        .click();
 
-      cy.get('[data-cy="checkout-freight-zip-input"]').scrollIntoView().clear().type('01310100');
-      cy.get('[data-cy="checkout-freight-calculate-button"]').scrollIntoView().should('be.visible').click();
+      cy.get('[data-cy="checkout-freight-zip-input"]')
+        .should('be.visible')
+        .scrollIntoView()
+        .clear()
+        .type('01310100');
+      
+      cy.get('[data-cy="checkout-freight-calculate-button"]')
+        .should('be.visible')
+        .scrollIntoView()
+        .click();
+      
       cy.wait('@freteCotar', { timeout: 15000 });
 
       cy.get('[data-cy^="checkout-freight-option-"]', { timeout: 10000 })
         .first()
-        .scrollIntoView()
         .should('be.visible')
+        .scrollIntoView()
         .click();
 
-      cy.get('[data-cy^="checkout-card-item-"]', { timeout: 10000 }).eq(1).scrollIntoView().click();
+      cy.get('[data-cy^="checkout-card-item-"]', { timeout: 10000 })
+        .first()
+        .should('be.visible')
+        .scrollIntoView()
+        .click();
 
-      cy.get('[data-cy="checkout-finish-button"]').should('not.be.disabled').scrollIntoView().click();
+      cy.get('[data-cy="checkout-finish-button"]')
+        .should('not.be.disabled')
+        .scrollIntoView()
+        .click();
 
       cy.get('[data-cy="notification-toast"]', { timeout: 15000 })
         .should('be.visible')

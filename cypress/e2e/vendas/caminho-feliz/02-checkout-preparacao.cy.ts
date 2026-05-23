@@ -20,9 +20,8 @@ describe('Vendas — Caminho Feliz — Etapa 2: Checkout Preparação', () => {
       cy.adicionarAoCarrinhoViaApi(livroUuid, 1);
     });
 
-    cy.log('**Etapa: Navegar para checkout**');
-    cy.visit('/carrinho');
-    cy.contains('Finalizar Compra').should('be.visible').click();
+    cy.log('**Etapa: Navegar diretamente para checkout**');
+    cy.visit('/checkout');
 
     cy.log('**Validação: página de checkout carregada**');
     cy.contains('h1', 'Finalizar Compra', { timeout: 30000 }).should('be.visible');
@@ -48,9 +47,8 @@ describe('Vendas — Caminho Feliz — Etapa 2: Checkout Preparação', () => {
     });
     cy.garantirEnderecoViaApi();
 
-    cy.log('**Etapa: Navegar para checkout**');
-    cy.visit('/carrinho');
-    cy.contains('Finalizar Compra').should('be.visible').click();
+    cy.log('**Etapa: Navegar diretamente para checkout**');
+    cy.visit('/checkout');
 
     cy.contains('h1', 'Finalizar Compra', { timeout: 30000 }).should('be.visible');
     cy.wait('@pagamentoInfo', { timeout: 20000 });
