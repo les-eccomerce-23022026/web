@@ -17,6 +17,7 @@ import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 import { PedidoCard } from '@/pages-react-router/Vendas/MeusPedidos/PedidoCard';
 import { ModalRastrearPedido } from '@/pages-react-router/Vendas/MeusPedidos/ModalRastrearPedido';
 import { ModalDetalhesPedido } from '@/pages-react-router/Vendas/MeusPedidos/ModalDetalhesPedido';
+import { ROTAS } from '@/config/rotas';
 
 type AbaGrupo = 'todos' | 'aberto' | 'finalizados';
 
@@ -97,7 +98,7 @@ export default function MeusPedidosPage() {
       <div className={styles['meus-pedidos-vazio']}>
         <h2>Você ainda não tem pedidos</h2>
         <p>Comece a comprar agora e veja seus pedidos aqui!</p>
-        <Link href="/">
+        <Link href={ROTAS.HOME}>
           <button className="btn-primary">Ver Catálogo</button>
         </Link>
       </div>

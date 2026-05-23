@@ -9,6 +9,7 @@ import { logoutSession } from "@/store/slices/authSlice";
 import { setTermoBusca } from "@/store/slices/livroSlice";
 import { useNotificacoes } from "@/hooks/useNotificacoes";
 import styles from "./Header.module.css";
+import { ROTAS } from "@/config/rotas";
 
 export const Header = () => {
   const dispatch = useAppDispatch();
@@ -48,16 +49,16 @@ export const Header = () => {
     dispatch(setTermoBusca(value));
 
     // Se estiver em outra página, vai para a home ao começar a buscar
-    if (value && pathname !== '/') {
-      router.push('/');
+    if (value && pathname !== ROTAS.HOME) {
+      router.push(ROTAS.HOME);
     }
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(setTermoBusca(inputValue));
-    if (pathname !== '/') {
-      router.push('/');
+    if (pathname !== ROTAS.HOME) {
+      router.push(ROTAS.HOME);
     }
   };
 
@@ -68,7 +69,7 @@ export const Header = () => {
         {/* Container interno centraliza o conteúdo com max-width */}
         <div className={`container ${styles['header-top-inner']}`}>
           <div className={styles['logo']}>
-            <Link href="/">LES Livraria</Link>
+            <Link href={ROTAS.HOME}>LES Livraria</Link>
           </div>
 
           <form className={styles['search-bar']} onSubmit={handleSearchSubmit}>
@@ -87,13 +88,13 @@ export const Header = () => {
           <div className={styles['header-actions']}>
             {isAuthenticated ? (
               <>
-                <Link href="/minha-conta" className={styles['action-icon']} data-cy="header-user-profile" title={`Olá, ${user?.nome}`}>
+                <Link href={ROTAS.MINHA_CONTA} className={styles['action-icon']} data-cy="header-user-profile" title={`Olá, ${user?.nome}`}>
                   <User size={22} strokeWidth={2} />
                 </Link>
-                <Link href="/pedidos" className={styles['action-icon']} data-cy="header-pedidos-link" title="Meus Pedidos">
+                <Link href={ROTAS.PEDIDOS} className={styles['action-icon']} data-cy="header-pedidos-link" title="Meus Pedidos">
                   <Package size={22} strokeWidth={2} />
                 </Link>
-                <Link href="/notificacoes" className={`${styles['action-icon']} ${styles['notifications-container']}`} data-cy="header-notificacoes-link" title="Notificações">
+                <Link href={ROTAS.NOTIFICACOES} className={`${styles['action-icon']} ${styles['notifications-container']}`} data-cy="header-notificacoes-link" title="Notificações">
                   <Bell size={22} strokeWidth={2} />
                   {quantidadeNaoLidas > 0 && (
                     <span className={styles['notification-badge']} suppressHydrationWarning>{quantidadeNaoLidas}</span>
@@ -110,12 +111,12 @@ export const Header = () => {
                 </button>
               </>
             ) : (
-              <Link href="/minha-conta" className={styles['action-icon']} data-cy="header-login-link" title="Minha Conta">
+              <Link href={ROTAS.MINHA_CONTA} className={styles['action-icon']} data-cy="header-login-link" title="Minha Conta">
                 <User size={22} strokeWidth={2} />
               </Link>
             )}
             
-            <Link href="/carrinho" className={`${styles['action-icon']} ${styles['cart-container']}`} data-cy="header-cart-link" title="Carrinho" suppressHydrationWarning>
+            <Link href={ROTAS.CARRINHO} className={`${styles['action-icon']} ${styles['cart-container']}`} data-cy="header-cart-link" title="Carrinho" suppressHydrationWarning>
               <ShoppingCart size={22} strokeWidth={2} />
               {isMounted && quantidadeItens > 0 && (
                 <span className={styles['cart-badge']}>{quantidadeItens}</span>
@@ -123,7 +124,7 @@ export const Header = () => {
             </Link>
 
             {user?.role === 'admin' && (
-              <Link href="/admin" className={`${styles['action-icon']} ${styles['admin-icon']}`} data-cy="header-admin-link" title="Administração">
+              <Link href={ROTAS.ADMIN.HOME} className={`${styles['action-icon']} ${styles['admin-icon']}`} data-cy="header-admin-link" title="Administração">
                 <ShieldCheck size={22} strokeWidth={2} />
               </Link>
             )}
@@ -135,12 +136,12 @@ export const Header = () => {
       <nav className={styles['header-nav']}>
         <div className={`container ${styles['nav-links']}`}>
           {categoriasMenu.map((c) => (
-            <Link key={c.slug} href={`/categoria/${c.slug}`} className={styles['nav-link-with-count']}>
+            <Link key={c.slug} href={ROTAS.CATEGORIA(c.slug)} className={styles['nav-link-with-count']}>
               {c.nome}
               <span className={styles['category-count']}>{c.contadorProdutos}</span>
             </Link>
           ))}
-          <Link href="/mais-vendidos" className={styles['header-link']}>
+          <Link href={ROTAS.MAIS_VENDIDOS} className={styles['header-link']}>
             Mais vendidos
           </Link>
         </div>

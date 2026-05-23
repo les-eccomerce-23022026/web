@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import styles from './style.module.css';
+import { ROTAS } from '@/config/rotas';
 
 type NavItem = {
   href: string;
@@ -19,16 +20,16 @@ type NavItem = {
 };
 
 const MENU_PRINCIPAL: NavItem[] = [
-  { href: '/admin', label: 'Dashboard Analytics', icon: LayoutDashboard },
-  { href: '/admin/administradores', label: 'Gerenciar Administradores', icon: Settings },
-  { href: '/admin/livros', label: 'Gestão de Catálogo', icon: BookOpen },
-  { href: '/admin/estoque', label: 'Controle de Estoque', icon: Archive },
-  { href: '/admin/pedidos', label: 'Gerenciar Pedidos', icon: Package },
+  { href: ROTAS.ADMIN.HOME, label: 'Dashboard Analytics', icon: LayoutDashboard },
+  { href: ROTAS.ADMIN.ADMINISTRADORES, label: 'Gerenciar Administradores', icon: Settings },
+  { href: ROTAS.ADMIN.LIVROS, label: 'Gestão de Catálogo', icon: BookOpen },
+  { href: ROTAS.ADMIN.ESTOQUE, label: 'Controle de Estoque', icon: Archive },
+  { href: ROTAS.ADMIN.PEDIDOS, label: 'Gerenciar Pedidos', icon: Package },
 ];
 
 const MENU_ATENDIMENTO: NavItem[] = [
-  { href: '/admin/trocas', label: 'Solicitações & Trocas', icon: RefreshCw },
-  { href: '/admin/clientes', label: 'Gestão de Clientes', icon: Users },
+  { href: ROTAS.ADMIN.TROCAS, label: 'Solicitações & Trocas', icon: RefreshCw },
+  { href: ROTAS.ADMIN.CLIENTES, label: 'Gestão de Clientes', icon: Users },
 ];
 
 export const AdminLayoutNav = () => {

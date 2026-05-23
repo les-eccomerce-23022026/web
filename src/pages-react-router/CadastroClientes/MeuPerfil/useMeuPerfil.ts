@@ -15,6 +15,7 @@ import {
   detectarAlteracoesSensveis,
   obterValoresOriginaisMascarados,
 } from './meuPerfilHelpers';
+import { ROTAS } from '@/config/rotas';
 
 export const generosDisponiveis = ['Masculino', 'Feminino', 'Outro', 'Prefiro não informar'];
 export const tiposTelefone = ['Celular', 'Residencial', 'Comercial'];
@@ -283,7 +284,7 @@ export function useMeuPerfil() {
       onConfirm: async () => {
         await ClienteService.inativarConta();
         await dispatch(logoutSession());
-        router.push('/');
+        router.push(ROTAS.HOME);
       },
       variant: 'danger'
     });

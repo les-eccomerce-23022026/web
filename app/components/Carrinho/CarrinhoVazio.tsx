@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import { EmptyState } from '@/components/Comum/EmptyState/EmptyState';
+import { ROTAS } from '@/config/rotas';
 
 export const CarrinhoVazio = () => (
   <div className="carrinho-page page-transition-enter" data-cy="carrinho-vazio">
@@ -14,7 +15,7 @@ export const CarrinhoVazio = () => (
     />
 
     <div className="carrinho-empty-actions">
-      <Link href="/" className="carrinho-empty-link">
+      <Link href={ROTAS.HOME} className="carrinho-empty-link">
         <button type="button" className="carrinho-empty-cta">
           Continuar comprando
         </button>

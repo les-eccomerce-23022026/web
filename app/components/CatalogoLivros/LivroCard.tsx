@@ -5,6 +5,7 @@ import { ShoppingCart, AlertCircle } from 'lucide-react';
 import { CapaLivro } from '@/components/Comum/CapaLivro/CapaLivro';
 import { ControlesCompra } from '../ControlesCompra';
 import type { ILivro } from '@/interfaces/livro';
+import { ROTAS } from '@/config/rotas';
 
 interface LivroCardProps {
   livro: ILivro;
@@ -39,7 +40,7 @@ export const LivroCard = ({ livro, quantidadeNoCarrinho }: LivroCardProps) => (
       <p className="cartao-livro__preco">R$ {Number(livro.preco).toFixed(2).replace('.', ',')}</p>
     </div>
     <div className="cartao-livro__acao">
-      <Link href={`/livro/${livro.uuid}`} className="botao btn-secondary">
+      <Link href={ROTAS.LIVRO(livro.uuid)} className="botao btn-secondary">
         Ver Detalhes
       </Link>
       <ControlesCompra livro={livro} variant="card" className="cartao-livro__linha-compra" />

@@ -7,6 +7,7 @@ import { ControlesCompra } from '../ControlesCompra';
 import type { ILivro } from '@/interfaces/livro';
 import { LivroServiceApi } from '@/services/api/livroServiceApi';
 import '@/pages-react-router/CadastroLivros/DetalhesLivro/style.module.css';
+import { ROTAS } from '@/config/rotas';
 
 interface DetalhesLivroProps {
   livro?: ILivro;
@@ -48,12 +49,12 @@ export const DetalhesLivro = ({ livro: data, livroUuid }: DetalhesLivroProps) =>
     <div className="detalhes-livro page-transition-enter">
       <div className="breadcrumb detalhes-breadcrumb">
         <span className="detalhes-breadcrumb-path">
-          <Link href="/" className="breadcrumb-link">Início</Link>
+          <Link href={ROTAS.HOME} className="breadcrumb-link">Início</Link>
           {livro.categorias && livro.categorias.length > 0 && livro.categorias.map((cat: string, index: number) => (
             <span key={index}>
               {' > '}
               <Link
-                href={`/categoria/${cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-')}`}
+                href={ROTAS.CATEGORIA(cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'))}
                 className="breadcrumb-link"
               >
                 {cat}

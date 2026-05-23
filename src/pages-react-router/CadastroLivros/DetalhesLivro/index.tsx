@@ -6,6 +6,7 @@ import { LoadingState } from '../../../components/Comum/LoadingState/LoadingStat
 import { ErrorState } from '../../../components/Comum/ErrorState/ErrorState.tsx';
 import { CapaLivro } from '../../../components/Comum/CapaLivro/CapaLivro.tsx';
 import { ControlesCompra } from '../../../components/Comum/ControlesCompra/ControlesCompra.tsx';
+import { ROTAS } from '@/config/rotas';
 
 const recarregarPagina = () => {
   if (typeof window !== 'undefined') {
@@ -27,12 +28,12 @@ export const DetalhesLivro = () => {
     <div className={`${styles['detalhes-livro']} page-transition-enter`}>
       <div className={`breadcrumb ${styles['detalhes-breadcrumb']}`}>
         <span className={styles['detalhes-breadcrumb-path']}>
-          <Link href="/" className="breadcrumb-link">Início</Link>
+          <Link href={ROTAS.HOME} className="breadcrumb-link">Início</Link>
           {data.categorias?.map((cat: string, index: number) => (
             <span key={index}>
               {' > '}
               <Link
-                href={`/categoria/${cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-')}`}
+                href={ROTAS.CATEGORIA(cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'))}
                 className="breadcrumb-link"
               >
                 {cat}

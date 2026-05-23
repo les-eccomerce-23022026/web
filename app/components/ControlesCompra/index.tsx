@@ -8,6 +8,7 @@ import { ControlesCompraQuantidade } from '@/components/Comum/ControlesCompra/Co
 import { USE_MOCK } from '@/config/apiConfig';
 import type { ILivro } from '@/interfaces/livro';
 import '@/components/Comum/ControlesCompra/ControlesCompra.css';
+import { ROTAS } from '@/config/rotas';
 
 interface ControlesCompraProps {
   livro: ILivro;
@@ -37,7 +38,7 @@ export const ControlesCompra: React.FC<ControlesCompraProps> = ({
     if (onAction) onAction(e);
     await adicionarUmAoCarrinho(dispatch, usarCarrinhoLocal, livro, quantidade);
     if (redirect) {
-      router.push('/carrinho');
+      router.push(ROTAS.CARRINHO);
     }
   };
 

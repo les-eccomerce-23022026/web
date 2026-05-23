@@ -7,6 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import type { Genero } from '@/interfaces/cliente';
 import { Modal } from '@/components/Comum/Modal';
 import { useMaskedField } from '@/hooks/useMaskedField';
+import { ROTAS } from '@/config/rotas';
 
 function MeuPerfil() {
   const {
@@ -60,13 +61,13 @@ function MeuPerfil() {
       <div className={styles.quickLinks}>
         <button
           className={styles.quickLink}
-          onClick={() => router.push('/pedidos')}
+          onClick={() => router.push(ROTAS.PEDIDOS)}
         >
           📦 Meus Pedidos
         </button>
         <button
           className={styles.quickLink}
-          onClick={() => router.push('/carrinho')}
+          onClick={() => router.push(ROTAS.CARRINHO)}
         >
           🛒 Meu Carrinho
         </button>

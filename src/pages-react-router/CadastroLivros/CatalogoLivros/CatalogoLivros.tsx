@@ -12,6 +12,7 @@ import { fetchLivros, setTermoBusca } from '../../../store/slices/livroSlice';
 import { CapaLivro } from '../../../components/Comum/CapaLivro/CapaLivro.tsx';
 import { ControlesCompra } from '../../../components/Comum/ControlesCompra/ControlesCompra.tsx';
 import { ShoppingCart, AlertCircle, X, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ROTAS } from '@/config/rotas';
 
 export const CatalogoLivros = () => {
   const { destaques, loading, error } = useLivrosDestaque();
@@ -137,7 +138,7 @@ export const CatalogoLivros = () => {
                   key={book.uuid}
                   className="cartao-livro"
                   data-cy="livro-card"
-                  onClick={() => router.push(`/livro/${book.uuid}`)}
+                  onClick={() => router.push(ROTAS.LIVRO(book.uuid))}
                 >
                   {quantidadeNoCarrinho > 0 && (
                     <div className="cartao-livro__badge-carrinho" title={`${quantidadeNoCarrinho} no carrinho`}>
@@ -165,7 +166,7 @@ export const CatalogoLivros = () => {
                     <p className="cartao-livro__preco">R$ {book.preco.toFixed(2).replace('.', ',')}</p>
                   </div>
                   <div className="cartao-livro__acao" onClick={(e) => e.stopPropagation()}>
-                    <Link href={`/livro/${book.uuid}`} className="botao btn-secondary">
+                    <Link href={ROTAS.LIVRO(book.uuid)} className="botao btn-secondary">
                       Ver Detalhes
                     </Link>
                     <ControlesCompra livro={book} variant="card" className="cartao-livro__linha-compra" />

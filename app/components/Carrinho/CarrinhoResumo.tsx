@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { IFreteOpcao } from '@/interfaces/entrega';
 import { FreteCalculo, type FreteCalculoEntregaApi } from '@/components/FinalizarCompra/Entrega';
+import { ROTAS } from '@/config/rotas';
 
 interface CarrinhoResumoProps {
   subtotal: number;
@@ -42,7 +43,7 @@ export const CarrinhoResumo = ({
       <hr className="carrinho-total-separator" />
       <h2 className="carrinho-total-header">Total: R$ {total.toFixed(2).replace('.', ',')}</h2>
 
-      <Link href="/checkout">
+      <Link href={ROTAS.CHECKOUT}>
         <button
           className="btn-primary carrinho-btn-finalizar"
           data-cy="carrinho-finalizar-compra"

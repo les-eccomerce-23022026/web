@@ -14,6 +14,7 @@ import { PedidoService } from '@/services/pedidoService';
 import type { IItemPedido } from '@/interfaces/pedido';
 import styles from '@/pages-react-router/Vendas/SolicitarTroca/style.module.css';
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
+import { ROTAS } from '@/config/rotas';
 
 export default function SolicitarTrocaPage() {
   const params = useParams();
@@ -118,7 +119,7 @@ export default function SolicitarTrocaPage() {
         solicitarTrocaThunk({ pedidoUuid: pedido.uuid, motivo, itensUuids: itensSelecionados }),
       ).unwrap();
       setSucesso(true);
-      setTimeout(() => router.push('/pedidos'), 2000);
+      setTimeout(() => router.push(ROTAS.PEDIDOS), 2000);
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Erro ao solicitar troca.');
     } finally {
@@ -197,7 +198,7 @@ export default function SolicitarTrocaPage() {
         <div className={styles['solicitar-troca-acoes']}>
           <button
             className="btn-secondary"
-            onClick={() => router.push('/pedidos')}
+            onClick={() => router.push(ROTAS.PEDIDOS)}
             disabled={enviando}
           >
             Cancelar

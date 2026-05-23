@@ -1,5 +1,6 @@
 import { fetchCatalogoLivros } from 'lib/data/fetchLivro';
 import type { LivroMetadata } from 'lib/data/fetchLivro';
+import { ROTAS } from '@/config/rotas';
 
 export const MaisVendidos = async () => {
   const catalogo = await fetchCatalogoLivros({
@@ -24,7 +25,7 @@ export const MaisVendidos = async () => {
       <ul>
         {catalogo.livros.map((livro: LivroMetadata) => (
           <li key={livro.uuid}>
-            <a href={`/livro/${livro.uuid}`}>{livro.titulo}</a>
+            <a href={ROTAS.LIVRO(livro.uuid)}>{livro.titulo}</a>
             <span> - R$ {livro.preco.toFixed(2)}</span>
           </li>
         ))}

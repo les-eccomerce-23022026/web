@@ -11,6 +11,7 @@ import {
   mensagemErroSalvarLivro,
   buildNovoLivroFromForm,
 } from './cadastrarLivroValidacao';
+import { ROTAS } from '@/config/rotas';
 
 function CadastrarLivroAdmin() {
   const dispatch = useAppDispatch();
@@ -43,14 +44,14 @@ function CadastrarLivroAdmin() {
     }
     const novoLivro = buildNovoLivroFromForm(form, precoVendaCalculado);
     dispatch(adicionarLivro(novoLivro));
-    router.push('/admin/livros');
+    router.push(ROTAS.ADMIN.LIVROS);
   };
 
   return (
     <div className="cadastrar-livro-page">
       <div className="cadastrar-livro-page-header">
         <h3>Cadastrar Novo Livro</h3>
-        <Link href="/admin/livros"><button className="btn-secondary">Voltar / Cancelar</button></Link>
+        <Link href={ROTAS.ADMIN.LIVROS}><button className="btn-secondary">Voltar / Cancelar</button></Link>
       </div>
 
       <div className="cadastrar-livro-container">
@@ -174,7 +175,7 @@ function CadastrarLivroAdmin() {
         </div>
 
         <div className="cadastrar-livro-actions">
-          <button onClick={() => router.push('/admin/livros')} className="btn-secondary cadastrar-livro-action-btn">Cancelar</button>
+          <button onClick={() => router.push(ROTAS.ADMIN.LIVROS)} className="btn-secondary cadastrar-livro-action-btn">Cancelar</button>
           <button onClick={handleSave} className="btn-primary cadastrar-livro-action-btn">✅ Salvar Novo Livro</button>
         </div>
       </div>

@@ -12,6 +12,7 @@ import { useFinalizarCompra } from '@/hooks/useFinalizarCompra';
 import { useAppSelector } from '@/store/hooks';
 import { FinalizarCompraPedidoCarregado } from '@/pages-react-router/Vendas/FinalizarCompra/FinalizarCompraPedidoCarregado';
 import { FinalizarCompraSkeleton } from '@/pages-react-router/Vendas/FinalizarCompra/FinalizarCompraSkeleton';
+import { ROTAS } from '@/config/rotas';
 
 export default function CheckoutPage() {
   const hook = useFinalizarCompra();
@@ -41,7 +42,7 @@ export default function CheckoutPage() {
         <p className="empty-state-message">
           Ocorreu um erro ao tentar carregar os dados do checkout. Por favor, tente novamente mais tarde.
         </p>
-        <button className="btn-primary" onClick={() => router.push('/')}>
+        <button className="btn-primary" onClick={() => router.push(ROTAS.HOME)}>
           Voltar para a página inicial
         </button>
       </div>
@@ -57,7 +58,7 @@ export default function CheckoutPage() {
         <p className="empty-state-message">
           Seu carrinho de compras está vazio. Adicione livros ao carrinho para prosseguir com o checkout.
         </p>
-        <button className="btn-primary" onClick={() => router.push('/')} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+        <button className="btn-primary" onClick={() => router.push(ROTAS.HOME)} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
           Explorar Livros
           <ArrowRight size={16} />
         </button>

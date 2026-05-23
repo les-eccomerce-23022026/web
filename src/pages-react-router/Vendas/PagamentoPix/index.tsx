@@ -4,6 +4,7 @@ import { usePagamentoPixModel } from './usePagamentoPixModel';
 import { PagamentoPixFalha } from './PagamentoPixFalha';
 import { PagamentoPixPagarView } from './PagamentoPixPagarView';
 import styles from './style.module.css';
+import { ROTAS } from '@/config/rotas';
 
 function PagamentoPix() {
   const model = usePagamentoPixModel();
@@ -14,7 +15,7 @@ function PagamentoPix() {
         <p className={styles.erro} role="alert">
           {model.erro}
         </p>
-        <button type="button" className="btn-primary" onClick={() => model.navigate('/checkout')}>
+        <button type="button" className="btn-primary" onClick={() => model.navigate(ROTAS.CHECKOUT)}>
           Voltar ao checkout
         </button>
       </div>
@@ -32,7 +33,7 @@ function PagamentoPix() {
   if (model.phase === 'falha') {
     return (
       <div className={styles.wrap} data-cy="pagamento-pix-page">
-        <PagamentoPixFalha erroExtra={model.erro} onCheckout={() => model.navigate('/checkout')} />
+        <PagamentoPixFalha erroExtra={model.erro} onCheckout={() => model.navigate(ROTAS.CHECKOUT)} />
       </div>
     );
   }

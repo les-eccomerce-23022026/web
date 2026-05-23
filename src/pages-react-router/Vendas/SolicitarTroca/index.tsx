@@ -8,6 +8,7 @@ import { ErrorState } from '../../../components/Comum/ErrorState/ErrorState.tsx'
 import type { IItemPedido } from '../../../interfaces/pedido';
 import styles from './style.module.css';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
+import { ROTAS } from '@/config/rotas';
 
 export const SolicitarTroca = () => {
   const params = useParams();
@@ -39,12 +40,12 @@ export const SolicitarTroca = () => {
         actions={[
           {
             label: 'Ver Meus Pedidos',
-            onClick: () => router.push('/pedidos'),
+            onClick: () => router.push(ROTAS.PEDIDOS),
             variant: 'primary',
           },
           {
             label: 'Página Inicial',
-            onClick: () => router.push('/'),
+            onClick: () => router.push(ROTAS.HOME),
             variant: 'secondary',
           },
         ]}
@@ -59,12 +60,12 @@ export const SolicitarTroca = () => {
         actions={[
           {
             label: 'Ver Detalhes do Pedido',
-            onClick: () => router.push(`/pedidos/${pedido.uuid}`),
+            onClick: () => router.push(`${ROTAS.PEDIDOS}/${pedido.uuid}`),
             variant: 'primary',
           },
           {
             label: 'Ver Meus Pedidos',
-            onClick: () => router.push('/pedidos'),
+            onClick: () => router.push(ROTAS.PEDIDOS),
             variant: 'secondary',
           },
         ]}
@@ -124,7 +125,7 @@ export const SolicitarTroca = () => {
           </p>
           <button
             className="btn-primary"
-            onClick={() => router.push('/pedidos')}
+            onClick={() => router.push(ROTAS.PEDIDOS)}
             data-cy="btn-voltar-pedidos"
           >
             Voltar para Meus Pedidos
@@ -204,7 +205,7 @@ export const SolicitarTroca = () => {
       <div className={styles.acoes}>
         <button
           className="btn-secondary"
-          onClick={() => router.push('/pedidos')}
+          onClick={() => router.push(ROTAS.PEDIDOS)}
           data-cy="btn-cancelar-troca"
         >
           Cancelar

@@ -10,6 +10,7 @@ import clientesMock from '../../../mocks/clientesMock.json';
 import type { Genero, ITelefone } from '../../../interfaces/cliente';
 import type { IEnderecoCliente } from '../../../interfaces/pagamento';
 import { mensagemErroCadastroStep1 } from './autenticacaoClienteValidacao';
+import { ROTAS } from '@/config/rotas';
 
 const ENDERECO_VAZIO: Omit<IEnderecoCliente, 'uuid'> = {
   logradouro: '',
@@ -121,11 +122,11 @@ export function useAutenticacaoCliente() {
 
       if (data.user.role === 'admin') {
         console.log('[Auth] Redirecionando para /admin');
-        router.push('/admin');
+        router.push(ROTAS.ADMIN.HOME);
         return;
       }
       console.log('[Auth] Redirecionando para /');
-      router.push('/');
+      router.push(ROTAS.HOME);
       // #region agent log
       fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
         method: 'POST',

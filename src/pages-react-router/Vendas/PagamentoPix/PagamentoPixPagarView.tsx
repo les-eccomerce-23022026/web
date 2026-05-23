@@ -3,6 +3,7 @@ import { ShieldCheck, Smartphone } from 'lucide-react';
 import type { CheckoutPixPendentePayload } from '../../../utils/checkoutPixPendente';
 import { PagamentoPixCobrancaCard } from './PagamentoPixCobrancaCard';
 import styles from './style.module.css';
+import { ROTAS } from '@/config/rotas';
 
 type Props = {
   payload: CheckoutPixPendentePayload;
@@ -31,7 +32,7 @@ export const PagamentoPixPagarView = ({
 }: Props) => (
   <div className={styles.wrap} data-cy="pagamento-pix-page">
     <header className={styles.pageHeader}>
-      <Link href="/checkout" className={styles.backLink}>
+      <Link href={ROTAS.CHECKOUT} className={styles.backLink}>
         Voltar ao checkout
       </Link>
       <h1 className={styles.title}>Pagamento via PIX</h1>

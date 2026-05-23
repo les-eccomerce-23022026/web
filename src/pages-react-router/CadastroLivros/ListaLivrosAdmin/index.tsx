@@ -11,6 +11,7 @@ import { ErrorState } from '../../../components/Comum/ErrorState/ErrorState.tsx'
 import { EmptyState } from '../../../components/Comum/EmptyState/EmptyState.tsx';
 import { Modal } from '../../../components/Comum/Modal';
 import { livroPassaFiltrosLista } from './listaLivrosFiltros';
+import { ROTAS } from '@/config/rotas';
 
 function ListaLivrosAdmin() {
   const { livros, loading, error } = useListaLivrosAdmin();
@@ -92,7 +93,7 @@ function ListaLivrosAdmin() {
               <option value="ativos">Apenas Ativos</option>
               <option value="inativos">Apenas Inativos</option>
             </select>
-            <Link href="/admin/livros/novo">
+            <Link href={ROTAS.ADMIN.LIVRO_NOVO}>
               <button className={`btn-primary ${styles.btnAddBook}`}>+ Novo Livro</button>
             </Link>
           </div>

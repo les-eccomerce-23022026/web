@@ -2,6 +2,7 @@ import { useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './style.module.css';
+import { ROTAS } from '@/config/rotas';
 
 /**
  * RF0037: Após finalização, status EM PROCESSAMENTO.
@@ -40,12 +41,12 @@ export const PedidoConfirmado = () => {
         </div>
 
         <div className={styles['confirmado-actions']}>
-          <Link href="/">
+          <Link href={ROTAS.HOME}>
             <button className={`btn-primary ${styles['confirmado-btn-home']}`} data-cy="confirmado-btn-home">
               Voltar à Loja
             </button>
           </Link>
-          <Link href="/pedidos">
+          <Link href={ROTAS.PEDIDOS}>
             <button className={`btn-secondary ${styles['confirmado-btn-pedidos']}`} data-cy="confirmado-btn-pedidos">
               Ver Meus Pedidos
             </button>

@@ -2,6 +2,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Home } from 'lucide-react';
 import styles from './style.module.css';
+import { ROTAS } from '@/config/rotas';
 
 interface AdminLayoutProps {
   title: string;
@@ -29,7 +30,7 @@ export const AdminLayout = ({ title, subtitle, children }: AdminLayoutProps) => 
             <ChevronLeft size={24} strokeWidth={2.5} />
           </button>
           
-          <Link href="/" className={styles.navIconBtn} title="Home">
+          <Link href={ROTAS.HOME} className={styles.navIconBtn} title="Home">
             <Home size={24} strokeWidth={2.5} />
           </Link>
         </div>

@@ -20,6 +20,7 @@ import {
 } from '@/store/slices/cotacaoFreteSlice';
 import { assinaturaItensCarrinho } from '@/utils/carrinhoAssinatura';
 import { USE_MOCK } from '@/config/apiConfig';
+import { ROTAS } from '@/config/rotas';
 
 export const Carrinho = () => {
   const dispatch = useAppDispatch();
@@ -143,7 +144,7 @@ export const Carrinho = () => {
         />
 
         <div className={styles['carrinho-empty-actions']}>
-          <Link href="/" className={styles['carrinho-empty-link']}>
+          <Link href={ROTAS.HOME} className={styles['carrinho-empty-link']}>
             <button type="button" className={styles['carrinho-empty-cta']}>
               Continuar comprando
             </button>
@@ -245,7 +246,7 @@ export const Carrinho = () => {
           <hr className={styles['carrinho-total-separator']} />
           <h2 className={styles['carrinho-total-header']}>Total: R$ {data.resumo.total.toFixed(2).replace('.', ',')}</h2>
 
-          <Link href="/checkout">
+          <Link href={ROTAS.CHECKOUT}>
             <button 
               className={`btn-primary ${styles['carrinho-btn-finalizar']}`}
               data-cy="carrinho-finalizar-compra"
