@@ -38,10 +38,10 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
   });
 
   // Validação com debounce para telefone
-  const validacaoTelefone = useDebounceValidation<{ ddd: string; numero: string }>({
+  const validacaoTelefone = useDebounceValidation<{ numero: string }>({
     validationFn: (telefone) => {
-      if (!telefone.ddd || !telefone.numero) {
-        return 'Telefone (DDD e Número) é obrigatório.';
+      if (!telefone.numero) {
+        return 'Telefone é obrigatório.';
       }
       return null;
     },
@@ -49,8 +49,8 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
   });
 
   const validarTelefone = () => {
-    if (!registerState.regTelefone.ddd || !registerState.regTelefone.numero) {
-      setErrosCampo((prev) => ({ ...prev, telefone: 'Telefone (DDD e Número) é obrigatório.' }));
+    if (!registerState.regTelefone.numero) {
+      setErrosCampo((prev) => ({ ...prev, telefone: 'Telefone é obrigatório.' }));
       return;
     }
     setErrosCampo((prev) => ({ ...prev, telefone: '' }));
@@ -104,38 +104,20 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
             </select>
           </div>
           <div className={styles.telefoneField}>
-            <label>DDD *</label>
-            <input
-              type="text"
-              value={registerState.regTelefone.ddd}
-              onChange={(e) => {
-                registerState.setRegTelefone({ ...registerState.regTelefone, ddd: e.target.value });
-                limparErroCampo('telefone');
-                validacaoTelefone.validate({ ...registerState.regTelefone, ddd: e.target.value });
-              }}
-              onBlur={() => {
-                handleCampoTocado('telefone');
-                validarTelefone();
-              }}
-              maxLength={2}
-              data-cy="register-ddd-input"
-            />
-          </div>
-          <div className={styles.telefoneField}>
-            <label>Número *</label>
+            <label>Número (com DDD) *</label>
             <input
               type="text"
               value={registerState.regTelefone.numero}
               onChange={(e) => {
                 registerState.setRegTelefone({ ...registerState.regTelefone, numero: e.target.value });
                 limparErroCampo('telefone');
-                validacaoTelefone.validate({ ...registerState.regTelefone, numero: e.target.value });
+                validacaoTelefone.validate({ numero: e.target.value });
               }}
               onBlur={() => {
                 handleCampoTocado('telefone');
                 validarTelefone();
               }}
-              maxLength={9}
+              maxLength={11}
               data-cy="register-telefone-input"
             />
           </div>
@@ -238,11 +220,11 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
         </button>
         <button
           className={`btn-primary ${styles['login-btn-register']}`}
-          onClick={registerState.handleRegister}
+          onClick={registerState.handleNextStep}
           disabled={!!errosCampo.telefone || !!errosCampo.senha || !!errosCampo.confirmacaoSenha || registerState.isRegistering}
-          data-cy="register-submit-button"
+          data-cy="register-step2-next-button"
         >
-          {registerState.isRegistering ? 'Cadastrando...' : 'Finalizar Cadastro'}
+          {registerState.regQuerSerAdmin ? 'Próximo: Dados da Loja →' : 'Finalizar Cadastro'}
         </button>
       </div>
     </div>

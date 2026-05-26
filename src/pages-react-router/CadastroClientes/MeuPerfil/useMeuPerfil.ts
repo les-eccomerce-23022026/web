@@ -45,7 +45,6 @@ export function useMeuPerfil() {
   const [visualizacaoTelefone, setVisualizacaoTelefone] = useState('');
   const [novoEmail, setNovoEmail] = useState('');
   const [novoCpf, setNovoCpf] = useState('');
-  const [novoTelefoneDdd, setNovoTelefoneDdd] = useState('');
   const [novoTelefoneNumero, setNovoTelefoneNumero] = useState('');
   const [novoTelefoneTipo, setNovoTelefoneTipo] = useState('Celular');
   
@@ -120,7 +119,7 @@ export function useMeuPerfil() {
       setVisualizacaoEmail(cliente.emailMascarado || cliente.email || '');
       setVisualizacaoCpf(cliente.cpfMascarado || cliente.cpf || '');
       const telStr = cliente.telefone 
-        ? `(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}`
+        ? cliente.telefone.numeroMascarado || cliente.telefone.numero
         : '';
       setVisualizacaoTelefone(telStr);
       setNovoTelefoneTipo(cliente.telefone?.tipo || 'Celular');
@@ -184,7 +183,7 @@ export function useMeuPerfil() {
     if (alteracoes.isTelChanged) {
       const cleanTel = visualizacaoTelefone.replace(/\D/g, '');
       if (cleanTel.length < 10 || cleanTel.length > 11) {
-        showMessage('O Telefone deve ter 10 ou 11 números, contando com o DDD.', 'error');
+        showMessage('O Telefone deve ter 10 ou 11 números (DDD + número).', 'error');
         return;
       }
     }
@@ -237,15 +236,12 @@ export function useMeuPerfil() {
     if (alteracoes.isTelChanged) {
       const cleanTel = visualizacaoTelefone.replace(/\D/g, '');
       if (cleanTel.length < 10 || cleanTel.length > 11) {
-        showMessage('O Telefone deve ter 10 ou 11 números, contando com o DDD.', 'error');
+        showMessage('O Telefone deve ter 10 ou 11 números (DDD + número).', 'error');
         return;
       }
-      const ddd = cleanTel.substring(0, 2);
-      const numero = cleanTel.substring(2);
       payload.telefone = { 
         tipo: novoTelefoneTipo as 'Celular' | 'Residencial' | 'Comercial', 
-        ddd: ddd, 
-        numero: numero 
+        numero: cleanTel 
       };
     }
 
@@ -473,7 +469,7 @@ export function useMeuPerfil() {
       nome, setNome, genero, setGenero, dataNascimento, setDataNascimento,
       visualizacaoEmail, setVisualizacaoEmail, visualizacaoCpf, setVisualizacaoCpf, visualizacaoTelefone, setVisualizacaoTelefone,
       novoEmail, setNovoEmail, novoCpf, setNovoCpf,
-      novoTelefoneDdd, setNovoTelefoneDdd, novoTelefoneNumero, setNovoTelefoneNumero, novoTelefoneTipo, setNovoTelefoneTipo,
+      novoTelefoneNumero, setNovoTelefoneNumero, novoTelefoneTipo, setNovoTelefoneTipo,
       senhaConfirmacao, setSenhaConfirmacao, showSenhaConfirmacao, setShowSenhaConfirmacao,
       showModalSenha, setShowModalSenha, handleUpdateProfile, confirmarUpdateComSenha,
     },

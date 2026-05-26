@@ -25,7 +25,6 @@ const ENDERECO_VAZIO: Omit<IEnderecoCliente, 'uuid'> = {
 
 const TELEFONE_VAZIO: ITelefone = {
   tipo: 'Celular',
-  ddd: '',
   numero: '',
 };
 

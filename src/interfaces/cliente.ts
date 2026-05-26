@@ -2,7 +2,6 @@ import type { IEnderecoCliente, ICartaoCliente } from './pagamento';
 
 export interface ITelefone {
   tipo: 'Celular' | 'Residencial' | 'Comercial';
-  ddd: string;
   numero: string;
   numeroMascarado?: string;
 }

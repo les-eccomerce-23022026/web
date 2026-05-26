@@ -8,7 +8,6 @@ export class RegisterPage {
   static get senhaToggle() { return cy.get('.toggleButton').eq(0); }
   static get confirmacaoSenhaInput() { return cy.getDataCy('register-confirmar-senha-input'); }
   static get confirmacaoSenhaToggle() { return cy.get('.toggleButton').eq(1); }
-  static get dddInput() { return cy.getDataCy('register-ddd-input'); }
   static get telefoneInput() { return cy.getDataCy('register-telefone-input'); }
   static get step2NextButton() { return cy.contains('Finalizar Cadastro'); }
   static get nextStepButton() { return cy.getDataCy('register-step1-next-button'); }

@@ -22,8 +22,7 @@ describe('Autenticação — Registro de Cliente', () => {
       cy.wait(1000);
 
       // Preencher Passo 2 - Telefone e Senha
-      RegisterPage.dddInput.clear().type('11');
-      RegisterPage.telefoneInput.clear().type('999887766');
+      RegisterPage.telefoneInput.clear().type('11999887766');
       RegisterPage.senhaInput.clear().type('Senha@123');
       RegisterPage.confirmacaoSenhaInput.clear().type('Senha@123');
       cy.wait(1000);

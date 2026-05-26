@@ -220,7 +220,7 @@ function MeuPerfil() {
                 </select>
               </div>
               <div className="form-group">
-                <label>Número com DDD (apenas números)</label>
+                <label>Número (DDD + número, apenas números)</label>
                 <input
                   data-cy="perfil-tel-input"
                   type="text"
@@ -229,7 +229,7 @@ function MeuPerfil() {
                   onFocus={telMask.onFocus}
                   onBlur={() => {
                     const telOriginal = cliente?.telefone 
-                      ? `(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}` 
+                      ? cliente.telefone.numeroMascarado || cliente.telefone.numero
                       : '';
                     telMask.onBlur(telOriginal);
                   }}

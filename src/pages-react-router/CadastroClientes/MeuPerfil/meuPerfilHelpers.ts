@@ -10,7 +10,7 @@ export function obterValoresOriginaisMascarados(cliente: ICliente | null) {
   const emailAtualMascarado = cliente?.emailMascarado || cliente?.email || '';
   const cpfAtualMascarado = cliente?.cpfMascarado || cliente?.cpf || '';
   const telefoneAtualMascarado = cliente?.telefone
-    ? `(${cliente.telefone.ddd}) ${cliente.telefone.numeroMascarado || cliente.telefone.numero}`
+    ? cliente.telefone.numeroMascarado || cliente.telefone.numero
     : '';
 
   return {
