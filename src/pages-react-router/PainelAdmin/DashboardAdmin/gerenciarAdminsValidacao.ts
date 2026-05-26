@@ -2,14 +2,14 @@ import type { IAdminFormState } from '../../../interfaces/admin';
 
 type Ctx = {
   isAuthenticated: boolean;
-  userRole: string | undefined;
+  userPapeis: string[] | undefined;
   editingAdmin: unknown;
   form: IAdminFormState;
 };
 
-function mensagemSeAuthInvalida(isAuthenticated: boolean, userRole: string | undefined): string | null {
-  if (!isAuthenticated || userRole !== 'admin') {
-    return 'Você precisa estar autenticado para gerenciar administradores.';
+function mensagemSeAuthInvalida(isAuthenticated: boolean, userPapeis: string[] | undefined): string | null {
+  if (!isAuthenticated || !userPapeis?.includes('admin_sistema')) {
+    return 'Você precisa estar autenticado como admin do sistema para gerenciar administradores.';
   }
   return null;
 }
@@ -31,7 +31,7 @@ function mensagemSeNovoAdminInvalido(form: IAdminFormState): string | null {
 }
 
 export function mensagemSeSalvarInvalido(ctx: Ctx): string | null {
-  const auth = mensagemSeAuthInvalida(ctx.isAuthenticated, ctx.userRole);
+  const auth = mensagemSeAuthInvalida(ctx.isAuthenticated, ctx.userPapeis);
   if (auth) return auth;
   if (ctx.editingAdmin) return null;
   return mensagemSeNovoAdminInvalido(ctx.form);

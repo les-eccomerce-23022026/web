@@ -123,8 +123,14 @@ export const Header = () => {
               )}
             </Link>
 
-            {user?.role === 'admin' && (
-              <Link href={ROTAS.ADMIN.HOME} className={`${styles['action-icon']} ${styles['admin-icon']}`} data-cy="header-admin-link" title="Administração">
+            {/* Mostra ícone de admin apenas para admin_sistema ou admin */}
+            {user?.papeis?.includes('admin_sistema') && (
+              <Link href={ROTAS.ADMIN.HOME} className={`${styles['action-icon']} ${styles['admin-icon']}`} data-cy="header-admin-link" title="Administração do Sistema (acesso total)">
+                <ShieldCheck size={22} strokeWidth={2} />
+              </Link>
+            )}
+            {user?.papeis?.includes('admin') && !user?.papeis?.includes('admin_sistema') && (
+              <Link href={ROTAS.ADMIN.HOME} className={`${styles['action-icon']} ${styles['admin-icon']}`} data-cy="header-admin-link" title="Administração da Loja (acesso restrito)">
                 <ShieldCheck size={22} strokeWidth={2} />
               </Link>
             )}

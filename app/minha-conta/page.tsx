@@ -1,5 +1,5 @@
-import { MeuPerfil } from '@/pages-react-router/CadastroClientes/MeuPerfil';
+import { MinhaConta } from '../components/MinhaConta';
 
 export default function MinhaContaPage() {
-  return <MeuPerfil />;
+  return <MinhaConta />;
 }

@@ -49,8 +49,8 @@ const ClientProviders = ({ children }: { children: React.ReactNode }) => {
         // Só executa ações dependentes após restoreSession ter sucesso
         dispatch(fetchCarrinho());
         dispatch(fetchCategoriasCatalogo());
-        const role = store.getState().auth.user?.role;
-        if (role === 'admin') {
+        const papeis = store.getState().auth.user?.papeis;
+        if (papeis?.includes('admin') || papeis?.includes('admin_sistema')) {
           dispatch(fetchAdmins());
         }
       } catch (_erro) {

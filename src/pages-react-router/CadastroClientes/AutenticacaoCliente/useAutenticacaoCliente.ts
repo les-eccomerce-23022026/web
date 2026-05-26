@@ -120,7 +120,8 @@ export function useAutenticacaoCliente() {
       void dispatch(fetchCarrinho());
       console.log('[Auth] Dispatch fetchCarrinho executado');
 
-      if (data.user.role === 'admin') {
+      // Redireciona para admin se tiver papel de admin ou admin_sistema
+      if (data.user.papeis?.includes('admin') || data.user.papeis?.includes('admin_sistema')) {
         console.log('[Auth] Redirecionando para /admin');
         router.push(ROTAS.ADMIN.HOME);
         return;

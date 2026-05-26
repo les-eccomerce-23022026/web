@@ -48,7 +48,10 @@ export class AuthServiceMock implements IAuthService {
       token: `${MOCK_TOKEN_PREFIX}-${usuario.uuid}`,
       user: {
         ...userSemSenha,
-        role: userSemSenha.role as 'cliente' | 'admin',
+        role: userSemSenha.role as 'cliente' | 'admin' | 'admin_sistema',
+        papeis: [userSemSenha.role],
+        lojas: [],
+        loja_uuid_principal: null,
       },
     };
 
@@ -57,7 +60,7 @@ export class AuthServiceMock implements IAuthService {
 
   async getAdmins(): Promise<IAdmin[]> {
     const admins = authUsersMock.usuarios
-      .filter((u) => u.role === 'admin')
+      .filter((u) => u.role === 'admin' || u.role === 'admin_sistema')
       .map(({ senha: _, ...user }) => user as IAdmin);
 
     return delay(admins);

@@ -233,3 +233,65 @@ label {
   }
 }
 
+/* --- Layout Admin Dashboard --- */
+.admin-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 200px);
+  background-color: #f4f6f9;
+}
+
+.admin-main-content {
+  width: 100%;
+  overflow-x: hidden;
+  padding: 30px;
+}
+
+/* Responsividade Mobile-First */
+@media (max-width: 768px) {
+  .admin-main-content {
+    padding: 16px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .admin-main-content {
+    padding: 30px;
+  }
+}
+
+/* Estilos adicionais para cards do dashboard */
+.painel-graficos .mt-20 {
+  margin-top: 20px;
+}
+
+.kpi-secundario-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kpi-secundario {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--bn-bg-subtle);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--bn-text-body);
+}
+
+.kpi-secundario svg {
+  color: var(--bn-primary);
+}
+
+.card {
+  background: var(--bn-bg-card);
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  padding: 20px;
+  box-shadow: var(--bn-shadow-sm);
+}
+

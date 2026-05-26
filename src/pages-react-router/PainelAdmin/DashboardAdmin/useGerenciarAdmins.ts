@@ -106,7 +106,7 @@ export function useGerenciarAdmins() {
   function triggerSaveConfirm() {
     const msg = mensagemSeSalvarInvalido({
       isAuthenticated,
-      userRole: user?.role,
+      userPapeis: user?.papeis,
       editingAdmin,
       form,
     });
@@ -172,8 +172,8 @@ export function useGerenciarAdmins() {
     if (!adminToToggle) return;
 
     try {
-      if (!isAuthenticated || user?.role !== 'admin') {
-        showPageFeedback('Você precisa estar autenticado para alterar o status de administradores.', 'error');
+      if (!isAuthenticated || !user?.papeis?.includes('admin_sistema')) {
+        showPageFeedback('Você precisa estar autenticado como admin do sistema para alterar o status de administradores.', 'error');
         return;
       }
 
