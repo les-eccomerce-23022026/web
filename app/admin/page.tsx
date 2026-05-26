@@ -7,8 +7,9 @@
 
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler } from 'chart.js';
 import { Line, Doughnut } from 'react-chartjs-2';
-import { DollarSign, Users, Package, AlertTriangle, BookOpen, ShieldCheck } from 'lucide-react';
+import { DollarSign, Percent, Users, Package, AlertTriangle, BookOpen, ShieldCheck } from 'lucide-react';
 import '@/pages-react-router/PainelAdmin/DashboardAdmin/DashboardAdmin.css';
+import type { ChartData } from 'chart.js';
 import { useEffect } from 'react';
 import { useDashboardAdmin } from '@/hooks/useDashboardAdmin';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -47,7 +48,7 @@ export default function DashboardAdminPage() {
             <DollarSign size={24} strokeWidth={2.5} />
           </div>
           <div className="painel-kpi__info">
-            <span className="painel-kpi__valor">{data.metricas.totalVendasMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+            <span className="painel-kpi__valor">R$ {data.metricas.totalVendasMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             <span className="painel-kpi__rotulo">
               Receita do Mês
               <span className={`texto--${data.metricas.percentualCrescimento > 0 ? 'sucesso' : 'erro'} kpi-tendencia`}>
@@ -58,27 +59,18 @@ export default function DashboardAdminPage() {
         </div>
 
         <div className="painel-kpi">
-          <div className="painel-kpi__icone painel-kpi__icone--pedidos">
-            <Package size={24} strokeWidth={2.5} />
+          <div className="painel-kpi__icone painel-kpi__icone--vendas">
+            <Percent size={24} strokeWidth={2.5} />
           </div>
           <div className="painel-kpi__info">
-            <span className="painel-kpi__valor">0</span>
-            <span className="painel-kpi__rotulo">Pedidos do Mês</span>
+            <span className="painel-kpi__valor">R$ {data.metricas.ticketMedio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+            <span className="painel-kpi__rotulo">Ticket Médio</span>
           </div>
         </div>
 
+        {/* KPI Livros (Vindo do Redux) */}
         <div className="painel-kpi">
-          <div className="painel-kpi__icone painel-kpi__icone--clientes">
-            <Users size={24} strokeWidth={2.5} />
-          </div>
-          <div className="painel-kpi__info">
-            <span className="painel-kpi__valor">0</span>
-            <span className="painel-kpi__rotulo">Clientes Ativos</span>
-          </div>
-        </div>
-
-        <div className="painel-kpi">
-          <div className="painel-kpi__icone painel-kpi__icone--livros">
+          <div className="painel-kpi__icone" style={{ backgroundColor: 'rgba(74, 144, 226, 0.15)', color: '#4a90e2' }}>
             <BookOpen size={24} strokeWidth={2.5} />
           </div>
           <div className="painel-kpi__info">
@@ -87,18 +79,20 @@ export default function DashboardAdminPage() {
           </div>
         </div>
 
+        {/* KPI Estoque Crítico (Vindo do Redux) */}
         <div className="painel-kpi">
           <div className="painel-kpi__icone painel-kpi__icone--estoque">
-            <AlertTriangle size={24} strokeWidth={2.5} />
+            <Package size={24} strokeWidth={2.5} />
           </div>
           <div className="painel-kpi__info">
             <span className="painel-kpi__valor">{estoqueCriticoCount}</span>
-            <span className="painel-kpi__rotulo">Estoque Crítico</span>
+            <span className="painel-kpi__rotulo">Estoque Crítico (≤ 5)</span>
           </div>
         </div>
 
+        {/* KPI Administradores (Vindo do Redux) */}
         <div className="painel-kpi">
-          <div className="painel-kpi__icone painel-kpi__icone--admins">
+          <div className="painel-kpi__icone" style={{ backgroundColor: 'rgba(155, 89, 182, 0.15)', color: '#9b59b6' }}>
             <ShieldCheck size={24} strokeWidth={2.5} />
           </div>
           <div className="painel-kpi__info">
@@ -110,14 +104,47 @@ export default function DashboardAdminPage() {
 
       {/* Gráficos */}
       <div className="painel-graficos">
-        <div className="painel-grafico">
-          <Line data={{ labels: [], datasets: [] }} options={optionsReceita} />
+        <div className="painel-grafico large-chart">
+          <h3 className="painel-grafico__titulo">Receita Anual Crescente</h3>
+          <Line options={optionsReceita} data={data.graficoReceitaAnual as unknown as ChartData<'line'>} />
         </div>
         <div className="painel-grafico">
-          <Doughnut data={{ labels: [], datasets: [] }} options={optionsStatus} />
+          <h3 className="painel-grafico__titulo">Status dos Pedidos</h3>
+          <Doughnut options={optionsStatus} data={data.graficoStatusPedidos as unknown as ChartData<'doughnut'>} />
         </div>
+      </div>
+
+      <div className="painel-graficos mt-20">
         <div className="painel-grafico">
-          <Doughnut data={{ labels: [], datasets: [] }} options={optionsCategoria} />
+          <h3 className="painel-grafico__titulo">Vendas por Categoria</h3>
+          <div className="kpi-secundario-container">
+             <div className="kpi-secundario">
+                <Users size={18} />
+                <span>{data.metricas.clientesAtivos} Clientes Ativos</span>
+             </div>
+             <div className="kpi-secundario">
+                <AlertTriangle size={18} />
+                <span>{data.metricas.trocasSolicitadas} Trocas Ativas</span>
+             </div>
+          </div>
+          <Line options={optionsCategoria} data={data.graficoVendasPorCategoria as unknown as ChartData<'line'>} />
+        </div>
+
+        {/* Atividades Recentes */}
+        <div className="card activity-card">
+          <h4>Últimas Atividades</h4>
+          <ul className="activity-list">
+            {data.atividadesRecentes.map((atividade) => (
+              <li key={atividade.uuid} className="activity-item">
+                <span className={`activity-icon ${atividade.sucesso ? 'sucesso' : 'alerta'}`}></span>
+                <div className="activity-content">
+                  <p className="activity-desc"><strong>{atividade.tipo}</strong>: {atividade.descricao}</p>
+                  <span className="activity-time">{atividade.data}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <button className="btn-link-admin">Ver todas as atividades →</button>
         </div>
       </div>
     </div>
