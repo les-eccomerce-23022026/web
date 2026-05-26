@@ -9,6 +9,7 @@ import pedidoReducer from './slices/pedidoSlice';
 import clienteReducer from './slices/clienteSlice';
 import cotacaoFreteReducer from './slices/cotacaoFreteSlice';
 import notificacoesReducer from './slices/notificacoesSlice';
+import lojaReducer from './slices/lojaSlice';
 
 // Configuração de persistência para Next.js
 const persistConfig = {
@@ -16,8 +17,8 @@ const persistConfig = {
   storage,
   // Não persistir auth (dados sensíveis - JWT deve estar em cookie HttpOnly)
   blacklist: ['auth'],
-  // Persistir carrinho e outros dados não-sensíveis
-  whitelist: ['carrinho', 'cotacaoFrete', 'cliente'],
+  // Persistir carrinho, loja e outros dados não-sensíveis
+  whitelist: ['carrinho', 'cotacaoFrete', 'cliente', 'loja'],
 };
 
 const rootReducer = combineReducers({
@@ -29,6 +30,7 @@ const rootReducer = combineReducers({
   pedido: pedidoReducer,
   cliente: clienteReducer,
   notificacoes: notificacoesReducer,
+  loja: lojaReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

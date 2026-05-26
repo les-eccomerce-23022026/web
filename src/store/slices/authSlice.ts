@@ -8,17 +8,25 @@ import {
 } from './authSessionStorage';
 export { SESSION_STORAGE_KEY };
 
+export interface LojaUsuario {
+  loj_id: number;
+  loj_uuid: string;
+}
+
 export interface AuthUser {
   uuid: string;
   email: string;
   nome: string;
   cpf?: string;
-  role: 'cliente' | 'admin';
+  role: 'cliente' | 'admin' | 'admin_sistema';
+  papeis: string[];
+  lojas: LojaUsuario[];
+  loja_uuid_principal: string | null;
 }
 
 interface AuthState {
   isAuthenticated: boolean;
-  /** 
+  /**
    * Token JWT (apenas testes) ou mock-token (ambiente mock).
    * ⚠️ SEGURANÇA: Em produção, o JWT NUNCA deve ser armazenado aqui.
    * Use cookie HttpOnly do backend. Este campo é apenas para testes.
