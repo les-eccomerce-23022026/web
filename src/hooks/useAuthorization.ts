@@ -5,12 +5,18 @@ export function useAuthorization() {
   const { user } = useAppSelector((state) => state.auth);
 
   const hasPermission = (action: PermissionAction): boolean => {
-    if (!user || !user.role) return false;
+    if (!user) return false;
     
-    // Suporte para múltiplos papéis se necessário no futuro, ou apenas o atual
-    const role = user.role as Role;
-    const capabilities = rolePermissions[role] || [];
-    return capabilities.includes(action);
+    // Verifica permissão em todos os papéis do usuário
+    const papeis = user.papeis || [user.role];
+    for (const papel of papeis) {
+      const role = papel as Role;
+      const capabilities = rolePermissions[role] || [];
+      if (capabilities.includes(action)) {
+        return true;
+      }
+    }
+    return false;
   };
 
   const hasAdminAccess = hasPermission('access_admin_panel');
@@ -19,6 +25,7 @@ export function useAuthorization() {
     hasAdminAccess, 
     hasPermission, 
     role: user?.role as Role | undefined,
+    papeis: user?.papeis,
     isAuthenticated: !!user 
   };
 }

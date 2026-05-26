@@ -2,9 +2,6 @@
   "enderecosCliente": [
     {
       "uuid": "end-001",
-      "apelido": "Casa",
-      "tipoResidencia": "Casa",
-      "tipoLogradouro": "Rua",
       "logradouro": "Bela Vista",
       "numero": "1234",
       "complemento": "Apto 55",
@@ -12,13 +9,10 @@
       "cep": "01000-000",
       "cidade": "São Paulo",
       "estado": "SP",
-      "pais": "Brasil"
+      "tipo": "ambos"
     },
     {
       "uuid": "end-002",
-      "apelido": "Trabalho",
-      "tipoResidencia": "Apartamento",
-      "tipoLogradouro": "Avenida",
       "logradouro": "Paulista",
       "numero": "1000",
       "complemento": "Sala 2001",
@@ -26,23 +20,21 @@
       "cep": "01310-100",
       "cidade": "São Paulo",
       "estado": "SP",
-      "pais": "Brasil"
+      "tipo": "ambos"
     }
   ],
   "cartoesCliente": [
     {
       "uuid": "card-001",
-      "final": "1234",
-      "nomeImpresso": "JOAO COMPRADOR",
-      "bandeira": "Mastercard",
-      "validade": "12/2028"
+      "ultimosDigitosCartao": "1234",
+      "nomeCliente": "JOAO COMPRADOR",
+      "bandeira": "Mastercard"
     },
     {
       "uuid": "card-002",
-      "final": "5678",
-      "nomeImpresso": "JOAO COMPRADOR",
-      "bandeira": "Visa",
-      "validade": "06/2027"
+      "ultimosDigitosCartao": "5678",
+      "nomeCliente": "JOAO COMPRADOR",
+      "bandeira": "Visa"
     }
   ],
   "cuponsDisponiveis": [
@@ -54,32 +46,64 @@
       "descricao": "Desconto de R$ 10,00 na sua compra"
     },
     {
+      "uuid": "cup-promo-desconto10",
+      "codigo": "DESCONTO10",
+      "tipo": "promocional",
+      "valor": 10.00,
+      "descricao": "10% de desconto"
+    },
+    {
+      "uuid": "cup-promo-desconto20",
+      "codigo": "DESCONTO20",
+      "tipo": "promocional",
+      "valor": 20.00,
+      "descricao": "20% de desconto"
+    },
+    {
       "uuid": "cup-troca-001",
       "codigo": "TROCA-ORD007",
       "tipo": "troca",
       "valor": 39.90,
       "descricao": "Cupom de troca do pedido ord-007"
+    },
+    {
+      "uuid": "cup-troca-50",
+      "codigo": "TROCA50",
+      "tipo": "troca",
+      "valor": 50.00,
+      "descricao": "Cupom de troca até R$ 50"
+    },
+    {
+      "uuid": "cup-troca-30",
+      "codigo": "TROCA30",
+      "tipo": "troca",
+      "valor": 30.00,
+      "descricao": "Cupom de troca até R$ 30"
     }
   ],
   "bandeirasPermitidas": ["Visa", "Mastercard", "Elo", "American Express", "Hipercard"],
   "freteOpcoes": [
     {
       "uuid": "frete-001",
-      "tipo": "Padrão",
+      "tipo": "PAC",
       "valor": 15.00,
       "prazo": "5 a 8 dias úteis"
     },
     {
       "uuid": "frete-002",
-      "tipo": "Expresso",
+      "tipo": "SEDEX",
       "valor": 29.90,
       "prazo": "1 a 3 dias úteis"
     },
     {
       "uuid": "frete-003",
-      "tipo": "Retirada em Loja",
+      "tipo": "RETIRA_EM_LOJA",
       "valor": 0.00,
       "prazo": "Disponível em 2 horas"
     }
-  ]
+  ],
+  "politicaParcelamentoCartao": {
+    "parcelasMaximas": 12,
+    "parcelasSemJuros": 6
+  }
 }

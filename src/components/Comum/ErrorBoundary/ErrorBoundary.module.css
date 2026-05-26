@@ -1,0 +1,15 @@
+.containerErro {
+  padding: 24px;
+  color: #b91c1c;
+  background: #fef2f2;
+  font-family: monospace;
+}
+
+.tituloErro {
+  margin-bottom: 8px;
+}
+
+.detalhesErro {
+  white-space: pre-wrap;
+  word-break: break-all;
+}

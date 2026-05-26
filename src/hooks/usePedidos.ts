@@ -1,20 +1,25 @@
 import { useEffect, useCallback } from 'react';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
 import {
   fetchPedidosCliente,
   fetchPedidosEmTroca,
   solicitarTrocaThunk,
   autorizarTrocaThunk,
+  rejeitarTrocaThunk,
   confirmarRecebimentoTrocaThunk,
-} from '@/store/slices/pedidoSlice';
-import type { StatusPedido } from '@/interfaces/IPedido';
+} from '../store/slices/pedidoSlice';
+import type { StatusPedido } from '../interfaces/pedido';
 
 export function usePedidos(clienteUuid?: string) {
   const dispatch = useAppDispatch();
   const { pedidos, status, error } = useAppSelector((state) => state.pedido);
 
   useEffect(() => {
-    if (!clienteUuid) return;
+    if (!clienteUuid) {
+      console.log('[usePedidos] clienteUuid não fornecido, pulando busca de pedidos');
+      return;
+    }
+    console.log('[usePedidos] Iniciando busca de pedidos para cliente:', clienteUuid);
     dispatch(fetchPedidosCliente(clienteUuid));
   }, [dispatch, clienteUuid]);
 
@@ -51,6 +56,12 @@ export function usePedidosTrocaAdmin() {
     [dispatch],
   );
 
+  const rejeitarTroca = useCallback(
+    (pedidoUuid: string, motivo: string) =>
+      dispatch(rejeitarTrocaThunk({ pedidoUuid, motivo })),
+    [dispatch],
+  );
+
   const confirmarRecebimento = useCallback(
     (pedidoUuid: string, retornarEstoque: boolean) =>
       dispatch(confirmarRecebimentoTrocaThunk({ pedidoUuid, retornarEstoque })),
@@ -62,6 +73,7 @@ export function usePedidosTrocaAdmin() {
     loading: status === 'loading',
     error,
     autorizarTroca,
+    rejeitarTroca,
     confirmarRecebimento,
   };
 }

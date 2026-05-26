@@ -1,111 +1,118 @@
-import type { RootState } from '@/store';
-
-interface FetchOptions extends RequestInit {
-  params?: Record<string, string>;
-}
+import type { RootState } from '../store/index';
+import { buildUrl, responseToResult, rethrowNetworkError } from '../utils/httpUtils';
 
 /**
  * Cliente API centralizado para chamadas à API com tratamento de erros.
- * Segue boas práticas de segurança:
- * - Adiciona token JWT do Redux state se presente (para MOCK ou session storage seguro em memória).
- * - Trata 401 (Não Autorizado) e 403 (Proibido) expirando a sessão.
- * - Limita vazamento de informações em erros.
+ * - Cookie HttpOnly (JWT): `credentials: 'include'` na mesma origem (proxy `/api`).
+ * - Bearer: apenas quando há token JWT no Redux (ex.: testes).
+ * - 401 em rotas autenticadas: encerra sessão (logoutSession). Login com credenciais inválidas não dispara logout global.
  */
 export class ApiClient {
-  private static async request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-    const { params, ...fetchOptions } = options;
-    
-    // Constrói URL com query parameters se houver
-    let url = endpoint;
-    if (params) {
-      const query = new URLSearchParams(params).toString();
-      url = `${endpoint}?${query}`;
-    }
+  private static readonly TIMEOUT_MS = 10000; // 10 segundos
 
-    // Pega o token atual do Redux Store
-    const { store } = await import('@/store');
-    const state = store.getState() as RootState;
-    const token = state.auth.token;
-
-    // Configuração de headers padrão
+  private static prepararHeaders(fetchOptions: RequestInit, token: string | null): Headers {
     const headers = new Headers(fetchOptions.headers);
     if (!headers.has('Content-Type') && !(fetchOptions.body instanceof FormData)) {
       headers.set('Content-Type', 'application/json');
     }
 
-    // Injeta o header para usar o banco de testes se a variável de ambiente estiver ativa
-    if (import.meta.env.VITE_USE_TEST_DB === 'true') {
+    if (process.env.NEXT_PUBLIC_USE_TEST_DB === 'true') {
+      headers.set('x-use-test-db', 'true');
+    }
+    // Se o Cypress definiu a flag global para usar banco de testes, adiciona o header
+    if (!headers.has('x-use-test-db') && typeof window !== 'undefined' && window.__USE_TEST_DB__) {
       headers.set('x-use-test-db', 'true');
     }
 
-    // Adiciona o token se disponível (Uso de 'Authorization' header)
-    if (token) {
+    // ⚠️ SEGURANÇA: Bearer header APENAS em testes.
+    // Em produção, usa cookie HttpOnly (credentials: 'include').
+    // Nunca enviar JWT via Authorization header em produção (vulnerável a XSS).
+    if (token && token.split('.').length === 3 && process.env.NODE_ENV === 'test') {
       headers.set('Authorization', `Bearer ${token}`);
     }
+
+    // Lê cookie x-loja-uuid e inclui como header para contexto de multi-tenancy
+    if (typeof document !== 'undefined') {
+      const cookieLojaUuid = document.cookie
+        .split('; ')
+        .find(linha => linha.startsWith('x-loja-uuid='))
+        ?.split('=')[1];
+      if (cookieLojaUuid) {
+        headers.set('x-loja-uuid', cookieLojaUuid);
+      }
+    }
+
+    return headers;
+  }
+
+  private static logRequest(method: string | undefined, url: string, hasToken: boolean, hasTestDbHeader: boolean): void {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[SENIOR-DEBUG] API Request: ${method || 'GET'} ${url}`, {
+        hasToken,
+        hasTestDbHeader,
+        windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A'
+      });
+    }
+  }
+
+  private static logResponse(response: Response, url: string): void {
+    if (process.env.NODE_ENV === 'development') {
+      const clone = response.clone();
+      let bodyText = '';
+      try {
+        void clone.text().then((text) => {
+          bodyText = text;
+        });
+      } catch {
+        bodyText = '(could not read body)';
+      }
+
+      console.log(`[SENIOR-DEBUG] API Response: ${response.status} ${url}`, {
+        ok: response.ok,
+        headers: Object.fromEntries(response.headers.entries()),
+        body: bodyText.length > 500 ? bodyText.substring(0, 500) + '...' : bodyText
+      });
+    }
+  }
+
+  private static async request<T>(endpoint: string, options: RequestInit & { params?: Record<string, string> } = {}): Promise<T> {
+    const { params, ...fetchOptions } = options;
+    const url = buildUrl(endpoint, params);
+
+    const { store } = await import('../store/index');
+    const state = store.getState() as RootState;
+    const token = state.auth.token;
+
+    const headers = this.prepararHeaders(fetchOptions, token);
 
     const config: RequestInit = {
       ...fetchOptions,
       headers,
-      // Se estivermos usando cookies HttpOnly, precisamos de credentials: 'include'
-      // mas como o usuário pediu pra "guardar o token", lidamos com o portador (Bearer) explicitamente
-      credentials: 'include', 
+      credentials: 'include',
     };
 
+    const hasTestDbHeader = headers.get('x-use-test-db') === 'true';
+    this.logRequest(config.method, url, !!token, hasTestDbHeader);
+
     try {
-      const response = await fetch(url, config);
+      // Adicionar timeout para evitar loading infinito
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT_MS);
 
-      // Tratamento de segurança para sessões expiradas ou inválidas
-      if (response.status === 401 || response.status === 403) {
-        // Se for a verificação de sessão (/auth/me), não desloga automaticamente
-        // para permitir que o AuthService tente o fallback do sessionStorage.
-        if (url.includes('/auth/me')) {
-          throw new Error('Sessão inválida ou expirada');
-        }
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal,
+      });
 
-        // Se for 403 (Proibido), o usuário está autenticado mas não tem permissão.
-        // Não devemos deslogar, apenas lançar o erro para o componente tratar (ex: redirecionar p/ home).
-        if (response.status === 403) {
-          throw new Error('Você não tem permissão para acessar este recurso.');
-        }
+      clearTimeout(timeoutId);
 
-        const { store } = await import('@/store');
-        const { logout, setAuthError } = await import('@/store/slices/authSlice');
-        store.dispatch(logout());
-        store.dispatch(setAuthError('Sua sessão expirou ou é inválida. Por favor, faça login novamente.'));
-        throw new Error('Sessão expirada');
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.mensagem || `Erro na requisição: ${response.status}`);
-      }
-
-      // Evita tentar parsear JSON em respostas vazias (204 No Content)
-      if (response.status === 204) {
-        return {} as T;
-      }
-
-      const resposta = await response.json();
-
-      // Desempacota automaticamente o formato padrão { sucesso: true, dados: T }
-      if (
-        resposta &&
-        typeof resposta === 'object' &&
-        'sucesso' in resposta &&
-        'dados' in resposta &&
-        resposta.sucesso === true
-      ) {
-        return resposta.dados as T;
-      }
-
-      return resposta as T;
+      this.logResponse(response, url);
+      return await responseToResult<T>(url, response);
     } catch (error: unknown) {
-      console.error('[API Error]:', error);
-      const err = error as Error;
-      if (err?.message === 'Failed to fetch') {
-        throw new Error('Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.');
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`[SENIOR-DEBUG] API Network Error: ${url}`, error);
       }
-      throw error;
+      return rethrowNetworkError(error);
     }
   }
 

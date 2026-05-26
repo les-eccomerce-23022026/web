@@ -26,6 +26,13 @@
   display: revert;
 }
 
+/* `all: unset` quebra widgets nativos de checkbox/radio; restaura estilo do user agent. */
+input[type='checkbox'],
+input[type='radio'] {
+  all: revert;
+  box-sizing: border-box;
+}
+
 /* Box-sizing preferido — aplica a todos os elementos incluindo pseudo-elementos */
 *,
 *::before,

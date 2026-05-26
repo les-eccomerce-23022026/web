@@ -1,43 +1,71 @@
-export const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+export const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === "true";
+
+/** Base da API. Use `/api` (padrão) com proxy do Vite para cookie HttpOnly na mesma origem. */
+const envBase = process.env.NEXT_PUBLIC_API_BASE_URL;
+export const BASE_URL =
+  envBase !== undefined && String(envBase).trim() !== ""
+    ? String(envBase).replace(/\/$/, "")
+    : "/api";
 
 if (!USE_MOCK && !BASE_URL) {
   throw new Error(
-    "A variável de ambiente VITE_API_BASE_URL não está definida. Verifique o seu arquivo .env",
+    "A variável de ambiente NEXT_PUBLIC_API_BASE_URL não está definida. Verifique o seu arquivo .env",
   );
 }
 
 export const API_ENDPOINTS = {
   // Livros
   obterCarrinho: `${BASE_URL}/carrinho`,
-  obterLivrosDestaque: `${BASE_URL}/livros/destaques`,
+  sincronizarCarrinhoItem: `${BASE_URL}/carrinho/itens`,
+  obterLivrosCatalogo: `${BASE_URL}/livros`,
+  categoriasCatalogo: `${BASE_URL}/categorias/catalogo`,
   obterListaLivrosAdmin: `${BASE_URL}/admin/livros`,
+  /** Legado / mock: o fluxo real de checkout usa `GET /pagamento/info` via `PagamentoService.obterPagamentoInfo`. */
   obterCheckoutInfo: `${BASE_URL}/checkout`,
   obterDashboardAdminInfo: `${BASE_URL}/admin/dashboard`,
   obterDetalhesLivro: (uuid: string) => `${BASE_URL}/livros/${uuid}`,
 
-  // Pedidos
-  obterPedidosCliente: `${BASE_URL}/pedidos`,
+  // Pedidos (histórico do cliente — backend: GET /minhas-vendas)
+  obterPedidosCliente: `${BASE_URL}/minhas-vendas`,
   solicitarTroca: (pedidoUuid: string) =>
-    `${BASE_URL}/pedidos/${pedidoUuid}/troca`,
+    `${BASE_URL}/vendas/${pedidoUuid}/troca`,
 
   // Trocas (Admin)
   obterPedidosEmTroca: `${BASE_URL}/admin/trocas`,
   autorizarTroca: (pedidoUuid: string) =>
     `${BASE_URL}/admin/trocas/${pedidoUuid}/autorizar`,
+  rejeitarTroca: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/trocas/${pedidoUuid}/rejeitar`,
   confirmarRecebimentoTroca: (pedidoUuid: string) =>
     `${BASE_URL}/admin/trocas/${pedidoUuid}/confirmar`,
 
   // Cupons de troca
   obterCuponsCliente: `${BASE_URL}/cupons/troca`,
 
+  // Vendas (pedido — backend retorna JSON direto, sem envelope { sucesso, dados })
+  criarVenda: `${BASE_URL}/vendas`,
+
+  // Frete / entrega
+  cotarFrete: `${BASE_URL}/frete/cotar`,
+  entregas: `${BASE_URL}/entregas`,
+
   // Pagamento
   obterPagamentoInfo: `${BASE_URL}/pagamento/info`,
-  processarPagamento: `${BASE_URL}/pagamento/processar`,
+  registrarIntencaoPagamento: `${BASE_URL}/pagamentos/intencao-pagamento`,
+  selecionarPagamento: `${BASE_URL}/pagamentos/selecionar`,
+  solicitarAutorizacaoFinanceira: (uuid: string) =>
+    `${BASE_URL}/pagamentos/${uuid}/processar`,
+  solicitarAutorizacaoFinanceiraCheckout: `${BASE_URL}/pagamento/processar`,
+  consultarPagamento: (uuid: string) => `${BASE_URL}/pagamentos/${uuid}`,
+  resumoPagamentosVenda: (vendaUuid: string) =>
+    `${BASE_URL}/pagamentos/venda/${vendaUuid}/resumo`,
+  webhookPagamentoPixSimulado: `${BASE_URL}/webhooks/pagamento-pix-simulado`,
 
   // Autenticação
   login: `${BASE_URL}/auth/login`,
-  /** Verifica a sessão atual e retorna o usuário autenticado (HttpOnly cookie) */
+  logout: `${BASE_URL}/auth/logout`,
+  refresh: `${BASE_URL}/auth/refresh`,
+  /** GET /auth/me — cookie HttpOnly ou Bearer (testes); devolve o usuário autenticado. */
   me: `${BASE_URL}/auth/me`,
   registrarCliente: `${BASE_URL}/clientes/registro`,
   
@@ -80,6 +108,9 @@ export const API_ENDPOINTS = {
     `${BASE_URL}/admin/pedidos/${uuid}/despachar`,
   confirmarEntrega: (uuid: string) =>
     `${BASE_URL}/admin/pedidos/${uuid}/entrega`,
+
+  // Lojas (Admin)
+  minhasLojas: `${BASE_URL}/admin/lojas/minhas-lojas`,
 };
 
 export const MOCK_TOKEN_PREFIX = "mock-token";

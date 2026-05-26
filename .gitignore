@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Next.js
+.next/
+next-env.d.ts
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -32,6 +36,9 @@ cypress.env.json
 AGENTS.md
 CHANGES.md
 .agents
+.windsurf
+.cursor
+.gemini
 *.txt
 
 *.log
@@ -39,3 +46,7 @@ github-projects
 playwright-report
 test-results
 videos
+coverage/
+.vscode
+cypress/screenshots/
+cypress/videos/

@@ -1,0 +1,72 @@
+.skeleton {
+  background-color: var(--bn-bg-secondary, #e0e0e0);
+  display: inline-block;
+}
+
+/* Variants */
+.text {
+  height: 1em;
+  width: 100%;
+  border-radius: 4px;
+}
+
+.circular {
+  border-radius: 50%;
+}
+
+.rectangular {
+  border-radius: 8px;
+}
+
+/* Animations */
+.pulse {
+  animation: skeletonPulse 1.5s ease-in-out 0.5s infinite;
+  background: linear-gradient(
+    90deg,
+    var(--bn-bg-secondary, #e0e0e0) 0%,
+    var(--bn-bg-tertiary, #f5f5f5) 50%,
+    var(--bn-bg-secondary, #e0e0e0) 100%
+  );
+  background-size: 200% 100%;
+}
+
+.wave {
+  animation: skeletonWave 1.6s linear infinite;
+  background: linear-gradient(
+    90deg,
+    var(--bn-bg-secondary, #e0e0e0) 0%,
+    var(--bn-bg-tertiary, #f5f5f5) 40%,
+    var(--bn-bg-secondary, #e0e0e0) 80%
+  );
+  background-size: 200% 100%;
+}
+
+.none {
+  animation: none;
+  background-color: var(--bn-bg-secondary, #e0e0e0);
+}
+
+@keyframes skeletonPulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes skeletonWave {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse,
+  .wave {
+    animation: none;
+  }
+}

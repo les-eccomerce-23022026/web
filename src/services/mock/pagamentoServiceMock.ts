@@ -1,0 +1,199 @@
+/* eslint-disable max-lines */
+import pagamentoMock from '@/mocks/pagamentoMock.json';
+import { POLITICA_PARCELAMENTO_CARTAO_PADRAO } from '@/interfaces/pagamento';
+import type {
+  IPagamentoInfo,
+  IPagamentoSelecionado,
+  IPagamentoDetalhes,
+  IProcessarPagamentoInput,
+  IProcessarPagamentoResultado,
+  IIntencaoPagamentoResultado,
+  ISelecionarPagamentoLiquidaBody,
+  IResumoPagamentosVenda,
+} from '@/interfaces/pagamento';
+import type { IPagamentoService } from '../contracts/pagamentoService';
+import { generateSafeId } from '@/utils/generateId';
+
+function delay<T>(data: T, ms = 300): Promise<T> {
+  return new Promise((resolve) => setTimeout(() => resolve(data), ms));
+}
+
+export class PagamentoServiceMock implements IPagamentoService {
+  async obterPagamentoInfo(): Promise<IPagamentoInfo> {
+    console.log('[Mock] Buscando dados de pagamento.');
+    // Normalizar dados do mock para remover campos obsoletos
+    const mockData = pagamentoMock as unknown as {
+      enderecosCliente: Array<{
+        uuid: string;
+        logradouro: string;
+        numero: string;
+        complemento: string;
+        bairro: string;
+        cidade: string;
+        estado: string;
+        cep: string;
+        tipo: 'cobranca' | 'entrega' | 'ambos';
+      }>;
+      cartoesCliente: Array<{
+        uuid: string;
+        ultimosDigitosCartao: string;
+        nomeCliente: string;
+        bandeira: string;
+      }>;
+      cuponsDisponiveis: Array<{
+        uuid: string;
+        codigo: string;
+        tipo: 'promocional' | 'troca';
+        valor: number;
+        descricao?: string;
+      }>;
+      bandeirasPermitidas: string[];
+      freteOpcoes: Array<{
+        uuid: string;
+        tipo: 'PAC' | 'SEDEX' | 'RETIRA_EM_LOJA';
+        valor: number;
+        prazo: string;
+      }>;
+    };
+
+    const normalizedData: IPagamentoInfo = {
+      politicaParcelamentoCartao:
+        (pagamentoMock as unknown as IPagamentoInfo).politicaParcelamentoCartao ??
+        POLITICA_PARCELAMENTO_CARTAO_PADRAO,
+      enderecosCliente: mockData.enderecosCliente.map(end => ({
+        ...end,
+        tipo: end.tipo || 'ambos',
+        principal: false
+      })),
+      cartoesCliente: mockData.cartoesCliente.map(cartao => ({
+        ...cartao,
+        nomeImpresso: cartao.nomeCliente, // Adicionando campos obrigatórios
+        validade: '12/2028',
+        principal: false
+      })),
+      cuponsDisponiveis: mockData.cuponsDisponiveis.map(cupom => ({
+        ...cupom,
+        descricao: cupom.descricao ?? 'Cupom de desconto',
+        valido: true
+      })),
+      bandeirasPermitidas: mockData.bandeirasPermitidas,
+      freteOpcoes: mockData.freteOpcoes.map(frete => ({
+        ...frete,
+        selecionado: false
+      }))
+    };
+
+    return delay(normalizedData);
+  }
+
+  async registrarIntencaoPagamento(valorTotal: number): Promise<IIntencaoPagamentoResultado> {
+    console.log('[Mock] Intenção de pagamento:', valorTotal);
+    return delay({
+      idIntencao: `mock-intent-${generateSafeId()}`,
+      segredoConfirmacao: `mock-secret-${generateSafeId()}`,
+    });
+  }
+
+  async definirMetodoLiquidacao(dados: IPagamentoSelecionado): Promise<IPagamentoDetalhes> {
+    console.log('[Mock] Selecionando forma de pagamento:', dados);
+    return delay({
+      id: generateSafeId(),
+      vendaUuid: generateSafeId(),
+      valor: 0,
+      formaPagamento: {
+        tipo: dados.tipo,
+        detalhes: 'Pagamento selecionado via mock'
+      },
+      status: 'pendente',
+      criadoEm: new Date()
+    });
+  }
+
+  async selecionarPagamentoLiquida(dados: ISelecionarPagamentoLiquidaBody): Promise<IPagamentoDetalhes> {
+    console.log('[Mock] Liquidação por venda:', dados);
+    const id = generateSafeId();
+    const base: IPagamentoDetalhes = {
+      id,
+      vendaUuid: dados.vendaUuid,
+      valor: dados.valor,
+      formaPagamento: {
+        tipo: dados.tipoPagamento,
+        detalhes: dados.detalhesCupom,
+      },
+      status: 'pendente',
+      criadoEm: new Date(),
+    };
+    if (dados.tipoPagamento === 'pix') {
+      const exp = new Date(Date.now() + 30 * 60 * 1000);
+      return delay({
+        ...base,
+        pixCobranca: {
+          copiaCola: `00020126mock-pix-${id.slice(0, 8)}`,
+          qrCodeBase64:
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+          expiraEm: exp.toISOString(),
+          segredoConfirmacao: `mock-secret-${generateSafeId()}`,
+        },
+      });
+    }
+    return delay(base);
+  }
+
+  async solicitarAutorizacaoFinanceira(pagamentoUuid: string): Promise<IPagamentoDetalhes> {
+    console.log('[Mock] Processando pagamento:', pagamentoUuid);
+    return delay({
+      id: pagamentoUuid,
+      vendaUuid: generateSafeId(),
+      valor: 100,
+      formaPagamento: {
+        tipo: 'cartao_credito',
+        detalhes: 'Processado via mock'
+      },
+      status: 'aprovado',
+      criadoEm: new Date(),
+      processadoEm: new Date()
+    });
+  }
+
+  async solicitarAutorizacaoFinanceiraCheckout(dados: IProcessarPagamentoInput): Promise<IProcessarPagamentoResultado> {
+    console.log('[Mock] Processando pagamento (frontend):', dados);
+    return delay({
+      sucesso: true,
+      pedidoUuid: `ord-${Date.now()}`,
+      status: 'aprovado'
+    });
+  }
+
+  async consultarPagamento(pagamentoUuid: string): Promise<IPagamentoDetalhes> {
+    console.log('[Mock] Consultando pagamento:', pagamentoUuid);
+    return delay({
+      id: pagamentoUuid,
+      vendaUuid: generateSafeId(),
+      valor: 100,
+      formaPagamento: {
+        tipo: 'cartao_credito',
+        detalhes: 'Consultado via mock'
+      },
+      status: 'aprovado',
+      criadoEm: new Date(),
+      processadoEm: new Date()
+    });
+  }
+
+  async obterResumoPagamentosVenda(vendaUuid: string): Promise<IResumoPagamentosVenda> {
+    console.log('[Mock] Resumo pagamentos venda:', vendaUuid);
+    return delay({
+      vendaStatus: 'APROVADA',
+      aguardandoPix: false,
+      pagamentos: [],
+    });
+  }
+
+  async confirmarWebhookPixSimulado(payload: {
+    pagamentoUuid: string;
+    segredoConfirmacao: string;
+  }): Promise<void> {
+    console.log('[Mock] Webhook PIX simulado:', payload);
+    await delay(undefined);
+  }
+}

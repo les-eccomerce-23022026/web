@@ -1,0 +1,140 @@
+.seletorContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.botaoSeletor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: var(--bn-bg-subtle);
+  border: 1px solid var(--bn-border-light);
+  border-radius: 8px;
+  color: var(--bn-text-main);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.botaoSeletor:hover {
+  background-color: var(--bn-bg-card);
+  border-color: var(--bn-primary);
+  box-shadow: 0 2px 8px rgba(15, 76, 58, 0.1);
+}
+
+.botaoSeletor:active {
+  transform: scale(0.98);
+}
+
+.lojaAtualNome {
+  font-weight: 600;
+  color: var(--bn-primary);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.icone {
+  transition: transform 0.2s ease;
+  color: var(--bn-text-muted);
+}
+
+.iconAberto {
+  transform: rotate(180deg);
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  background-color: var(--bn-bg-card);
+  border: 1px solid var(--bn-border-light);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 200px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.listaLojas {
+  list-style: none;
+  padding: 4px 0;
+  margin: 0;
+}
+
+.opcaoLoja {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  color: var(--bn-text-main);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.opcaoLoja:hover {
+  background-color: var(--bn-bg-subtle);
+  color: var(--bn-primary);
+}
+
+.opcaoAtiva {
+  background-color: var(--bn-success-light);
+  color: var(--bn-primary);
+  font-weight: 600;
+}
+
+.marcaSelecionada {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background-color: var(--bn-primary);
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .botaoSeletor {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .lojaAtualNome {
+    max-width: 100px;
+  }
+
+  .dropdown {
+    min-width: 180px;
+  }
+
+  .opcaoLoja {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}

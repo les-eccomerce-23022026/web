@@ -1,0 +1,34 @@
+export interface IItemEstoque {
+  uuid: string;
+  livroUuid: string;
+  livroTitulo: string;
+  livroIsbn: string;
+  quantidadeDisponivel: number;
+  quantidadeReservada: number;
+  precoVenda: number;
+  valorCustoAtual: number;
+  ativo: boolean;
+}
+
+export interface IKpisEstoque {
+  totalItens: number;
+  itensCriticos: number;
+  estoqueCriticoLimite: number;
+}
+
+export interface IEntradaEstoque {
+  livroUuid: string;
+  quantidade: number;
+  custoUnitario: number;
+  fornecedorUuid?: string;
+  numeroNotaFiscal?: string;
+  observacoes?: string;
+  dataEntrada?: string;
+}
+
+export interface IEstoqueService {
+  listarEstoque(): Promise<IItemEstoque[]>;
+  listarEstoqueCritico(limite?: number): Promise<IItemEstoque[]>;
+  obterKpis(limiteCritico?: number): Promise<IKpisEstoque>;
+  registrarEntrada(dados: IEntradaEstoque): Promise<{ mensagem: string }>;
+}

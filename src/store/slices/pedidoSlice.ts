@@ -1,7 +1,17 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import { PedidoService } from '@/services/PedidoService';
-import { LivroService } from '@/services/LivroService';
-import type { IPedido, StatusPedido } from '@/interfaces/IPedido';
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { logout } from './authSlice';
+import type { IPedido, StatusPedido } from '@/interfaces/pedido';
+import {
+  autorizarTrocaThunk,
+  confirmarEntregaThunk,
+  confirmarRecebimentoTrocaThunk,
+  despacharPedidoThunk,
+  fetchAllPedidos,
+  fetchPedidosCliente,
+  fetchPedidosEmTroca,
+  rejeitarTrocaThunk,
+  solicitarTrocaThunk,
+} from './pedidoThunks';
 
 interface PedidoState {
   pedidos: IPedido[];
@@ -15,73 +25,24 @@ const initialState: PedidoState = {
   error: null,
 };
 
-export const fetchPedidosCliente = createAsyncThunk(
-  'pedido/fetchPedidosCliente',
-  async (clienteUuid: string) => {
-    return PedidoService.getPedidosByCliente(clienteUuid);
-  },
-);
+export { darBaixaEstoqueThunk } from './pedidoThunks';
+export {
+  autorizarTrocaThunk,
+  confirmarEntregaThunk,
+  confirmarRecebimentoTrocaThunk,
+  despacharPedidoThunk,
+  fetchAllPedidos,
+  fetchPedidosCliente,
+  fetchPedidosEmTroca,
+  rejeitarTrocaThunk,
+  solicitarTrocaThunk,
+} from './pedidoThunks';
 
-export const fetchAllPedidos = createAsyncThunk(
-  'pedido/fetchAllPedidos',
-  async (statusFiltro?: string[]) => {
-    return PedidoService.getAllPedidos(statusFiltro);
-  },
-);
-
-export const despacharPedidoThunk = createAsyncThunk(
-  'pedido/despacharPedido',
-  async (pedidoUuid: string) => {
-    return PedidoService.despacharPedido(pedidoUuid);
-  },
-);
-
-export const confirmarEntregaThunk = createAsyncThunk(
-  'pedido/confirmarEntrega',
-  async (pedidoUuid: string) => {
-    return PedidoService.confirmarEntrega(pedidoUuid);
-  },
-);
-
-// RF0053 — Baixa em estoque: disparado após pedido aprovado/processado
-export const darBaixaEstoqueThunk = createAsyncThunk(
-  'pedido/darBaixaEstoque',
-  async (pedidoUuid: string, { getState }) => {
-    const state = getState() as { pedido: { pedidos: IPedido[] } };
-    const pedido = state.pedido.pedidos.find((p) => p.uuid === pedidoUuid);
-    if (!pedido) throw new Error('Pedido não encontrado para baixa de estoque');
-    await LivroService.darBaixaEstoque(pedido.itens.map((i) => ({ livroUuid: i.livroUuid, quantidade: i.quantidade })));
-    return pedidoUuid;
-  },
-);
-
-export const fetchPedidosEmTroca = createAsyncThunk(
-  'pedido/fetchPedidosEmTroca',
-  async () => {
-    return PedidoService.getPedidosEmTroca();
-  },
-);
-
-export const solicitarTrocaThunk = createAsyncThunk(
-  'pedido/solicitarTroca',
-  async (payload: { pedidoUuid: string; motivo: string; itensUuids: string[] }) => {
-    return PedidoService.solicitarTroca(payload.pedidoUuid, payload.motivo, payload.itensUuids);
-  },
-);
-
-export const autorizarTrocaThunk = createAsyncThunk(
-  'pedido/autorizarTroca',
-  async (pedidoUuid: string) => {
-    return PedidoService.autorizarTroca(pedidoUuid);
-  },
-);
-
-export const confirmarRecebimentoTrocaThunk = createAsyncThunk(
-  'pedido/confirmarRecebimentoTroca',
-  async (payload: { pedidoUuid: string; retornarEstoque: boolean }) => {
-    return PedidoService.confirmarRecebimentoTroca(payload.pedidoUuid, payload.retornarEstoque);
-  },
-);
+function atualizarPedidoPorUuid(estado: PedidoState, pedidoAtualizado: IPedido) {
+  const index = estado.pedidos.findIndex((pedido) => pedido.uuid === pedidoAtualizado.uuid);
+  if (index === -1) return;
+  estado.pedidos[index] = pedidoAtualizado;
+}
 
 const pedidoSlice = createSlice({
   name: 'pedido',
@@ -108,6 +69,7 @@ const pedidoSlice = createSlice({
       .addCase(fetchPedidosCliente.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.pedidos = action.payload;
+        state.error = null;
       })
       .addCase(fetchPedidosCliente.rejected, (state, action) => {
         state.status = 'failed';
@@ -116,57 +78,56 @@ const pedidoSlice = createSlice({
 
     // fetchAllPedidos
     builder
+      .addCase(fetchAllPedidos.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
       .addCase(fetchAllPedidos.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.pedidos = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchAllPedidos.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Erro ao carregar pedidos';
       });
 
     // fetchPedidosEmTroca
     builder
+      .addCase(fetchPedidosEmTroca.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
       .addCase(fetchPedidosEmTroca.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.pedidos = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchPedidosEmTroca.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Erro ao carregar trocas';
       });
 
-    // solicitarTroca
     builder
       .addCase(solicitarTrocaThunk.fulfilled, (state, action) => {
-        const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
-        if (index === -1) return;
-        state.pedidos[index] = action.payload;
-      });
-
-    // autorizarTroca
-    builder
+        atualizarPedidoPorUuid(state, action.payload);
+      })
       .addCase(autorizarTrocaThunk.fulfilled, (state, action) => {
-        const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
-        if (index === -1) return;
-        state.pedidos[index] = action.payload;
-      });
-
-    // confirmarRecebimentoTroca
-    builder
+        atualizarPedidoPorUuid(state, action.payload);
+      })
+      .addCase(rejeitarTrocaThunk.fulfilled, (state, action) => {
+        atualizarPedidoPorUuid(state, action.payload);
+      })
       .addCase(confirmarRecebimentoTrocaThunk.fulfilled, (state, action) => {
-        const index = state.pedidos.findIndex((p) => p.uuid === action.payload.pedido.uuid);
-        if (index === -1) return;
-        state.pedidos[index] = action.payload.pedido;
-      });
-
-    // despacharPedido
-    builder
+        atualizarPedidoPorUuid(state, action.payload.pedido);
+      })
       .addCase(despacharPedidoThunk.fulfilled, (state, action) => {
-        const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
-        if (index === -1) return;
-        state.pedidos[index] = action.payload;
-      });
-
-    // confirmarEntrega
-    builder
+        atualizarPedidoPorUuid(state, action.payload);
+      })
       .addCase(confirmarEntregaThunk.fulfilled, (state, action) => {
-        const index = state.pedidos.findIndex((p) => p.uuid === action.payload.uuid);
-        if (index === -1) return;
-        state.pedidos[index] = action.payload;
-      });
+        atualizarPedidoPorUuid(state, action.payload);
+      })
+      .addCase(logout, () => ({ ...initialState }));
   },
 });
 
