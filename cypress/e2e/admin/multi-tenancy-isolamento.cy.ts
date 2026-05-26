@@ -4,17 +4,24 @@
  */
 
 describe('Admin — Multi-tenancy Isolamento', () => {
+  beforeEach(() => {
+    // Configurar ambiente de multi-loja antes de cada teste
+    cy.criarAmbienteMultiLoja();
+  });
+
   describe('API Isolamento', () => {
     it('deve autenticar admin da Loja A com sucesso', () => {
       const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3001/api';
-      
+
+      // Autenticar como admin da Loja A (define cookie x-loja-uuid)
+      cy.autenticarAdminLojaA();
+
       cy.request({
         method: 'POST',
         url: `${apiUrl}/auth/login`,
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'x-use-test-db': 'true',
-          'x-loja-id': '18',
         },
         body: {
           email: 'admin_loja_a@email.com',
@@ -29,14 +36,16 @@ describe('Admin — Multi-tenancy Isolamento', () => {
 
     it('deve autenticar admin da Loja B com sucesso', () => {
       const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3001/api';
-      
+
+      // Autenticar como admin da Loja B (define cookie x-loja-uuid)
+      cy.autenticarAdminLojaB();
+
       cy.request({
         method: 'POST',
         url: `${apiUrl}/auth/login`,
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'x-use-test-db': 'true',
-          'x-loja-id': '19',
         },
         body: {
           email: 'admin_loja_b@email.com',
@@ -51,13 +60,15 @@ describe('Admin — Multi-tenancy Isolamento', () => {
 
     it('deve listar livros com contexto de loja A', () => {
       const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3001/api';
-      
+
+      // Autenticar como admin da Loja A (define cookie x-loja-uuid)
+      cy.autenticarAdminLojaA();
+
       cy.request({
         method: 'GET',
         url: `${apiUrl}/livros`,
         headers: {
           'x-use-test-db': 'true',
-          'x-loja-id': '18',
         },
       }).then((response) => {
         expect(response.status).to.equal(200);
@@ -67,13 +78,15 @@ describe('Admin — Multi-tenancy Isolamento', () => {
 
     it('deve listar livros com contexto de loja B', () => {
       const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3001/api';
-      
+
+      // Autenticar como admin da Loja B (define cookie x-loja-uuid)
+      cy.autenticarAdminLojaB();
+
       cy.request({
         method: 'GET',
         url: `${apiUrl}/livros`,
         headers: {
           'x-use-test-db': 'true',
-          'x-loja-id': '19',
         },
       }).then((response) => {
         expect(response.status).to.equal(200);

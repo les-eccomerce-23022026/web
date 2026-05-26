@@ -25,7 +25,6 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
             url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaA}`,
             headers: {
               'x-use-test-db': 'true',
-              'x-loja-id': '18',
             },
           }).then((res) => {
             expect(res.body.status).to.equal('EM TRÂNSITO');
@@ -42,7 +41,6 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
             url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaB}`,
             headers: {
               'x-use-test-db': 'true',
-              'x-loja-id': '19',
             },
           }).then((res) => {
             expect(res.body.status).to.equal('EM TRÂNSITO');
@@ -56,7 +54,6 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
             headers: {
               'Content-Type': 'application/json; charset=utf-8',
               'x-use-test-db': 'true',
-              'x-loja-id': '18',
             },
             failOnStatusCode: false,
           }).then((res) => {
@@ -72,7 +69,6 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
             headers: {
               'Content-Type': 'application/json; charset=utf-8',
               'x-use-test-db': 'true',
-              'x-loja-id': '19',
             },
             failOnStatusCode: false,
           }).then((res) => {
@@ -102,7 +98,6 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
             headers: {
               'Content-Type': 'application/json; charset=utf-8',
               'x-use-test-db': 'true',
-              'x-loja-id': '19',
             },
             failOnStatusCode: false,
           }).then((res) => {
@@ -128,7 +123,6 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
             url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos`,
             headers: {
               'x-use-test-db': 'true',
-              'x-loja-id': '18',
             },
           }).then((res) => {
             const vendas = res.body;
@@ -147,7 +141,6 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
             url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos`,
             headers: {
               'x-use-test-db': 'true',
-              'x-loja-id': '19',
             },
           }).then((res) => {
             const vendas = res.body;

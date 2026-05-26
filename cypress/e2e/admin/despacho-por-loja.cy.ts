@@ -33,7 +33,6 @@ describe('Admin — Despacho de Pedidos por Loja', () => {
           url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
-            'x-loja-id': '18',
           },
         }).then((res) => {
           expect(res.body.status).to.equal('EM TRÂNSITO');
@@ -60,7 +59,6 @@ describe('Admin — Despacho de Pedidos por Loja', () => {
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'x-use-test-db': 'true',
-            'x-loja-id': '18', // Admin A está na Loja A (loj_id=18)
           },
           failOnStatusCode: false,
         }).then((res) => {
@@ -101,7 +99,6 @@ describe('Admin — Despacho de Pedidos por Loja', () => {
           url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
-            'x-loja-id': '19',
           },
         }).then((res) => {
           expect(res.body.status).to.equal('EM TRÂNSITO');
@@ -128,7 +125,6 @@ describe('Admin — Despacho de Pedidos por Loja', () => {
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'x-use-test-db': 'true',
-            'x-loja-id': '19', // Admin B está na Loja B (loj_id=19)
           },
           failOnStatusCode: false,
         }).then((res) => {

@@ -22,12 +22,15 @@ export function apiHeadersBancoTestes(): Record<string, string> {
   return headers;
 }
 
-/** Headers de API com loja padrão do seed (multi-tenancy / loj_id no carrinho). */
-export function apiHeadersBancoTestesComLoja(lojId = 1): Record<string, string> {
-  return {
-    ...apiHeadersBancoTestes(),
-    'x-loja-id': String(lojId),
-  };
+/**
+ * Headers de API com loja específica (multi-tenancy / UUID da loja).
+ * O UUID deve ser fornecido explicitamente. Para testes que não especificam loja,
+ * use o comando cy.obterLojaPadraoUuid() para buscar o UUID dinamicamente.
+ */
+export function apiHeadersBancoTestesComLoja(lojaUuid: string): Record<string, string> {
+  const headers = { ...apiHeadersBancoTestes() };
+  headers['x-loja-uuid'] = lojaUuid;
+  return headers;
 }
 
 /**

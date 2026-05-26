@@ -77,9 +77,11 @@ declare global {
       /** Login admin via API para testes de painel */
       autenticarAdministradorViaApi(): Chainable<Cypress.Response<any>>;
       /** Comandos para testes de multi-tenancy por loja */
+      obterLojaPadraoUuid(): Chainable<string>;
       criarAmbienteMultiLoja(): Chainable<void>;
       autenticarAdminLojaA(): Chainable<void>;
       autenticarAdminLojaB(): Chainable<void>;
+      autenticarAdminMultiLoja(): Chainable<void>;
       criarVendaLojaA(livroUuid: string): Chainable<{ vendaUuid: string; itemVendaUuid: string }>;
       criarVendaLojaB(livroUuid: string): Chainable<{ vendaUuid: string; itemVendaUuid: string }>;
       /** Logout do usuário atual. */
@@ -451,48 +453,57 @@ Cypress.Commands.add('adicionarPrimeiroLivroCarrinhoDetalhe', () => {
 
 Cypress.Commands.add('criarCarrinhoViaApi', (items) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
-  
-  // Limpa o carrinho primeiro para garantir estado puro
-  cy.request({
-    method: 'DELETE',
-    url: `${apiUrl}/carrinho`,
-    headers,
-    failOnStatusCode: false
-  });
 
-  // Adiciona cada item
-  items.forEach((item) => {
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    // Limpa o carrinho primeiro para garantir estado puro
     cy.request({
-      method: 'POST',
-      url: `${apiUrl}/carrinho/itens`,
+      method: 'DELETE',
+      url: `${apiUrl}/carrinho`,
       headers,
-      body: { livroUuid: item.livroUuid, quantidade: item.quantidade },
+      failOnStatusCode: false
+    });
+
+    // Adiciona cada item
+    items.forEach((item) => {
+      cy.request({
+        method: 'POST',
+        url: `${apiUrl}/carrinho/itens`,
+        headers,
+        body: { livroUuid: item.livroUuid, quantidade: item.quantidade },
+      });
     });
   });
 });
 
 Cypress.Commands.add('adicionarAoCarrinhoViaApi', (livroUuid, quantidade = 1) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.request({
-    method: 'POST',
-    url: `${apiUrl}/carrinho/itens`,
-    headers,
-    body: { livroUuid, quantidade },
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/carrinho/itens`,
+      headers,
+      body: { livroUuid, quantidade },
+    });
   });
 });
 
 Cypress.Commands.add('limparCarrinhoViaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.request({
-    method: 'DELETE',
-    url: `${apiUrl}/carrinho`,
-    headers,
-    failOnStatusCode: false
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    cy.request({
+      method: 'DELETE',
+      url: `${apiUrl}/carrinho`,
+      headers,
+      failOnStatusCode: false
+    });
   });
 });
 
@@ -957,44 +968,46 @@ Cypress.Commands.add('autenticarAdministradorViaApi', () => {
 
 Cypress.Commands.add('criarVendaAprovadaViaApi', () => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
 
-  return cy.autenticarClienteDadosTeste()
-    .then(() => cy.obterPrimeiroLivroCatalogo())
-    .then((livroUuid) => {
-      // Adicionar ao carrinho
-      return cy.request({
-        method: 'POST',
-        url: `${apiUrl}/carrinho/itens`,
-        headers,
-        body: {
-          livroUuid,
-          quantidade: 1,
-        },
-      }).then(() => livroUuid);
-    })
-    .then((livroUuid) => {
-      // Criar venda
-      return cy.request({
-        method: 'POST',
-        url: `${apiUrl}/vendas`,
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          ...headers,
-        },
-        body: {
-          itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
-          valorTotalItens: 30,
-          valorFrete: 10,
-          valorTotal: 40,
-        },
-      }).then((res) => {
-        // A API pode retornar res.body.id ou res.body.venda.id
-        const vendaUuid = res.body.venda?.id || res.body.id;
-        if (!vendaUuid) {
-          throw new Error(`UUID da venda não encontrado na resposta: ${JSON.stringify(res.body)}`);
-        }
-        return { vendaUuid, livroUuid };
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    return cy.autenticarClienteDadosTeste()
+      .then(() => cy.obterPrimeiroLivroCatalogo())
+      .then((livroUuid) => {
+        // Adicionar ao carrinho
+        return cy.request({
+          method: 'POST',
+          url: `${apiUrl}/carrinho/itens`,
+          headers,
+          body: {
+            livroUuid,
+            quantidade: 1,
+          },
+        }).then(() => livroUuid);
+      })
+      .then((livroUuid) => {
+        // Criar venda
+        return cy.request({
+          method: 'POST',
+          url: `${apiUrl}/vendas`,
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            ...headers,
+          },
+          body: {
+            itens: [{ livroUuid, quantidade: 1, precoUnitario: 30 }],
+            valorTotalItens: 30,
+            valorFrete: 10,
+            valorTotal: 40,
+          },
+        }).then((res) => {
+          // A API pode retornar res.body.id ou res.body.venda.id
+          const vendaUuid = res.body.venda?.id || res.body.id;
+          if (!vendaUuid) {
+            throw new Error(`UUID da venda não encontrado na resposta: ${JSON.stringify(res.body)}`);
+          }
+          return { vendaUuid, livroUuid };
       });
     })
     .then(({ vendaUuid }) => {
@@ -1045,63 +1058,75 @@ Cypress.Commands.add('criarVendaAprovadaViaApi', () => {
 
 Cypress.Commands.add('despacharPedidoViaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.autenticarAdministradorViaApi();
-  cy.request({
-    method: 'PATCH',
-    url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
-    headers,
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    cy.autenticarAdministradorViaApi();
+    cy.request({
+      method: 'PATCH',
+      url: `${apiUrl}/admin/pedidos/${vendaUuid}/despachar`,
+      headers,
+    });
+    cy.autenticarClienteDadosTeste();
   });
-  cy.autenticarClienteDadosTeste();
 });
 
 Cypress.Commands.add('confirmarEntregaViaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.autenticarAdministradorViaApi();
-  cy.request({
-    method: 'PATCH',
-    url: `${apiUrl}/admin/pedidos/${vendaUuid}/entrega`,
-    headers,
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    cy.autenticarAdministradorViaApi();
+    cy.request({
+      method: 'PATCH',
+      url: `${apiUrl}/admin/pedidos/${vendaUuid}/entrega`,
+      headers,
+    });
+    cy.autenticarClienteDadosTeste();
   });
-  cy.autenticarClienteDadosTeste();
 });
 
 Cypress.Commands.add('marcarFalhaEntregaViaApi', (vendaUuid: string, motivo: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.autenticarAdministradorViaApi();
-  cy.request({
-    method: 'PUT',
-    url: `${apiUrl}/admin/pedidos/${vendaUuid}/falha-entrega`,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      ...headers,
-    },
-    body: {
-      motivo,
-    },
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    cy.autenticarAdministradorViaApi();
+    cy.request({
+      method: 'PUT',
+      url: `${apiUrl}/admin/pedidos/${vendaUuid}/falha-entrega`,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        ...headers,
+      },
+      body: {
+        motivo,
+      },
+    });
   });
 });
 
 Cypress.Commands.add('solicitarTrocaViaApi', (vendaUuid: string, itemVendaUuid: string, motivo: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.request({
-    method: 'POST',
-    url: `${apiUrl}/vendas/${vendaUuid}/troca`,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      ...headers,
-    },
-    body: {
-      motivo,
-      itensUuids: [itemVendaUuid],
-    },
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/vendas/${vendaUuid}/troca`,
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        ...headers,
+      },
+      body: {
+        motivo,
+        itensUuids: [itemVendaUuid],
+      },
+    });
   });
 });
 
@@ -1117,7 +1142,6 @@ Cypress.Commands.add('logout', () => {
   }).then(() => {
     cy.clearCookie('authToken');
     cy.clearCookie('x-use-test-db');
-    cy.clearCookie('x-loja-id');
     cy.clearCookie('x-loja-uuid');
     cy.visit('/');
   });
@@ -1125,31 +1149,58 @@ Cypress.Commands.add('logout', () => {
 
 Cypress.Commands.add('autorizarTrocaViaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.autenticarAdministradorViaApi();
-  cy.request({
-    method: 'POST',
-    url: `${apiUrl}/vendas/${vendaUuid}/troca/autorizar`,
-    headers,
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    cy.autenticarAdministradorViaApi();
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/vendas/${vendaUuid}/troca/autorizar`,
+      headers,
+    });
   });
 });
 
 Cypress.Commands.add('confirmarRecebimentoTrocaViaApi', (vendaUuid: string) => {
   const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const headers = apiHeadersBancoTestesComLoja();
 
-  cy.autenticarAdministradorViaApi();
-  cy.request({
-    method: 'PUT',
-    url: `${apiUrl}/vendas/${vendaUuid}/troca/confirmar-recebimento`,
-    headers,
+  return cy.obterLojaPadraoUuid().then((lojaUuid) => {
+    const headers = apiHeadersBancoTestesComLoja(lojaUuid);
+
+    cy.autenticarAdministradorViaApi();
+    cy.request({
+      method: 'PUT',
+      url: `${apiUrl}/vendas/${vendaUuid}/troca/confirmar-recebimento`,
+      headers,
+    });
   });
 });
 
 // ============================================
 // COMANDOS MULTI-TENANCY POR LOJA
 // ============================================
+
+/**
+ * Obtém o UUID da loja padrão ('loja-padrao') via API
+ * Usado para testes que não especificam uma loja específica
+ */
+Cypress.Commands.add('obterLojaPadraoUuid', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersBancoTestes();
+
+  return cy.request({
+    method: 'GET',
+    url: `${apiUrl}/admin/lojas`,
+    headers,
+  }).then((res) => {
+    const lojaPadrao = res.body.dados?.find((l: { slug: string }) => l.slug === 'loja-padrao');
+    if (!lojaPadrao) {
+      throw new Error('Loja padrão não encontrada');
+    }
+    return lojaPadrao.uuid;
+  });
+});
 
 /**
  * Cria ambiente de multi-loja para testes
@@ -1479,6 +1530,42 @@ Cypress.Commands.add('criarVendaLojaB', (livroUuid: string) => {
           itemVendaUuid: vendaRes.body.itens[0].id,
         }));
       });
+  });
+});
+
+/**
+ * Autentica como admin que pertence a múltiplas lojas (Loja A e Loja B)
+ * Para testes do seletor de loja no header admin
+ */
+Cypress.Commands.add('autenticarAdminMultiLoja', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const headers = apiHeadersBancoTestes();
+
+  // Primeiro, obter o UUID da Loja A via API
+  cy.request({
+    method: 'GET',
+    url: `${apiUrl}/admin/lojas`,
+    headers,
+  }).then((res) => {
+    const lojaA = res.body.dados.find((l: { slug: string }) => l.slug === 'loja-a-multi-tenancy');
+
+    if (!lojaA) {
+      throw new Error('Loja A não encontrada');
+    }
+
+    // Definir cookie x-loja-uuid antes do login (começa com Loja A)
+    cy.setCookie('x-loja-uuid', lojaA.uuid);
+    cy.setCookie('x-use-test-db', 'true');
+
+    // Fazer login via UI com admin que tem múltiplas lojas
+    cy.visit('/minha-conta');
+    cy.getDataCy('login-email-input').type('admin-multi-loja@teste.com');
+    cy.getDataCy('login-password-input').type('SenhaAdminMulti123!');
+    cy.getDataCy('login-submit-button').click();
+
+    // Aguardar redirecionamento para confirmar login
+    cy.url().should('not.include', '/minha-conta');
+    cy.log(`[autenticarAdminMultiLoja] Login via UI realizado com sucesso (uuid=${lojaA.uuid})`);
   });
 });
 

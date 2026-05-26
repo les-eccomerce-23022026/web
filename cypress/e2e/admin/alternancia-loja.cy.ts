@@ -78,7 +78,6 @@ describe('Admin — Alternância entre Lojas', () => {
           url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
-            'x-loja-id': '18', // Contexto Loja A
           },
           failOnStatusCode: false,
         }).then((res) => {
@@ -105,7 +104,6 @@ describe('Admin — Alternância entre Lojas', () => {
           url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
-            'x-loja-id': '19', // Contexto Loja B
           },
           failOnStatusCode: false,
         }).then((res) => {
