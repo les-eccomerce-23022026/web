@@ -59,6 +59,18 @@
       "dataNascimento": "1975-06-15",
       "telefone": { "tipo": "Comercial", "ddd": "11", "numero": "30005678" },
       "ativo": true
+    },
+    {
+      "uuid": "uuid-admin-sistema-0001",
+      "nome": "Admin Sistema",
+      "email": "admin.sistema@livraria.com.br",
+      "cpf": "111.222.333-44",
+      "senha": "password123",
+      "role": "admin_sistema",
+      "genero": "Masculino",
+      "dataNascimento": "1980-01-01",
+      "telefone": { "tipo": "Comercial", "ddd": "11", "numero": "30001234" },
+      "ativo": true
     }
   ]
 }

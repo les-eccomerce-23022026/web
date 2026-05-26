@@ -31,6 +31,17 @@ export class ApiClient {
       headers.set('Authorization', `Bearer ${token}`);
     }
 
+    // Lê cookie x-loja-uuid e inclui como header para contexto de multi-tenancy
+    if (typeof document !== 'undefined') {
+      const cookieLojaUuid = document.cookie
+        .split('; ')
+        .find(linha => linha.startsWith('x-loja-uuid='))
+        ?.split('=')[1];
+      if (cookieLojaUuid) {
+        headers.set('x-loja-uuid', cookieLojaUuid);
+      }
+    }
+
     return headers;
   }
 

@@ -21,7 +21,7 @@ export interface ICliente {
   telefone?: ITelefone; // Agora opcional
   ranking: number;
   ativo: boolean;
-  role: 'cliente' | 'admin';
+  role: 'cliente' | 'admin' | 'admin_sistema';
   enderecosEntrega: IEnderecoCliente[];
   enderecoCobranca: IEnderecoCliente;
   enderecos: IEnderecoCliente[]; // Adicionado para compatibilidade com backend

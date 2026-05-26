@@ -108,6 +108,9 @@ export const API_ENDPOINTS = {
     `${BASE_URL}/admin/pedidos/${uuid}/despachar`,
   confirmarEntrega: (uuid: string) =>
     `${BASE_URL}/admin/pedidos/${uuid}/entrega`,
+
+  // Lojas (Admin)
+  minhasLojas: `${BASE_URL}/admin/lojas/minhas-lojas`,
 };
 
 export const MOCK_TOKEN_PREFIX = "mock-token";
