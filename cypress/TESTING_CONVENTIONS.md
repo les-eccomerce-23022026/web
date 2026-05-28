@@ -19,6 +19,37 @@
 - Localização: `CheckoutSplitPagamento.tsx` linha 152
 - Nota: O erro é mostrado dinamicamente quando a validação falha
 
+### Assistente de Recomendação IA (CDU010) — `data-testid`
+
+| Seletor `data-testid` | Elemento | Observação |
+|---|---|---|
+| `ia-chatbot-container` | Container principal do chatbot | Elemento raiz da UI do assistente |
+| `ia-chatbot-input` | Campo de texto para envio de mensagem | Requer `placeholder` definido |
+| `ia-chatbot-enviar` | Botão de envio | Disabled quando input vazio ou loading |
+| `ia-chatbot-loading` | Indicador de carregamento | Visível durante `POST /api/ia/chat` |
+| `ia-chatbot-erro` | Mensagem de erro | Visível em erros 4xx/5xx da API |
+| `ia-chatbot-mensagem-usuario` | Bolha de mensagem do usuário | Repetido por turno de conversa |
+| `ia-chatbot-mensagem-assistente` | Bolha de resposta do assistente | Repetido por turno de conversa |
+| `ia-mensagem-boas-vindas` | Mensagem inicial ao abrir a página | Exibida antes do primeiro envio |
+| `ia-saudacao-personalizada` | Saudação com nome do cliente logado | Visível apenas para autenticados |
+| `ia-contexto-historico-badge` | Indicador de uso de histórico | Visível quando `contextoUsado=true` |
+| `ia-produto-card` | Card de produto recomendado | Repetido por produto na resposta |
+| `ia-produto-titulo` | Título do livro recomendado | Dentro de `ia-produto-card` |
+| `ia-produto-autor` | Autor do livro recomendado | Dentro de `ia-produto-card` |
+| `ia-produto-preco` | Preço formatado em R$ | Dentro de `ia-produto-card` |
+| `ia-produto-categoria` | Categoria do livro | Dentro de `ia-produto-card` |
+| `ia-produto-isbn` | ISBN do livro (opcional) | Dentro de `ia-produto-card` |
+| `ia-produto-motivo` | Justificativa textual da IA (RF0105) | Dentro de `ia-produto-card` |
+| `ia-produto-link` | Link para página de detalhe | `href` deve incluir `/livro/{uuid}` |
+| `ia-sem-produtos` | Mensagem quando lista de produtos é vazia | Visível quando `produtosRecomendados=[]` |
+| `ia-fallback-mais-vendidos` | Seção de fallback (RN0105) | Visível quando serviço de IA falha |
+| `ia-limpar-historico` | Botão para limpar conversa | Reseta `ia-chatbot-mensagem-*` |
+| `ia-servico-indisponivel` | Aviso de serviço degradado | Visível quando `GET /ia/saude != ok` |
+
+- **Localização:** `app/ia-assistente/` (página Next.js) e `src/components/ia/`
+- **Rota:** `/ia-assistente`
+- **API:** `POST /api/ia/chat`, `GET /api/ia/saude`
+
 ## Estrutura de Testes E2E por Domínio
 
 A reorganização dos testes E2E segue uma estrutura baseada em domínios de negócio, facilitando a manutenção e localização de testes.
@@ -36,7 +67,8 @@ cypress/e2e/
 ├── entregas/              # Despacho, confirmação, cotação de frete
 ├── trocas/                # Solicitação, autorização, recebimento, cupom
 ├── admin/                 # Dashboard administrativo
-├── responsividade/       # Testes mobile-first
+├── responsividade/        # Testes mobile-first
+├── ia/                    # Assistente de recomendação via IA (CDU010)
 └── user/                  # Utils e helpers legados (preservados)
 ```
 
@@ -88,6 +120,11 @@ cypress/e2e/
 | **Admin** | Dashboard | `admin/dashboard.cy.ts` | Painel administrativo |
 | **Responsividade** | Jornadas Cliente | `responsividade/jornadas-criticas-cliente.cy.ts` | Mobile-first |
 | **Responsividade** | Painel Admin | `responsividade/painel-administrativo.cy.ts` | Mobile-first |
+| **Assistente IA** | Fluxo de Recomendação | `ia/chatbot-recomendacao.cy.ts` | CDU010, RF0101, RF0104, RF0105 |
+| **Assistente IA** | Validação de Produtos | `ia/validacao-produtos.cy.ts` | CDU010, RF0101, RF0104 |
+| **Assistente IA** | Personalização com Histórico | `ia/personalizacao-historico.cy.ts` | CDU010, RF0103, RF0105 |
+| **Assistente IA** | Estados de Loading e Erros | `ia/estados-loading-error.cy.ts` | CDU010, RNF-Performance, RNF-Fallback |
+| **Assistente IA** | Segurança do Chatbot | `ia/seguranca-chatbot.cy.ts` | CDU010, RNF-Segurança |
 
 ### Convenções de Nomenclatura
 

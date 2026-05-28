@@ -1,0 +1,9 @@
+{
+  "sucesso": true,
+  "dados": {
+    "resposta": "Não encontrei livros correspondentes ao seu pedido. Tente ser mais específico sobre o gênero ou tema que você procura.",
+    "produtosRecomendados": [],
+    "contextoUsado": false,
+    "tempoRespostaMs": 432
+  }
+}
