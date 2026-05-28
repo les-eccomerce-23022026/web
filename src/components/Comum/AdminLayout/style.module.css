@@ -188,10 +188,108 @@
   }
 }
 
+/* --- Menu Hamburger (Mobile) --- */
+.menuHamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--bn-bg-card);
+  color: var(--bn-primary);
+  border: 1px solid var(--bn-border-light);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: fixed;
+  top: 80px;
+  left: 16px;
+  z-index: 1000;
+  box-shadow: var(--bn-shadow-md);
+}
+
+.menuHamburger:hover {
+  background-color: var(--bn-primary);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 76, 58, 0.15);
+  border-color: var(--bn-primary);
+}
+
+/* Esconder hamburger em desktop */
+@media (min-width: 1024px) {
+  .menuHamburger {
+    display: none;
+  }
+}
+
+/* --- Sidebar Responsiva --- */
+.sidebarAdmin {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100vh;
+  background: var(--bn-bg-card);
+  border-radius: 0;
+  padding: 24px 0;
+  box-shadow: var(--bn-shadow-lg);
+  z-index: 999;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  border-right: 1px solid var(--bn-border-light);
+}
+
+.sidebarAberto {
+  left: 0;
+}
+
+/* Overlay quando menu está aberto */
+.sidebarOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  display: block;
+}
+
+/* Esconder overlay em desktop */
+@media (min-width: 1024px) {
+  .sidebarOverlay {
+    display: none;
+  }
+}
+
+/* Desktop: sidebar fixa à esquerda */
+@media (min-width: 1024px) {
+  .sidebarAdmin {
+    position: sticky;
+    top: 0;
+    left: auto;
+    width: 260px;
+    height: auto;
+    border-radius: var(--bn-border-radius-md);
+    box-shadow: var(--bn-shadow-md);
+    border: 1px solid var(--bn-border-light);
+  }
+
+  .sidebarAberto {
+    left: auto;
+  }
+
+  .sidebarOverlay {
+    display: none;
+  }
+}
+
 /* --- Responsividade Mobile-First --- */
 /* Base: Mobile (0px+) - layout empilhado */
 .adminDashboard {
   padding: 15px;
+  padding-top: 100px; /* Espaço para o hamburger */
 }
 
 .headerAdmin {
@@ -205,14 +303,11 @@
   flex-direction: column;
 }
 
-.sidebarAdmin {
-  width: 100%;
-}
-
 /* Tablet (768px+) - grid com sidebar menor */
 @media (min-width: 768px) {
   .adminDashboard {
     padding: 30px;
+    padding-top: 30px;
   }
 
   .headerAdmin {
@@ -227,7 +322,25 @@
   }
 
   .sidebarAdmin {
-    width: auto;
+    position: sticky;
+    left: auto;
+    width: 200px;
+    height: auto;
+    border-radius: var(--bn-border-radius-md);
+    box-shadow: var(--bn-shadow-md);
+    border: 1px solid var(--bn-border-light);
+  }
+
+  .sidebarAberto {
+    left: auto;
+  }
+
+  .menuHamburger {
+    display: none;
+  }
+
+  .sidebarOverlay {
+    display: none;
   }
 }
 

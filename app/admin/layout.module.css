@@ -12,6 +12,7 @@
     flex-direction: column;
     gap: 20px;
     padding: 16px;
+    padding-top: 100px; /* Espaço para o hamburger */
   }
 }
 

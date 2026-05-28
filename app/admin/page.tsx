@@ -14,6 +14,8 @@ import { useEffect } from 'react';
 import { useDashboardAdmin } from '@/hooks/useDashboardAdmin';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchLivrosAdmin } from '@/store/slices/livroSlice';
+import { AdminKPIs } from '@/components/Admin/AdminKPIs';
+import type { ItemKPI } from '@/components/Admin/AdminKPIs/types';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler);
 
@@ -39,68 +41,49 @@ export default function DashboardAdminPage() {
   if (error) return <div className="admin-loading"><p>Erro ao carregar dashboard admin.</p></div>;
   if (!data) return <div className="admin-loading">Nenhum dado encontrado no dashboard admin.</div>;
 
+  const kpis: ItemKPI[] = [
+    {
+      id: 'receita-mes',
+      label: 'Receita do Mês',
+      value: `R$ ${data.metricas.totalVendasMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      icon: DollarSign,
+      variant: 'receita',
+      trend: { valor: data.metricas.percentualCrescimento },
+    },
+    {
+      id: 'ticket-medio',
+      label: 'Ticket Médio',
+      value: `R$ ${data.metricas.ticketMedio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+      icon: Percent,
+      variant: 'default',
+    },
+    {
+      id: 'livros-catalogo',
+      label: 'Livros no Catálogo',
+      value: totalLivros,
+      icon: BookOpen,
+      variant: 'default',
+    },
+    {
+      id: 'estoque-critico',
+      label: 'Estoque Crítico (≤ 5)',
+      value: estoqueCriticoCount,
+      icon: Package,
+      variant: 'critico',
+    },
+    {
+      id: 'administradores',
+      label: 'Administradores',
+      value: totalAdmins,
+      icon: ShieldCheck,
+      variant: 'default',
+    },
+  ];
+
   return (
     <div className="dashboard-content">
       {/* Métricas Principais (KPIS) */}
-      <div className="painel-kpis">
-        <div className="painel-kpi">
-          <div className="painel-kpi__icone painel-kpi__icone--receita">
-            <DollarSign size={24} strokeWidth={2.5} />
-          </div>
-          <div className="painel-kpi__info">
-            <span className="painel-kpi__valor">R$ {data.metricas.totalVendasMes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-            <span className="painel-kpi__rotulo">
-              Receita do Mês
-              <span className={`texto--${data.metricas.percentualCrescimento > 0 ? 'sucesso' : 'erro'} kpi-tendencia`}>
-                ({data.metricas.percentualCrescimento > 0 ? '+' : ''}{data.metricas.percentualCrescimento}%)
-              </span>
-            </span>
-          </div>
-        </div>
-
-        <div className="painel-kpi">
-          <div className="painel-kpi__icone painel-kpi__icone--vendas">
-            <Percent size={24} strokeWidth={2.5} />
-          </div>
-          <div className="painel-kpi__info">
-            <span className="painel-kpi__valor">R$ {data.metricas.ticketMedio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-            <span className="painel-kpi__rotulo">Ticket Médio</span>
-          </div>
-        </div>
-
-        {/* KPI Livros (Vindo do Redux) */}
-        <div className="painel-kpi">
-          <div className="painel-kpi__icone" style={{ backgroundColor: 'rgba(74, 144, 226, 0.15)', color: '#4a90e2' }}>
-            <BookOpen size={24} strokeWidth={2.5} />
-          </div>
-          <div className="painel-kpi__info">
-            <span className="painel-kpi__valor">{totalLivros}</span>
-            <span className="painel-kpi__rotulo">Livros no Catálogo</span>
-          </div>
-        </div>
-
-        {/* KPI Estoque Crítico (Vindo do Redux) */}
-        <div className="painel-kpi">
-          <div className="painel-kpi__icone painel-kpi__icone--estoque">
-            <Package size={24} strokeWidth={2.5} />
-          </div>
-          <div className="painel-kpi__info">
-            <span className="painel-kpi__valor">{estoqueCriticoCount}</span>
-            <span className="painel-kpi__rotulo">Estoque Crítico (≤ 5)</span>
-          </div>
-        </div>
-
-        {/* KPI Administradores (Vindo do Redux) */}
-        <div className="painel-kpi">
-          <div className="painel-kpi__icone" style={{ backgroundColor: 'rgba(155, 89, 182, 0.15)', color: '#9b59b6' }}>
-            <ShieldCheck size={24} strokeWidth={2.5} />
-          </div>
-          <div className="painel-kpi__info">
-            <span className="painel-kpi__valor">{totalAdmins}</span>
-            <span className="painel-kpi__rotulo">Administradores</span>
-          </div>
-        </div>
-      </div>
+      <AdminKPIs kpis={kpis} layout="grid" columns={5} enableCarousel={true} />
 
       {/* Gráficos */}
       <div className="painel-graficos">

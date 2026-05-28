@@ -16,6 +16,7 @@ export const GerenciarAdminsTabela = ({ admins, onEdit, onToggle }: Props) => (
           <th>Nome</th>
           <th>E-mail</th>
           <th>Status</th>
+          <th>Trocas Pendentes</th>
           <th>Ações</th>
         </tr>
       </thead>

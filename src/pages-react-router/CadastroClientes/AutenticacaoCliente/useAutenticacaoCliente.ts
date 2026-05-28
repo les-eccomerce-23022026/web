@@ -36,7 +36,7 @@ export function useAutenticacaoCliente() {
   const [loginError, setLoginError] = useState('');
 
   // --- Register State ---
-  const [showRegister, setShowRegister] = useState(false);
+  const [showRegister, setShowRegister] = useState(true);
   const [regStep, setRegStep] = useState(1);
   const [regNome, setRegNome] = useState('');
   const [regCpf, setRegCpf] = useState('');

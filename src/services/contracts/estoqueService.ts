@@ -11,9 +11,13 @@ export interface IItemEstoque {
 }
 
 export interface IKpisEstoque {
-  totalItens: number;
-  itensCriticos: number;
+  totalLivros: number;
+  abaixoLimite: number;
   estoqueCriticoLimite: number;
+  valorTotalEstoque: number;
+  valorTotalCusto: number;
+  quantidadeTotalReservada: number;
+  quantidadeTotalDisponivel: number;
 }
 
 export interface IEntradaEstoque {

@@ -41,7 +41,7 @@
       { "tipo": "cartao", "cartaoFinal": "1234", "bandeira": "Mastercard", "valor": 85.00 }
     ],
     "itens": [
-      { "livroUuid": "87654321-4321-4321-4321-876543210987", "titulo": "Código Limpo", "quantidade": 1, "precoUnitario": 85.00, "categoria": "Técnico" }
+      { "livroUuid": "87654321-4321-4321-4321-876543210988", "titulo": "Código Limpo", "quantidade": 1, "precoUnitario": 85.00, "categoria": "Técnico" }
     ]
   },
   {

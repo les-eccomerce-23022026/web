@@ -6,6 +6,7 @@ import { GerenciarLojasTabela } from './GerenciarLojasTabela';
 import { GerenciarLojasModalFormulario } from './GerenciarLojasModalFormulario';
 import { GerenciarLojasModalSalvar } from './GerenciarLojasModalSalvar';
 import { GerenciarLojasModalExclusao } from './GerenciarLojasModalExclusao';
+import { LoadingState } from '@/components/Comum/LoadingState/LoadingState';
 
 function GerenciarLojas() {
   const h = useGerenciarLojas();
@@ -14,7 +15,7 @@ function GerenciarLojas() {
   if (h.isLoading) {
     return (
       <div className={styles.pageContent}>
-        <p data-cy="carregando-lojas">Carregando lojas...</p>
+        <LoadingState message="Carregando lojas..." />
       </div>
     );
   }

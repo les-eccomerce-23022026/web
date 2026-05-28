@@ -1,0 +1,246 @@
+/* Container principal dos KPIs */
+.container {
+  margin-bottom: 2rem;
+}
+
+/* Layout Grid - padrão */
+.containerGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Layout Flex - alternativa */
+.containerFlex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* Layout Carrossel - arrastar horizontal */
+.containerCarousel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bn-border-light) transparent;
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Mobile: carrossel em 2 linhas */
+@media (max-width: 767px) {
+  .containerCarousel {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    overflow-x: hidden;
+    overflow-y: visible;
+    cursor: default;
+  }
+}
+
+.containerCarousel::-webkit-scrollbar {
+  height: 6px;
+}
+
+.containerCarousel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.containerCarousel::-webkit-scrollbar-thumb {
+  background-color: var(--bn-border-light);
+  border-radius: 3px;
+}
+
+.containerCarousel:active {
+  cursor: grabbing;
+}
+
+/* Indicadores visuais nas laterais do carrossel */
+.containerCarousel::before,
+.containerCarousel::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 8px;
+  width: 40px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.containerCarousel::before {
+  left: 0;
+  background: linear-gradient(to right, var(--bn-bg-card), transparent);
+}
+
+.containerCarousel::after {
+  right: 0;
+  background: linear-gradient(to left, var(--bn-bg-card), transparent);
+}
+
+/* Mostrar indicadores quando há scroll */
+.containerCarousel:hover::before,
+.containerCarousel:hover::after {
+  opacity: 1;
+}
+
+/* Prevenir seleção de texto nos cards durante o arraste */
+.containerCarousel .card {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Permitir seleção de texto apenas no conteúdo do card */
+.containerCarousel .card .info {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+/* Responsividade Grid - Mobile First */
+@media (min-width: 480px) {
+  .containerGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .containerGrid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-bottom: 3rem;
+  }
+}
+
+/* Responsividade Flex - Mobile First */
+@media (min-width: 480px) {
+  .containerFlex {
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .containerFlex {
+    margin-bottom: 3rem;
+  }
+}
+
+/* Card do KPI */
+.card {
+  background: var(--bn-bg-card);
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--bn-shadow-sm);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--bn-shadow-lg);
+  border-color: var(--bn-primary-light);
+}
+
+/* Ícone do KPI */
+.icone {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+/* Variantes de cor do ícone */
+.iconeDefault {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.iconeReceita {
+  background: #e0f2f1;
+  color: #00796b;
+}
+
+.iconeEstoque {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.iconeCritico {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Cor customizada do ícone */
+.iconeCustom {
+  background: rgba(74, 144, 226, 0.15);
+  color: #4a90e2;
+}
+
+/* Informações do KPI */
+.info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+}
+
+/* Valor do KPI */
+.valor {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--bn-text-title);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+/* Rótulo do KPI */
+.rotulo {
+  font-size: 0.7rem;
+  color: var(--bn-text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Tendência (crescimento/decrescimento) */
+.tendencia {
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.tendenciaPositiva {
+  color: #2e7d32;
+}
+
+.tendenciaNegativa {
+  color: #d32f2f;
+}
+
+.tendenciaNeutra {
+  color: var(--bn-text-muted);
+}

@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import type { ILoja, ILojaFormState } from '../../../interfaces/loja';
+import { BASE_URL } from '../../../config/apiConfig';
 
 const INITIAL_FORM: ILojaFormState = {
   nome: '',
   slug: '',
   cnpj: '',
 };
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export function useGerenciarLojas() {
   const [lojas, setLojas] = useState<ILoja[]>([]);
@@ -30,7 +29,7 @@ export function useGerenciarLojas() {
   async function carregarLojas() {
     setIsLoading(true);
     try {
-      const resposta = await fetch(`${API_BASE_URL}/api/admin/lojas`, {
+      const resposta = await fetch(`${BASE_URL}/admin/lojas`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -43,7 +42,7 @@ export function useGerenciarLojas() {
       }
 
       const dados = await resposta.json();
-      setLojas(Array.isArray(dados) ? dados : dados.lojas || []);
+      setLojas(Array.isArray(dados) ? dados : dados.dados || dados.lojas || []);
     } catch (erro: unknown) {
       const mensagem = erro instanceof Error ? erro.message : 'Erro ao carregar lojas';
       showPageFeedback(mensagem, 'error');
@@ -207,7 +206,7 @@ export function useGerenciarLojas() {
    */
   async function verificarSlugUnico(slug: string, uuidAtual?: string): Promise<boolean> {
     try {
-      const resposta = await fetch(`${API_BASE_URL}/api/admin/lojas/verificar-slug?slug=${encodeURIComponent(slug)}`, {
+      const resposta = await fetch(`${BASE_URL}/admin/lojas/verificar-slug?slug=${encodeURIComponent(slug)}`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -215,7 +214,7 @@ export function useGerenciarLojas() {
 
       // Se é edição, verifica se o slug pertence à loja atual
       if (uuidAtual && !dados.disponivel) {
-        const lojaAtual = await fetch(`${API_BASE_URL}/api/admin/lojas/${uuidAtual}`, {
+        const lojaAtual = await fetch(`${BASE_URL}/admin/lojas/${uuidAtual}`, {
           method: 'GET',
           credentials: 'include',
         });
@@ -248,7 +247,7 @@ export function useGerenciarLojas() {
 
       if (editingLoja) {
         // Editar loja
-        const resposta = await fetch(`${API_BASE_URL}/api/admin/lojas/${editingLoja.uuid}`, {
+        const resposta = await fetch(`${BASE_URL}/admin/lojas/${editingLoja.uuid}`, {
           method: 'PUT',
           credentials: 'include',
           headers: {
@@ -273,7 +272,7 @@ export function useGerenciarLojas() {
       }
 
       // Criar nova loja
-      const resposta = await fetch(`${API_BASE_URL}/api/admin/lojas`, {
+      const resposta = await fetch(`${BASE_URL}/admin/lojas`, {
         method: 'POST',
         credentials: 'include',
         headers: {

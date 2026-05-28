@@ -4,6 +4,7 @@ export interface IAdmin {
   email: string;
   role: string;
   ativo?: boolean;
+  trocasPendentes?: number; // Contagem de trocas/devoluções pendentes para admin sistema
 }
 
 export interface IAdminFormState {

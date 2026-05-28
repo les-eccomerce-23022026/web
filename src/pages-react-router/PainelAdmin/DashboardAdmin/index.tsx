@@ -9,6 +9,9 @@ import { GerenciarAdminsTabela } from './GerenciarAdminsTabela';
 import { GerenciarAdminsModalFormulario } from './GerenciarAdminsModalFormulario';
 import { GerenciarAdminsModalSalvar } from './GerenciarAdminsModalSalvar';
 import { GerenciarAdminsModalExclusao } from './GerenciarAdminsModalExclusao';
+import { AdminKPIs } from '../../../components/Admin/AdminKPIs';
+import { AdminToolbar } from '../../../components/Admin/AdminToolbar';
+import { obterKPIsAdmins } from './kpisAdmins';
 
 function GerenciarAdmins() {
   const dispatch = useAppDispatch();
@@ -22,26 +25,56 @@ function GerenciarAdmins() {
     return <div className={styles.pageContent}>Carregando administradores...</div>;
   }
 
+  const kpis = obterKPIsAdmins(h.admins);
+
   return (
     <div className={styles.pageContent}>
-      <header className={styles.headerActions}>
-        <h3 className={styles.pageTitle}>Gerenciar Administradores</h3>
-        <button className="btn-primary" onClick={h.startCreate}>
-          Novo Administrador
-        </button>
-      </header>
+      <div className={`card ${styles.listCardWrapper}`}>
+        <AdminKPIs kpis={kpis} columns={4} enableCarousel={true} />
 
-      {h.pageMessage && (
-        <p
-          className={
-            h.pageMessageType === 'success' ? styles.adminMessageSuccess : styles.errorMessage
-          }
-        >
-          {h.pageMessage}
-        </p>
-      )}
+        <AdminToolbar
+          placeholderBusca="Buscar por nome ou e-mail..."
+          onBusca={h.setFiltroBusca}
+          filtros={[
+            {
+              id: 'status',
+              label: 'Status',
+              value: h.filtroStatus,
+              opcoes: [
+                { label: 'Todos os Administradores', value: 'todos' },
+                { label: 'Apenas Ativos', value: 'ativo' },
+                { label: 'Apenas Inativos', value: 'inativo' },
+              ],
+            },
+          ]}
+          onFiltroChange={(id, valor) => {
+            if (id === 'status') h.setFiltroStatus(valor as 'todos' | 'ativo' | 'inativo');
+          }}
+          acoes={[
+            {
+              label: '+ Novo Administrador',
+              onClick: h.startCreate,
+              variante: 'primario',
+            },
+          ]}
+        />
 
-      <GerenciarAdminsTabela admins={h.admins} onEdit={h.startEdit} onToggle={h.triggerDelete} />
+        {h.pageMessage && (
+          <p
+            className={
+              h.pageMessageType === 'success' ? styles.adminMessageSuccess : styles.errorMessage
+            }
+          >
+            {h.pageMessage}
+          </p>
+        )}
+
+        <GerenciarAdminsTabela
+          admins={h.adminsFiltrados}
+          onEdit={h.startEdit}
+          onToggle={h.triggerDelete}
+        />
+      </div>
 
       <GerenciarAdminsModalFormulario
         isOpen={h.showForm}

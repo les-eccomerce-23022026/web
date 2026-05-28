@@ -1,0 +1,136 @@
+/* ==========================================================
+   AdminToolbar.module.css
+   Toolbar reutilizável para painéis administrativos
+   ========================================================== */
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.direita {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ===== Busca ===== */
+.buscaWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.iconeBusca {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--bn-text-muted);
+}
+
+.inputBusca {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  font-size: 14px;
+  background-color: var(--bn-bg-primary);
+  color: var(--bn-text-primary);
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.inputBusca:focus {
+  outline: none;
+  border-color: var(--bn-primary);
+}
+
+/* ===== Filtros ===== */
+.filtrosWrapper {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.selectFiltro {
+  padding: 10px 15px;
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  font-size: 14px;
+  background-color: var(--bn-bg-primary);
+  color: var(--bn-text-primary);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.selectFiltro:focus {
+  outline: none;
+  border-color: var(--bn-primary);
+}
+
+/* ===== Ações ===== */
+.acoesWrapper {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.botaoPrimario {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--bn-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--bn-border-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.botaoPrimario:hover {
+  opacity: 0.85;
+}
+
+.botaoSecundario {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--bn-bg-subtle);
+  color: var(--bn-text-primary);
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.botaoSecundario:hover {
+  background-color: var(--bn-bg-secondary);
+}
+
+/* ===== Responsividade ===== */
+@media (min-width: 768px) {
+  .toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .buscaWrapper {
+    width: auto;
+    max-width: 500px;
+    flex: 1;
+  }
+
+  .direita {
+    flex-wrap: nowrap;
+  }
+}

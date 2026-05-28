@@ -31,13 +31,13 @@ export const API_ENDPOINTS = {
     `${BASE_URL}/vendas/${pedidoUuid}/troca`,
 
   // Trocas (Admin)
-  obterPedidosEmTroca: `${BASE_URL}/admin/trocas`,
+  obterPedidosEmTroca: `${BASE_URL}/admin/pedidos/trocas`,
   autorizarTroca: (pedidoUuid: string) =>
-    `${BASE_URL}/admin/trocas/${pedidoUuid}/autorizar`,
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/autorizar-troca`,
   rejeitarTroca: (pedidoUuid: string) =>
-    `${BASE_URL}/admin/trocas/${pedidoUuid}/rejeitar`,
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/rejeitar-troca`,
   confirmarRecebimentoTroca: (pedidoUuid: string) =>
-    `${BASE_URL}/admin/trocas/${pedidoUuid}/confirmar`,
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/confirmar-recebimento`,
 
   // Cupons de troca
   obterCuponsCliente: `${BASE_URL}/cupons/troca`,
@@ -111,6 +111,12 @@ export const API_ENDPOINTS = {
 
   // Lojas (Admin)
   minhasLojas: `${BASE_URL}/admin/lojas/minhas-lojas`,
+
+  // Estoque (Admin)
+  listarEstoque: `${BASE_URL}/admin/estoque`,
+  listarEstoqueCritico: (limite: number) => `${BASE_URL}/admin/estoque/critico?limite=${limite}`,
+  obterKpisEstoque: (limiteCritico: number) => `${BASE_URL}/admin/estoque/kpis?limite=${limiteCritico}`,
+  registrarEntradaEstoque: `${BASE_URL}/admin/estoque/entrada`,
 };
 
 export const MOCK_TOKEN_PREFIX = "mock-token";

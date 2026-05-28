@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import type { IAdmin, IAdminFormState } from '../../../interfaces/admin';
 import {
@@ -7,6 +7,7 @@ import {
 }  from '../../../store/slices/adminSlice';
 import { AuthService } from '../../../services/authService';
 import { mensagemSeSalvarInvalido } from './gerenciarAdminsValidacao';
+import { adminPassaFiltros } from './gerenciarAdminsFiltro';
 
 const INITIAL_FORM: IAdminFormState = { 
   nome: '', 
@@ -35,6 +36,13 @@ export function useGerenciarAdmins() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [adminToToggle, setAdminToToggle] = useState<IAdmin | null>(null);
+
+  const [filtroBusca, setFiltroBusca] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'ativo' | 'inativo'>('todos');
+
+  const adminsFiltrados = useMemo(() => {
+    return admins.filter((admin) => adminPassaFiltros(admin, filtroBusca, filtroStatus));
+  }, [admins, filtroBusca, filtroStatus]);
 
   function showPageFeedback(msg: string, type: 'success' | 'error' = 'success') {
     setPageMessage(msg);
@@ -183,7 +191,7 @@ export function useGerenciarAdmins() {
         dispatch(fetchAdmins());
         return;
       }
-      
+
       await AuthService.ativarAdmin(adminToToggle.uuid);
       showPageFeedback(`Administrador ${adminToToggle.nome} ativado com sucesso.`);
       dispatch(fetchAdmins());
@@ -199,6 +207,7 @@ export function useGerenciarAdmins() {
 
   return {
     admins,
+    adminsFiltrados,
     isLoading,
     form,
     showForm,
@@ -222,5 +231,9 @@ export function useGerenciarAdmins() {
     triggerDelete,
     handleDelete,
     cancelForm: resetForm,
+    filtroBusca,
+    setFiltroBusca,
+    filtroStatus,
+    setFiltroStatus,
   };
 }
