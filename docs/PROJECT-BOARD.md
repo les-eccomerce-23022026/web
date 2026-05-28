@@ -7,16 +7,17 @@
 
 ## Board Kanban
 
-| 📋 Todo (8)                                 | 🔄 In Progress (0)                         | ✅ Done (61)                                            |
+| 📋 Todo (7)                                 | 🔄 In Progress (0)                         | ✅ Done (62)                                            |
 | ------------------------------------------- | ------------------------------------------ | ------------------------------------------------------- |
-| T3 · [FRONTEND] Reserva Estoque (RN0044/45) |                                            | A61 · [FRONTEND] Refresh Token Automático               |
-| T4 · [FRONTEND] Inativação/Ativação Livros (RF0012/16) |                                            | A1 · [FRONTEND] Configurar GIT e Repositório            |
-| T5 · [FRONTEND] Alteração de Senha (RF0028) |                                            | A3 · [BACKEND] Implementar API de Livros                |
-| T6 · [FRONTEND] Notificação de Troca (RN0046) |                                            | A4 · [FRONTEND] Criar Tela de Carrinho                  |
-| T7 · [FRONTEND] Bloqueio Carrinho (RN0044/45) |                                            | A5 · [FRONTEND] Refatoração Mock Data e Serviços        |
-| T8 · [FRONTEND] Análise Histórico Vendas (RF0055) |                                            | A6 · [FRONTEND] Extrair CSS para Arquivos               |
-| T9 · [FRONTEND] Ranking de Cliente (RN0027) |                                            | A7 · [FRONTEND] Design System com Variáveis             |
-| T10 · [FRONTEND] Recomendação IA (RNF0044) |                                            | A8 · [FRONTEND] Adicionar Testes E2E (Cypress)          |
+| T3 · [FRONTEND] Reserva Estoque (RN0044/45) |                                            | T10 · [FRONTEND] Recomendação IA (RNF0044)              |
+| T4 · [FRONTEND] Inativação/Ativação Livros (RF0012/16) |                                            | A61 · [FRONTEND] Refresh Token Automático               |
+| T5 · [FRONTEND] Alteração de Senha (RF0028) |                                            | A1 · [FRONTEND] Configurar GIT e Repositório            |
+| T6 · [FRONTEND] Notificação de Troca (RN0046) |                                            | A3 · [BACKEND] Implementar API de Livros                |
+| T7 · [FRONTEND] Bloqueio Carrinho (RN0044/45) |                                            | A4 · [FRONTEND] Criar Tela de Carrinho                  |
+| T8 · [FRONTEND] Análise Histórico Vendas (RF0055) |                                            | A5 · [FRONTEND] Refatoração Mock Data e Serviços        |
+| T9 · [FRONTEND] Ranking de Cliente (RN0027) |                                            | A6 · [FRONTEND] Extrair CSS para Arquivos               |
+|                                             |                                            | A7 · [FRONTEND] Design System com Variáveis             |
+|                                             |                                            | A8 · [FRONTEND] Adicionar Testes E2E (Cypress)          |
 |                                             |                                            | A9 · [FRONTEND] Melhorar Layout Home e Catálogo         |
 |                                             |                                            | A10 · [FRONTEND] Responsividade no Footer               |
 |                                             |                                            | A11 · [FRONTEND] Componentizar Breadcrumbs              |
@@ -143,7 +144,7 @@
 | T7   | FRONTEND | Bloqueio Carrinho (RN0044/45)          | **Negócio:** Itens no carrinho ficam bloqueados temporariamente; notificar 5min antes de expirar; se expirar, itens são removidos. |
 | T8   | FRONTEND | Análise Histórico Vendas (RF0055)     | **Negócio:** Consultar histórico de vendas comparando produtos ou categorias por período, apresentado em gráfico de linhas (RNF0043). |
 | T9   | FRONTEND | Ranking de Cliente (RN0027)            | **Negócio:** Exibir ranking numérico do cliente com base no seu perfil de compra. |
-| T10  | FRONTEND | Recomendação IA (RNF0044)              | **Negócio:** IA generativa para recomendações com base no histórico e preferências, chatbot para busca e sugestões. |
+| T10  | FRONTEND | Recomendação IA (RNF0044)              | **Concluído:** Chatbot flutuante no catálogo com `useChatRecomendacao`, serviço `IaRecomendacaoServiceApi` e componentes `ChatFlutuante`/`ChatInterface` com estados de loading, erro e vazio. Integrado via `POST /ia/chat`. |
 
 ---
 

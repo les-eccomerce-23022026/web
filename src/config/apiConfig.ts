@@ -117,6 +117,10 @@ export const API_ENDPOINTS = {
   listarEstoqueCritico: (limite: number) => `${BASE_URL}/admin/estoque/critico?limite=${limite}`,
   obterKpisEstoque: (limiteCritico: number) => `${BASE_URL}/admin/estoque/kpis?limite=${limiteCritico}`,
   registrarEntradaEstoque: `${BASE_URL}/admin/estoque/entrada`,
+
+  // Assistente de Recomendação (IA)
+  chatRecomendacao: `${BASE_URL}/ia/chat`,
+  obterRecomendacoes: `${BASE_URL}/ia/recomendar`,
 };
 
 export const MOCK_TOKEN_PREFIX = "mock-token";
