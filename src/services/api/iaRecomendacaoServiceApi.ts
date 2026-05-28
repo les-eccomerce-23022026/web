@@ -7,4 +7,10 @@ export class IaRecomendacaoServiceApi implements IIaRecomendacaoService {
   async enviarMensagem(requisicao: IRequisicaoChat): Promise<IRespostaChat> {
     return ApiClient.post<IRespostaChat>(API_ENDPOINTS.chatRecomendacao, requisicao);
   }
+
+  async verificarSaude(): Promise<{ status: string; servico: string; timestamp: string }> {
+    return ApiClient.get<{ status: string; servico: string; timestamp: string }>(
+      API_ENDPOINTS.saudeIA
+    );
+  }
 }

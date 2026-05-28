@@ -16,7 +16,8 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
 
   beforeEach(() => {
     cy.intercept('GET', '**/ia/saude', { fixture: 'ia/saude-ok.json' }).as('saudeIA');
-    cy.visit('/ia-assistente', { failOnStatusCode: false });
+    cy.visit('/', { failOnStatusCode: false });
+    cy.getDataCy('chat-flutuante-botao').click();
   });
 
   describe('Proteção contra XSS', () => {
@@ -25,8 +26,8 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
 
       cy.intercept('POST', '**/ia/chat', { fixture: 'ia/chat-resposta.json' }).as('chatIA');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type(payloadXSS);
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type(payloadXSS);
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatIA');
 
@@ -34,7 +35,7 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
         throw new Error('XSS executado — alerta acionado pelo script injetado!');
       });
 
-      cy.get('[data-testid="ia-chatbot-mensagem-usuario"]')
+      cy.getDataCy('chat-mensagem-usuario')
         .should('be.visible')
         .invoke('html')
         .then((html) => {
@@ -47,8 +48,8 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
 
       cy.intercept('POST', '**/ia/chat', { fixture: 'ia/chat-resposta.json' }).as('chatIA');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type(payloadImgXSS);
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type(payloadImgXSS);
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatIA');
 
@@ -56,7 +57,7 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
         throw new Error('XSS via img onerror executado!');
       });
 
-      cy.get('[data-testid="ia-chatbot-mensagem-usuario"]')
+      cy.getDataCy('chat-mensagem-usuario')
         .invoke('html')
         .then((html) => {
           expect(html).to.not.include('onerror=');
@@ -77,8 +78,8 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
         },
       }).as('chatComHTML');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('teste');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('teste');
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatComHTML');
 
@@ -86,7 +87,7 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
         throw new Error('XSS na resposta do assistente executado!');
       });
 
-      cy.get('[data-testid="ia-chatbot-mensagem-assistente"]')
+      cy.getDataCy('chat-mensagem-assistente')
         .invoke('html')
         .then((html) => {
           expect(html).to.not.include('<script>');
@@ -100,7 +101,8 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
       const senha = Cypress.env('cliente')?.senha ?? '@asdfJKLÇ123';
 
       cy.autenticarViaApi(email, senha);
-      cy.visit('/ia-assistente', { failOnStatusCode: false });
+      cy.visit('/', { failOnStatusCode: false });
+      cy.getDataCy('chat-flutuante-botao').click();
 
       cy.intercept('POST', '**/ia/chat', (req) => {
         const bodyString = JSON.stringify(req.body);
@@ -111,8 +113,8 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
         req.reply({ fixture: 'ia/chat-resposta-historico.json' });
       }).as('chatSemCPF');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros para minha coleção');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros para minha coleção');
+      cy.getDataCy('chat-botao-enviar').click();
       cy.wait('@chatSemCPF');
     });
 
@@ -127,8 +129,8 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
         req.reply({ fixture: 'ia/chat-resposta.json' });
       }).as('chatSemCartao');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros de tecnologia');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros de tecnologia');
+      cy.getDataCy('chat-botao-enviar').click();
       cy.wait('@chatSemCartao');
     });
 
@@ -142,8 +144,8 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
         req.reply({ fixture: 'ia/chat-resposta.json' });
       }).as('chatSemJWT');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros de programação');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros de programação');
+      cy.getDataCy('chat-botao-enviar').click();
       cy.wait('@chatSemJWT');
     });
   });
@@ -157,13 +159,13 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
         req.reply({ fixture: 'ia/chat-resposta-vazia.json' });
       }).as('chatComSQL');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type(payloadSQL);
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type(payloadSQL);
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatComSQL');
 
-      cy.get('[data-testid="ia-chatbot-mensagem-assistente"]').should('be.visible');
-      cy.get('[data-testid="ia-chatbot-erro"]').should('not.exist');
+      cy.getDataCy('chat-mensagem-assistente').should('be.visible');
+      cy.getDataCy('chat-erro').should('not.exist');
     });
 
     it('deve tratar prompt injection como entrada normal sem executar instruções especiais', () => {
@@ -172,26 +174,27 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
 
       cy.intercept('POST', '**/ia/chat', { fixture: 'ia/chat-resposta-vazia.json' }).as('chatIA');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type(payloadPromptInjection);
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type(payloadPromptInjection);
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatIA');
 
-      cy.get('[data-testid="ia-chatbot-mensagem-assistente"]').should('be.visible');
+      cy.getDataCy('chat-mensagem-assistente').should('be.visible');
     });
   });
 
   describe('Verificação de autenticação e acesso', () => {
     it('deve permitir acesso ao assistente para usuários não autenticados (funcionalidade pública)', () => {
-      cy.get('[data-testid="ia-chatbot-container"]').should('be.visible');
-      cy.get('[data-testid="ia-chatbot-input"]').should('be.visible');
+      cy.getDataCy('chat-flutuante-botao').should('be.visible');
+      cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-entrada-mensagem').should('be.visible');
     });
 
     it('deve impedir que a resposta do assistente exponha UUID de outros clientes', () => {
       cy.intercept('POST', '**/ia/chat', { fixture: 'ia/chat-resposta.json' }).as('chatIA');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('ficção científica');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('ficção científica');
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatIA').then((interception) => {
         const body = interception.response?.body;
@@ -232,17 +235,17 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
     it('deve aceitar múltiplas mensagens em sequência sem travar a interface (tolerância de uso normal)', () => {
       cy.intercept('POST', '**/ia/chat', { fixture: 'ia/chat-resposta.json' }).as('chatIA');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros de aventura');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros de aventura');
+      cy.getDataCy('chat-botao-enviar').click();
       cy.wait('@chatIA');
 
       cy.intercept('POST', '**/ia/chat', { fixture: 'ia/chat-resposta.json' }).as('chatIA2');
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros de romance');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros de romance');
+      cy.getDataCy('chat-botao-enviar').click();
       cy.wait('@chatIA2');
 
-      cy.get('[data-testid="ia-chatbot-mensagem-usuario"]').should('have.length', 2);
-      cy.get('[data-testid="ia-chatbot-mensagem-assistente"]').should('have.length', 2);
+      cy.getDataCy('chat-mensagem-usuario').should('have.length', 2);
+      cy.getDataCy('chat-mensagem-assistente').should('have.length', 2);
     });
 
     it('deve exibir aviso amigável quando limite de uso for atingido (status 429)', () => {
@@ -251,12 +254,12 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
         body: { sucesso: false, mensagem: 'Limite de requisições atingido. Tente novamente em alguns minutos.' },
       }).as('chatRateLimit');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('mais livros por favor');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('mais livros por favor');
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatRateLimit');
 
-      cy.get('[data-testid="ia-chatbot-erro"]')
+      cy.getDataCy('chat-erro')
         .should('be.visible')
         .and('contain.text', 'Tente novamente');
     });

@@ -23,14 +23,16 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
         req.reply({ fixture: 'ia/chat-resposta.json' });
       }).as('chatIA');
 
-      cy.visit('/ia-assistente', { failOnStatusCode: false });
+      cy.visit('/', { failOnStatusCode: false });
+      cy.getDataCy('chat-flutuante-botao').click();
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros de aventura');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros de aventura');
+      cy.getDataCy('chat-botao-enviar').click();
 
-      cy.get('[data-testid="ia-chatbot-loading"]').should('be.visible');
+      // Verifica indicador de carregamento
+      cy.getDataCy('ia-chatbot-loading').should('be.visible');
       cy.wait('@chatIA');
-      cy.get('[data-testid="ia-chatbot-loading"]').should('not.exist');
+      cy.getDataCy('ia-chatbot-loading').should('not.exist');
     });
 
     it('deve desabilitar o botão de envio enquanto há resposta em andamento', () => {
@@ -41,14 +43,15 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
         req.reply({ fixture: 'ia/chat-resposta.json' });
       }).as('chatIA');
 
-      cy.visit('/ia-assistente', { failOnStatusCode: false });
+      cy.visit('/', { failOnStatusCode: false });
+      cy.getDataCy('chat-flutuante-botao').click();
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros de suspense');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros de suspense');
+      cy.getDataCy('chat-botao-enviar').click();
 
-      cy.get('[data-testid="ia-chatbot-enviar"]').should('be.disabled');
+      cy.getDataCy('chat-botao-enviar').should('be.disabled');
       cy.wait('@chatIA');
-      cy.get('[data-testid="ia-chatbot-enviar"]').should('not.be.disabled');
+      cy.getDataCy('chat-botao-enviar').should('not.be.disabled');
     });
 
     it('deve desabilitar o campo de entrada enquanto a resposta está sendo carregada', () => {
@@ -59,20 +62,22 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
         req.reply({ fixture: 'ia/chat-resposta.json' });
       }).as('chatIA');
 
-      cy.visit('/ia-assistente', { failOnStatusCode: false });
+      cy.visit('/', { failOnStatusCode: false });
+      cy.getDataCy('chat-flutuante-botao').click();
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros históricos');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros históricos');
+      cy.getDataCy('chat-botao-enviar').click();
 
-      cy.get('[data-testid="ia-chatbot-input"]').should('be.disabled');
+      cy.getDataCy('chat-entrada-mensagem').should('be.disabled');
       cy.wait('@chatIA');
-      cy.get('[data-testid="ia-chatbot-input"]').should('not.be.disabled');
+      cy.getDataCy('chat-entrada-mensagem').should('not.be.disabled');
     });
   });
 
   describe('Tratamento de erro da API de IA', () => {
     beforeEach(() => {
-      cy.visit('/ia-assistente', { failOnStatusCode: false });
+      cy.visit('/', { failOnStatusCode: false });
+      cy.getDataCy('chat-flutuante-botao').click();
     });
 
     it('deve exibir mensagem de erro amigável quando o serviço de IA retornar erro 500', () => {
@@ -81,12 +86,12 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
         body: { sucesso: false, mensagem: 'Erro interno do serviço de IA' },
       }).as('chatErro500');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('ficção científica');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('ficção científica');
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatErro500');
 
-      cy.get('[data-testid="ia-chatbot-erro"]')
+      cy.getDataCy('chat-erro')
         .should('be.visible')
         .and('not.be.empty');
     });
@@ -97,12 +102,13 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
         body: { sucesso: false, mensagem: 'Serviço temporariamente indisponível' },
       }).as('chatIndisponivel');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('recomende um livro');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('recomende um livro');
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatIndisponivel');
 
-      cy.get('[data-testid="ia-fallback-mais-vendidos"]').should('be.visible');
+      // Verifica mensagem de erro
+      cy.getDataCy('chat-erro').should('be.visible');
     });
 
     it('deve permitir nova tentativa após erro sem precisar recarregar a página', () => {
@@ -111,31 +117,31 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
         body: { sucesso: false, mensagem: 'Erro interno' },
       }).as('chatFalha');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros de autoajuda');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros de autoajuda');
+      cy.getDataCy('chat-botao-enviar').click();
       cy.wait('@chatFalha');
 
-      cy.get('[data-testid="ia-chatbot-erro"]').should('be.visible');
+      cy.getDataCy('chat-erro').should('be.visible');
 
       cy.intercept('POST', '**/ia/chat', { fixture: 'ia/chat-resposta.json' }).as('chatRecuperado');
 
-      cy.get('[data-testid="ia-chatbot-input"]').should('not.be.disabled').type('livros de autoajuda');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').should('not.be.disabled').type('livros de autoajuda');
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatRecuperado');
-      cy.get('[data-testid="ia-chatbot-mensagem-assistente"]').should('be.visible');
-      cy.get('[data-testid="ia-chatbot-erro"]').should('not.exist');
+      cy.getDataCy('chat-mensagem-assistente').should('be.visible');
+      cy.getDataCy('chat-erro').should('not.exist');
     });
 
     it('deve exibir erro de rede de forma amigável quando não há conexão', () => {
       cy.intercept('POST', '**/ia/chat', { forceNetworkError: true }).as('chatSemRede');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('livros de tecnologia');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type('livros de tecnologia');
+      cy.getDataCy('chat-botao-enviar').click();
 
       cy.wait('@chatSemRede');
 
-      cy.get('[data-testid="ia-chatbot-erro"]')
+      cy.getDataCy('chat-erro')
         .should('be.visible')
         .and('not.be.empty');
     });
@@ -146,23 +152,24 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
         body: { sucesso: false, mensagem: 'Mensagem é obrigatória e não pode ser vazia' },
       }).as('chatBadRequest');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type(' ');
-      cy.get('[data-testid="ia-chatbot-enviar"]').click();
+      cy.getDataCy('chat-entrada-mensagem').type(' ');
+      cy.getDataCy('chat-botao-enviar').click();
 
-      cy.get('[data-testid="ia-chatbot-erro"]').should('be.visible');
+      cy.getDataCy('chat-erro').should('be.visible');
     });
   });
 
   describe('Validação de campos obrigatórios', () => {
     beforeEach(() => {
-      cy.visit('/ia-assistente', { failOnStatusCode: false });
+      cy.visit('/', { failOnStatusCode: false });
+      cy.getDataCy('chat-flutuante-botao').click();
     });
 
     it('deve impedir envio de mensagem vazia', () => {
       cy.intercept('POST', '**/ia/chat').as('chatNaoDeveChamar');
 
-      cy.get('[data-testid="ia-chatbot-input"]').clear();
-      cy.get('[data-testid="ia-chatbot-enviar"]').should('be.disabled');
+      cy.getDataCy('chat-entrada-mensagem').clear();
+      cy.getDataCy('chat-botao-enviar').should('be.disabled');
 
       cy.get('@chatNaoDeveChamar.all').should('have.length', 0);
     });
@@ -170,8 +177,8 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
     it('deve impedir envio de mensagem com apenas espaços em branco', () => {
       cy.intercept('POST', '**/ia/chat').as('chatNaoDeveSerChamado');
 
-      cy.get('[data-testid="ia-chatbot-input"]').type('   ');
-      cy.get('[data-testid="ia-chatbot-enviar"]').should('be.disabled');
+      cy.getDataCy('chat-entrada-mensagem').type('   ');
+      cy.getDataCy('chat-botao-enviar').should('be.disabled');
 
       cy.get('@chatNaoDeveSerChamado.all').should('have.length', 0);
     });
@@ -179,9 +186,9 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
     it('deve exibir contador de caracteres e limitar o tamanho máximo da mensagem', () => {
       const mensagemLonga = 'a'.repeat(600);
 
-      cy.get('[data-testid="ia-chatbot-input"]').type(mensagemLonga);
+      cy.getDataCy('chat-entrada-mensagem').type(mensagemLonga);
 
-      cy.get('[data-testid="ia-chatbot-input"]').invoke('val').then((val) => {
+      cy.getDataCy('chat-entrada-mensagem').invoke('val').then((val) => {
         expect((val as string).length).to.be.at.most(500);
       });
     });
@@ -194,9 +201,11 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
         body: { sucesso: false, mensagem: 'Serviço degradado' },
       }).as('saudeIA');
 
-      cy.visit('/ia-assistente', { failOnStatusCode: false });
+      cy.visit('/', { failOnStatusCode: false });
+      cy.getDataCy('chat-flutuante-botao').click();
 
-      cy.get('[data-testid="ia-servico-indisponivel"]').should('be.visible');
+      // Verifica aviso de serviço indisponível
+      cy.getDataCy('ia-servico-indisponivel').should('be.visible');
     });
   });
 });

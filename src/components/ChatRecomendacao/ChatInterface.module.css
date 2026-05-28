@@ -144,6 +144,14 @@
   margin: 0;
 }
 
+/* --- Container de produtos recomendados ---------------------- */
+.produtosContainer {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* --- Indicador "digitando" -------------------------------- */
 .indicadorDigitando {
   display: flex;

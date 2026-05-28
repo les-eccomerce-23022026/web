@@ -121,6 +121,7 @@ export const API_ENDPOINTS = {
   // Assistente de Recomendação (IA)
   chatRecomendacao: `${BASE_URL}/ia/chat`,
   obterRecomendacoes: `${BASE_URL}/ia/recomendar`,
+  saudeIA: `${BASE_URL}/ia/saude`,
 };
 
 export const MOCK_TOKEN_PREFIX = "mock-token";

@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect } from 'react';
-import { MessageSquare, RotateCcw } from 'lucide-react';
+import { MessageSquare, RotateCcw, AlertCircle } from 'lucide-react';
 import { useChatRecomendacao } from '@/hooks/useChatRecomendacao';
 import { ChatMensagem } from './ChatMensagem';
 import { ChatEntradaMensagem } from './ChatEntradaMensagem';
+import { ChatLoadingIndicator } from './ChatLoadingIndicator';
 import styles from './ChatInterface.module.css';
 
 interface ChatInterfaceProps {
@@ -17,6 +18,7 @@ export const ChatInterface = ({ onFechar }: ChatInterfaceProps) => {
     textoEntrada,
     isEnviando,
     erroEnvio,
+    servicoIndisponivel,
     listaRef,
     setTextoEntrada,
     enviarMensagem,
@@ -68,16 +70,25 @@ export const ChatInterface = ({ onFechar }: ChatInterfaceProps) => {
         aria-live="polite"
         aria-label="Histórico da conversa"
       >
+        {servicoIndisponivel && (
+          <div
+            className={styles.mensagemErro}
+            role="alert"
+            data-cy="ia-servico-indisponivel"
+            style={{ marginBottom: '8px' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <AlertCircle size={14} />
+              <span>Serviço de recomendação temporariamente indisponível</span>
+            </div>
+          </div>
+        )}
+        
         {mensagens.map((mensagem) => (
           <ChatMensagem key={mensagem.id} mensagem={mensagem} />
         ))}
-        {isEnviando && (
-          <div className={styles.indicadorDigitando} aria-label="Assistente digitando">
-            <span className={styles.pontoDigitando} />
-            <span className={styles.pontoDigitando} />
-            <span className={styles.pontoDigitando} />
-          </div>
-        )}
+        
+        {isEnviando && <ChatLoadingIndicator />}
       </div>
 
       {erroEnvio && (
