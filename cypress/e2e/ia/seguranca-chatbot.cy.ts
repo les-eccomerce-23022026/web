@@ -15,6 +15,7 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
   const apiUrl = (Cypress.env('apiUrl') as string) || 'http://localhost:3001/api';
 
   beforeEach(() => {
+    cy.loginProgramatico('cliente');
     cy.intercept('GET', '**/ia/saude', { fixture: 'ia/saude-ok.json' }).as('saudeIA');
     cy.visit('/', { failOnStatusCode: false });
     cy.getDataCy('chat-flutuante-botao').click();

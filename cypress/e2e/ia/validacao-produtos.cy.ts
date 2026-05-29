@@ -11,6 +11,7 @@
 
 describe('Assistente IA — Validação de Produtos Recomendados no Catálogo (RF0101)', () => {
   beforeEach(() => {
+    cy.loginProgramatico('cliente');
     cy.intercept('GET', '**/ia/saude', { fixture: 'ia/saude-ok.json' }).as('saudeIA');
     cy.intercept('POST', '**/ia/chat', { fixture: 'ia/chat-resposta.json' }).as('chatIA');
 

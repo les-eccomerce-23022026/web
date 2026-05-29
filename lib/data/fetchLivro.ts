@@ -41,7 +41,8 @@ function getApiBaseUrl(): string {
     return '/api';
   }
   // Server-side: use backend URL directly
-  return process.env.BACKEND_URL || 'http://localhost:3000/api';
+  const backend = process.env.BACKEND_URL || 'http://localhost:5001';
+  return `${backend.replace(/\/$/, '')}/api`;
 }
 
 /**

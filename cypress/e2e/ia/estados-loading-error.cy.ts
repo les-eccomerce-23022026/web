@@ -11,6 +11,7 @@
 
 describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () => {
   beforeEach(() => {
+    cy.loginProgramatico('cliente');
     cy.intercept('GET', '**/ia/saude', { fixture: 'ia/saude-ok.json' }).as('saudeIA');
   });
 
