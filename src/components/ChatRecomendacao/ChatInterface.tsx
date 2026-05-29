@@ -22,6 +22,7 @@ export const ChatInterface = ({ onFechar }: ChatInterfaceProps) => {
     listaRef,
     setTextoEntrada,
     enviarMensagem,
+    enviarPerguntaFollowUp,
     limparConversa,
   } = useChatRecomendacao();
 
@@ -85,7 +86,11 @@ export const ChatInterface = ({ onFechar }: ChatInterfaceProps) => {
         )}
         
         {mensagens.map((mensagem) => (
-          <ChatMensagem key={mensagem.id} mensagem={mensagem} />
+          <ChatMensagem
+            key={mensagem.id}
+            mensagem={mensagem}
+            onPerguntaFollowUp={enviarPerguntaFollowUp}
+          />
         ))}
         
         {isEnviando && <ChatLoadingIndicator />}

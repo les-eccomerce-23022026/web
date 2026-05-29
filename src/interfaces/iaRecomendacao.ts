@@ -1,5 +1,7 @@
 export type RemetenteMensagem = 'usuario' | 'assistente';
 
+export type TipoRespostaChat = 'recomendacao' | 'esclarecimento';
+
 export interface IProdutoRecomendado {
   uuid: string;
   titulo: string;
@@ -19,6 +21,8 @@ export interface IMensagemChat {
   timestamp: Date;
   produtosRecomendados?: IProdutoRecomendado[];
   contextoUsado?: boolean;
+  tipoResposta?: TipoRespostaChat;
+  perguntasFollowUp?: string[];
 }
 
 export interface IHistoricoMensagem {
@@ -37,4 +41,7 @@ export interface IRespostaChat {
   produtosRecomendados?: IProdutoRecomendado[];
   contextoUsado?: boolean;
   tempoRespostaMs?: number;
+  tipoResposta?: TipoRespostaChat;
+  perguntasFollowUp?: string[];
+  intencaoResumida?: string;
 }

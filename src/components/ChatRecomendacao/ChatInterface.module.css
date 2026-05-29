@@ -254,6 +254,30 @@
   cursor: not-allowed;
 }
 
+.chipsFollowUp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.chipPergunta {
+  font-size: 0.75rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--bn-primary);
+  background: var(--bn-bg-main);
+  color: var(--bn-primary);
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+  transition: background-color 0.15s;
+}
+
+.chipPergunta:hover {
+  background-color: var(--bn-bg-subtle);
+}
+
 /* --- Responsividade --------------------------------------- */
 @media (max-width: 400px) {
   .painel {
