@@ -4,17 +4,29 @@ import { useEffect } from 'react';
 import { MessageSquare, RotateCcw, AlertCircle } from 'lucide-react';
 import { useChatRecomendacao } from '@/hooks/useChatRecomendacao';
 import { ChatMensagem } from './ChatMensagem';
+import { ChatHistoricoIteracoes } from './ChatHistoricoIteracoes';
 import { ChatEntradaMensagem } from './ChatEntradaMensagem';
 import { ChatLoadingIndicator } from './ChatLoadingIndicator';
 import styles from './ChatInterface.module.css';
 
-interface ChatInterfaceProps {
-  onFechar: () => void;
-}
+/** Sugestões rápidas exibidas na abertura do chat */
+const SUGESTOES_RAPIDAS = [
+  'Status do meu pedido',
+  'Livros mais vendidos em Fantasia',
+  'Presente para adolescente',
+] as const;
 
-export const ChatInterface = ({ onFechar }: ChatInterfaceProps) => {
+/**
+ * Conteúdo do chat — layout coluna full-height.
+ * Projetado para ser renderizado dentro de PainelLateral.
+ * O cabeçalho externo (título + botão fechar) é responsabilidade do PainelLateral.
+ */
+export const ChatInterface = () => {
   const {
     mensagens,
+    boasVindas,
+    iteracoesAnteriores,
+    iteracaoAtual,
     textoEntrada,
     isEnviando,
     erroEnvio,
@@ -24,7 +36,11 @@ export const ChatInterface = ({ onFechar }: ChatInterfaceProps) => {
     enviarMensagem,
     enviarPerguntaFollowUp,
     limparConversa,
+    continuarDaIteracao,
   } = useChatRecomendacao();
+
+  const mostrarSugestoes =
+    mensagens.length <= 1 && !isEnviando && !iteracaoAtual;
 
   useEffect(() => {
     if (!listaRef.current) return;
@@ -34,14 +50,14 @@ export const ChatInterface = ({ onFechar }: ChatInterfaceProps) => {
   return (
     <div
       className={styles.painel}
-      role="dialog"
-      aria-label="Assistente de recomendação de livros"
+      aria-label="Assistente da Livraria"
       data-cy="chat-painel"
     >
+      {/* Sub-cabeçalho do chat: ícone + título + limpar conversa */}
       <div className={styles.cabecalho}>
         <div className={styles.cabecalhoTitulo}>
           <MessageSquare size={16} />
-          <span className={styles.tituloChat}>Assistente de Livros</span>
+          <span className={styles.tituloChat}>Assistente da Livraria</span>
         </div>
         <div className={styles.cabecalhoAcoes}>
           <button
@@ -53,17 +69,29 @@ export const ChatInterface = ({ onFechar }: ChatInterfaceProps) => {
           >
             <RotateCcw size={14} />
           </button>
-          <button
-            className={styles.botaoFechar}
-            onClick={onFechar}
-            aria-label="Fechar assistente"
-            data-cy="chat-botao-fechar"
-          >
-            ✕
-          </button>
         </div>
       </div>
 
+      {/* Sugestões rápidas — visíveis apenas no início da conversa */}
+      {mostrarSugestoes && (
+        <div
+          className={styles.sugestoesContainer}
+          aria-label="Sugestões rápidas"
+        >
+          {SUGESTOES_RAPIDAS.map((sugestao) => (
+            <button
+              key={sugestao}
+              className={styles.chipSugestao}
+              onClick={() => enviarPerguntaFollowUp(sugestao)}
+              disabled={isEnviando}
+            >
+              {sugestao}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Lista de mensagens */}
       <div
         ref={listaRef}
         className={styles.listaMensagens}
@@ -84,15 +112,26 @@ export const ChatInterface = ({ onFechar }: ChatInterfaceProps) => {
             </div>
           </div>
         )}
-        
-        {mensagens.map((mensagem) => (
-          <ChatMensagem
-            key={mensagem.id}
-            mensagem={mensagem}
+
+        {mensagens.length <= 1 && !iteracaoAtual ? (
+          mensagens.map((mensagem) => (
+            <ChatMensagem
+              key={mensagem.id}
+              mensagem={mensagem}
+              onPerguntaFollowUp={enviarPerguntaFollowUp}
+            />
+          ))
+        ) : (
+          <ChatHistoricoIteracoes
+            boasVindas={boasVindas}
+            iteracoesAnteriores={iteracoesAnteriores}
+            iteracaoAtual={iteracaoAtual}
+            isEnviando={isEnviando}
             onPerguntaFollowUp={enviarPerguntaFollowUp}
+            onContinuarDaIteracao={continuarDaIteracao}
           />
-        ))}
-        
+        )}
+
         {isEnviando && <ChatLoadingIndicator />}
       </div>
 

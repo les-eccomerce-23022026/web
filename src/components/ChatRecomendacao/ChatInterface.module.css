@@ -37,17 +37,13 @@
   transform: scale(1.06);
 }
 
-/* --- Painel do chat --------------------------------------- */
+/* --- Painel do chat (full-height dentro do PainelLateral) -- */
 .painel {
-  width: 340px;
-  max-height: 520px;
+  flex: 1;
   background-color: var(--bn-bg-card);
-  border-radius: var(--bn-border-radius-lg);
-  box-shadow: var(--bn-shadow-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: slideUp 0.25s ease-out;
 }
 
 /* --- Cabeçalho -------------------------------------------- */
@@ -131,6 +127,20 @@
   border-bottom-left-radius: var(--bn-border-radius-sm);
 }
 
+/* Texto em bolha; cards em grade usam largura total do painel */
+.blocoMensagemAssistente {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+}
+
+.blocoMensagemAssistente .bolhaAssistente {
+  max-width: 86%;
+}
+
 .bolhaUsuario {
   background-color: var(--bn-primary);
   color: var(--bn-text-light);
@@ -144,12 +154,44 @@
   margin: 0;
 }
 
-/* --- Container de produtos recomendados ---------------------- */
-.produtosContainer {
-  margin-top: 12px;
+.conteudoTopicos {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.conteudoTopicos .textoMensagem {
+  margin-bottom: 0;
+}
+
+.listaTopicos {
+  margin: 0;
+  padding-left: 1.15rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--bn-text-primary);
+}
+
+.listaTopicos li {
+  margin-bottom: 6px;
+}
+
+.listaTopicos li:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Container de produtos recomendados (grade compacta 2 colunas) --- */
+.produtosContainer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+@media (max-width: 360px) {
+  .produtosContainer {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* --- Indicador "digitando" -------------------------------- */
@@ -278,12 +320,146 @@
   background-color: var(--bn-bg-subtle);
 }
 
+/* --- Sugestões rápidas (chips iniciais) ------------------- */
+.sugestoesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px 10px;
+  background-color: var(--bn-bg-secondary);
+  border-bottom: 1px solid var(--bn-border-light);
+  flex-shrink: 0;
+}
+
+.chipSugestao {
+  font-size: 0.75rem;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--bn-primary);
+  background: var(--bn-bg-main);
+  color: var(--bn-primary);
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.3;
+  transition: background-color 0.15s;
+}
+
+.chipSugestao:hover:not(:disabled) {
+  background-color: var(--bn-bg-subtle);
+}
+
+.chipSugestao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- Histórico por iteração (dropdowns) ------------------- */
+.iteracaoDropdown {
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  background-color: var(--bn-bg-card);
+  overflow: hidden;
+}
+
+.iteracaoResumo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--bn-text-body);
+  user-select: none;
+}
+
+.iteracaoResumo::-webkit-details-marker {
+  display: none;
+}
+
+.iteracaoRotulo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  text-align: left;
+}
+
+.iteracaoNumero {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bn-text-muted);
+}
+
+.iteracaoChevron {
+  flex-shrink: 0;
+  color: var(--bn-text-muted);
+  transition: transform 0.15s ease;
+}
+
+.iteracaoDropdown[open] .iteracaoChevron {
+  transform: rotate(180deg);
+}
+
+.iteracaoConteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 8px 10px;
+  border-top: 1px solid var(--bn-border-light);
+}
+
+.botaoContinuarIteracao {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px dashed var(--bn-primary);
+  background: transparent;
+  color: var(--bn-primary);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.botaoContinuarIteracao:hover:not(:disabled) {
+  background-color: var(--bn-bg-subtle);
+}
+
+.botaoContinuarIteracao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.iteracaoAtual {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.iteracaoAtualCabecalho {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bn-primary);
+}
+
+.iteracaoAtualResumo {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--bn-text-muted);
+}
+
 /* --- Responsividade --------------------------------------- */
 @media (max-width: 400px) {
-  .painel {
-    width: calc(100vw - 24px);
-  }
-
   .chatFlutuanteContainer {
     right: 12px;
     bottom: 16px;
@@ -291,17 +467,6 @@
 }
 
 /* --- Animações -------------------------------------------- */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;

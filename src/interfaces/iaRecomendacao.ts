@@ -1,6 +1,10 @@
 export type RemetenteMensagem = 'usuario' | 'assistente';
 
-export type TipoRespostaChat = 'recomendacao' | 'esclarecimento';
+export type TipoRespostaChat =
+  | 'recomendacao'
+  | 'esclarecimento'
+  | 'pos_venda'
+  | 'tendencias';
 
 export interface IProdutoRecomendado {
   uuid: string;
@@ -23,11 +27,21 @@ export interface IMensagemChat {
   contextoUsado?: boolean;
   tipoResposta?: TipoRespostaChat;
   perguntasFollowUp?: string[];
+  /** Resumo determinístico da intenão (backend) — rótulo do histórico. */
+  intencaoResumida?: string;
+  /** Turno da conversa retornado pela API. */
+  numeroTurno?: number;
+}
+
+export interface IProdutoMencionadoHistorico {
+  uuid: string;
+  titulo: string;
 }
 
 export interface IHistoricoMensagem {
   remetente: RemetenteMensagem;
   conteudo: string;
+  produtosMencionados?: IProdutoMencionadoHistorico[];
 }
 
 export interface IRequisicaoChat {
@@ -42,6 +56,7 @@ export interface IRespostaChat {
   contextoUsado?: boolean;
   tempoRespostaMs?: number;
   tipoResposta?: TipoRespostaChat;
+  numeroTurno?: number;
   perguntasFollowUp?: string[];
   intencaoResumida?: string;
 }

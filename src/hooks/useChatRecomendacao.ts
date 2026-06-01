@@ -2,6 +2,12 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { IaRecomendacaoService } from '@/services/iaRecomendacaoService';
 import type { RootState } from '@/store';
+import {
+  agruparMensagensEmIteracoes,
+  mensagensAteIteracao,
+  obterIteracaoAtual,
+  obterIteracoesAnteriores,
+} from '@/utils/chatIteracoes';
 import type {
   IMensagemChat,
   RemetenteMensagem,
@@ -17,7 +23,7 @@ function montarBoasVindas(nomeUsuario?: string, estado?: string): string {
     estado && estado.length === 2
       ? ` Enviamos para todo o Brasil — se você está em ${estado}, o prazo costuma ser um pouco menor na sua região.`
       : '';
-  return `${saudacao} Sou o assistente de recomendação da livraria. Conte-me seus gostos literários e encontrarei os livros perfeitos para você!${regiao}`;
+  return `${saudacao} Sou o Assistente da Livraria. Posso ajudar com recomendações personalizadas, status de pedidos e as últimas tendências literárias. Como posso te ajudar hoje?${regiao}`;
 }
 
 function criarMensagemBoasVindas(nomeUsuario?: string, estado?: string): IMensagemChat {
@@ -41,6 +47,8 @@ function criarMensagem(
     contextoUsado?: boolean;
     tipoResposta?: TipoRespostaChat;
     perguntasFollowUp?: string[];
+    intencaoResumida?: string;
+    numeroTurno?: number;
   }
 ): IMensagemChat {
   return {
@@ -52,14 +60,23 @@ function criarMensagem(
     contextoUsado: opcoes?.contextoUsado,
     tipoResposta: opcoes?.tipoResposta,
     perguntasFollowUp: opcoes?.perguntasFollowUp,
+    intencaoResumida: opcoes?.intencaoResumida,
+    numeroTurno: opcoes?.numeroTurno,
   };
 }
 
-/** Mapeia remetente do frontend para papel esperado pela API */
+/** Mapeia mensagens para a API, incluindo livros já exibidos (multi-turno). */
 function construirHistorico(mensagens: IMensagemChat[]): IHistoricoMensagem[] {
   return mensagens
     .filter((m) => m.id !== 'boas-vindas')
-    .map(({ remetente, conteudo }) => ({ remetente, conteudo }));
+    .map(({ remetente, conteudo, produtosRecomendados }) => ({
+      remetente,
+      conteudo,
+      produtosMencionados: produtosRecomendados?.map((p) => ({
+        uuid: p.uuid,
+        titulo: p.titulo,
+      })),
+    }));
 }
 
 export function useChatRecomendacao() {
@@ -129,6 +146,8 @@ export function useChatRecomendacao() {
             contextoUsado: resposta.contextoUsado,
             tipoResposta: resposta.tipoResposta,
             perguntasFollowUp: resposta.perguntasFollowUp,
+            intencaoResumida: resposta.intencaoResumida,
+            numeroTurno: resposta.numeroTurno,
           }),
         ]);
       } catch {
@@ -155,8 +174,24 @@ export function useChatRecomendacao() {
     setTextoEntrada('');
   }, [authUser?.nome, estadoPerfil]);
 
+  const continuarDaIteracao = useCallback(
+    (indiceIteracao: number) => {
+      setMensagens((prev) => mensagensAteIteracao(prev, indiceIteracao));
+      setErroEnvio(null);
+      setTextoEntrada('');
+    },
+    []
+  );
+
+  const chatAgrupado = agruparMensagensEmIteracoes(mensagens);
+  const iteracoesAnteriores = obterIteracoesAnteriores(chatAgrupado.iteracoes);
+  const iteracaoAtual = obterIteracaoAtual(chatAgrupado.iteracoes);
+
   return {
     mensagens,
+    boasVindas: chatAgrupado.boasVindas,
+    iteracoesAnteriores,
+    iteracaoAtual,
     textoEntrada,
     isEnviando,
     erroEnvio,
@@ -166,5 +201,6 @@ export function useChatRecomendacao() {
     enviarMensagem,
     enviarPerguntaFollowUp,
     limparConversa,
+    continuarDaIteracao,
   };
 }
