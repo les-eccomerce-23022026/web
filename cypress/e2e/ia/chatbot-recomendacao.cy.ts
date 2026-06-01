@@ -22,6 +22,8 @@ describe('Assistente IA — Fluxo de Recomendação via Chatbot (CDU010)', () =>
 
   it('deve renderizar a interface do assistente com campo de entrada e botão de envio', () => {
     cy.getDataCy('chat-flutuante-botao').click();
+    // chat-sidebar = PainelLateral (drawer); chat-painel = ChatInterface (conteúdo)
+    cy.getDataCy('chat-sidebar').should('be.visible');
     cy.getDataCy('chat-painel').should('be.visible');
     cy.getDataCy('chat-entrada-mensagem')
       .should('be.visible')
@@ -33,7 +35,7 @@ describe('Assistente IA — Fluxo de Recomendação via Chatbot (CDU010)', () =>
 
   it('deve exibir mensagem de boas-vindas ao carregar a página (RF0101)', () => {
     cy.getDataCy('chat-flutuante-botao').click();
-    cy.getDataCy('chat-painel').should('be.visible');
+    cy.getDataCy('chat-sidebar').should('be.visible');
     // O chatbot não tem mensagem de boas-vindas explícita, apenas o campo de entrada
     cy.getDataCy('chat-entrada-mensagem').should('be.visible');
   });
@@ -84,7 +86,7 @@ describe('Assistente IA — Fluxo de Recomendação via Chatbot (CDU010)', () =>
     cy.getDataCy('ia-produto-card').first().within(() => {
       cy.getDataCy('ia-produto-titulo').should('not.be.empty');
       cy.getDataCy('ia-produto-autor').should('not.be.empty');
-      cy.getDataCy('ia-produto-motivo').should('not.be.empty');
+      cy.getDataCy('ia-produto-categoria').should('not.be.empty');
     });
   });
 
@@ -135,7 +137,7 @@ describe('Assistente IA — Fluxo de Recomendação via Chatbot (CDU010)', () =>
     cy.getDataCy('chat-entrada-mensagem').should('have.value', '');
   });
 
-  it('deve exibir a justificativa textual de cada recomendação (RF0105)', () => {
+  it('deve exibir indicador de relevância em cada recomendação (RF0105)', () => {
     cy.getDataCy('chat-flutuante-botao').click();
     cy.getDataCy('chat-entrada-mensagem').type('ficção científica');
     cy.getDataCy('chat-botao-enviar').click();
@@ -144,7 +146,7 @@ describe('Assistente IA — Fluxo de Recomendação via Chatbot (CDU010)', () =>
 
     cy.getDataCy('ia-produto-card').each(($card) => {
       cy.wrap($card)
-        .find('[data-cy="ia-produto-motivo"]')
+        .find('[data-cy="ia-produto-similaridade"]')
         .should('not.be.empty');
     });
   });
@@ -156,5 +158,53 @@ describe('Assistente IA — Fluxo de Recomendação via Chatbot (CDU010)', () =>
 
     cy.getDataCy('chat-entrada-mensagem').type('livros');
     cy.getDataCy('chat-botao-enviar').should('not.be.disabled');
+  });
+
+  describe('Sidebar — controles do painel lateral', () => {
+    it('deve fechar o painel lateral ao clicar no overlay (clicar fora fecha)', () => {
+      cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
+
+      cy.getDataCy('chat-sidebar-overlay').click();
+
+      cy.getDataCy('chat-sidebar').should('not.exist');
+    });
+
+    it('deve fechar o painel lateral ao pressionar a tecla Escape', () => {
+      cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
+
+      cy.window().then((win) => {
+        win.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      });
+
+      cy.getDataCy('chat-sidebar').should('not.exist');
+    });
+
+    it('deve fechar o painel lateral ao clicar no botão fechar do cabeçalho', () => {
+      cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
+
+      cy.getDataCy('chat-sidebar-fechar').click();
+
+      cy.getDataCy('chat-sidebar').should('not.exist');
+    });
+
+    it('deve bloquear o scroll do body enquanto o painel lateral está aberto', () => {
+      cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
+
+      cy.get('body').should('have.css', 'overflow', 'hidden');
+    });
+
+    it('deve restaurar o scroll do body ao fechar o painel lateral', () => {
+      cy.getDataCy('chat-flutuante-botao').click();
+      cy.get('body').should('have.css', 'overflow', 'hidden');
+
+      cy.getDataCy('chat-sidebar-fechar').click();
+      cy.getDataCy('chat-sidebar').should('not.exist');
+
+      cy.get('body').invoke('css', 'overflow').should('not.eq', 'hidden');
+    });
   });
 });

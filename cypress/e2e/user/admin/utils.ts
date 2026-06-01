@@ -4,14 +4,24 @@
 
 export function apiHeadersAdmin(): Record<string, string> {
   const useTestDb = Cypress.env('injectTestDbHeader') === true;
-  return {
+  const authToken = Cypress.env('authToken') as string | undefined;
+  const headers: Record<string, string> = {
     ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
   };
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+  return headers;
 }
 
 export function apiHeadersCliente(): Record<string, string> {
   const useTestDb = Cypress.env('injectTestDbHeader') === true;
-  return {
+  const authToken = Cypress.env('authToken') as string | undefined;
+  const headers: Record<string, string> = {
     ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
   };
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
+  }
+  return headers;
 }

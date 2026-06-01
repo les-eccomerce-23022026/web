@@ -13,7 +13,7 @@ describe('Assistente IA — Fluxo de Recomendação via Chatbot (CDU010)', () =>
 
   it('deve renderizar a interface do assistente com campo de entrada e botão de envio', () => {
     cy.getDataCy('chat-flutuante-botao').click();
-    cy.getDataCy('chat-painel').should('be.visible');
+    cy.getDataCy('chat-sidebar').should('be.visible');
     cy.getDataCy('chat-entrada-mensagem')
       .should('be.visible')
       .and('have.attr', 'placeholder');

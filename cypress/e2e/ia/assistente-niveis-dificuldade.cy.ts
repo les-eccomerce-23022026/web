@@ -14,7 +14,8 @@ const PERGUNTAS = {
 
 function abrirChatEEnviar(pergunta: string) {
   cy.getDataCy('chat-flutuante-botao').should('be.visible').click();
-  cy.getDataCy('chat-painel').should('be.visible');
+  // chat-sidebar = PainelLateral (drawer); confirma que o painel lateral abriu
+  cy.getDataCy('chat-sidebar').should('be.visible');
   cy.getDataCy('chat-entrada-mensagem').type(pergunta, { delay: 0 });
   cy.getDataCy('chat-botao-enviar').click();
 }
@@ -52,7 +53,7 @@ describe('Assistente IA — Níveis de dificuldade (API real)', () => {
     validarRespostaAssistente();
     cy.getDataCy('ia-produto-card').should('have.length.at.least', 1);
     cy.getDataCy('ia-produto-titulo').first().should('not.be.empty');
-    cy.getDataCy('ia-produto-motivo').first().should('not.be.empty');
+    cy.getDataCy('ia-produto-categoria').first().should('not.be.empty');
   });
 
   it('[Difícil] pergunta longa com múltiplos critérios mantém histórico no segundo turno', () => {

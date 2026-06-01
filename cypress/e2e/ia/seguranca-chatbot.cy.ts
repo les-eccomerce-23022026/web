@@ -19,6 +19,7 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
     cy.intercept('GET', '**/ia/saude', { fixture: 'ia/saude-ok.json' }).as('saudeIA');
     cy.visit('/', { failOnStatusCode: false });
     cy.getDataCy('chat-flutuante-botao').click();
+    cy.getDataCy('chat-sidebar').should('be.visible');
   });
 
   describe('Proteção contra XSS', () => {

@@ -26,6 +26,7 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
 
       cy.visit('/', { failOnStatusCode: false });
       cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
 
       cy.getDataCy('chat-entrada-mensagem').type('livros de aventura');
       cy.getDataCy('chat-botao-enviar').click();
@@ -46,6 +47,7 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
 
       cy.visit('/', { failOnStatusCode: false });
       cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
 
       cy.getDataCy('chat-entrada-mensagem').type('livros de suspense');
       cy.getDataCy('chat-botao-enviar').click();
@@ -65,6 +67,7 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
 
       cy.visit('/', { failOnStatusCode: false });
       cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
 
       cy.getDataCy('chat-entrada-mensagem').type('livros históricos');
       cy.getDataCy('chat-botao-enviar').click();
@@ -79,6 +82,7 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
     beforeEach(() => {
       cy.visit('/', { failOnStatusCode: false });
       cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
     });
 
     it('deve exibir mensagem de erro amigável quando o serviço de IA retornar erro 500', () => {
@@ -164,6 +168,7 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
     beforeEach(() => {
       cy.visit('/', { failOnStatusCode: false });
       cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
     });
 
     it('deve impedir envio de mensagem vazia', () => {
@@ -204,6 +209,7 @@ describe('Assistente IA — Estados de Loading e Tratamento de Erros (RNF)', () 
 
       cy.visit('/', { failOnStatusCode: false });
       cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
 
       // Verifica aviso de serviço indisponível
       cy.getDataCy('ia-servico-indisponivel').should('be.visible');

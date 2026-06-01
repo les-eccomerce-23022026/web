@@ -17,6 +17,7 @@ describe('Assistente IA — Validação de Produtos Recomendados no Catálogo (R
 
     cy.visit('/', { failOnStatusCode: false });
     cy.getDataCy('chat-flutuante-botao').click();
+    cy.getDataCy('chat-sidebar').should('be.visible');
   });
 
   it('deve garantir que cada produto recomendado possui UUID no formato correto', () => {
@@ -138,7 +139,9 @@ describe('Assistente IA — Validação de Produtos Recomendados no Catálogo (R
     cy.url().should('include', '/livro/');
     cy.go('back');
     cy.url().should('include', '/');
-    cy.getDataCy('chat-painel').should('be.visible');
+    // Após navegação full-page, o estado React reseta e o sidebar fecha.
+    // O FAB ainda deve estar disponível para o cliente reabrir o assistente.
+    cy.getDataCy('chat-flutuante-botao').should('be.visible');
   });
 
   it('deve exibir mensagem adequada quando não há produtos recomendados', () => {

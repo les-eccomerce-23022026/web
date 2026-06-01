@@ -22,6 +22,7 @@ describe('Assistente IA — Personalização com Histórico de Compras (RF0103)'
 
       cy.visit('/', { failOnStatusCode: false });
       cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
     });
 
     it('deve enviar o UUID do cliente autenticado na requisição ao chatbot (RF0103)', () => {
@@ -53,7 +54,7 @@ describe('Assistente IA — Personalização com Histórico de Compras (RF0103)'
     });
 
     it('deve exibir saudação personalizada para o cliente autenticado', () => {
-      cy.getDataCy('chat-painel').should('be.visible');
+      cy.getDataCy('chat-sidebar').should('be.visible');
       // O chatbot pode não ter saudação personalizada explícita
       cy.getDataCy('chat-entrada-mensagem').should('be.visible');
     });
@@ -75,6 +76,7 @@ describe('Assistente IA — Personalização com Histórico de Compras (RF0103)'
 
       cy.visit('/', { failOnStatusCode: false });
       cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
     });
 
     it('deve exibir todas as mensagens trocadas na tela (histórico visual)', () => {
@@ -150,6 +152,7 @@ describe('Assistente IA — Personalização com Histórico de Compras (RF0103)'
 
       cy.visit('/', { failOnStatusCode: false });
       cy.getDataCy('chat-flutuante-botao').click();
+      cy.getDataCy('chat-sidebar').should('be.visible');
     });
 
     it('deve não enviar clienteUuid quando o usuário não está autenticado', () => {

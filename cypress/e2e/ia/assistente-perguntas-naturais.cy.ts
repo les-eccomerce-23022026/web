@@ -61,7 +61,8 @@ describe('Assistente IA — Perguntas naturais (intenção de compra)', () => {
     cy.visit('/', { failOnStatusCode: false });
     cy.wait('@saudeIA', { timeout: 30000 });
     cy.getDataCy('chat-flutuante-botao').should('be.visible').click();
-    cy.getDataCy('chat-painel').should('be.visible');
+    // chat-sidebar = PainelLateral (drawer); confirma abertura do painel lateral
+    cy.getDataCy('chat-sidebar').should('be.visible');
   });
 
   CENARIOS.forEach((cenario) => {
