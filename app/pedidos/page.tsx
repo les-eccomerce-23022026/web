@@ -86,7 +86,11 @@ export default function MeusPedidosPage() {
   };
 
   if (loading) {
-    return <div className={styles['meus-pedidos-loading']}>Carregando seus pedidos...</div>;
+    return (
+      <div className={styles['meus-pedidos-loading']} data-cy="loading">
+        Carregando seus pedidos...
+      </div>
+    );
   }
 
   if (error) {

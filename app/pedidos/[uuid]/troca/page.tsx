@@ -16,6 +16,26 @@ import styles from '@/pages-react-router/Vendas/SolicitarTroca/style.module.css'
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 import { ROTAS } from '@/config/rotas';
 
+function verificarPrazoTroca(pedido: { dataEntrega?: string; status: string }): {
+  dentroPrazo: boolean;
+  diasRestantes: number;
+} {
+  if (pedido.status !== 'Entregue') {
+    return { dentroPrazo: false, diasRestantes: 0 };
+  }
+  if (!pedido.dataEntrega) {
+    return { dentroPrazo: true, diasRestantes: 7 };
+  }
+  const dataEntrega = new Date(pedido.dataEntrega);
+  const hoje = new Date();
+  const diffDias = Math.floor((hoje.getTime() - dataEntrega.getTime()) / (1000 * 60 * 60 * 24));
+  const diasRestantes = 7 - diffDias;
+  return {
+    dentroPrazo: diasRestantes > 0,
+    diasRestantes: diasRestantes > 0 ? diasRestantes : 0,
+  };
+}
+
 export default function SolicitarTrocaPage() {
   const params = useParams();
   const router = useRouter();
@@ -38,34 +58,27 @@ export default function SolicitarTrocaPage() {
   const [carregando, setCarregando] = useState(false);
   const [pedidoLocal, setPedidoLocal] = useState<typeof pedidos[0] | null>(null);
 
-  // Busca o pedido no Redux state primeiro
   const pedidoRedux = pedidos.find((p) => p.uuid === uuid);
-  
-  // Se não encontrou no Redux, busca via API
-  useEffect(() => {
-    if (!pedidoRedux && !pedidoLocal && !carregando) {
-      console.log('[SolicitarTrocaPage] Pedido não encontrado no Redux, buscando via API para UUID:', uuid);
-      setCarregando(true);
-      PedidoService.getPedidosByCliente('')
-        .then((todosPedidos) => {
-          const pedidoEncontrado = todosPedidos.find((p) => p.uuid === uuid);
-          if (pedidoEncontrado) {
-            console.log('[SolicitarTrocaPage] Pedido encontrado via API:', pedidoEncontrado.uuid);
-            setPedidoLocal(pedidoEncontrado);
-          } else {
-            console.log('[SolicitarTrocaPage] Pedido não encontrado via API');
-          }
-        })
-        .catch((err) => {
-          console.error('[SolicitarTrocaPage] Erro ao buscar pedido via API:', err);
-        })
-        .finally(() => {
-          setCarregando(false);
-        });
-    }
-  }, [uuid, pedidoRedux, pedidoLocal, carregando]);
 
-  const pedido = pedidoRedux || pedidoLocal;
+  // Sempre atualiza via API (garante dataEntrega e status recentes — RN0043 / E2E)
+  useEffect(() => {
+    if (!uuid) return;
+    setCarregando(true);
+    PedidoService.getPedidosByCliente('')
+      .then((todosPedidos) => {
+        const pedidoEncontrado = todosPedidos.find((p) => p.uuid === uuid) ?? null;
+        setPedidoLocal(pedidoEncontrado);
+      })
+      .catch((err) => {
+        console.error('[SolicitarTrocaPage] Erro ao buscar pedido via API:', err);
+        setPedidoLocal(null);
+      })
+      .finally(() => {
+        setCarregando(false);
+      });
+  }, [uuid]);
+
+  const pedido = pedidoLocal ?? pedidoRedux;
 
   if (carregando) {
     return (
@@ -127,13 +140,35 @@ export default function SolicitarTrocaPage() {
     }
   };
 
+  const prazoTroca = verificarPrazoTroca(pedido);
+
   if (sucesso) {
     return (
       <div className={styles['solicitar-troca-page']}>
         <div className={`card ${styles['solicitar-troca-sucesso']}`} data-cy="sucesso-troca">
           <h1>Troca Solicitada com Sucesso!</h1>
-          <p>Redirecionando para Meus Pedidos...</p>
+          <p data-cy="redirecionando-mensagem">Redirecionando para Meus Pedidos...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (!prazoTroca.dentroPrazo) {
+    return (
+      <div className={styles['solicitar-troca-page']}>
+        <h1 className={styles['solicitar-troca-titulo']}>Solicitar Troca</h1>
+        <div className={styles['solicitar-troca-erro']} data-cy="erro-prazo-expirado">
+          Prazo de 7 dias para troca expirado (RN0043).
+        </div>
+        <p data-cy="erro-status-entregue">Status: {pedido.status}</p>
+        <p data-cy="info-prazo-7-dias">
+          <span data-cy="info-prazo-texto">
+            Você tem até 7 dias corridos após a entrega para solicitar troca ou devolução.
+          </span>
+        </p>
+        <button type="button" className="btn-primary" data-cy="btn-solicitar-troca" disabled>
+          Solicitar Troca
+        </button>
       </div>
     );
   }
@@ -142,14 +177,26 @@ export default function SolicitarTrocaPage() {
     <div className={styles['solicitar-troca-page']}>
       <h1 className={styles['solicitar-troca-titulo']}>Solicitar Troca</h1>
 
+      <p data-cy="info-prazo-7-dias">
+        <span data-cy="info-prazo-texto">
+          Prazo legal: 7 dias corridos após a entrega (RN0043).
+        </span>
+        {' '}
+        <span data-cy="contador-dias-restantes">
+          <span data-cy="texto-restantes">{prazoTroca.diasRestantes} dias restantes</span>
+        </span>
+      </p>
+
       <div className={`card ${styles['solicitar-troca-card']}`}>
         <div className={styles['solicitar-troca-info-pedido']}>
           <p><strong>Pedido:</strong> {pedido.uuid}</p>
           <p><strong>Data:</strong> {new Date(pedido.data).toLocaleDateString('pt-BR')}</p>
-          <p><strong>Status:</strong> {pedido.status}</p>
+          <p data-cy="erro-status-entregue"><strong>Status:</strong> {pedido.status}</p>
         </div>
 
-        <h2 className={styles['solicitar-troca-subtitulo']}>Selecione os itens para troca</h2>
+        <h2 className={styles['solicitar-troca-subtitulo']} data-cy="troca-itens-titulo">
+          Selecione os itens para troca
+        </h2>
 
         <div className={styles['solicitar-troca-itens']}>
           {pedido.itens.map((item: IItemPedido) => (
@@ -175,7 +222,7 @@ export default function SolicitarTrocaPage() {
         </div>
 
         <div className={styles['solicitar-troca-form']}>
-          <label htmlFor="motivo">
+          <label htmlFor="motivo" data-cy="troca-motivo-label">
             <strong>Motivo da troca:</strong>
           </label>
           <textarea
@@ -189,7 +236,17 @@ export default function SolicitarTrocaPage() {
           />
         </div>
 
-        {erro && (
+        {erro === 'Selecione pelo menos um item para troca.' && (
+          <p className={styles['solicitar-troca-erro']} data-cy="erro-selecionar-item">
+            {erro}
+          </p>
+        )}
+        {erro === 'Informe o motivo da troca.' && (
+          <p className={styles['solicitar-troca-erro']} data-cy="erro-motivo-obrigatorio">
+            {erro}
+          </p>
+        )}
+        {erro && erro !== 'Selecione pelo menos um item para troca.' && erro !== 'Informe o motivo da troca.' && (
           <p className={styles['solicitar-troca-erro']} data-cy="troca-erro">
             {erro}
           </p>
@@ -200,6 +257,7 @@ export default function SolicitarTrocaPage() {
             className="btn-secondary"
             onClick={() => router.push(ROTAS.PEDIDOS)}
             disabled={enviando}
+            data-cy="btn-cancelar-troca"
           >
             Cancelar
           </button>
@@ -208,7 +266,7 @@ export default function SolicitarTrocaPage() {
             className="btn-primary"
             data-cy="btn-solicitar-troca"
             onClick={handleSubmit}
-            disabled={enviando || itensSelecionados.length === 0}
+            disabled={enviando || !prazoTroca.dentroPrazo}
           >
             {enviando ? 'Enviando...' : 'Solicitar Troca'}
           </button>

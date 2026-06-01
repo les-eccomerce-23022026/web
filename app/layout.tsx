@@ -1,13 +1,14 @@
 /**
  * Root layout - Server Component
  * Includes Redux Providers for CSR routes (carrinho, checkout, admin)
- * Includes Header and Footer components
+ * Includes Header, Footer and ChatFlutuante (global — visible only for authenticated clients)
  */
 
 import type { Metadata } from 'next';
 import { Providers } from '../src/app/providers';
 import { Header } from './components/Header/index';
 import { Footer } from './components/Footer/index';
+import { ChatFlutuante } from '../src/components/ChatRecomendacao/ChatFlutuante';
 import '../src/index.css';
 
 export const metadata: Metadata = {
@@ -33,6 +34,11 @@ export default function RootLayout({
             <main className="container">{children}</main>
             <Footer />
           </div>
+          {/*
+            ChatFlutuante fora do app-wrapper mas dentro de Providers (precisa do Redux).
+            Renderiza null para admin e visitantes — regra já em ChatFlutuante (user?.role === 'cliente').
+          */}
+          <ChatFlutuante />
         </Providers>
       </body>
     </html>

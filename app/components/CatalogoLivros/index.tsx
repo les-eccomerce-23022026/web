@@ -12,7 +12,6 @@ import { LivroCard } from './LivroCard';
 import { CatalogoHeader } from './CatalogoHeader';
 import { CatalogoPaginacao } from './CatalogoPaginacao';
 import '@/pages-react-router/CadastroLivros/CatalogoLivros/CatalogoLivros.css';
-import { ChatFlutuante } from '@/components/ChatRecomendacao/ChatFlutuante';
 
 export const CatalogoLivros = () => {
   const dispatch = useAppDispatch();
@@ -73,7 +72,6 @@ export const CatalogoLivros = () => {
   return (
     <div className="home-catalogo page-transition-enter">
       <CatalogoHeader termoBusca={termoBusca} />
-      <ChatFlutuante />
 
       {destaques.length === 0 ? (
         <EmptyState
