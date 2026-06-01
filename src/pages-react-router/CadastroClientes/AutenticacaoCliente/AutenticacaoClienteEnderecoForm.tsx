@@ -56,6 +56,7 @@ export const AutenticacaoClienteEnderecoForm = ({ titulo, endereco, onChange }: 
             onChange={(e) => handleField('logradouro', e.target.value)}
             onBlur={() => validarCampoObrigatorio('logradouro', endereco.logradouro, 'Logradouro')}
             className={errosCampo.logradouro ? styles['input-error'] : ''}
+            data-cy="address-logradouro"
           />
           {errosCampo.logradouro && (
             <p className={styles['auth-message-error-field']}>
@@ -93,6 +94,7 @@ export const AutenticacaoClienteEnderecoForm = ({ titulo, endereco, onChange }: 
               validarCampoObrigatorio('numero', endereco.numero, 'Número');
             }}
             className={errosCampo.numero ? styles['input-error'] : ''}
+            data-cy="address-numero"
           />
           {errosCampo.numero && (
             <p className={styles['auth-message-error-field']}>
@@ -108,6 +110,17 @@ export const AutenticacaoClienteEnderecoForm = ({ titulo, endereco, onChange }: 
           placeholder="Apto, Bloco..."
           value={endereco.complemento}
           onChange={(e) => handleField('complemento', e.target.value)}
+          data-cy="address-complemento"
+        />
+      </div>
+      <div className="form-group">
+        <label>Apelido</label>
+        <input
+          type="text"
+          placeholder="Ex: Casa, Trabalho"
+          value={endereco.apelido || ''}
+          onChange={(e) => handleField('apelido', e.target.value)}
+          data-cy="address-apelido"
         />
       </div>
       <div className={styles.formRow}>
@@ -119,6 +132,7 @@ export const AutenticacaoClienteEnderecoForm = ({ titulo, endereco, onChange }: 
             onChange={(e) => handleField('bairro', e.target.value)}
             onBlur={() => validarCampoObrigatorio('bairro', endereco.bairro, 'Bairro')}
             className={errosCampo.bairro ? styles['input-error'] : ''}
+            data-cy="address-bairro"
           />
           {errosCampo.bairro && (
             <p className={styles['auth-message-error-field']}>
@@ -135,6 +149,7 @@ export const AutenticacaoClienteEnderecoForm = ({ titulo, endereco, onChange }: 
             onChange={(e) => handleField('cep', e.target.value)}
             onBlur={() => validarCampoObrigatorio('cep', endereco.cep, 'CEP')}
             className={errosCampo.cep ? styles['input-error'] : ''}
+            data-cy="address-cep"
           />
           {errosCampo.cep && (
             <p className={styles['auth-message-error-field']}>
@@ -152,6 +167,7 @@ export const AutenticacaoClienteEnderecoForm = ({ titulo, endereco, onChange }: 
             onChange={(e) => handleField('cidade', e.target.value)}
             onBlur={() => validarCampoObrigatorio('cidade', endereco.cidade, 'Cidade')}
             className={errosCampo.cidade ? styles['input-error'] : ''}
+            data-cy="address-cidade"
           />
           {errosCampo.cidade && (
             <p className={styles['auth-message-error-field']}>
@@ -169,6 +185,7 @@ export const AutenticacaoClienteEnderecoForm = ({ titulo, endereco, onChange }: 
             onChange={(e) => handleField('estado', e.target.value.toUpperCase())}
             onBlur={() => validarCampoObrigatorio('estado', endereco.estado, 'Estado')}
             className={errosCampo.estado ? styles['input-error'] : ''}
+            data-cy="address-estado"
           />
           {errosCampo.estado && (
             <p className={styles['auth-message-error-field']}>
