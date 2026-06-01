@@ -5,6 +5,138 @@
  * no checkout, reduzindo problemas de timing e flaky tests.
  */
 
+/** Slugs aceitos para loja padrão nos E2E (ordem de prioridade). */
+export const SLUGS_LOJA_E2E = ['loja-padrao', 'livraria-teste', 'livraria-padrao'] as const;
+
+const NOME_COOKIE_AUTH_PADRAO = 'les_token';
+/** Espelha `authSessionStorage.ts` — sessão E2E no browser. */
+export const SESSION_STORAGE_KEY_E2E = 'les_auth_session';
+
+type RespostaLoginCypress = Cypress.Response<{
+  token?: string;
+  dados?: { token?: string; user?: unknown };
+}>;
+
+/**
+ * Extrai JWT do corpo (NODE_ENV=test) ou do cookie HttpOnly (dev/E2E via proxy).
+ */
+export function extrairTokenJwtLoginResponse(res: RespostaLoginCypress): string | undefined {
+  const bodyToken = res.body?.token ?? res.body?.dados?.token;
+  if (bodyToken) {
+    return bodyToken;
+  }
+
+  const raw = res.headers['set-cookie'];
+  if (!raw) {
+    return undefined;
+  }
+
+  const cookies = Array.isArray(raw) ? raw : [String(raw)];
+  const cookieName =
+    (Cypress.env('authCookieName') as string | undefined) ?? NOME_COOKIE_AUTH_PADRAO;
+
+  for (const entry of cookies) {
+    const match = entry.match(new RegExp(`(?:^|,\\s*)${cookieName}=([^;]+)`));
+    if (match?.[1]) {
+      return decodeURIComponent(match[1]);
+    }
+  }
+
+  return undefined;
+}
+
+/** Persiste token para `apiHeadersBancoTestes()` / `Authorization`. */
+export function armazenarTokenAuth(token: string | undefined): void {
+  if (token) {
+    Cypress.env('authToken', token);
+  }
+}
+
+/** Remove cookies, sessionStorage e token Cypress de sessões anteriores (ex.: admin dev). */
+export function limparSessaoAuthBrowser(): void {
+  cy.clearCookies();
+  cy.clearAllSessionStorage();
+  Cypress.env('authToken', undefined);
+}
+
+/**
+ * Sincroniza JWT no cookie jar do browser após login via cy.request.
+ * Necessário porque cookies HttpOnly de sessões antigas (ex.: admin@livraria.com.br)
+ * não são sobrescritos automaticamente se o login programático falhar silenciosamente.
+ */
+export function aplicarCookieAuthNoBrowser(token: string | undefined): void {
+  if (!token) {
+    return;
+  }
+  const cookieName =
+    (Cypress.env('authCookieName') as string | undefined) ?? NOME_COOKIE_AUTH_PADRAO;
+  cy.setCookie(cookieName, token, {
+    httpOnly: true,
+    sameSite: 'strict',
+    path: '/',
+  });
+  if (Cypress.env('injectTestDbHeader') === true) {
+    cy.setCookie('x-use-test-db', 'true', { path: '/' });
+  }
+}
+
+type UsuarioLoginE2e = {
+  uuid?: string;
+  email?: string;
+  nome?: string;
+  cpf?: string;
+  role?: string;
+  papeis?: string[];
+  lojas?: unknown[];
+  loja_uuid_principal?: string | null;
+};
+
+/**
+ * Persiste user+token no sessionStorage para `restoreSession` usar quando
+ * cookie HttpOnly não sincroniza via cy.request (Next.js dev + proxy).
+ */
+export function persistirSessaoAuthNoBrowser(user: UsuarioLoginE2e | undefined, token: string | undefined): void {
+  if (!user?.uuid || !token) {
+    return;
+  }
+  cy.window().then((win) => {
+    const w = win as Window & { __USE_TEST_DB__?: boolean };
+    if (Cypress.env('injectTestDbHeader') === true) {
+      w.__USE_TEST_DB__ = true;
+    }
+    win.sessionStorage.setItem(
+      SESSION_STORAGE_KEY_E2E,
+      JSON.stringify({ user, token }),
+    );
+  });
+}
+
+/** Cookie + sessionStorage após login programático Cypress. */
+export function aplicarSessaoAuthCompletaNoBrowser(
+  user: UsuarioLoginE2e | undefined,
+  token: string | undefined,
+): void {
+  armazenarTokenAuth(token);
+  aplicarCookieAuthNoBrowser(token);
+  persistirSessaoAuthNoBrowser(user, token);
+}
+
+/** Resolve UUID da loja E2E a partir da lista retornada por GET /admin/lojas. */
+export function resolverUuidLojaPadraoNasLojas(
+  lojas: Array<{ slug?: string; uuid?: string }> | undefined,
+): string | undefined {
+  if (!lojas?.length) {
+    return undefined;
+  }
+  for (const slug of SLUGS_LOJA_E2E) {
+    const loja = lojas.find((l) => l.slug === slug);
+    if (loja?.uuid) {
+      return loja.uuid;
+    }
+  }
+  return lojas[0]?.uuid;
+}
+
 /**
  * Headers para requests autenticados com banco de testes
  * Inclui token JWT no header Authorization quando disponível (para chamadas API via cy.request)

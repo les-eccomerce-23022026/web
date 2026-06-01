@@ -98,6 +98,18 @@ beforeEach(() => {
   }
 });
 
+/** Limpeza básica entre specs para evitar poluição de estado (carrinho, storage) que causa falhas replicadas em batch. */
+afterEach(() => {
+  // Evita chamar comandos que podem não existir no contexto de erro precoce; o cleanup por spec é preferível
+  try {
+    if (typeof cy.limparCarrinhoViaApi === 'function') {
+      cy.limparCarrinhoViaApi({ failOnStatusCode: false } as any);
+    }
+  } catch {
+    // ignore cleanup errors in afterEach
+  }
+});
+
 /** Garante que a flag global de banco de testes persista entre reloads. */
 Cypress.on('window:before:load', (win) => {
   if (Cypress.env('injectTestDbHeader') === true) {
