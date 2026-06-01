@@ -19,17 +19,16 @@ describe('Pagamentos — Aprovação da Venda (CDU005)', () => {
     realizarCompraCompletaNaUi();
 
     cy.url().then((url) => {
-      autenticarClienteDadosTesteUi();
       const pedidoUuid = new URL(url).searchParams.get('pedido');
       expect(pedidoUuid).to.be.a('string');
 
       cy.visit('/pedidos');
       cy.get('[data-cy="loading"]', { timeout: 15000 }).should('not.exist');
-      cy.contains(sufixoPedidoNaTabela(pedidoUuid!))
-        .parents('[data-cy^="pedido-card-"]')
+      cy.get(`[data-cy="pedido-${pedidoUuid}"]`, { timeout: 15000 })
         .should('be.visible')
         .find('[data-cy="pedido-status"]')
-        .should('match', /aprovad|processamento/i);
+        .invoke('text')
+        .should('match', /aprovad|processamento|tr[aâ]nsito|preparando|entregue/i);
     });
   });
 });

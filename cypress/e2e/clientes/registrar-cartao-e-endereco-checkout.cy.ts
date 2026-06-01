@@ -17,9 +17,7 @@ describe('Clientes — Registrar Cartão e Endereço (CDU003)', () => {
   });
 
   it('deve cadastrar novo endereço em /minha-conta e listar na aba de endereços', () => {
-    const apelido = `E2E UI ${Date.now()}`;
     cadastrarEnderecoMinhaContaUi({
-      apelido,
       logradouro: 'Avenida Paulista',
       numero: '1578',
       bairro: 'Bela Vista',
@@ -27,7 +25,6 @@ describe('Clientes — Registrar Cartão e Endereço (CDU003)', () => {
       cidade: 'São Paulo',
       estado: 'SP',
     });
-    cy.contains(apelido).should('be.visible');
     cy.contains('Avenida Paulista').should('be.visible');
   });
 

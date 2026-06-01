@@ -8,6 +8,7 @@ import {
   despacharPedidoAdminUi,
   loginAdminUi,
   autenticarClienteDadosTesteUi,
+  aguardarPainelAdminCarregado,
   sufixoPedidoNaTabela,
 } from '../../support/helpers/uiEntrega7Helpers';
 
@@ -17,7 +18,6 @@ describe('Entregas — Confirmar Entrega Realizada (CDU010, RF0039)', () => {
     cy.criarVendaAprovadaViaApi().then((dados) => {
       cy.wrap(dados.vendaUuid).as('vendaUuid');
     });
-    autenticarClienteDadosTesteUi();
     loginAdminUi();
   });
 
@@ -27,7 +27,7 @@ describe('Entregas — Confirmar Entrega Realizada (CDU010, RF0039)', () => {
       confirmarEntregaAdminUi(vendaUuid);
 
       cy.visit('/admin/pedidos');
-      cy.get('[data-cy="loading"]', { timeout: 15000 }).should('not.exist');
+      aguardarPainelAdminCarregado();
       cy.contains(sufixoPedidoNaTabela(vendaUuid))
         .parents('tr')
         .find('[data-cy="status-badge"]')

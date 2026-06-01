@@ -13,8 +13,9 @@ describe('Trocas — Confirmar Recebimento do Produto (CDU008, RF0044)', () => {
   beforeEach(() => {
     configurarAmbienteEntrega7Ui();
     cy.criarVendaAprovadaViaApi().then((dados) => {
-      cy.despacharPedidoViaApi(dados.vendaUuid);
-      cy.confirmarEntregaViaApi(dados.vendaUuid);
+      cy.despacharPedidoViaApi(dados.vendaUuid, { restaurarSessao: false });
+      cy.confirmarEntregaViaApi(dados.vendaUuid, { restaurarSessao: false });
+      cy.autenticarClienteDadosTeste();
       cy.solicitarTrocaViaApi(dados.vendaUuid, dados.itemVendaUuid, 'Devolução para cupom');
       cy.wrap(dados.vendaUuid).as('vendaRecebimentoUi');
     });

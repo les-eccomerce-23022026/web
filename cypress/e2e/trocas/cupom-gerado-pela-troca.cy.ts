@@ -19,18 +19,19 @@ describe('Trocas — Geração Automática de Cupom (CDU009, RF0046)', () => {
   beforeEach(() => {
     configurarAmbienteEntrega7Ui();
     cy.criarVendaAprovadaViaApi().then((dados) => {
-      cy.despacharPedidoViaApi(dados.vendaUuid);
-      cy.confirmarEntregaViaApi(dados.vendaUuid);
+      cy.despacharPedidoViaApi(dados.vendaUuid, { restaurarSessao: false });
+      cy.confirmarEntregaViaApi(dados.vendaUuid, { restaurarSessao: false });
+      cy.autenticarClienteDadosTeste();
       cy.solicitarTrocaViaApi(dados.vendaUuid, dados.itemVendaUuid, 'Gerar cupom');
       cy.wrap(dados.vendaUuid).as('vendaCupomUi');
     });
     loginAdminUi();
-    autenticarClienteDadosTesteUi();
     cy.get<string>('@vendaCupomUi').then((vendaUuid) => {
       autorizarTrocaAdminUi(vendaUuid);
       confirmarRecebimentoTrocaAdminUi(vendaUuid);
     });
 
+    cy.autenticarClienteDadosTeste();
     cy.request({
       method: 'GET',
       url: `${Cypress.env('apiUrl')}/clientes/perfil/cupons`,

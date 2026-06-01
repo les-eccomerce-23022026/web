@@ -14,12 +14,11 @@ describe('Trocas — Solicitar Troca de Produto (CDU004, RF0041)', () => {
 
   it('deve solicitar troca na tela /pedidos/:uuid/troca para pedido ENTREGUE', () => {
     cy.criarVendaAprovadaViaApi().then((dados) => {
+      cy.wrap(dados.vendaUuid).as('vendaEntregueUi');
       cy.despacharPedidoViaApi(dados.vendaUuid);
       cy.confirmarEntregaViaApi(dados.vendaUuid);
-      cy.wrap(dados.vendaUuid).as('vendaEntregueUi');
     });
 
-    autenticarClienteDadosTesteUi();
     cy.get<string>('@vendaEntregueUi').then((vendaUuid) => {
       solicitarTrocaClienteUi(vendaUuid, 'Produto não atendeu expectativas');
 
@@ -36,6 +35,7 @@ describe('Trocas — Solicitar Troca de Produto (CDU004, RF0041)', () => {
     cy.criarVendaAprovadaViaApi().then((dados) => {
       autenticarClienteDadosTesteUi();
       cy.visit(`/pedidos/${dados.vendaUuid}/troca`);
+      cy.get('[data-cy="troca-carregando"]', { timeout: 5000 }).should('not.exist');
       cy.get('[data-cy="troca-erro"]', { timeout: 15000 })
         .should('be.visible')
         .and('contain', 'Entregue');
@@ -47,11 +47,11 @@ describe('Trocas — Solicitar Troca de Produto (CDU004, RF0041)', () => {
       cy.despacharPedidoViaApi(dados.vendaUuid);
       cy.confirmarEntregaViaApi(dados.vendaUuid);
 
+      autenticarClienteDadosTesteUi();
       cy.task<boolean>('bddRetrocederDataEntrega', { vendaUuid: dados.vendaUuid }).then(function (ok) {
         if (!ok) {
           this.skip();
         }
-        autenticarClienteDadosTesteUi();
         cy.visit(`/pedidos/${dados.vendaUuid}/troca`);
         cy.get('[data-cy^="troca-item-checkbox-"]', { timeout: 15000 }).first().check({ force: true });
         cy.get('[data-cy="troca-motivo-input"]').type('Teste prazo expirado UI');
