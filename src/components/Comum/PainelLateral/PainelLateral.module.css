@@ -1,0 +1,122 @@
+/* ============================================================
+   PainelLateral.module.css
+   Componente genérico de drawer/sidebar lateral.
+   Padrão visual alinhado ao AdminLayoutNav (overlay + painel fixo).
+   ============================================================ */
+
+/* --- Overlay semitransparente ----------------------------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 299;
+  animation: fadeInOverlay 0.2s ease-out;
+}
+
+/* --- Painel base ------------------------------------------- */
+.painel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: var(--painel-largura, min(420px, 100vw));
+  background: var(--bn-bg-card);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--bn-shadow-lg);
+}
+
+/* --- Variantes de lado ------------------------------------- */
+.painelEsquerda {
+  left: 0;
+  border-right: 1px solid var(--bn-border-light);
+  animation: slideInLeft 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.painelDireita {
+  right: 0;
+  border-left: 1px solid var(--bn-border-light);
+  animation: slideInRight 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Cabeçalho -------------------------------------------- */
+.cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background-color: var(--bn-primary);
+  color: var(--bn-text-light);
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.titulo {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* --- Botão fechar (foco inicial — trap básico) ------------- */
+.botaoFechar {
+  background: none;
+  border: none;
+  color: var(--bn-text-light);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--bn-border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: opacity 0.15s, background-color 0.15s;
+  flex-shrink: 0;
+}
+
+.botaoFechar:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.botaoFechar:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+/* --- Área de conteúdo ------------------------------------- */
+.conteudo {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Animações -------------------------------------------- */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
