@@ -24,10 +24,16 @@ export class ApiClient {
       headers.set('x-use-test-db', 'true');
     }
 
-    // ⚠️ SEGURANÇA: Bearer header APENAS em testes.
+    // ⚠️ SEGURANÇA: Bearer header APENAS em testes / E2E (banco de testes).
     // Em produção, usa cookie HttpOnly (credentials: 'include').
-    // Nunca enviar JWT via Authorization header em produção (vulnerável a XSS).
-    if (token && token.split('.').length === 3 && process.env.NODE_ENV === 'test') {
+    const bearerPermitidoE2e =
+      typeof window !== 'undefined' &&
+      (window as Window & { __USE_TEST_DB__?: boolean }).__USE_TEST_DB__ === true;
+    if (
+      token &&
+      token.split('.').length === 3 &&
+      (process.env.NODE_ENV === 'test' || bearerPermitidoE2e)
+    ) {
       headers.set('Authorization', `Bearer ${token}`);
     }
 

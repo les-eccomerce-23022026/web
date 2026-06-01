@@ -87,6 +87,17 @@ export const restoreSession = createAsyncThunk(
         return rejectWithValue(null);
       }
 
+      // E2E: sessão gravada pelo Cypress após login via API (cookie pode falhar no proxy Next)
+      if (
+        typeof window !== 'undefined' &&
+        (window as Window & { __USE_TEST_DB__?: boolean }).__USE_TEST_DB__
+      ) {
+        const storedE2e = lerSessaoArmazenada();
+        if (storedE2e?.user && storedE2e.token) {
+          return { user: storedE2e.user, token: storedE2e.token };
+        }
+      }
+
       const { AuthService } = await import('@/services/authService');
       return await AuthService.me();
     } catch {
