@@ -73,6 +73,7 @@ export const PedidoCard = ({
         </div>
         <span
           className={`${styles.statusBadge} ${getStatusClass(pedido.status)}`}
+          data-cy="pedido-status"
         >
           <StatusIcon className={styles.statusBadgeIcon} size={14} strokeWidth={2.25} aria-hidden />
           {pedido.status}
