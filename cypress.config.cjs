@@ -1,18 +1,19 @@
-import { execSync } from "node:child_process";
-import fs from "node:fs";
-import path from "node:path";
-import { defineConfig } from "cypress";
-import installLogsPrinter from 'cypress-terminal-report/src/installLogsPrinter';
+const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+const { defineConfig } = require("cypress");
+const installLogsPrinter = require('cypress-terminal-report/src/installLogsPrinter');
 
 /** Mesmo SQL do script `backend/testar-cenarios-bdd-7-entrega.sh` (cenário 7 / RN0043). */
-function retrocederDataEntregaBdd(vendaUuid: string): boolean {
+function retrocederDataEntregaBdd(vendaUuid) {
   try {
     const containers = execSync("docker ps --format '{{.Names}}'", { encoding: "utf8" });
     if (!containers.split("\n").some((n) => n.trim() === "ecm_postgres")) {
       return false;
     }
+    const bancoTeste = process.env.POSTGRES_DB_TEST ?? "ecm_livraria_test";
     execSync(
-      `docker exec ecm_postgres psql -U ecm_user -d ecm_livraria -q -c ` +
+      `docker exec ecm_postgres psql -U ecm_user -d ${bancoTeste} -q -c ` +
         `"UPDATE livraria_comercial.vendas SET ven_data_hora_entrega = NOW() - INTERVAL '8 days' ` +
         `WHERE ven_uuid = '${vendaUuid}';"`,
       { stdio: "pipe" },
@@ -33,17 +34,17 @@ const FLUXO_VENDA_IMGS_ENTREGA = path.resolve(
   "imgs-fluxo-venda",
 );
 
-export default defineConfig({
+module.exports = defineConfig({
   video: false,
   e2e: {
     /** Next.js (telas); API via rewrite — ver `test:e2e:entrega-7-ui:*` e `next.config.mjs`. */
-    baseUrl: "http://localhost:3001",
+    baseUrl: "http://localhost:3000",
     allowCypressEnv: true, // Reativado para permitir acesso síncrono via Cypress.env() necessário para cy.session
     env: {
       /** Só injeta `x-use-test-db` no browser quando `true` (suítes que usam Postgres de teste). */
       injectTestDbHeader: true,
       /** Mesma origem do Next.js (rewrites `/api` → backend) para cookie HttpOnly. */
-      apiUrl: "http://localhost:3001/api",
+      apiUrl: "http://localhost:3000/api",
       admin: {
         email: "admintest@email.com",
         senha: "@asdfJKLÇ123",
@@ -64,7 +65,7 @@ export default defineConfig({
           console.log(message);
           return null;
         },
-        bddRetrocederDataEntrega({ vendaUuid }: { vendaUuid: string }) {
+        bddRetrocederDataEntrega({ vendaUuid }) {
           return retrocederDataEntregaBdd(vendaUuid);
         },
       });
@@ -72,6 +73,9 @@ export default defineConfig({
         if (browser.name === 'chrome' && browser.isHeadless) {
           launchOptions.args.push('--window-size=1920,1080');
           launchOptions.args.push('--force-device-scale-factor=1');
+          launchOptions.args.push('--no-sandbox');
+          launchOptions.args.push('--disable-gpu');
+          launchOptions.args.push('--disable-dev-shm-usage');
         }
         return launchOptions;
       });
@@ -90,5 +94,7 @@ export default defineConfig({
     viewportHeight: 1080,
     scrollBehavior: false,
     specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
+    chromeWebSecurity: false,
+    defaultCommandTimeout: 10000,
   },
 });
