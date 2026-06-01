@@ -50,7 +50,7 @@ export const GerenciarPedidos = () => {
 
       {/* Feedback */}
       {feedbackMsg && (
-        <div className={styles.feedbackBanner}>
+        <div className={styles.feedbackBanner} data-cy="feedback-banner">
           <CheckCircle size={16} />
           <span>{feedbackMsg}</span>
           <button className={styles.fecharFeedback} onClick={() => setFeedbackMsg('')}>×</button>

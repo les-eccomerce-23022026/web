@@ -25,11 +25,28 @@ function GerenciarTrocas() {
   const [retornarEstoque, setRetornarEstoque] = useState(true);
   const [motivoRejeicao, setMotivoRejeicao] = useState('');
   const [processando, setProcessando] = useState(false);
+  const [feedbackMsg, setFeedbackMsg] = useState('');
 
-  if (loading) return <LoadingState message="Carregando solicitações de troca..." />;
-  if (error) return <ErrorState message={error} />;
+  if (loading) {
+    return (
+      <div className={styles.container} data-cy="trocas-painel">
+        <LoadingState message="Carregando solicitações de troca..." />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className={styles.container} data-cy="trocas-painel">
+        <ErrorState message={error} />
+      </div>
+    );
+  }
   if (pedidos.length === 0) {
-    return <EmptyState message="Nenhuma solicitação de troca encontrada." />;
+    return (
+      <div className={styles.container} data-cy="trocas-painel">
+        <EmptyState message="Nenhuma solicitação de troca encontrada." />
+      </div>
+    );
   }
 
   const getLivroTitulo = (livroUuid: string): string => {
@@ -41,6 +58,10 @@ function GerenciarTrocas() {
     setProcessando(true);
     try {
       await autorizarTroca(pedidoUuid);
+      setFeedbackMsg(`Troca do pedido #${pedidoUuid?.split('-')[1] || pedidoUuid} autorizada.`);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Erro ao autorizar troca';
+      setFeedbackMsg(`Erro: ${msg}`);
     } finally {
       setProcessando(false);
     }
@@ -51,8 +72,12 @@ function GerenciarTrocas() {
     setProcessando(true);
     try {
       await rejeitarTroca(modalRejeitar.uuid, motivoRejeicao);
+      setFeedbackMsg(`Troca do pedido #${modalRejeitar.uuid?.split('-')[1] || modalRejeitar.uuid} rejeitada.`);
       setModalRejeitar(null);
       setMotivoRejeicao('');
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Erro ao rejeitar troca';
+      setFeedbackMsg(`Erro: ${msg}`);
     } finally {
       setProcessando(false);
     }
@@ -63,7 +88,11 @@ function GerenciarTrocas() {
     setProcessando(true);
     try {
       await confirmarRecebimento(modalConfirmar.uuid, retornarEstoque);
+      setFeedbackMsg(`Recebimento do pedido #${modalConfirmar.uuid?.split('-')[1] || modalConfirmar.uuid} confirmado.`);
       setModalConfirmar(null);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Erro ao confirmar recebimento';
+      setFeedbackMsg(`Erro: ${msg}`);
     } finally {
       setProcessando(false);
     }
@@ -79,11 +108,20 @@ function GerenciarTrocas() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-cy="trocas-painel">
       <div className={styles.headerSection}>
         <h2>Gerenciar Trocas / Devoluções</h2>
         <span className={styles.contador}>{pedidos.length} solicitação(ões)</span>
       </div>
+
+      {feedbackMsg && (
+        <div className={styles.feedbackBanner} data-cy="feedback-banner">
+          <span>{feedbackMsg}</span>
+          <button type="button" className={styles.fecharFeedback} onClick={() => setFeedbackMsg('')}>
+            ×
+          </button>
+        </div>
+      )}
 
       <div className={styles.tabelaWrapper}>
         <table className={styles.tabela} data-cy="admin-trocas-tabela">
@@ -101,7 +139,7 @@ function GerenciarTrocas() {
           <tbody>
             {pedidos.map((pedido) => (
               <tr key={pedido.uuid} data-cy={`admin-troca-${pedido.uuid}`}>
-                <td className={styles.colPedido}>#{pedido.uuid.split('-')[1]}</td>
+                <td className={styles.colPedido}>#{pedido.uuid?.split('-')[1] || pedido.uuid}</td>
                 <td>{new Date(pedido.data).toLocaleDateString('pt-BR')}</td>
                 <td>
                   {pedido.itens.map((item) => (
@@ -114,7 +152,7 @@ function GerenciarTrocas() {
                   {pedido.motivo || '—'}
                 </td>
                 <td className={styles.colTotal}>
-                  R$ {pedido.total.toFixed(2).replace('.', ',')}
+                  R$ {(pedido.total ?? 0).toFixed(2).replace('.', ',')}
                 </td>
                 <td>
                   <span className={`${styles.statusBadge} ${getStatusClass(pedido.status)}`}>
@@ -128,7 +166,7 @@ function GerenciarTrocas() {
                         className={`btn-primary ${styles.btnAcao}`}
                         onClick={() => handleAutorizar(pedido.uuid)}
                         disabled={processando}
-                        data-cy={`btn-autorizar-${pedido.uuid}`}
+                        data-cy={`btn-autorizar-troca-${pedido.uuid}`}
                       >
                         Autorizar
                       </button>
@@ -139,7 +177,7 @@ function GerenciarTrocas() {
                           setMotivoRejeicao('');
                         }}
                         disabled={processando}
-                        data-cy={`btn-rejeitar-${pedido.uuid}`}
+                        data-cy={`btn-rejeitar-troca-${pedido.uuid}`}
                       >
                         Rejeitar
                       </button>
@@ -153,7 +191,7 @@ function GerenciarTrocas() {
                         setRetornarEstoque(true);
                       }}
                       disabled={processando}
-                      data-cy={`btn-confirmar-${pedido.uuid}`}
+                      data-cy={`btn-confirmar-recebimento-${pedido.uuid}`}
                     >
                       Confirmar Recebimento
                     </button>
@@ -178,7 +216,7 @@ function GerenciarTrocas() {
           <div className={styles.modalContent}>
             <p>
               Confirmar recebimento dos itens do pedido{' '}
-              <strong>#{modalConfirmar.uuid.split('-')[1]}</strong>?
+              <strong>#{modalConfirmar.uuid?.split('-')[1] || modalConfirmar.uuid}</strong>?
             </p>
 
             <div className={styles.modalItens}>
@@ -204,7 +242,7 @@ function GerenciarTrocas() {
 
             <p className={styles.modalInfo}>
               ⚡ Um <strong>cupom de troca</strong> no valor de{' '}
-              <strong>R$ {modalConfirmar.total.toFixed(2).replace('.', ',')}</strong>{' '}
+              <strong>R$ {(modalConfirmar.total ?? 0).toFixed(2).replace('.', ',')}</strong>{' '}
               será gerado automaticamente para o cliente (RF0044).
             </p>
 
@@ -242,7 +280,7 @@ function GerenciarTrocas() {
           <div className={styles.modalContent}>
             <p>
               Rejeitar solicitação de troca do pedido{' '}
-              <strong>#{modalRejeitar.uuid.split('-')[1]}</strong>?
+              <strong>#{modalRejeitar.uuid?.split('-')[1] || modalRejeitar.uuid}</strong>?
             </p>
 
             <div className={styles.modalItens}>
@@ -265,7 +303,7 @@ function GerenciarTrocas() {
                 onChange={(e) => setMotivoRejeicao(e.target.value)}
                 placeholder="Descreva o motivo da rejeição (ex: produto danificado, fora do prazo, etc.)"
                 rows={4}
-                data-cy="motivo-rejeicao-input"
+                data-cy="troca-motivo-rejeicao"
               />
             </div>
 

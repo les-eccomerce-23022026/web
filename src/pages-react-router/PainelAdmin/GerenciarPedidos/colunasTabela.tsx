@@ -28,7 +28,7 @@ export function obterColunasGerenciarPedidos({
       label: 'Pedido',
       render: (_: string, pedido: IPedido) => (
         <span className={styles.colPedido}>
-          #{pedido.uuid.split('-')[1].toUpperCase()}
+          #{pedido.uuid?.split('-')[1]?.toUpperCase() || pedido.uuid}
         </span>
       ),
     },
@@ -66,6 +66,7 @@ export function obterColunasGerenciarPedidos({
           className={`${styles.statusBadge} ${
             styles[STATUS_CSS[status]] ?? styles.statusOutro
           }`}
+          data-cy="status-badge"
         >
           {STATUS_LABELS[status as StatusPedido] ?? status}
         </span>
@@ -79,6 +80,7 @@ export function obterColunasGerenciarPedidos({
           {isAprovado(pedido.status) && (
             <button
               id={`btn-despachar-${pedido.uuid}`}
+              data-cy={`btn-despachar-${pedido.uuid}`}
               className={`${styles.btnAcao} ${styles.btnDespachar}`}
               disabled={processando === pedido.uuid}
               onClick={() => despachar(pedido)}
@@ -92,6 +94,7 @@ export function obterColunasGerenciarPedidos({
           {isEmTransito(pedido.status) && (
             <button
               id={`btn-confirmar-entrega-${pedido.uuid}`}
+              data-cy={`btn-confirmar-entrega-${pedido.uuid}`}
               className={`${styles.btnAcao} ${styles.btnEntregue}`}
               disabled={processando === pedido.uuid}
               onClick={() => confirmarEntrega(pedido.uuid)}
