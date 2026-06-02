@@ -65,14 +65,14 @@ function rethrowNetworkError(error: unknown): never {
   // Erro de timeout (AbortController)
   if (err?.name === 'AbortError') {
     throw new Error(
-      'Tempo de conexão esgotado. O servidor não respondeu em 10 segundos. Verifique se o backend está rodando em localhost:3002.',
+      'Tempo de conexão esgotado. O servidor não respondeu em 10 segundos. Verifique se o backend está rodando em localhost:5001.',
     );
   }
 
   // Erro de rede (Failed to fetch)
   if (err?.message === 'Failed to fetch') {
     throw new Error(
-      'Não foi possível conectar ao servidor. Verifique se o backend está rodando em localhost:3002 e tente novamente.',
+      'Não foi possível conectar ao servidor. Verifique se o backend está rodando em localhost:5001 e tente novamente.',
     );
   }
 

@@ -140,7 +140,7 @@ export const Header = () => {
 
             <Link href={ROTAS.CARRINHO} className={`${styles['action-icon']} ${styles['cart-container']}`} data-cy="header-cart-link" title="Carrinho">
               <ShoppingCart size={22} strokeWidth={2} />
-              {quantidadeItens > 0 && (
+              {mounted && quantidadeItens > 0 && (
                 <span className={styles['cart-badge']}>{quantidadeItens}</span>
               )}
             </Link>

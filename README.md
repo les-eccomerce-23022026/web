@@ -12,39 +12,72 @@
 - Kanban frontend: [`docs/PROJECT-BOARD.md`](docs/PROJECT-BOARD.md)
 - Diretrizes de agente: [`AGENTS.md`](AGENTS.md)
 
-## Testes E2E
+## Testes E2E (Cypress)
 
-### Fluxo de Compra Principal (Visual)
+**Importante (Ubuntu 24.04 / erro "bad option: --no-sandbox"):**
 
-Para executar os testes do fluxo de compra com navegador aberto (visual):
+O projeto usa Cypress ^13.17.0. O `cypress.config.cjs` agora injeta `--no-sandbox` **apenas** em ambientes CI/Docker/root (detecção automática via `/.dockerenv`, cgroup, `getuid() === 0` e variáveis de CI).
+
+Se você ainda vir o erro em ambiente desktop:
+
+1. Rode o reset (limpa binários v12 antigos):
+   ```bash
+   cd web
+   npm run cypress:reset
+   # ou
+   bash scripts/ensure-cypress.sh
+   ```
+
+2. Use preferencialmente o alvo de CI (usa Electron embutido):
+   ```bash
+   npm run test:e2e:ci
+   npm run test:e2e:ci:spec 'cypress/e2e/autenticacao/**/*.cy.ts'
+   ```
+
+3. Override manual (raro):
+   ```bash
+   CYPRESS_NO_SANDBOX=1 npm run test:e2e:ci
+   ```
+
+Isso resolve o problema recorrente de agentes/ferramentas caírem em "análise estática apenas porque Cypress falhou".
+
+### Fluxo de Compra Principal (Visual / Headed)
 
 ```bash
 npm run test:e2e:fluxo-compra:headed
 ```
 
-Este comando executa os 3 testes principais do fluxo de compra:
-- Happy Path completo (Login → Carrinho → Checkout → Frete PAC → Cupom → Cartão → Venda)
-- Fluxo completo cross-domain (Cliente compra → Admin despacha → Admin entrega → Cliente solicita troca → Admin autoriza → Admin confirma recebimento → Cliente usa cupom)
-- Screenshots do fluxo de venda
+Executa os principais cenários de compra (happy path completo + cross-domain + evidências visuais).
 
-### Outros Comandos de Teste
+### Comandos Mais Usados (sempre a partir de `web/`)
 
 ```bash
-# Executar fluxo de compra sem navegador (headless)
-npm run test:e2e:fluxo-compra:run
+# Headless (recomendado para CI/Linux — usa Electron embutido, sem precisar de Chrome/GTK)
+npm run test:e2e
+npm run test:e2e:ci                 # alias explícito para Electron
+npm run test:e2e:autenticacao
+npm run test:e2e:catalogo
+npm run test:e2e:fluxo-checkout
 
-# Modo interativo GUI (Cypress Test Runner)
-npm run test:e2e:fluxo-compra:gui
+# Com navegador visível (pode exigir libs do sistema para Chrome)
+npm run test:e2e:fluxo-compra:headed
+npm run test:e2e:autenticacao:headed
 
-# Happy path individual com navegador
-npm run test:e2e:happy-path:headed
+# Modo interativo (Cypress GUI)
+npm run test:e2e:open
 
-# Cross-domain individual com navegador
-npm run test:e2e:cross-domain:headed
-
-# Screenshots individual com navegador
-npm run test:e2e:screenshots:headed
+# Manutenção
+npm run cypress:install
+npm run cypress:verify
+npm run cypress:reset               # limpa v12 + reinstall v13
 ```
+
+Dica: para rodar specs específicas sem editar package.json use `npm run test:e2e:ci:spec 'cypress/e2e/autenticacao/**/*.cy.ts'`
+
+Consulte também:
+- `cypress/TESTING_CONVENTIONS.md`
+- `cypress/support/commands.ts` (comandos customizados como `cy.loginCliente()`)
+- `package.json` (scripts test:e2e:* )
 
 ---
 
