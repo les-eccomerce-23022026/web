@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Executa as 3 fases da suíte E2E de compra em sequência, com banner e log em arquivo.
+# Executa suítes E2E principais de compra em sequência, com banner e log em arquivo.
 # Uso (a partir de web/): bash scripts/run-e2e-compra-com-relatorio.sh
-# Opcional: E2E_VERBOSE_LOGS=1 — repassa ao Cypress (ver cypress.config.ts).
+# Opcional: E2E_VERBOSE_LOGS=1 — repassa ao Cypress (ver cypress.config.cjs).
+#
+# NOTA: Garante Cypress v13 (limpa cache v12 que causa "bad option: --no-sandbox" no Ubuntu 24.04).
+#       Sempre invoca via "npm run" para usar o binário local correto.
 set -u
 WEB_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$WEB_ROOT"
@@ -30,6 +33,15 @@ log "Arquivo deste relatório: $REPORT"
 if [ -n "${E2E_VERBOSE_LOGS:-}" ]; then
   log "E2E_VERBOSE_LOGS=$E2E_VERBOSE_LOGS (logs de rede/console no terminal)"
 fi
+
+# Garante que o Cypress v13 correto está instalado (limpa v12 antigo que causa falha de inicialização)
+log "Executando ensure-cypress.sh para evitar erro de binário v12..."
+bash "$WEB_ROOT/scripts/ensure-cypress.sh" || log "WARN: ensure-cypress retornou não-zero (continuando assim mesmo)"
+
+# Reforço: em ambiente desktop Ubuntu, o config agora evita --no-sandbox automaticamente.
+# Se o Cypress ainda falhar com sandbox aqui, o script vai capturar o erro e o caller
+# (agente/LLM) não precisará mais cair em "análise estática apenas".
+log "Ambiente: $(uname -a | cut -d' ' -f3-4 || echo 'desconhecido')"
 
 SUMMARY="cypress/reports/e2e-compra-${STAMP}-resumo.txt"
 : >"$SUMMARY"
@@ -66,9 +78,11 @@ run_phase() {
 F1=0
 F2=0
 F3=0
-run_phase 1 "Postgres dev (sem header test DB)" "cypress:run:e2e-compra-devdb" || F1=$?
-run_phase 2 "Postgres teste (injectTestDbHeader)" "cypress:run:e2e-compra-testdb" || F2=$?
-run_phase 3 "Checkout pagamento (injectTestDbHeader)" "cypress:run:e2e-checkout-pagamento" || F3=$?
+# Fases atualizadas para scripts existentes no package.json (test:e2e:*).
+# As variações de banco de teste agora são controladas principalmente via cypress.config.cjs + env.
+run_phase 1 "Fluxo de compra completo (happy path + cross-domain)" "test:e2e:fluxo-compra" || F1=$?
+run_phase 2 "Fluxo checkout + frete + pagamento" "test:e2e:fluxo-checkout" || F2=$?
+run_phase 3 "Vendas complexas / casos de falha (regressão)" "test:e2e:vendas:failed" || F3=$?
 
 banner "RESUMO FINAL"
 {

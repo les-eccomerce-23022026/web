@@ -37,7 +37,8 @@ describe('Trocas — Geração Automática de Cupom (CDU009, RF0046)', () => {
       url: `${Cypress.env('apiUrl')}/clientes/perfil/cupons`,
       headers: apiHeadersBancoTestes(),
     }).then((res) => {
-      const cupomTroca = (res.body as Array<{ tipo: string; codigo: string }>).find((c) => c.tipo === 'troca');
+      const cupons = (res.body as { ok: boolean; dados: Array<{ tipo: string; codigo: string }> }).dados;
+      const cupomTroca = cupons.find((c) => c.tipo === 'troca');
       expect(cupomTroca, 'cupom de troca após confirmar recebimento').to.exist;
       cy.wrap(cupomTroca!.codigo).as('cupomTrocaCodigoUi');
     });

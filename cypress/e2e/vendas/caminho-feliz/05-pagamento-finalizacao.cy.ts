@@ -64,6 +64,7 @@ describe('Vendas — Caminho Feliz — Etapa 5: Pagamento e Finalização', () =
       .should('exist')
       .should('be.visible')
       .should('not.be.disabled')
+      .first()
       .scrollIntoView()
       .click();
 
@@ -126,6 +127,7 @@ describe('Vendas — Caminho Feliz — Etapa 5: Pagamento e Finalização', () =
     cy.get('[data-cy="checkout-split-add-pix"]', { timeout: 15000 })
       .should('exist')
       .should('be.visible')
+      .first()
       .scrollIntoView()
       .should('not.be.disabled')
       .click();

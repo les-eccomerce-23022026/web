@@ -19,7 +19,7 @@ describe('Vendas — Realizar Compra Completa (CDU001)', () => {
     realizarCompraCompletaNaUi();
     cy.url({ timeout: 25000 }).should('include', '/pedido-confirmado');
     cy.url().should('match', /[?&]pedido=/);
-    cy.contains('h1', /Pedido Realizado com Sucesso/i, { timeout: 15000 }).should('be.visible');
+    cy.contains('h1', /Pedido Realizado com Sucesso!/i, { timeout: 15000 }).should('be.visible');
     cy.get('[data-cy="confirmado-btn-home"]').should('be.visible');
   });
 

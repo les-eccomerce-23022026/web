@@ -44,7 +44,7 @@ module.exports = defineConfig({
       /** Só injeta `x-use-test-db` no browser quando `true` (suítes que usam Postgres de teste). */
       injectTestDbHeader: true,
       /** Mesma origem do Next.js (rewrites `/api` → backend) para cookie HttpOnly. */
-      apiUrl: "http://localhost:3000/api",
+      apiUrl: "http://localhost:5001/api",
       admin: {
         email: "admintest@email.com",
         senha: "@asdfJKLÇ123",
@@ -69,13 +69,65 @@ module.exports = defineConfig({
           return retrocederDataEntregaBdd(vendaUuid);
         },
       });
+      /**
+       * Determina se --no-sandbox deve ser injetado.
+       * 
+       * PROBLEMA RESOLVIDO: Injetar --no-sandbox incondicionalmente em Chrome headless
+       * causava "bad option: --no-sandbox" no Ubuntu 24.04 desktop (não-root, não Docker).
+       * 
+       * Cypress já tem lógica interna (needsSandbox) que só adiciona o flag quando necessário.
+       * Replicamos lógica equivalente aqui para Chromium customizado.
+       */
+      function shouldUseNoSandbox() {
+        if (process.platform !== 'linux') return false;
+
+        // Root (comum em containers Docker sem user namespaces)
+        const isRoot = typeof process.getuid === 'function' && process.getuid() === 0;
+        if (isRoot) return true;
+
+        // CI explícito
+        if (
+          process.env.CI === 'true' ||
+          process.env.GITHUB_ACTIONS === 'true' ||
+          process.env.GITLAB_CI === 'true' ||
+          process.env.CIRCLECI === 'true' ||
+          process.env.JENKINS_URL
+        ) {
+          return true;
+        }
+
+        // Detecção de Docker / container
+        try {
+          if (fs.existsSync('/.dockerenv')) return true;
+          const cgroup = fs.readFileSync('/proc/1/cgroup', 'utf8');
+          if (cgroup.includes('docker') || cgroup.includes('kubepods') || cgroup.includes('containerd')) {
+            return true;
+          }
+        } catch {
+          // ignora (ex: /proc não legível)
+        }
+
+        // Override manual para casos avançados (ex: WSL2 com limitações específicas)
+        if (process.env.CYPRESS_NO_SANDBOX === '1' || process.env.CYPRESS_NO_SANDBOX === 'true') {
+          return true;
+        }
+
+        return false;
+      }
+
       on('before:browser:launch', (browser, launchOptions) => {
-        if (browser.name === 'chrome' && browser.isHeadless) {
+        // Suporta chrome, chromium e edge (Chromium-based)
+        const isChromium = ['chrome', 'chromium', 'edge'].includes(browser.name);
+        if (isChromium && browser.isHeadless) {
           launchOptions.args.push('--window-size=1920,1080');
           launchOptions.args.push('--force-device-scale-factor=1');
-          launchOptions.args.push('--no-sandbox');
           launchOptions.args.push('--disable-gpu');
           launchOptions.args.push('--disable-dev-shm-usage');
+
+          // CRÍTICO: só adiciona --no-sandbox quando realmente necessário
+          if (shouldUseNoSandbox()) {
+            launchOptions.args.push('--no-sandbox');
+          }
         }
         return launchOptions;
       });

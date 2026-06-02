@@ -6,10 +6,11 @@ import {
   configurarAmbienteEntrega7Ui,
   confirmarEntregaAdminUi,
   despacharPedidoAdminUi,
-  loginAdminUi,
+  loginAdminPedidosUi,
   autenticarClienteDadosTesteUi,
-  aguardarPainelAdminCarregado,
-  sufixoPedidoNaTabela,
+  linhaPedidoAdmin,
+  localizarPedidoAdminPorUuid,
+  visitarPainelPedidosAdminUi,
 } from '../../support/helpers/uiEntrega7Helpers';
 
 describe('Entregas — Confirmar Entrega Realizada (CDU010, RF0039)', () => {
@@ -18,7 +19,7 @@ describe('Entregas — Confirmar Entrega Realizada (CDU010, RF0039)', () => {
     cy.criarVendaAprovadaViaApi().then((dados) => {
       cy.wrap(dados.vendaUuid).as('vendaUuid');
     });
-    loginAdminUi();
+    loginAdminPedidosUi();
   });
 
   it('deve despachar e confirmar entrega exibindo status ENTREGUE no painel admin', () => {
@@ -26,10 +27,11 @@ describe('Entregas — Confirmar Entrega Realizada (CDU010, RF0039)', () => {
       despacharPedidoAdminUi(vendaUuid);
       confirmarEntregaAdminUi(vendaUuid);
 
-      cy.visit('/admin/pedidos');
-      aguardarPainelAdminCarregado();
-      cy.contains(sufixoPedidoNaTabela(vendaUuid))
-        .parents('tr')
+      visitarPainelPedidosAdminUi();
+      cy.get('[data-cy="admin-toolbar-filter-status"]').select('Entregue', { force: true });
+      cy.wait(400);
+      localizarPedidoAdminPorUuid(vendaUuid);
+      linhaPedidoAdmin(vendaUuid)
         .find('[data-cy="status-badge"]')
         .should('contain', 'Entregue');
     });

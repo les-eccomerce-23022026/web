@@ -37,8 +37,9 @@ describe('Clientes — Registrar Cartão e Endereço (CDU003)', () => {
       validade: '12/2030',
       cvv: '123',
     });
+    // The helper already navigates to cartoes tab and saves the card
+    // Just verify the card is visible in the list
     cy.contains(nomeImpresso).should('be.visible');
-    ProfilePage.navigateToTab('cartoes');
     cy.contains('7777').should('be.visible');
   });
 });

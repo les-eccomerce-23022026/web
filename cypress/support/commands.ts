@@ -751,6 +751,7 @@ Cypress.Commands.add('checkoutPreencherFretePadrao', (cep: string) => {
   cy.get('[data-cy="checkout-freight-zip-input"]', { timeout: 10000 })
     .should('exist')
     .should('be.visible')
+    .first()
     .scrollIntoView()
     .clear()
     .type(cep, { delay: 50 });
@@ -760,6 +761,7 @@ Cypress.Commands.add('checkoutPreencherFretePadrao', (cep: string) => {
     .should('exist')
     .should('be.visible')
     .should('not.be.disabled')
+    .first()
     .scrollIntoView()
     .click();
   
@@ -769,6 +771,7 @@ Cypress.Commands.add('checkoutPreencherFretePadrao', (cep: string) => {
   cy.get('[data-cy="checkout-freight-option-PAC"]', { timeout: 10000 })
     .should('exist')
     .should('be.visible')
+    .first()
     .scrollIntoView()
     .click();
 });
@@ -820,6 +823,7 @@ Cypress.Commands.add('checkoutSelecionarCartaoSalvoPreferido', (bandeira: 'Visa'
     const escolhido = cartoes.find((c) => c.bandeira === bandeira) ?? cartoes[0];
     cy.get(`[data-cy="checkout-card-item-${escolhido.ultimosDigitosCartao}"]`, { timeout: 20000 })
       .should('exist')
+      .first()
       .scrollIntoView()
       .should('be.visible')
       .click({ force: true });
@@ -896,6 +900,7 @@ Cypress.Commands.add('checkoutAplicarCupom', (codigo: string) => {
   cy.get('[data-cy="checkout-coupon-input"]', { timeout: 10000 })
     .should('exist')
     .should('be.visible')
+    .first()
     .scrollIntoView()
     .clear()
     .type(codigo, { delay: 50 });
@@ -905,6 +910,7 @@ Cypress.Commands.add('checkoutAplicarCupom', (codigo: string) => {
     .should('exist')
     .should('be.visible')
     .should('not.be.disabled')
+    .first()
     .scrollIntoView()
     .click();
 });
@@ -1094,7 +1100,12 @@ Cypress.Commands.add('criarVendaAprovadaViaApi', () => {
           method: 'POST',
           url: `${apiUrl}/pagamentos/${pagamentoUuid}/processar`,
           headers,
-        }).then(() => vendaUuid);
+        }).then((procRes) => {
+          if (procRes.body.status !== 'APROVADO') {
+            throw new Error(`Pagamento não aprovado: ${JSON.stringify(procRes.body)}`);
+          }
+          return vendaUuid;
+        });
       });
     })
     .then((vendaUuid) => {
@@ -1206,9 +1217,11 @@ Cypress.Commands.add('logout', () => {
     headers,
     failOnStatusCode: false, // Logout pode falhar se não estiver autenticado
   }).then(() => {
+    cy.clearAllSessionStorage();
     cy.clearCookie('authToken');
     cy.clearCookie('x-use-test-db');
     cy.clearCookie('x-loja-uuid');
+    Cypress.env('authToken', undefined);
     cy.visit('/');
   });
 });
@@ -1236,9 +1249,10 @@ Cypress.Commands.add('confirmarRecebimentoTrocaViaApi', (vendaUuid: string) => {
 
     cy.autenticarAdministradorViaApi();
     cy.request({
-      method: 'PUT',
-      url: `${apiUrl}/vendas/${vendaUuid}/troca/confirmar-recebimento`,
+      method: 'PATCH',
+      url: `${apiUrl}/admin/pedidos/${vendaUuid}/confirmar-recebimento`,
       headers,
+      body: { retornarEstoque: true },
     });
   });
 });
@@ -1251,9 +1265,18 @@ Cypress.Commands.add('confirmarRecebimentoTrocaViaApi', (vendaUuid: string) => {
  * Obtém o UUID da loja padrão E2E via API admin (não usa sessão do cliente).
  * Resultado cacheado em `Cypress.env('lojaPadraoUuid')`.
  */
+/** Reaplica cookies de loja/test-db no browser (ex.: após `logout` limpar o contexto). */
+function aplicarCookiesContextoLojaE2e(lojaUuid: string): void {
+  cy.setCookie('x-loja-uuid', lojaUuid, { path: '/' });
+  if (Cypress.env('injectTestDbHeader') === true) {
+    cy.setCookie('x-use-test-db', 'true', { path: '/' });
+  }
+}
+
 Cypress.Commands.add('obterLojaPadraoUuid', () => {
   const cached = Cypress.env('lojaPadraoUuid') as string | undefined;
   if (cached) {
+    aplicarCookiesContextoLojaE2e(cached);
     return cy.wrap(cached);
   }
 
@@ -1321,10 +1344,7 @@ Cypress.Commands.add('obterLojaPadraoUuid', () => {
           Cypress.env('lojaPadraoUuid', lojaUuid);
 
           // CRITICAL: set cookie so browser fetches (React queries) also get x-loja-uuid context
-          cy.setCookie('x-loja-uuid', lojaUuid, { path: '/' });
-          if (Cypress.env('injectTestDbHeader') === true) {
-            cy.setCookie('x-use-test-db', 'true', { path: '/' });
-          }
+          aplicarCookiesContextoLojaE2e(lojaUuid);
 
           if (authTokenAnterior) {
             Cypress.env('authToken', authTokenAnterior);
