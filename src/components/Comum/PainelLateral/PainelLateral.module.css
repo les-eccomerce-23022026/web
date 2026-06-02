@@ -27,6 +27,28 @@
   box-shadow: var(--bn-shadow-lg);
 }
 
+/* --- Responsividade ----------------------------------------- */
+/* Mobile: tela cheia */
+@media (max-width: 640px) {
+  .painel {
+    width: 100vw;
+  }
+}
+
+/* Tablet: mantém largura padrão (420px) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .painel {
+    width: var(--painel-largura, min(420px, 100vw));
+  }
+}
+
+/* Desktop: aumenta largura para 550px */
+@media (min-width: 1025px) {
+  .painel {
+    width: var(--painel-largura, min(550px, 100vw));
+  }
+}
+
 /* --- Variantes de lado ------------------------------------- */
 .painelEsquerda {
   left: 0;
