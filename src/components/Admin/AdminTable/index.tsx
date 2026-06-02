@@ -71,6 +71,7 @@ export function AdminTable<T extends Record<string, any>>({
             {dados.map((linha) => (
               <tr
                 key={linha[rowKey]}
+                data-cy={rowKey ? `admin-pedido-${linha[rowKey]}` : undefined}
                 className={`${styles.adminTableLinha} ${
                   aoClicarLinha ? styles.adminTableLinhaClicavel : ''
                 }`}

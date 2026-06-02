@@ -12,6 +12,7 @@ interface IVendaApi {
   totalVenda: number;
   status: string;
   usuarioUuid: string;
+  motivoTroca?: string;
   itens: Array<{
     id: string;
     livroUuid: string;
@@ -22,12 +23,27 @@ interface IVendaApi {
   dataEntrega?: string; // Data de entrega (ISO 8601)
 }
 
+/** Formato retornado por GET /admin/pedidos (vendaParaPayloadPedidoAdmin no backend). */
+interface IPedidoAdminApi {
+  uuid: string;
+  data: string;
+  clienteUuid: string;
+  total: number;
+  status: string;
+  itens: Array<{
+    livroUuid: string;
+    quantidade: number;
+    precoUnitario: number;
+    categoria: string;
+  }>;
+}
+
 function mapStatusVendaParaPedido(s: string): StatusPedido {
   const key = s.trim().toUpperCase();
   const map: Record<string, StatusPedido> = {
     'EM PROCESSAMENTO': 'Em Processamento',
     'AGUARDANDO PAGAMENTO': 'Aguardando Pagamento',
-    APROVADA: 'Preparando',
+    APROVADA: 'Em Processamento',
     REPROVADA: 'Cancelado',
     'EM TRÂNSITO': 'Em Trânsito',
     ENTREGUE: 'Entregue',
@@ -48,11 +64,28 @@ function vendaApiParaPedido(v: IVendaApi): IPedido {
     clienteUuid: v.usuarioUuid,
     total: v.totalVenda,
     status: mapStatusVendaParaPedido(v.status),
+    motivo: v.motivoTroca,
     itens: v.itens.map((i) => ({
       livroUuid: i.livroUuid,
       quantidade: i.quantidade,
       precoUnitario: i.precoUnitario,
       categoria: 'Livro',
+    })),
+  };
+}
+
+function pedidoAdminApiParaPedido(v: IPedidoAdminApi): IPedido {
+  return {
+    uuid: v.uuid,
+    data: v.data,
+    clienteUuid: v.clienteUuid,
+    total: v.total,
+    status: v.status as StatusPedido,
+    itens: v.itens.map((i) => ({
+      livroUuid: i.livroUuid,
+      quantidade: i.quantidade,
+      precoUnitario: i.precoUnitario,
+      categoria: i.categoria,
     })),
   };
 }
@@ -64,7 +97,8 @@ export class PedidoServiceApi implements IPedidoService {
   }
 
   async getAllPedidos(_statusFiltro?: string[]): Promise<IPedido[]> {
-    return ApiClient.get<IPedido[]>(API_ENDPOINTS.obterTodosPedidosAdmin);
+    const raw = await ApiClient.get<IPedidoAdminApi[]>(API_ENDPOINTS.obterTodosPedidosAdmin);
+    return raw.map(pedidoAdminApiParaPedido);
   }
 
   async despacharPedido(pedidoUuid: string): Promise<IPedido> {
@@ -76,7 +110,8 @@ export class PedidoServiceApi implements IPedidoService {
   }
 
   async getPedidosEmTroca(): Promise<IPedido[]> {
-    return ApiClient.get<IPedido[]>(API_ENDPOINTS.obterPedidosEmTroca);
+    const raw = await ApiClient.get<IVendaApi[]>(API_ENDPOINTS.obterPedidosEmTroca);
+    return raw.map(vendaApiParaPedido);
   }
 
   async solicitarTroca(

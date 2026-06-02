@@ -6,7 +6,6 @@ import {
   fetchAllPedidos,
   despacharPedidoThunk,
   confirmarEntregaThunk,
-  darBaixaEstoqueThunk,
 } from '../../../store/slices/pedidoSlice';
 import type { IPedido, StatusPedido } from '../../../interfaces/pedido';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
@@ -31,7 +30,9 @@ export function useGerenciarPedidos() {
   const [feedbackMsg, setFeedbackMsg] = useState('');
 
   useEffect(() => {
-    dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
+    dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS)).then(() => {
+      console.log('[DEBUG useGerenciarPedidos] Pedidos após fetchAllPedidos:', pedidos);
+    });
   }, [dispatch]);
 
   const getLivroTitulo = useCallback(
@@ -54,9 +55,8 @@ export function useGerenciarPedidos() {
       setProcessando(pedido.uuid);
       try {
         await dispatch(despacharPedidoThunk(pedido.uuid)).unwrap();
-        // RF0053 — dar baixa no estoque ao despachar
-        await dispatch(darBaixaEstoqueThunk(pedido.uuid)).unwrap();
-        setFeedbackMsg(`Pedido #${pedido.uuid.split('-')[1]} despachado. Estoque atualizado.`);
+        setFeedbackMsg(`Pedido #${pedido.uuid.split('-')[1]} despachado.`);
+        await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : 'Erro ao despachar pedido';
         setFeedbackMsg(`Erro: ${msg}`);
@@ -73,6 +73,7 @@ export function useGerenciarPedidos() {
       try {
         await dispatch(confirmarEntregaThunk(pedidoUuid)).unwrap();
         setFeedbackMsg(`Pedido #${pedidoUuid.split('-')[1]} marcado como Entregue.`);
+        await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : 'Erro ao confirmar entrega';
         setFeedbackMsg(`Erro: ${msg}`);
