@@ -7,7 +7,7 @@
 .chatFlutuanteContainer {
   position: fixed;
   bottom: 24px;
-  right: 24px;
+  right: 48px;
   z-index: 200;
   display: flex;
   flex-direction: column;
@@ -461,7 +461,7 @@
 /* --- Responsividade --------------------------------------- */
 @media (max-width: 400px) {
   .chatFlutuanteContainer {
-    right: 12px;
+    right: 20px;
     bottom: 16px;
   }
 }

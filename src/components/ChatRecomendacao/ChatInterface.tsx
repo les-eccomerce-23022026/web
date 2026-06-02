@@ -32,6 +32,7 @@ export const ChatInterface = () => {
     erroEnvio,
     servicoIndisponivel,
     listaRef,
+    entradaRef,
     setTextoEntrada,
     enviarMensagem,
     enviarPerguntaFollowUp,
@@ -142,6 +143,7 @@ export const ChatInterface = () => {
       )}
 
       <ChatEntradaMensagem
+        ref={entradaRef}
         valor={textoEntrada}
         isEnviando={isEnviando}
         onChange={setTextoEntrada}

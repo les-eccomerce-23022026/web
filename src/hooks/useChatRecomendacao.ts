@@ -94,6 +94,7 @@ export function useChatRecomendacao() {
   const [erroEnvio, setErroEnvio] = useState<string | null>(null);
   const [servicoIndisponivel, setServicoIndisponivel] = useState(false);
   const listaRef = useRef<HTMLDivElement>(null);
+  const entradaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!authUser?.nome) {
@@ -150,10 +151,10 @@ export function useChatRecomendacao() {
             numeroTurno: resposta.numeroTurno,
           }),
         ]);
-      } catch {
-        setErroEnvio(
-          'Não foi possível obter uma resposta. Verifique sua conexão e tente novamente.',
-        );
+      } catch (erro) {
+        console.error('[useChatRecomendacao] Erro ao enviar mensagem:', erro);
+        const mensagemErro = erro instanceof Error ? erro.message : 'Não foi possível obter uma resposta. Verifique sua conexão e tente novamente.';
+        setErroEnvio(mensagemErro);
       } finally {
         setIsEnviando(false);
       }
@@ -197,6 +198,7 @@ export function useChatRecomendacao() {
     erroEnvio,
     servicoIndisponivel,
     listaRef,
+    entradaRef,
     setTextoEntrada,
     enviarMensagem,
     enviarPerguntaFollowUp,

@@ -74,19 +74,9 @@ export const ChatHistoricoIteracoes = ({
       {iteracaoAtual && (
         <section
           className={styles.iteracaoAtual}
-          aria-label={`Turno atual ${iteracaoAtual.indice}`}
           data-cy="chat-iteracao-atual"
           data-indice={iteracaoAtual.indice}
         >
-          <p className={styles.iteracaoAtualCabecalho}>
-            Turno {iteracaoAtual.indice}
-            {iteracaoAtual.respostaAssistente?.intencaoResumida && (
-              <span className={styles.iteracaoAtualResumo}>
-                · {rotuloIteracao(iteracaoAtual)}
-              </span>
-            )}
-          </p>
-
           <ChatMensagem
             mensagem={iteracaoAtual.perguntaUsuario}
             onPerguntaFollowUp={onPerguntaFollowUp}
