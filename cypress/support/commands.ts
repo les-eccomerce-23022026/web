@@ -26,6 +26,8 @@ declare global {
       loginCliente(): Chainable<void>;
       /** Autenticação via API com credenciais de dados de teste. */
       autenticarClienteDadosTeste(): Chainable<void>;
+      /** Autenticação via API com cache de sessão (cy.session) para otimização de performance. */
+      autenticarClienteDadosTesteComCache(): Chainable<void>;
       /** Catálogo → detalhe do 1º livro → Comprar Agora (data-cy de detalhe). */
       adicionarPrimeiroLivroCarrinhoDetalhe(): Chainable<void>;
       getDataCy(value: string): Chainable<JQuery<HTMLElement>>;
@@ -82,6 +84,8 @@ declare global {
       confirmarRecebimentoTrocaViaApi(vendaUuid: string): Chainable<void>;
       /** Login admin via API para testes de painel */
       autenticarAdministradorViaApi(): Chainable<Cypress.Response<any>>;
+      /** Login admin via API com cache de sessão (cy.session) para otimização de performance. */
+      autenticarAdministradorViaApiComCache(): Chainable<void>;
       /** Aguarda GET /auth/me 200 após visit (sessão browser estabilizada). */
       aguardarSessaoBrowserViaAuthMe(opts?: { role?: 'admin' | 'cliente' }): Chainable<void>;
       /** Comandos para testes de multi-tenancy por loja */
@@ -259,6 +263,47 @@ Cypress.Commands.add('autenticarClienteDadosTeste', () => {
       cy.get('[data-cy="header-user-profile"]', { timeout: 30000 }).should('be.visible');
     });
   });
+});
+
+/**
+ * Autentica cliente com cache de sessão (cy.session) para otimização de performance.
+ * Usa as credenciais padrão de teste do banco de dados.
+ */
+Cypress.Commands.add('autenticarClienteDadosTesteComCache', () => {
+  const email =
+    (Cypress.env('clienteEmail') as string | undefined) ?? 'clientetest@email.com';
+  const senha =
+    (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKL\u00C7123';
+
+  cy.session('cliente-session-test', () => {
+    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+    const useTestDb = Cypress.env('injectTestDbHeader') === true;
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json; charset=utf-8',
+      ...(useTestDb ? { 'x-use-test-db': 'true' } : {}),
+    };
+
+    cy.request({
+      method: 'POST',
+      url: `${apiUrl}/auth/login`,
+      headers,
+      body: { email, senha },
+      encoding: 'utf8',
+      failOnStatusCode: false,
+    }).then((res) => {
+      if (res.status !== 200 || !res.body?.dados?.user) {
+        throw new Error(
+          `Login seed falhou (${res.status}): ${JSON.stringify(res.body)}`,
+        );
+      }
+      const token = extrairTokenJwtLoginResponse(res);
+      aplicarSessaoAuthCompletaNoBrowser(res.body.dados.user, token);
+    });
+  });
+
+  // Garante que a sessão está ativa
+  cy.visit('/');
+  cy.get('[data-cy="header-user-profile"]', { timeout: 30000 }).should('be.visible');
 });
 
 Cypress.Commands.add('autenticarViaApi', (email, senha) => {
@@ -836,31 +881,31 @@ Cypress.Commands.add('checkoutSelecionarCartaoSalvoPreferido', (bandeira: 'Visa'
 });
 
 Cypress.Commands.add('checkoutPreencherPixCobrindoTotal', () => {
-  cy.get('[data-cy="checkout-split-toolbar"]', { timeout: 20000 }).scrollIntoView();
-  cy.get('[data-cy="checkout-split-add-pix"]', { timeout: 15000 })
+  cy.get('[data-cy="pagamento-dividido-barra-ferramentas"]', { timeout: 20000 }).scrollIntoView();
+  cy.get('[data-cy="pagamento-dividido-adicionar-pix"]', { timeout: 15000 })
     .should('exist')
     .should('be.visible')
     .should('not.be.disabled')
     .click();
 
   cy.get('body').then(($body) => {
-    if ($body.find('[data-cy="checkout-split-remove-line-0"]').length) {
-      cy.get('[data-cy="checkout-split-remove-line-0"]').click();
+    if ($body.find('[data-cy="pagamento-dividido-remover-linha-0"]').length) {
+      cy.get('[data-cy="pagamento-dividido-remover-linha-0"]').click();
     }
   });
 
   const preencherValorPix = (valor: number) => {
     const v = Math.round(valor * 100) / 100;
     expect(v, 'total a cobrir com PIX').to.be.greaterThan(0);
-    cy.get('[data-cy="checkout-split-line-value"]', { timeout: 10000 })
+    cy.get('[data-cy="pagamento-dividido-linha-valor"]', { timeout: 10000 })
       .last()
       .clear({ force: true })
       .type(String(v), { force: true })
       .blur();
-    cy.get('[data-cy="checkout-split-restante"]').should('contain', 'OK');
+    cy.get('[data-cy="pagamento-dividido-restante"]').should('contain', 'OK');
   };
 
-  cy.get('[data-cy="checkout-split-restante"]', { timeout: 15000 }).then(($el) => {
+  cy.get('[data-cy="pagamento-dividido-restante"]', { timeout: 15000 }).then(($el) => {
     const texto = $el.text();
     if (texto.includes('OK')) {
       cy.log('[checkoutPreencherPix:lock] soma das linhas OK (auto-sync linha única)');
@@ -1234,8 +1279,8 @@ Cypress.Commands.add('autorizarTrocaViaApi', (vendaUuid: string) => {
 
     cy.autenticarAdministradorViaApi();
     cy.request({
-      method: 'POST',
-      url: `${apiUrl}/vendas/${vendaUuid}/troca/autorizar`,
+      method: 'PATCH',
+      url: `${apiUrl}/admin/pedidos/${vendaUuid}/autorizar-troca`,
       headers,
     });
   });

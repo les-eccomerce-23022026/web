@@ -37,7 +37,7 @@ export const LinhaPagamentoHeader = ({
           className={styles.removerBtn}
           onClick={() => onRemoverLinha(linha.id)}
           aria-label="Remover linha"
-          data-cy={`checkout-split-remove-line-${idx}`}
+          data-cy={`pagamento-dividido-remover-linha-${idx}`}
         >
           <Trash2 size={16} aria-hidden />
           Remover

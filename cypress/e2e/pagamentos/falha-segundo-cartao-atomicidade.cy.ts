@@ -12,7 +12,7 @@
  */
 
 import {
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   autenticarClienteDadosTesteUi,
   selecionarEnderecoFretePadraoCheckoutUi,
   visitarCheckoutComCarrinhoSincronizadoUi,
@@ -21,7 +21,7 @@ import { apiHeadersBancoTestes } from '../../support/helpers/checkoutHelpers';
 
 describe('Pagamentos — Falha de Segundo Cartão com Atomicidade (Cenário 2 BDD)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
     autenticarClienteDadosTesteUi();
   });
 

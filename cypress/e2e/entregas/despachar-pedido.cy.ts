@@ -4,7 +4,7 @@
  */
 
 import {
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   despacharPedidoAdminUi,
   loginAdminPedidosUi,
   autenticarClienteDadosTesteUi,
@@ -15,7 +15,7 @@ import {
 
 describe('Entregas — Despachar Pedido Aprovado (CDU007, RF0038)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
   });
 
   it('deve exibir painel de pedidos e despachar venda APROVADA com login/logout correto', () => {

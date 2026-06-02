@@ -4,14 +4,14 @@
  */
 
 import {
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   autenticarClienteDadosTesteUi,
   realizarCompraCompletaNaUi,
 } from '../../support/helpers/uiEntrega7Helpers';
 
 describe('Vendas — Realizar Compra Completa (CDU001)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
     autenticarClienteDadosTesteUi();
   });
 

@@ -16,7 +16,7 @@
  */
 
 import {
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   finalizarCompraCheckoutUi,
   autenticarClienteDadosTesteUi,
   selecionarEnderecoFretePadraoCheckoutUi,
@@ -26,7 +26,7 @@ import { apiHeadersBancoTestes } from '../../support/helpers/checkoutHelpers';
 
 describe('Pagamentos — Fluxo Completo de Compra Complexa (Cenário 1 BDD)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
     autenticarClienteDadosTesteUi();
   });
 

@@ -270,7 +270,7 @@ export function preencherCampoSeguro(seletor: string, valor: string, options?: {
  * Considera o novo formato: "Total após cupoms: R$ X · Soma das linhas: R$ Y · OK"
  */
 export function validarRestanteOk() {
-  cy.get('[data-cy="checkout-split-restante"]')
+  cy.get('[data-cy="pagamento-dividido-restante"]')
     .should('contain', 'OK');
 }
 
@@ -279,7 +279,7 @@ export function validarRestanteOk() {
  * Considera o novo formato: "Total após cupoms: R$ X · Soma das linhas: R$ Y · Ajuste de R$ Z"
  */
 export function validarRestanteAjuste() {
-  cy.get('[data-cy="checkout-split-restante"]')
+  cy.get('[data-cy="pagamento-dividido-restante"]')
     .should('contain', 'Ajuste');
 }
 

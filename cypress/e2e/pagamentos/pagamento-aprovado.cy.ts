@@ -3,15 +3,14 @@
  */
 
 import {
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   autenticarClienteDadosTesteUi,
   realizarCompraCompletaNaUi,
-  sufixoPedidoNaTabela,
 } from '../../support/helpers/uiEntrega7Helpers';
 
 describe('Pagamentos — Aprovação da Venda (CDU005)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
     autenticarClienteDadosTesteUi();
   });
 

@@ -4,14 +4,14 @@
 
 import {
   autorizarTrocaAdminUi,
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   loginAdminUi,
   rejeitarTrocaAdminUi,
 } from '../../support/helpers/uiEntrega7Helpers';
 
 describe('Trocas — Autorizar ou Rejeitar Solicitação (CDU006, RF0042)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
   });
 
   it('deve autorizar troca na tela administrativa', () => {

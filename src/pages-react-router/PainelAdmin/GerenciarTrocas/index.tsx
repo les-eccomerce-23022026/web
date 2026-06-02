@@ -103,6 +103,7 @@ function GerenciarTrocas() {
       'Em Troca': styles.statusEmTroca,
       'Troca Autorizada': styles.statusTrocaAutorizada,
       'Trocado': styles.statusTrocado,
+      'Troca Rejeitada': styles.statusTrocaRejeitada,
     };
     return map[status] || '';
   };

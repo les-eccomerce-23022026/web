@@ -1,11 +1,14 @@
-describe('Vendas — Etapas do Checkout', () => {
-  beforeEach(() => {
-    Cypress.env('injectTestDbHeader', true);
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-    const email = 'clientetest@email.com';
-    const senha = '@asdfJKL\u00C7123';
+describe('Vendas — Finalização de Pedido', () => {
+  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const email = 'clientetest@email.com';
+  const senha = '@asdfJKL\u00C7123';
 
-    // Login real via API
+  /**
+   * Helper para preparar estado mínimo para testes de checkout.
+   * Autentica, garante endereço/cartões e limpa carrinho.
+   */
+  function prepararEstadoCheckout() {
+    Cypress.env('injectTestDbHeader', true);
     cy.request({
       method: 'POST',
       url: `${apiUrl}/auth/login`,
@@ -17,59 +20,49 @@ describe('Vendas — Etapas do Checkout', () => {
       const nome = response.body.dados?.user?.nome;
       expect(nome).to.be.a('string');
     });
-
-    // Garantir endereço e cartões para o checkout
     cy.garantirEnderecoViaApi();
     cy.garantirCartoesViaApi();
-
-    // Limpar carrinho antes de cada teste
     cy.limparCarrinhoViaApi();
+  }
 
-    // Setup intercepts para checkout
+  /**
+   * Helper para navegar até o checkout com carrinho preparado.
+   * Navega da home até o checkout selecionando endereço e frete.
+   */
+  function navegarAteCheckoutComFrete() {
     cy.intercept('POST', `${apiUrl}/frete/cotar`).as('freteCotar');
-
-    // Visit home para carregar página com cookie de autenticação
     cy.visit('/');
-
-    // Garantir que o login foi processado (Header deve mudar)
     cy.getDataCy('header-user-profile').should('be.visible');
-
-    // Garantir que a página base home foi carregada
     cy.url().should('eq', Cypress.config().baseUrl + '/');
-
-    // Adicionar livro ao carrinho
     cy.get('[data-cy="livro-card"]', { timeout: 30000 }).should('be.visible').first().contains('Ver Detalhes').click();
     cy.url().should('include', '/livro/');
     cy.contains('Adicionar ao Carrinho', { timeout: 10000 }).should('be.visible').click({ force: true });
-
-    // Navegar para checkout
     cy.getDataCy('header-cart-link').click();
     cy.url().should('include', '/carrinho');
     cy.contains('button', 'Finalizar Compra').click();
     cy.url().should('include', '/checkout');
-
-    // Selecionar endereço e calcular frete para carregar componentes do checkout
     cy.get('[data-cy^="checkout-address-item-"]', { timeout: 25000 })
       .should('be.visible')
       .first()
       .scrollIntoView()
       .click();
-
     cy.get('[data-cy="checkout-freight-zip-input"]')
       .scrollIntoView()
       .clear()
       .type('01310100');
-
     cy.get('[data-cy="checkout-freight-calculate-button"]')
       .scrollIntoView()
       .click();
-
     cy.wait('@freteCotar', { timeout: 15000 });
-
     cy.get('[data-cy^="checkout-freight-option-"]', { timeout: 10000 })
       .first()
       .scrollIntoView()
       .click();
+  }
+
+  beforeEach(() => {
+    prepararEstadoCheckout();
+    navegarAteCheckoutComFrete();
   });
 
   it('deve exibir as etapas do checkout na barra de progresso', () => {

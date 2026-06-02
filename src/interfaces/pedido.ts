@@ -7,6 +7,7 @@ export type StatusPedido =
   | 'Em Processamento'
   | 'Em Troca'
   | 'Troca Autorizada'
+  | 'Troca Rejeitada'
   | 'Trocado'
   | 'Cancelado'
   | 'Devoluções';

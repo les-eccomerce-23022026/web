@@ -49,7 +49,9 @@ function mapStatusVendaParaPedido(s: string): StatusPedido {
     ENTREGUE: 'Entregue',
     'EM TROCA': 'Em Troca',
     'TROCA AUTORIZADA': 'Troca Autorizada',
+    'TROCA REJEITADA': 'Troca Rejeitada',
     CONCLUÍDA: 'Trocado',
+    'TROCA CONCLUÍDA': 'Trocado',
   };
   return map[key] ?? 'Em Processamento';
 }
@@ -80,7 +82,7 @@ function pedidoAdminApiParaPedido(v: IPedidoAdminApi): IPedido {
     data: v.data,
     clienteUuid: v.clienteUuid,
     total: v.total,
-    status: v.status as StatusPedido,
+    status: mapStatusVendaParaPedido(v.status),
     itens: v.itens.map((i) => ({
       livroUuid: i.livroUuid,
       quantidade: i.quantidade,

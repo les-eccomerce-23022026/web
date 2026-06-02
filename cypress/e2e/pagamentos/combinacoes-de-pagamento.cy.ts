@@ -3,10 +3,10 @@
  */
 
 import {
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   configurarPagamentoDivididoDoisCartoesUi,
   aguardarSplitPagamentoEstavelUi,
-  finalizarCompraCheckoutUi,
+  concluirPedido,
   autenticarClienteDadosTesteUi,
   obterTotalCheckoutUi,
   selecionarEnderecoFretePadraoCheckoutUi,
@@ -16,7 +16,7 @@ import {
 
 describe('Pagamentos — Combinações de Pagamento (Cupom + Split) (CDU002)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
     autenticarClienteDadosTesteUi();
   });
 
@@ -26,7 +26,7 @@ describe('Pagamentos — Combinações de Pagamento (Cupom + Split) (CDU002)', (
     cy.checkoutAplicarCupom('DESCONTO10');
     cy.get('[data-cy="checkout-coupon-DESCONTO10"]', { timeout: 10000 }).should('be.visible');
     selecionarPrimeiroCartaoSalvoCheckoutUi();
-    finalizarCompraCheckoutUi({ selecionarPagamentoVezes: 2 });
+    concluirPedido({ selecionarPagamentoVezes: 2 });
     cy.contains('h1', /Pedido Realizado com Sucesso/i).should('be.visible');
   });
 
@@ -35,15 +35,15 @@ describe('Pagamentos — Combinações de Pagamento (Cupom + Split) (CDU002)', (
     selecionarEnderecoFretePadraoCheckoutUi();
     selecionarPrimeiroCartaoSalvoCheckoutUi();
     aguardarSplitPagamentoEstavelUi();
-    cy.get('[data-cy="checkout-split-line-value"]').first().clear({ force: true }).type('5', { force: true }).blur();
+    cy.get('[data-cy="pagamento-dividido-linha-valor"]').first().clear({ force: true }).type('5', { force: true }).blur();
     cy.get('body').then(($body) => {
-      if ($body.find('[data-cy="checkout-split-add-saved-card"]:not(:disabled)').length) {
-        cy.get('[data-cy="checkout-split-add-saved-card"]').click({ force: true });
+      if ($body.find('[data-cy="pagamento-dividido-adicionar-cartao-salvo"]:not(:disabled)').length) {
+        cy.get('[data-cy="pagamento-dividido-adicionar-cartao-salvo"]').click({ force: true });
       } else {
-        cy.get('[data-cy="checkout-split-add-pix"]').click({ force: true });
+        cy.get('[data-cy="pagamento-dividido-adicionar-pix"]').click({ force: true });
       }
     });
-    cy.get('[data-cy="checkout-split-line-value"]').last().clear({ force: true }).type('15', { force: true }).blur();
+    cy.get('[data-cy="pagamento-dividido-linha-valor"]').last().clear({ force: true }).type('15', { force: true }).blur();
     // O erro RN0034 pode ser assíncrono ou o split pode validar de forma diferente após refator; não quebra suite
     cy.get('body').should('exist');
   });
@@ -62,6 +62,6 @@ describe('Pagamentos — Combinações de Pagamento (Cupom + Split) (CDU002)', (
       });
 
     // Não força finalização completa aqui (foco no split UI); outros specs cobrem happy path
-    cy.get('[data-cy="checkout-split-payment"]').should('exist');
+    cy.get('[data-cy="pagamento-dividido-container"]').should('exist');
   });
 });

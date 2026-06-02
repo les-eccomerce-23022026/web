@@ -136,6 +136,11 @@
   color: #00695c;
 }
 
+.statusTrocaRejeitada {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
 /* ===== Botões ===== */
 .btnAcao {
   font-size: 12px;

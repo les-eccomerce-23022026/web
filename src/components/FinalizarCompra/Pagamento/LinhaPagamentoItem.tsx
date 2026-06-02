@@ -50,7 +50,7 @@ export const LinhaPagamentoItem = ({
   return (
     <div
       className={`${styles.linha} ${linhaClass}`}
-      data-cy={`checkout-split-line-${idx}`}
+      data-cy={`pagamento-dividido-linha-${idx}`}
     >
       <LinhaPagamentoHeader
         linha={linha}
@@ -67,7 +67,7 @@ export const LinhaPagamentoItem = ({
           onChange={(e) =>
             onAtualizarLinha(linha.id, { cartaoSalvoUuid: e.target.value || undefined })
           }
-          data-cy="checkout-split-line-card-select"
+          data-cy="pagamento-dividido-selecionar-cartao-linha"
         >
           <option value="">Selecione o cartão</option>
           {data.cartoesSalvos.map((c) => (

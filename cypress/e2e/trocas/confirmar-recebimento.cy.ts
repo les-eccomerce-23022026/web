@@ -4,14 +4,14 @@
 
 import {
   autorizarTrocaAdminUi,
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   confirmarRecebimentoTrocaAdminUi,
   loginAdminUi,
 } from '../../support/helpers/uiEntrega7Helpers';
 
 describe('Trocas — Confirmar Recebimento do Produto (CDU008, RF0044)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
     cy.criarVendaAprovadaViaApi().then((dados) => {
       cy.despacharPedidoViaApi(dados.vendaUuid, { restaurarSessao: false });
       cy.confirmarEntregaViaApi(dados.vendaUuid, { restaurarSessao: false });

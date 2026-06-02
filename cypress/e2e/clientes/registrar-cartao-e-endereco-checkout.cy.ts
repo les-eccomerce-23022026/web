@@ -5,14 +5,14 @@
 import {
   cadastrarCartaoMinhaContaUi,
   cadastrarEnderecoMinhaContaUi,
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   autenticarClienteDadosTesteUi,
 } from '../../support/helpers/uiEntrega7Helpers';
 import { ProfilePage } from '../../support/pages/user/ProfilePage';
 
 describe('Clientes — Registrar Cartão e Endereço (CDU003)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
     autenticarClienteDadosTesteUi();
   });
 

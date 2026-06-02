@@ -3,7 +3,7 @@
  */
 
 import {
-  configurarAmbienteEntrega7Ui,
+  configurarAmbienteTestesVenda,
   confirmarEntregaAdminUi,
   despacharPedidoAdminUi,
   loginAdminPedidosUi,
@@ -15,7 +15,7 @@ import {
 
 describe('Entregas — Confirmar Entrega Realizada (CDU010, RF0039)', () => {
   beforeEach(() => {
-    configurarAmbienteEntrega7Ui();
+    configurarAmbienteTestesVenda();
     cy.criarVendaAprovadaViaApi().then((dados) => {
       cy.wrap(dados.vendaUuid).as('vendaUuid');
     });
