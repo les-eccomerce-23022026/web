@@ -72,7 +72,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
         
         cy.request({
           method: 'PUT',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${novaVendaUuid}/falha-entrega`,
+          url: `${Cypress.env('apiUrl')}/admin/pedidos/${novaVendaUuid}/falha-entrega`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             ...apiHeadersBancoTestes(),
@@ -111,7 +111,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
     it('deve solicitar reconfirmação de endereço ao cliente via API', () => {
       cy.request({
         method: 'POST',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+        url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
         headers: apiHeadersBancoTestes(),
       }).then((res) => {
         expect(res.status).to.equal(200);
@@ -122,12 +122,12 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
     it('deve atualizar status para AGUARDANDO RECONFIRMAÇÃO via API', () => {
       cy.request({
         method: 'POST',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+        url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
         headers: apiHeadersBancoTestes(),
       }).then(() => {
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: apiHeadersBancoTestes(),
         }).then((res) => {
           expect(res.body.status).to.equal('AGUARDANDO RECONFIRMAÇÃO');
@@ -143,7 +143,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
       cy.marcarFalhaEntregaViaApi(vendaUuid, 'Endereço incompleto');
       cy.request({
         method: 'POST',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+        url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
         headers: apiHeadersBancoTestes(),
       });
     });
@@ -151,7 +151,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
     it('deve permitir cliente cadastrar novo endereço para o pedido via API', () => {
       cy.request({
         method: 'POST',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        url: `${Cypress.env('apiUrl')}/clientes/perfil/enderecos`,
         headers: apiHeadersBancoTestes(),
         body: {
           logradouro: 'Rua Corrigida',
@@ -175,7 +175,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
       // Primeiro criar novo endereço
       cy.request({
         method: 'POST',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        url: `${Cypress.env('apiUrl')}/clientes/perfil/enderecos`,
         headers: apiHeadersBancoTestes(),
         body: {
           logradouro: 'Rua Atualizada',
@@ -195,7 +195,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
         // Associar ao pedido
         cy.request({
           method: 'PUT',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}/endereco-entrega`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             ...apiHeadersBancoTestes(),
@@ -212,7 +212,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
     it('deve atualizar status para ENDEREÇO ATUALIZADO via API', () => {
       cy.request({
         method: 'POST',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        url: `${Cypress.env('apiUrl')}/clientes/perfil/enderecos`,
         headers: apiHeadersBancoTestes(),
         body: {
           logradouro: 'Rua Nova',
@@ -231,7 +231,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
         
         cy.request({
           method: 'PUT',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}/endereco-entrega`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             ...apiHeadersBancoTestes(),
@@ -242,7 +242,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
         }).then(() => {
           cy.request({
             method: 'GET',
-            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+            url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
             headers: apiHeadersBancoTestes(),
           }).then((res) => {
             expect(res.body.status).to.equal('ENDEREÇO ATUALIZADO');
@@ -259,12 +259,12 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
       cy.marcarFalhaEntregaViaApi(vendaUuid, 'Endereço incompleto');
       cy.request({
         method: 'POST',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+        url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
         headers: apiHeadersBancoTestes(),
       }).then(() => {
         cy.request({
           method: 'POST',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+          url: `${Cypress.env('apiUrl')}/clientes/perfil/enderecos`,
           headers: apiHeadersBancoTestes(),
           body: {
             logradouro: 'Rua Final',
@@ -283,7 +283,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
           
           cy.request({
             method: 'PUT',
-            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
+            url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}/endereco-entrega`,
             headers: {
               'Content-Type': 'application/json; charset=utf-8',
               ...apiHeadersBancoTestes(),
@@ -299,7 +299,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
     it('deve permitir novo despacho com endereço atualizado via API', () => {
       cy.request({
         method: 'PUT',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/redespachar`,
+        url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/redespachar`,
         headers: apiHeadersBancoTestes(),
       }).then((res) => {
         expect(res.status).to.equal(200);
@@ -309,7 +309,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
       // Verificar status atualizado
       cy.request({
         method: 'GET',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+        url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
         headers: apiHeadersBancoTestes(),
       }).then((res) => {
         expect(res.body.status).to.equal('EM TRÂNSITO');
@@ -320,13 +320,13 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
       // Redespachar
       cy.request({
         method: 'PUT',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/redespachar`,
+        url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/redespachar`,
         headers: apiHeadersBancoTestes(),
       }).then(() => {
         // Confirmar entrega
         cy.request({
           method: 'PUT',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/entrega`,
+          url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/entrega`,
           headers: apiHeadersBancoTestes(),
         }).then((res) => {
           expect(res.status).to.equal(200);
@@ -371,7 +371,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
       // 5. Cadastrar novo endereço via API (para simular ação do cliente)
       cy.request({
         method: 'POST',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        url: `${Cypress.env('apiUrl')}/clientes/perfil/enderecos`,
         headers: apiHeadersBancoTestes(),
         body: {
           logradouro: 'Rua Corrigida',
@@ -392,7 +392,7 @@ describe('Entregas — Falha de Entrega e Reendereçamento', () => {
       // 6. Associar novo endereço ao pedido via API
       cy.request({
         method: 'PUT',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
+        url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}/endereco-entrega`,
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           ...apiHeadersBancoTestes(),

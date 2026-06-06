@@ -83,7 +83,7 @@ describe('Vendas — Primeira Falha de Entrega', () => {
         // Verificar status final
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: cy.apiHeadersBancoTestes(),
         }).then((res) => {
           expect(res.body.status).to.equal('Em Trânsito');
@@ -216,7 +216,7 @@ describe('Vendas — Primeira Falha de Entrega', () => {
         // Tentar marcar falha deve falhar
         cy.request({
           method: 'POST',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/marcar-falha`,
+          url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/marcar-falha`,
           headers: cy.apiHeadersBancoTestes(),
           body: { motivo: MOTIVOS_FALHA.PRIMEIRA },
           failOnStatusCode: false,
@@ -238,7 +238,7 @@ describe('Vendas — Primeira Falha de Entrega', () => {
         // Tentar marcar falha deve falhar
         cy.request({
           method: 'POST',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/marcar-falha`,
+          url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/marcar-falha`,
           headers: cy.apiHeadersBancoTestes(),
           body: { motivo: MOTIVOS_FALHA.PRIMEIRA },
           failOnStatusCode: false,

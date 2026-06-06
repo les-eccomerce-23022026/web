@@ -3,7 +3,7 @@
  * Etapa: Finalização → Navegação para /pedido-confirmado → Validação da tela de sucesso
  */
 describe('Vendas — Caminho Feliz — Etapa 6: Pedido Confirmado', () => {
-  const apiUrl = (Cypress.env('apiUrl') as string) || 'http://localhost:5173/api';
+  const apiUrl = (Cypress.env('apiUrl');
   const email = Cypress.env('clienteEmail') || 'clientetest@email.com';
   const senha = (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKL\u00C7123';
 

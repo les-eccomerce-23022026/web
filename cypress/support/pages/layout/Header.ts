@@ -28,6 +28,7 @@ export class Header {
   }
 
   static logout() {
-    this.logoutButton.click();
+    this.userProfileIcon.click();
+    this.logoutButton.should('be.visible').click({ force: true });
   }
 }

@@ -39,7 +39,7 @@ describe('Admin — Autorização de Trocas por Loja', () => {
         // Verificar que o status foi atualizado
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
           },
@@ -73,7 +73,7 @@ describe('Admin — Autorização de Trocas por Loja', () => {
         // Deve falhar pois o filtro por loj_id impedirá acesso
         cy.request({
           method: 'POST',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/troca/autorizar`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}/troca/autorizar`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'x-use-test-db': 'true',
@@ -123,7 +123,7 @@ describe('Admin — Autorização de Trocas por Loja', () => {
         // Verificar que o status foi atualizado
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
           },
@@ -157,7 +157,7 @@ describe('Admin — Autorização de Trocas por Loja', () => {
         // Deve falhar pois o filtro por loj_id impedirá acesso
         cy.request({
           method: 'POST',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/troca/autorizar`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}/troca/autorizar`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'x-use-test-db': 'true',

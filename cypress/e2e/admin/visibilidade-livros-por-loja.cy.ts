@@ -5,7 +5,7 @@ describe('Admin — Visibilidade de Livros por Loja', () => {
   });
 
   it('admin_loja_a vê apenas livros com estoque na Loja A', () => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3000/api';
+    const apiUrl = Cypress.env('apiUrl');
 
     // Autenticar como admin da Loja A (define cookie x-loja-uuid)
     cy.autenticarAdminLojaA();
@@ -24,7 +24,7 @@ describe('Admin — Visibilidade de Livros por Loja', () => {
   });
 
   it('admin_loja_b vê apenas livros com estoque na Loja B', () => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3000/api';
+    const apiUrl = Cypress.env('apiUrl');
 
     // Autenticar como admin da Loja B (define cookie x-loja-uuid)
     cy.autenticarAdminLojaB();
@@ -43,7 +43,7 @@ describe('Admin — Visibilidade de Livros por Loja', () => {
   });
 
   it('admin_loja_a não vê pedidos da Loja B', () => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3000/api';
+    const apiUrl = Cypress.env('apiUrl');
 
     // Autenticar como admin da Loja A (define cookie x-loja-uuid)
     cy.autenticarAdminLojaA();
@@ -63,7 +63,7 @@ describe('Admin — Visibilidade de Livros por Loja', () => {
   });
 
   it('admin_loja_b não vê pedidos da Loja A', () => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3000/api';
+    const apiUrl = Cypress.env('apiUrl');
 
     // Autenticar como admin da Loja B (define cookie x-loja-uuid)
     cy.autenticarAdminLojaB();

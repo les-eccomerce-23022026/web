@@ -30,7 +30,7 @@ describe('Admin — Despacho de Pedidos por Loja', () => {
         // Verificar que o status foi atualizado
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
           },
@@ -55,7 +55,7 @@ describe('Admin — Despacho de Pedidos por Loja', () => {
         // Deve falhar pois o filtro por loj_id impedirá acesso
         cy.request({
           method: 'PATCH',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/despachar`,
+          url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/despachar`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'x-use-test-db': 'true',
@@ -96,7 +96,7 @@ describe('Admin — Despacho de Pedidos por Loja', () => {
         // Verificar que o status foi atualizado
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
           },
@@ -121,7 +121,7 @@ describe('Admin — Despacho de Pedidos por Loja', () => {
         // Deve falhar pois o filtro por loj_id impedirá acesso
         cy.request({
           method: 'PATCH',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/despachar`,
+          url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/despachar`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             'x-use-test-db': 'true',

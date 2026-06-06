@@ -147,7 +147,7 @@ describe('Pagamentos — Cadastrar Endereço Durante o Checkout', () => {
 
     it('deve selecionar o novo endereço e continuar com o checkout', () => {
       // Cadastrar endereço (via API para agilizar)
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      const apiUrl = Cypress.env('apiUrl');
       
       cy.request({
         method: 'POST',
@@ -239,7 +239,7 @@ describe('Pagamentos — Cadastrar Endereço Durante o Checkout', () => {
 
   describe('Múltiplos Endereços no Checkout', () => {
     it('deve exibir lista de endereços quando há múltiplos cadastrados', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      const apiUrl = Cypress.env('apiUrl');
       
       // Cadastrar dois endereços via API
       cy.request({
@@ -294,7 +294,7 @@ describe('Pagamentos — Cadastrar Endereço Durante o Checkout', () => {
     });
 
     it('deve permitir alternar entre endereços', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      const apiUrl = Cypress.env('apiUrl');
       
       // Cadastrar dois endereços via API
       cy.request({

@@ -11,7 +11,7 @@
  * (ex.: `npm run test:e2e:compra-feliz:run`) para o header `x-use-test-db` alinhar cookie e API ao Postgres de teste.
  */
 describe('Vendas — Fluxo de Compra Bem-sucedida', () => {
-  const apiUrl = (Cypress.env('apiUrl') as string) || 'http://localhost:5173/api';
+  const apiUrl = (Cypress.env('apiUrl');
   const email = Cypress.env('clienteEmail') || 'clientetest@email.com';
   const senha = (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKL\u00C7123';
 

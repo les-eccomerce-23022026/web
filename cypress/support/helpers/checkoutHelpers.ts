@@ -1,9 +1,11 @@
 /**
  * Helpers Robustos para Seleção Dinâmica de Elementos
- * 
+ *
  * Este arquivo fornece funções auxiliares para seleção dinâmica de elementos
  * no checkout, reduzindo problemas de timing e flaky tests.
  */
+
+import { getApiUrl } from '../commands/utils';
 
 /** Slugs aceitos para loja padrão nos E2E (ordem de prioridade). */
 export const SLUGS_LOJA_E2E = ['loja-padrao', 'livraria-teste', 'livraria-padrao'] as const;
@@ -186,7 +188,7 @@ interface PagamentoInfoResponse {
  * Obtém cartões do cliente via API para seleção dinâmica no checkout
  */
 export function obterCartoesCliente() {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const apiUrl = getApiUrl();
   return cy.request<PagamentoInfoResponse>({
     method: 'GET',
     url: `${apiUrl}/pagamento/info`,

@@ -22,7 +22,7 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
           // Verificar status da Venda A
           cy.request({
             method: 'GET',
-            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaA}`,
+            url: `${Cypress.env('apiUrl')}/vendas/${vendaA}`,
             headers: {
               'x-use-test-db': 'true',
             },
@@ -38,7 +38,7 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
           // Verificar status da Venda B
           cy.request({
             method: 'GET',
-            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaB}`,
+            url: `${Cypress.env('apiUrl')}/vendas/${vendaB}`,
             headers: {
               'x-use-test-db': 'true',
             },
@@ -50,7 +50,7 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
           cy.autenticarAdminLojaA();
           cy.request({
             method: 'PATCH',
-            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaB}/despachar`,
+            url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaB}/despachar`,
             headers: {
               'Content-Type': 'application/json; charset=utf-8',
               'x-use-test-db': 'true',
@@ -65,7 +65,7 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
           cy.autenticarAdminLojaB();
           cy.request({
             method: 'PATCH',
-            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaA}/despachar`,
+            url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaA}/despachar`,
             headers: {
               'Content-Type': 'application/json; charset=utf-8',
               'x-use-test-db': 'true',
@@ -94,7 +94,7 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
           cy.autenticarAdminLojaB();
           cy.request({
             method: 'POST',
-            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaA}/troca/autorizar`,
+            url: `${Cypress.env('apiUrl')}/vendas/${vendaA}/troca/autorizar`,
             headers: {
               'Content-Type': 'application/json; charset=utf-8',
               'x-use-test-db': 'true',
@@ -120,7 +120,7 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
           cy.autenticarAdminLojaA();
           cy.request({
             method: 'GET',
-            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos`,
+            url: `${Cypress.env('apiUrl')}/admin/pedidos`,
             headers: {
               'x-use-test-db': 'true',
             },
@@ -138,7 +138,7 @@ describe('Vendas — Fluxo Completo Multi-loja', () => {
           cy.autenticarAdminLojaB();
           cy.request({
             method: 'GET',
-            url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos`,
+            url: `${Cypress.env('apiUrl')}/admin/pedidos`,
             headers: {
               'x-use-test-db': 'true',
             },

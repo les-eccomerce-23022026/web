@@ -93,7 +93,7 @@ describe('Vendas — Fluxo Ponta a Ponta (Cliente + Admin)', () => {
             // Fallback: obter via API
             cy.request({
               method: 'GET',
-              url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas`,
+              url: `${Cypress.env('apiUrl')}/vendas`,
               headers: apiHeadersBancoTestes(),
             }).then((res) => {
               vendaUuid = res.body[0].uuid;
@@ -190,7 +190,7 @@ describe('Vendas — Fluxo Ponta a Ponta (Cliente + Admin)', () => {
       // === FASE 7: Verificar Geração de Cupom via API ===
       cy.request({
         method: 'GET',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/cupons`,
+        url: `${Cypress.env('apiUrl')}/clientes/perfil/cupons`,
         headers: apiHeadersBancoTestes(),
       }).then((res) => {
         expect(res.status).to.equal(200);
@@ -281,7 +281,7 @@ describe('Vendas — Fluxo Ponta a Ponta (Cliente + Admin)', () => {
         // Verificar status via API
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: apiHeadersBancoTestes(),
         }).then((res) => {
           expect(res.body.status).to.equal('EM TRÂNSITO');
@@ -293,7 +293,7 @@ describe('Vendas — Fluxo Ponta a Ponta (Cliente + Admin)', () => {
         // Verificar status entregue via API
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: apiHeadersBancoTestes(),
         }).then((res) => {
           expect(res.body.status).to.equal('ENTREGUE');

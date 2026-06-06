@@ -52,7 +52,7 @@ describe('Trocas — Fluxo Administrativo de Trocas', () => {
         
         cy.request({
           method: 'POST',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${novaVendaUuid}/troca`,
+          url: `${Cypress.env('apiUrl')}/vendas/${novaVendaUuid}/troca`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             ...apiHeadersBancoTestes(),
@@ -142,7 +142,7 @@ describe('Trocas — Fluxo Administrativo de Trocas', () => {
         
         cy.request({
           method: 'POST',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${novaVendaUuid}/troca/autorizar`,
+          url: `${Cypress.env('apiUrl')}/vendas/${novaVendaUuid}/troca/autorizar`,
           headers: apiHeadersBancoTestes(),
           failOnStatusCode: false,
         }).then((res) => {
@@ -190,7 +190,7 @@ describe('Trocas — Fluxo Administrativo de Trocas', () => {
       // Verificar se cupom foi criado via API
       cy.request({
         method: 'GET',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/cupons`,
+        url: `${Cypress.env('apiUrl')}/clientes/perfil/cupons`,
         headers: apiHeadersBancoTestes(),
       }).then((res) => {
         expect(res.status).to.equal(200);
@@ -209,7 +209,7 @@ describe('Trocas — Fluxo Administrativo de Trocas', () => {
         
         cy.request({
           method: 'PUT',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${novaVendaUuid}/troca/confirmar-recebimento`,
+          url: `${Cypress.env('apiUrl')}/vendas/${novaVendaUuid}/troca/confirmar-recebimento`,
           headers: apiHeadersBancoTestes(),
           failOnStatusCode: false,
         }).then((res) => {

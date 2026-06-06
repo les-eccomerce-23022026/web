@@ -26,7 +26,7 @@ describe('Pagamentos — Falha de Segundo Cartão com Atomicidade (Cenário 2 BD
   });
 
   it('deve informar erro e garantir atomicidade quando segundo cartão falha', () => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+    const apiUrl = Cypress.env('apiUrl');
 
     // Preparar checkout com carrinho sincronizado
     visitarCheckoutComCarrinhoSincronizadoUi();
@@ -142,7 +142,7 @@ describe('Pagamentos — Falha de Segundo Cartão com Atomicidade (Cenário 2 BD
   });
 
   it('deve manter carrinho intacto após falha de segundo cartão', () => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+    const apiUrl = Cypress.env('apiUrl');
 
     // Preparar checkout com carrinho sincronizado
     visitarCheckoutComCarrinhoSincronizadoUi();
@@ -220,7 +220,7 @@ describe('Pagamentos — Falha de Segundo Cartão com Atomicidade (Cenário 2 BD
   });
 
   it('deve permitir nova tentativa após falha de segundo cartão', () => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+    const apiUrl = Cypress.env('apiUrl');
 
     // Preparar checkout
     visitarCheckoutComCarrinhoSincronizadoUi();

@@ -87,13 +87,9 @@ Cypress.on('uncaught:exception', (err) => {
 beforeEach(() => {
   const forcarBancoTestes = Cypress.env('injectTestDbHeader') === true;
   if (forcarBancoTestes) {
+    // Intercept apenas para adicionar header, não modificar URL
     cy.intercept('**', (req) => {
-      const apiUrl = Cypress.env('apiUrl');
-      if (apiUrl && req.url.includes(apiUrl)) {
-        req.headers['x-use-test-db'] = 'true';
-        // Multi-tenancy: x-loja-uuid é definido dinamicamente pelos comandos de autenticação
-        // Não injetamos um valor padrão aqui pois cada teste define sua loja via UUID
-      }
+      req.headers['x-use-test-db'] = 'true';
     });
   }
 });

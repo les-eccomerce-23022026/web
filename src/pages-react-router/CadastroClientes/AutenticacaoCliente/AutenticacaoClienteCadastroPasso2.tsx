@@ -220,7 +220,7 @@ export const AutenticacaoClienteCadastroPasso2 = ({ registerState }: Props) => {
         </button>
         <button
           className={`btn-primary ${styles['login-btn-register']}`}
-          onClick={registerState.handleNextStep}
+          onClick={registerState.regQuerSerAdmin ? registerState.handleNextStep : registerState.handleRegister}
           disabled={!!errosCampo.telefone || !!errosCampo.senha || !!errosCampo.confirmacaoSenha || registerState.isRegistering}
           data-cy="register-step2-next-button"
         >

@@ -34,7 +34,7 @@ describe('Clientes — Falha ao Atualizar Endereço', () => {
     // Solicitar reconfirmação de endereço
     cy.request({
       method: 'POST',
-      url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+      url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
       headers: apiHeadersBancoTestes(),
     });
   });
@@ -149,7 +149,7 @@ describe('Clientes — Falha ao Atualizar Endereço', () => {
       // Cadastrar novo endereço via API para setup
       cy.request({
         method: 'POST',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        url: `${Cypress.env('apiUrl')}/clientes/perfil/enderecos`,
         headers: apiHeadersBancoTestes(),
         body: {
           logradouro: 'Rua Atualizada',
@@ -206,7 +206,7 @@ describe('Clientes — Falha ao Atualizar Endereço', () => {
       // Verificar status atualizado
       cy.request({
         method: 'GET',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+        url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
         headers: apiHeadersBancoTestes(),
       }).then((res) => {
         expect(res.body.status).to.equal('ENDEREÇO ATUALIZADO');
@@ -239,7 +239,7 @@ describe('Clientes — Falha ao Atualizar Endereço', () => {
       // Obter UUID do novo endereço via API
       cy.request({
         method: 'GET',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+        url: `${Cypress.env('apiUrl')}/clientes/perfil/enderecos`,
         headers: apiHeadersBancoTestes(),
       }).then((res) => {
         const enderecoCorrigido = res.body.find((e: { apelido: string }) => e.apelido === 'Rua Final');
@@ -248,7 +248,7 @@ describe('Clientes — Falha ao Atualizar Endereço', () => {
         // 2. Associar novo endereço ao pedido via API (simulando ação)
         cy.request({
           method: 'PUT',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}/endereco-entrega`,
           headers: {
             'Content-Type': 'application/json; charset=utf-8',
             ...apiHeadersBancoTestes(),

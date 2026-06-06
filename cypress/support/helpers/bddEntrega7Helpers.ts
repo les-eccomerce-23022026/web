@@ -4,6 +4,7 @@
  */
 
 import { apiHeadersBancoTestes } from './checkoutHelpers';
+import { getApiUrl } from '../commands/utils';
 
 export const BDD_ENTREGA_7 = {
   docReferencia: 'backend/docs/EXPORT-BDD-7-ENTREGA-API.md',
@@ -74,7 +75,7 @@ export interface CupomGeradoBdd {
 }
 
 export function apiUrlBdd(): string {
-  return (Cypress.env('apiUrl') as string) || 'http://localhost:3000/api';
+  return getApiUrl();
 }
 
 export function credenciaisClienteBdd(): { email: string; senha: string } {

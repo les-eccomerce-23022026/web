@@ -31,7 +31,7 @@ describe('Pagamentos — Fluxo Completo de Compra Complexa (Cenário 1 BDD)', ()
   });
 
   it('deve realizar compra com novo endereço, novo cartão, cupom e split em 2 cartões', () => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+    const apiUrl = Cypress.env('apiUrl');
     const timestamp = Date.now();
     const apelidoEndereco = `Endereço Compra ${timestamp}`;
     const nomeCartao = `CARTÃO ${timestamp}`;

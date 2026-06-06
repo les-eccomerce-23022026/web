@@ -1,7 +1,7 @@
 import { LIVRO_UUID_PRIMEIRO_CATALOGO } from '../../support/e2eSeedConstants';
 
 describe('Carrinho — Gerenciar Itens e Cotar Frete', () => {
-  const apiUrl = (Cypress.env('apiUrl') as string) || 'http://localhost:5173/api';
+  const apiUrl = (Cypress.env('apiUrl');
 
   beforeEach(() => {
     cy.setupCheckoutNetworkSpies();

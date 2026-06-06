@@ -45,23 +45,42 @@ module.exports = defineConfig({
     env: {
       /** Só injeta `x-use-test-db` no browser quando `true` (suítes que usam Postgres de teste). */
       injectTestDbHeader: true,
-      /** Mesma origem do Next.js (rewrites `/api` → backend) para cookie HttpOnly. */
-      apiUrl: "http://localhost:3002/api",
-      admin: {
-        email: "admintest@email.com",
-        senha: "@asdfJKLÇ123",
-      },
-      /** Alinhado ao seed `005_seed_usuarios_teste.sql` (banco de testes). */
-      cliente: {
-        email: "clientetest@email.com",
-        senha: "@asdfJKLÇ123",
-      },
+      /** URL da API - backend direto (sem proxy Next.js) para testes E2E */
+      apiUrl: "http://localhost:5001/api",
+      /**
+       * Credenciais de administrador para testes.
+       * OBRIGATÓRIO: Configure via cypress.env.json ou variáveis de ambiente.
+       * Variáveis de ambiente: CYPRESS_admin_email=... CYPRESS_admin_senha=...
+       */
+      admin: {},
+      /**
+       * Credenciais de cliente para testes.
+       * OBRIGATÓRIO: Configure via cypress.env.json ou variáveis de ambiente.
+       * Variáveis de ambiente: CYPRESS_cliente_email=... CYPRESS_cliente_senha=...
+       */
+      cliente: {},
+      /**
+       * Credenciais de admin da Loja A para testes de multi-tenancy.
+       * OBRIGATÓRIO: Configure via cypress.env.json ou variáveis de ambiente.
+       */
+      adminLojaA: {},
+      /**
+       * Credenciais de admin da Loja B para testes de multi-tenancy.
+       * OBRIGATÓRIO: Configure via cypress.env.json ou variáveis de ambiente.
+       */
+      adminLojaB: {},
+      /** UUID da loja padrão para evitar login admin em obterLojaPadraoUuid */
+      lojaPadraoUuid: "531a383c-a4fb-4e83-8c11-cd26a66f4bb4",
     },
     setupNodeEvents(on, config) {
       const verboseLogs = config.env?.E2E_VERBOSE_LOGS === true || config.env?.E2E_VERBOSE_LOGS === '1';
       installLogsPrinter(on, {
         printLogsToConsole: verboseLogs ? 'always' : 'onFail',
       });
+      // Carregar apiUrl do cypress.env.json se não estiver definido
+      if (!config.env.apiUrl) {
+        config.env.apiUrl = 'http://localhost:5001/api';
+      }
       on('task', {
         log(message) {
           console.log(message);
@@ -120,7 +139,10 @@ module.exports = defineConfig({
       on('before:browser:launch', (browser, launchOptions) => {
         // Suporta chrome, chromium e edge (Chromium-based)
         const isChromium = ['chrome', 'chromium', 'edge'].includes(browser.name);
-        if (isChromium && browser.isHeadless) {
+        // Electron usa Chromium embutido mas não aceita as mesmas flags
+        const isElectron = browser.name === 'electron';
+        
+        if (isChromium && browser.isHeadless && !isElectron) {
           launchOptions.args.push('--window-size=1920,1080');
           launchOptions.args.push('--force-device-scale-factor=1');
           launchOptions.args.push('--disable-gpu');

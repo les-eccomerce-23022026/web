@@ -31,6 +31,11 @@ const nextConfig = {
   reactStrictMode: true,
   // Static optimization for better performance
   output: 'standalone',
+  // Disable development indicators
+  devIndicators: {
+    buildActivity: false,
+    buildActivityPosition: 'bottom-right',
+  },
 };
 
 export default nextConfig;

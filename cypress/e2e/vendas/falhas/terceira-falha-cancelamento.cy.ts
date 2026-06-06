@@ -38,7 +38,7 @@ describe('Vendas — Terceira Falha e Cancelamento Automático', () => {
         // Verificar cancelamento automático
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: cy.apiHeadersBancoTestes(),
         }).then((res) => {
           expect(res.body.status).to.equal('Cancelado');
@@ -58,7 +58,7 @@ describe('Vendas — Terceira Falha e Cancelamento Automático', () => {
         // Verificar contagem final
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: cy.apiHeadersBancoTestes(),
         }).then((res) => {
           expect(res.body.falhasEntrega).to.equal(3);
@@ -187,7 +187,7 @@ describe('Vendas — Terceira Falha e Cancelamento Automático', () => {
         // Verificar se email foi enviado (via API de logs)
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/logs/emails`,
+          url: `${Cypress.env('apiUrl')}/admin/logs/emails`,
           headers: cy.apiHeadersBancoTestes(),
           qs: {
             vendaUuid,
@@ -254,7 +254,7 @@ describe('Vendas — Terceira Falha e Cancelamento Automático', () => {
         // Verificar timestamps
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: cy.apiHeadersBancoTestes(),
         }).then((res) => {
           expect(res.body).to.have.property('dataPrimeiraFalha');
@@ -333,7 +333,7 @@ describe('Vendas — Terceira Falha e Cancelamento Automático', () => {
         // Tentar marcar quarta falha deve falhar
         cy.request({
           method: 'POST',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/marcar-falha`,
+          url: `${Cypress.env('apiUrl')}/admin/pedidos/${vendaUuid}/marcar-falha`,
           headers: cy.apiHeadersBancoTestes(),
           body: { motivo: 'Falha teste' },
           failOnStatusCode: false,
@@ -354,7 +354,7 @@ describe('Vendas — Terceira Falha e Cancelamento Automático', () => {
         // Verificar se dados de auditoria estão preservados
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/auditoria/pedidos/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/admin/auditoria/pedidos/${vendaUuid}`,
           headers: cy.apiHeadersBancoTestes(),
         }).then((res) => {
           expect(res.status).to.equal(200);
@@ -377,7 +377,7 @@ describe('Vendas — Terceira Falha e Cancelamento Automático', () => {
         // Gerar relatório
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/relatorios/falhas-entrega`,
+          url: `${Cypress.env('apiUrl')}/admin/relatorios/falhas-entrega`,
           headers: cy.apiHeadersBancoTestes(),
           qs: {
             vendaUuid,

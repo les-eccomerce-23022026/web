@@ -12,7 +12,7 @@
  */
 
 describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', () => {
-  const apiUrl = (Cypress.env('apiUrl') as string) || 'http://localhost:3001/api';
+  const apiUrl = Cypress.env('apiUrl');
 
   beforeEach(() => {
     cy.loginProgramatico('cliente');
@@ -99,8 +99,7 @@ describe('Assistente IA — Segurança e Proteção de Dados (RNF-Segurança)', 
 
   describe('Proteção de dados sensíveis (RNF-Segurança §13 CDU010)', () => {
     it('deve garantir que CPF do cliente NÃO é enviado ao serviço de IA', () => {
-      const email = Cypress.env('cliente')?.email ?? 'clientetest@email.com';
-      const senha = Cypress.env('cliente')?.senha ?? '@asdfJKLÇ123';
+      const { email, senha } = Cypress.env('cliente') || { email: '', senha: '' };
 
       cy.autenticarViaApi(email, senha);
       cy.visit('/', { failOnStatusCode: false });

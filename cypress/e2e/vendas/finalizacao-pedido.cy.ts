@@ -1,7 +1,6 @@
 describe('Vendas — Finalização de Pedido', () => {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-  const email = 'clientetest@email.com';
-  const senha = '@asdfJKL\u00C7123';
+  const apiUrl = Cypress.env('apiUrl');
+  const { email, senha } = Cypress.env('cliente') || { email: '', senha: '' };
 
   /**
    * Helper para preparar estado mínimo para testes de checkout.

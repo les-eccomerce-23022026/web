@@ -30,7 +30,7 @@ describe('Badge de Notificações', () => {
           'x-use-test-db': 'true',
         },
         body: {
-          usuarioEmail: 'cliente@teste.com',
+          usuarioEmail: Cypress.env('cliente')?.email || 'cliente@teste.com',
           tipo: 'RASTREIO',
           titulo: 'Pedido em Trânsito',
           mensagem: 'Seu pedido foi despachado!',
@@ -65,7 +65,7 @@ describe('Badge de Notificações', () => {
             'x-use-test-db': 'true',
           },
           body: {
-            usuarioEmail: 'cliente@teste.com',
+            usuarioEmail: Cypress.env('cliente')?.email || 'cliente@teste.com',
             tipo: 'RASTREIO',
             titulo: `Notificação ${i + 1}`,
             mensagem: `Mensagem ${i + 1}`,
@@ -112,7 +112,7 @@ describe('Badge de Notificações', () => {
           'x-use-test-db': 'true',
         },
         body: {
-          usuarioEmail: 'cliente@teste.com',
+          usuarioEmail: Cypress.env('cliente')?.email || 'cliente@teste.com',
           tipo: 'RASTREIO',
           titulo: 'Pedido em Trânsito',
           mensagem: 'Seu pedido foi despachado!',
@@ -166,7 +166,7 @@ describe('Badge de Notificações', () => {
           'x-use-test-db': 'true',
         },
         body: {
-          usuarioEmail: 'cliente@teste.com',
+          usuarioEmail: Cypress.env('cliente')?.email || 'cliente@teste.com',
           tipo: 'RASTREIO',
           titulo: 'Notificação 1',
           mensagem: 'Mensagem 1',
@@ -183,7 +183,7 @@ describe('Badge de Notificações', () => {
           'x-use-test-db': 'true',
         },
         body: {
-          usuarioEmail: 'cliente@teste.com',
+          usuarioEmail: Cypress.env('cliente')?.email || 'cliente@teste.com',
           tipo: 'RASTREIO',
           titulo: 'Notificação 2',
           mensagem: 'Mensagem 2',

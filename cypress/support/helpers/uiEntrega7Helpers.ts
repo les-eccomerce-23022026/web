@@ -53,6 +53,8 @@ export function aguardarCadeiaFinalizacaoCheckoutUi(opts?: { selecionarPagamento
 export function autenticarClienteDadosTesteUi(): void {
   cy.autenticarClienteDadosTeste();
   cy.limparCarrinhoViaApi();
+  // Visitar home para renderizar a UI com estado de autenticação
+  cy.visit('/');
   // Garante restoreSession concluído com o cliente seed (evita race com admin dev)
   cy.get('[data-cy="header-user-profile"]', { timeout: 30000 }).should('be.visible');
 }

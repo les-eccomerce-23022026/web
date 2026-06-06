@@ -9,7 +9,7 @@ export class RegisterPage {
   static get confirmacaoSenhaInput() { return cy.getDataCy('register-confirmar-senha-input'); }
   static get confirmacaoSenhaToggle() { return cy.get('.toggleButton').eq(1); }
   static get telefoneInput() { return cy.getDataCy('register-telefone-input'); }
-  static get step2NextButton() { return cy.contains('Finalizar Cadastro'); }
+  static get step2NextButton() { return cy.getDataCy('register-step2-next-button'); }
   static get nextStepButton() { return cy.getDataCy('register-step1-next-button'); }
 
   // Step 2

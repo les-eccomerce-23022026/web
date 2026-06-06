@@ -11,7 +11,7 @@ describe('Admin — Multi-tenancy Isolamento', () => {
 
   describe('API Isolamento', () => {
     it('deve autenticar admin da Loja A com sucesso', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3001/api';
+      const apiUrl = Cypress.env('apiUrl');
 
       // Autenticar como admin da Loja A (define cookie x-loja-uuid)
       cy.autenticarAdminLojaA();
@@ -24,18 +24,18 @@ describe('Admin — Multi-tenancy Isolamento', () => {
           'x-use-test-db': 'true',
         },
         body: {
-          email: 'admin_loja_a@email.com',
-          senha: 'SenhaAdminA123!',
+          email: Cypress.env('adminLojaA')?.email || 'admin_loja_a@email.com',
+          senha: Cypress.env('adminLojaA')?.senha || 'SenhaAdminA123!',
         },
       }).then((response) => {
         expect(response.status).to.equal(200);
         expect(response.body.sucesso).to.be.true;
-        expect(response.body.dados.user.email).to.equal('admin_loja_a@email.com');
+        expect(response.body.dados.user.email).to.equal(Cypress.env('adminLojaA')?.email || 'admin_loja_a@email.com');
       });
     });
 
     it('deve autenticar admin da Loja B com sucesso', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3001/api';
+      const apiUrl = Cypress.env('apiUrl');
 
       // Autenticar como admin da Loja B (define cookie x-loja-uuid)
       cy.autenticarAdminLojaB();
@@ -48,18 +48,18 @@ describe('Admin — Multi-tenancy Isolamento', () => {
           'x-use-test-db': 'true',
         },
         body: {
-          email: 'admin_loja_b@email.com',
-          senha: 'SenhaAdminB123!',
+          email: Cypress.env('adminLojaB')?.email || 'admin_loja_b@email.com',
+          senha: Cypress.env('adminLojaB')?.senha || 'SenhaAdminB123!',
         },
       }).then((response) => {
         expect(response.status).to.equal(200);
         expect(response.body.sucesso).to.be.true;
-        expect(response.body.dados.user.email).to.equal('admin_loja_b@email.com');
+        expect(response.body.dados.user.email).to.equal(Cypress.env('adminLojaB')?.email || 'admin_loja_b@email.com');
       });
     });
 
     it('deve listar livros com contexto de loja A', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3001/api';
+      const apiUrl = Cypress.env('apiUrl');
 
       // Autenticar como admin da Loja A (define cookie x-loja-uuid)
       cy.autenticarAdminLojaA();
@@ -77,7 +77,7 @@ describe('Admin — Multi-tenancy Isolamento', () => {
     });
 
     it('deve listar livros com contexto de loja B', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:3001/api';
+      const apiUrl = Cypress.env('apiUrl');
 
       // Autenticar como admin da Loja B (define cookie x-loja-uuid)
       cy.autenticarAdminLojaB();

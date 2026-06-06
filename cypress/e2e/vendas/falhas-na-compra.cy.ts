@@ -9,7 +9,7 @@
 describe('Vendas — Falhas Recuperáveis na Compra', () => {
   const email = Cypress.env('clienteEmail') || 'clientetest@email.com';
   const senha = Cypress.env('clienteSenha') || '@asdfJKL\u00C7123';
-  const apiUrl = (Cypress.env('apiUrl') as string) || 'http://localhost:5173/api';
+  const apiUrl = (Cypress.env('apiUrl');
 
   /** Seed 021 — valores escolhidos para ultrapassar R$ 1000 com estoque estável no banco de teste. */
   const LIVRO_TETO_A = '11223344-5566-7788-9900-aabbccddeeff';

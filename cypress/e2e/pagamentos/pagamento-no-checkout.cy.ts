@@ -8,7 +8,7 @@
 
 /** Mesmos parâmetros opcionais que o checkout usa ao cotar frete — cartões vêm do perfil real. */
 function requestPagamentoInfoCheckout() {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const apiUrl = Cypress.env('apiUrl');
   return cy.request({
     method: 'GET',
     url: `${apiUrl}/pagamento/info`,
@@ -41,7 +41,7 @@ function apiHeadersCarteira(): Record<string, string> {
 
 /** Total do carrinho autenticado (GET /carrinho — mesmo backend da UI). */
 function obterTotalCarrinhoReais() {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const apiUrl = Cypress.env('apiUrl');
   return cy.request({ method: 'GET', url: `${apiUrl}/carrinho`, headers: apiHeadersCarteira() }).its('body.resumo.total');
 }
 
@@ -565,7 +565,7 @@ describe('Pagamentos — Cartões, Cupons e Salvamento no Checkout', () => {
     });
 
     it('deve enviar cotacaoUuid da cotação ao criar venda', () => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      const apiUrl = Cypress.env('apiUrl');
       cy.intercept('POST', `${apiUrl}/vendas`, (req) => {
         const raw = req.body as unknown;
         const body =
@@ -640,7 +640,7 @@ describe('Pagamentos — Checkout sem Cartões Salvos (Cliente Novo)', () => {
   beforeEach(() => {
     cy.setupCheckoutNetworkSpies();
     cy.getNewUser().then((newUser) => {
-      const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+      const apiUrl = Cypress.env('apiUrl');
       cy.request({
         method: 'POST',
         url: `${apiUrl}/clientes/registro`,

@@ -3,7 +3,7 @@
  * Etapa: Carrinho → Checkout → Seleção de Endereço
  */
 describe('Vendas — Caminho Feliz — Etapa 2: Checkout Preparação', () => {
-  const apiUrl = (Cypress.env('apiUrl') as string) || 'http://localhost:5173/api';
+  const apiUrl = (Cypress.env('apiUrl');
   const email = Cypress.env('clienteEmail') || 'clientetest@email.com';
   const senha = (Cypress.env('clienteSenha') as string | undefined) ?? '@asdfJKL\u00C7123';
 

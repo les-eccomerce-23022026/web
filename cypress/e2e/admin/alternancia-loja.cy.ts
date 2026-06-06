@@ -75,7 +75,7 @@ describe('Admin — Alternância entre Lojas', () => {
         // Tentar acessar venda da Loja B diretamente via API
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
           },
@@ -101,7 +101,7 @@ describe('Admin — Alternância entre Lojas', () => {
         // Tentar acessar venda da Loja A diretamente via API
         cy.request({
           method: 'GET',
-          url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+          url: `${Cypress.env('apiUrl')}/vendas/${vendaUuid}`,
           headers: {
             'x-use-test-db': 'true',
           },

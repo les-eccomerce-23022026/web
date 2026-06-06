@@ -24,9 +24,8 @@ describe('Autenticação — Login Cliente', () => {
   });
 
   it('deve realizar login e validar o estado do Header', () => {
-    const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
-    const email = 'clientetest@email.com';
-    const senha = '@asdfJKLÇ123';
+    const apiUrl = Cypress.env('apiUrl');
+    const { email, senha } = Cypress.env('cliente') || { email: '', senha: '' };
 
     cy.request({
       method: 'POST',

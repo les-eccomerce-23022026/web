@@ -35,7 +35,7 @@ function apiHeadersBancoTestes(): Record<string, string> {
 
 /** Obtém cartões do cliente via API para seleção dinâmica no checkout */
 function obterCartoesCliente() {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const apiUrl = Cypress.env('apiUrl');
   return cy.request<PagamentoInfoResponse>({
     method: 'GET',
     url: `${apiUrl}/pagamento/info`,
@@ -57,7 +57,7 @@ function selecionarPrimeiroCartaoCheckout() {
 
 /** Obtém valor do frete SEDEX via API para o CEP informado (desacopla teste de fórmula de simulação) */
 function obterValorFreteSedexApi(cep: string): Cypress.Chainable<number> {
-  const apiUrl = Cypress.env('apiUrl') || 'http://localhost:5173/api';
+  const apiUrl = Cypress.env('apiUrl');
   return cy.request({
     method: 'POST',
     url: `${apiUrl}/frete/cotar`,

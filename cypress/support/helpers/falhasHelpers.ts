@@ -6,6 +6,7 @@
 
 import { apiHeadersBancoTestes } from './checkoutHelpers';
 import { TIMEOUT } from '../constants';
+import { getApiUrl } from '../commands/utils';
 
 /**
  * Dados padrão para endereço de teste em falhas de entrega
@@ -39,10 +40,11 @@ export const MOTIVOS_FALHA = {
  */
 export function criarEnderecoCliente(dadosEndereco: Partial<typeof ENDERECO_TESTE_FALHA> = {}): Cypress.Chainable<string> {
   const enderecoCompleto = { ...ENDERECO_TESTE_FALHA, ...dadosEndereco };
-  
+  const apiUrl = getApiUrl();
+
   return cy.request({
     method: 'POST',
-    url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/clientes/perfil/enderecos`,
+    url: `${apiUrl}/clientes/perfil/enderecos`,
     headers: apiHeadersBancoTestes(),
     body: enderecoCompleto,
     timeout: TIMEOUT.REDE,
@@ -59,9 +61,10 @@ export function criarEnderecoCliente(dadosEndereco: Partial<typeof ENDERECO_TEST
  * @param enderecoUuid - UUID do novo endereço
  */
 export function atualizarEnderecoEntrega(vendaUuid: string, enderecoUuid: string): Cypress.Chainable {
+  const apiUrl = getApiUrl();
   return cy.request({
     method: 'PUT',
-    url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}/endereco-entrega`,
+    url: `${apiUrl}/vendas/${vendaUuid}/endereco-entrega`,
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
       ...apiHeadersBancoTestes(),
@@ -78,9 +81,10 @@ export function atualizarEnderecoEntrega(vendaUuid: string, enderecoUuid: string
  * @param vendaUuid - UUID da venda
  */
 export function solicitarReconfirmacaoEndereco(vendaUuid: string): Cypress.Chainable {
+  const apiUrl = getApiUrl();
   return cy.request({
     method: 'POST',
-    url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
+    url: `${apiUrl}/admin/pedidos/${vendaUuid}/solicitar-reconfirmacao-endereco`,
     headers: apiHeadersBancoTestes(),
     timeout: TIMEOUT.REDE,
   });
@@ -91,9 +95,10 @@ export function solicitarReconfirmacaoEndereco(vendaUuid: string): Cypress.Chain
  * @param vendaUuid - UUID da venda
  */
 export function redespacharPedido(vendaUuid: string): Cypress.Chainable {
+  const apiUrl = getApiUrl();
   return cy.request({
     method: 'PUT',
-    url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/admin/pedidos/${vendaUuid}/redespachar`,
+    url: `${apiUrl}/admin/pedidos/${vendaUuid}/redespachar`,
     headers: apiHeadersBancoTestes(),
     timeout: TIMEOUT.REDE,
   });
@@ -105,9 +110,10 @@ export function redespacharPedido(vendaUuid: string): Cypress.Chainable {
  * @param statusEsperado - Status esperado
  */
 export function verificarStatusVenda(vendaUuid: string, statusEsperado: string): Cypress.Chainable {
+  const apiUrl = getApiUrl();
   return cy.request({
     method: 'GET',
-    url: `${Cypress.env('apiUrl') || 'http://localhost:5173/api'}/vendas/${vendaUuid}`,
+    url: `${apiUrl}/vendas/${vendaUuid}`,
     headers: apiHeadersBancoTestes(),
     timeout: TIMEOUT.REDE,
   }).then((res) => {

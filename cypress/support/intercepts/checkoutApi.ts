@@ -7,8 +7,10 @@
  * completa gerava wait sem match.
  * Verbose: `--env e2eVerboseCheckout=true`.
  */
+import { getApiUrl } from '../commands/utils';
+
 export function registerCheckoutApiAliases(): void {
-  const apiUrl = (Cypress.env('apiUrl') as string) || 'http://localhost:5173/api';
+  const apiUrl = getApiUrl();
   const verbose = Cypress.env('e2eVerboseCheckout') === true;
 
   cy.intercept('GET', '**/pagamento/info', (req) => {
