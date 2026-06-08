@@ -22,9 +22,6 @@ export function montarPayloadVenda(
   usuario: AuthUser,
   carrinho: ICarrinho,
   frete: number,
-  subtotal: number,
-  /** Total do pedido sem desconto de cupom: `subtotal + frete` (regra do backend). */
-  valorTotalPedidoSemCupons: number,
   freteOpcaoSelecionada?: IFreteOpcao | null,
 ): IVendaInput {
   return {
@@ -32,11 +29,8 @@ export function montarPayloadVenda(
     itens: carrinho.itens.map((it) => ({
       livroUuid: it.uuid,
       quantidade: it.quantidade,
-      precoUnitario: it.precoUnitario,
     })),
-    valorTotalItens: subtotal,
     valorFrete: frete,
-    valorTotal: valorTotalPedidoSemCupons,
     ...(freteOpcaoSelecionada?.cotacaoUuid ?? freteOpcaoSelecionada?.uuid
       ? {
           cotacaoUuid:

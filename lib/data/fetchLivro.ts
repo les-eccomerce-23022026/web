@@ -41,7 +41,7 @@ function getApiBaseUrl(): string {
     return '/api';
   }
   // Server-side: use backend URL directly
-  const backend = process.env.BACKEND_URL || 'http://localhost:5001';
+  const backend = process.env.BACKEND_URL || 'http://localhost:3002';
   return `${backend.replace(/\/$/, '')}/api`;
 }
 
@@ -59,15 +59,15 @@ async function getApiHeaders(): Promise<Record<string, string>> {
     // Server-side: read headers from the original Next.js request
     try {
       const requestHeaders = await headers();
-      const lojaId = requestHeaders.get('x-loja-id');
+      const lojaUuid = requestHeaders.get('x-loja-uuid');
       const useTestDb = requestHeaders.get('x-use-test-db');
       
-      if (lojaId) {
-        baseHeaders['x-loja-id'] = lojaId;
+      if (lojaUuid) {
+        baseHeaders['x-loja-uuid'] = lojaUuid;
       } else {
         // Fallback to environment variable if header not set
-        const defaultLojaId = process.env.DEFAULT_LOJA_ID || '1';
-        baseHeaders['x-loja-id'] = defaultLojaId;
+        const defaultLojaUuid = process.env.DEFAULT_LOJA_UUID || '82c0a24c-4cf4-4b12-823a-f1a8b9a086c3';
+        baseHeaders['x-loja-uuid'] = defaultLojaUuid;
       }
       
       if (useTestDb) {
@@ -75,8 +75,8 @@ async function getApiHeaders(): Promise<Record<string, string>> {
       }
     } catch {
       // Headers not available in some contexts, use defaults
-      const defaultLojaId = process.env.DEFAULT_LOJA_ID || '1';
-      baseHeaders['x-loja-id'] = defaultLojaId;
+      const defaultLojaUuid = process.env.DEFAULT_LOJA_UUID || '82c0a24c-4cf4-4b12-823a-f1a8b9a086c3';
+      baseHeaders['x-loja-uuid'] = defaultLojaUuid;
     }
   } else {
     // Client-side: add x-use-test-db if flag is set

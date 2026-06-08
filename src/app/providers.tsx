@@ -23,29 +23,7 @@ const ClientProviders = ({ children }: { children: React.ReactNode }) => {
     // Restaura a sessão antes de qualquer outra busca para evitar redirect prematuro
     const inicializarAplicacao = async () => {
       try {
-        const restored = await dispatch(restoreSession()).unwrap();
-        // #region agent log
-        fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8ec46' },
-          body: JSON.stringify({
-            sessionId: 'a8ec46',
-            runId: 'pre-fix',
-            hypothesisId: 'C',
-            location: 'providers.tsx:restoreSession-fulfilled',
-            message: 'restoreSession succeeded on mount',
-            data: {
-              hasUser: !!restored?.user,
-              userNome: restored?.user?.nome ?? null,
-              authAfter: {
-                isAuthenticated: store.getState().auth.isAuthenticated,
-                userNome: store.getState().auth.user?.nome ?? null,
-              },
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #endregion
+        await dispatch(restoreSession()).unwrap();
         // Só executa ações dependentes após restoreSession ter sucesso
         dispatch(fetchCarrinho());
         dispatch(fetchCategoriasCatalogo());
@@ -54,27 +32,6 @@ const ClientProviders = ({ children }: { children: React.ReactNode }) => {
           dispatch(fetchAdmins());
         }
       } catch (_erro) {
-        // #region agent log
-        fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8ec46' },
-          body: JSON.stringify({
-            sessionId: 'a8ec46',
-            runId: 'pre-fix',
-            hypothesisId: 'C,E',
-            location: 'providers.tsx:restoreSession-rejected',
-            message: 'restoreSession failed on mount',
-            data: {
-              authAfter: {
-                isAuthenticated: store.getState().auth.isAuthenticated,
-                userNome: store.getState().auth.user?.nome ?? null,
-                sessionLoading: store.getState().auth.sessionLoading,
-              },
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #endregion
         // Sessão não restaurada - usuário deslogado
       }
     };
@@ -93,9 +50,6 @@ const ClientProviders = ({ children }: { children: React.ReactNode }) => {
 };
 
 const ProvidersContent = ({ children }: { children: React.ReactNode }) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[SENIOR-DEBUG] Providers Rendering');
-  }
   const [isMounted, setIsMounted] = useState(false);
   
   // Sincronização necessária para evitar problemas de hidratação SSR

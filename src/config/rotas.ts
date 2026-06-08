@@ -40,6 +40,7 @@ export const ROTAS = {
     TROCAS: '/admin/trocas',
     CLIENTES: '/admin/clientes',
     ESTOQUE: '/admin/estoque',
+    ANALISE_VENDAS: '/admin/analise-vendas',
   },
   
   // Rotas de suporte (futuras)
