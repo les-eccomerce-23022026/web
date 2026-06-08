@@ -6,7 +6,7 @@ import type { IPedidoService } from '../contracts/pedidoService';
 
 /** Formato retornado por GET /minhas-vendas (IVenda no backend). */
 interface IVendaApi {
-  id: string;
+  uuid: string;
   totalItens: number;
   frete: number;
   totalVenda: number;
@@ -14,13 +14,15 @@ interface IVendaApi {
   usuarioUuid: string;
   motivoTroca?: string;
   itens: Array<{
-    id: string;
+    uuid: string;
     livroUuid: string;
     quantidade: number;
     precoUnitario: number;
+    emTroca?: boolean;
   }>;
   criadoEm: string;
-  dataEntrega?: string; // Data de entrega (ISO 8601)
+  dataHoraEntrega?: string; // Data de entrega (ISO 8601)
+  dataEntrega?: string; // Data de entrega (ISO 8601) - campo alternativo
 }
 
 /** Formato retornado por GET /admin/pedidos (vendaParaPayloadPedidoAdmin no backend). */
@@ -60,9 +62,9 @@ function vendaApiParaPedido(v: IVendaApi): IPedido {
   const dataIso =
     typeof v.criadoEm === 'string' ? v.criadoEm : new Date(v.criadoEm).toISOString();
   return {
-    uuid: v.id,
+    uuid: v.uuid,
     data: dataIso,
-    dataEntrega: v.dataEntrega,
+    dataEntrega: v.dataHoraEntrega || v.dataEntrega,
     clienteUuid: v.usuarioUuid,
     total: v.totalVenda,
     status: mapStatusVendaParaPedido(v.status),

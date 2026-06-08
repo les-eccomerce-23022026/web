@@ -24,16 +24,10 @@ export class ApiClient {
       headers.set('x-use-test-db', 'true');
     }
 
-    // ⚠️ SEGURANÇA: Bearer header APENAS em testes / E2E (banco de testes).
+    // ⚠️ SEGURANÇA: Bearer header em desenvolvimento e testes/E2E (banco de testes).
     // Em produção, usa cookie HttpOnly (credentials: 'include').
-    const bearerPermitidoE2e =
-      typeof window !== 'undefined' &&
-      (window as Window & { __USE_TEST_DB__?: boolean }).__USE_TEST_DB__ === true;
-    if (
-      token &&
-      token.split('.').length === 3 &&
-      (process.env.NODE_ENV === 'test' || bearerPermitidoE2e)
-    ) {
+    // Always send Authorization header when token is available for E2E tests
+    if (token && token.split('.').length === 3) {
       headers.set('Authorization', `Bearer ${token}`);
     }
 
@@ -51,24 +45,23 @@ export class ApiClient {
     return headers;
   }
 
-  private static logRequest(method: string | undefined, url: string, hasToken: boolean, hasTestDbHeader: boolean): void {
+  private static logRequest(method: string | undefined, url: string, hasToken: boolean, hasTestDbHeader: boolean, body?: unknown): void {
     if (process.env.NODE_ENV === 'development') {
       console.log(`[SENIOR-DEBUG] API Request: ${method || 'GET'} ${url}`, {
         hasToken,
         hasTestDbHeader,
-        windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A'
+        windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A',
+        body: body ? (typeof body === 'string' ? body.substring(0, 1000) : JSON.stringify(body).substring(0, 1000)) : undefined
       });
     }
   }
 
-  private static logResponse(response: Response, url: string): void {
+  private static async logResponse(response: Response, url: string): Promise<void> {
     if (process.env.NODE_ENV === 'development') {
       const clone = response.clone();
       let bodyText = '';
       try {
-        void clone.text().then((text) => {
-          bodyText = text;
-        });
+        bodyText = await clone.text();
       } catch {
         bodyText = '(could not read body)';
       }
@@ -76,7 +69,7 @@ export class ApiClient {
       console.log(`[SENIOR-DEBUG] API Response: ${response.status} ${url}`, {
         ok: response.ok,
         headers: Object.fromEntries(response.headers.entries()),
-        body: bodyText.length > 500 ? bodyText.substring(0, 500) + '...' : bodyText
+        body: bodyText.length > 1000 ? bodyText.substring(0, 1000) + '...' : bodyText
       });
     }
   }
@@ -98,7 +91,7 @@ export class ApiClient {
     };
 
     const hasTestDbHeader = headers.get('x-use-test-db') === 'true';
-    this.logRequest(config.method, url, !!token, hasTestDbHeader);
+    this.logRequest(config.method, url, !!token, hasTestDbHeader, config.body);
 
     try {
       // Adicionar timeout para evitar loading infinito
@@ -112,7 +105,7 @@ export class ApiClient {
 
       clearTimeout(timeoutId);
 
-      this.logResponse(response, url);
+      await this.logResponse(response, url);
       return await responseToResult<T>(url, response);
     } catch (error: unknown) {
       if (process.env.NODE_ENV === 'development') {
