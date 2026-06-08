@@ -11,9 +11,9 @@ function retrocederDataEntregaBdd(vendaUuid) {
     if (!containers.split("\n").some((n) => n.trim() === "ecm_postgres")) {
       return false;
     }
-    const bancoTeste = process.env.POSTGRES_DB_TEST ?? "ecm_livraria_test";
+    const bancoDesenvolvimento = process.env.POSTGRES_DB ?? "ecm_livraria";
     execSync(
-      `docker exec ecm_postgres psql -U ecm_user -d ${bancoTeste} -q -c ` +
+      `docker exec ecm_postgres psql -U ecm_user -d ${bancoDesenvolvimento} -q -c ` +
         `"UPDATE livraria_comercial.vendas SET ven_data_hora_entrega = NOW() - INTERVAL '8 days' ` +
         `WHERE ven_uuid = '${vendaUuid}';"`,
       { stdio: "pipe" },
@@ -44,9 +44,9 @@ module.exports = defineConfig({
     numTestsKeptInMemory: 0, // Não mantém testes em memória após execução para reduzir consumo de memória
     env: {
       /** Só injeta `x-use-test-db` no browser quando `true` (suítes que usam Postgres de teste). */
-      injectTestDbHeader: true,
-      /** URL da API - backend direto (sem proxy Next.js) para testes E2E */
-      apiUrl: "http://localhost:5001/api",
+      injectTestDbHeader: false,
+      /** URL da API - usa rewrite do Next.js (same-origin para cookies HttpOnly) */
+      apiUrl: "http://localhost:3001/api",
       /**
        * Credenciais de administrador para testes.
        * OBRIGATÓRIO: Configure via cypress.env.json ou variáveis de ambiente.
@@ -70,7 +70,7 @@ module.exports = defineConfig({
        */
       adminLojaB: {},
       /** UUID da loja padrão para evitar login admin em obterLojaPadraoUuid */
-      lojaPadraoUuid: "531a383c-a4fb-4e83-8c11-cd26a66f4bb4",
+      lojaPadraoUuid: "82c0a24c-4cf4-4b12-823a-f1a8b9a086c3",
     },
     setupNodeEvents(on, config) {
       const verboseLogs = config.env?.E2E_VERBOSE_LOGS === true || config.env?.E2E_VERBOSE_LOGS === '1';
@@ -79,7 +79,7 @@ module.exports = defineConfig({
       });
       // Carregar apiUrl do cypress.env.json se não estiver definido
       if (!config.env.apiUrl) {
-        config.env.apiUrl = 'http://localhost:5001/api';
+        config.env.apiUrl = 'http://localhost:3001/api';
       }
       on('task', {
         log(message) {
