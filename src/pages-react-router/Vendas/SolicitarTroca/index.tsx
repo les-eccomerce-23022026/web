@@ -3,6 +3,7 @@ import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { solicitarTrocaThunk } from '../../../store/slices/pedidoSlice';
+import { usePedidos } from '../../../hooks/usePedidos';
 import { LoadingState } from '../../../components/Comum/LoadingState/LoadingState.tsx';
 import { ErrorState } from '../../../components/Comum/ErrorState/ErrorState.tsx';
 import type { IItemPedido } from '../../../interfaces/pedido';
@@ -16,7 +17,8 @@ export const SolicitarTroca = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { pedidos } = useAppSelector((state) => state.pedido);
+  const { user } = useAppSelector((state) => state.auth);
+  const { pedidos, loading } = usePedidos(user?.uuid);
   const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
   const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);
   const livrosParaTitulo = useMemo(
@@ -31,6 +33,10 @@ export const SolicitarTroca = () => {
   const [sucesso, setSucesso] = useState(false);
 
   const pedido = pedidos.find((p) => p.uuid === uuid);
+
+  if (loading) {
+    return <LoadingState message="Carregando dados do pedido..." />;
+  }
 
   if (!pedido) {
     return (
@@ -150,9 +156,9 @@ export const SolicitarTroca = () => {
         <h3>Selecione os itens para troca</h3>
         <p className={styles.dica}>Marque os itens que deseja trocar.</p>
         <div className={styles.itensLista} data-cy="troca-itens-lista">
-          {pedido.itens.map((item: IItemPedido) => (
+          {pedido.itens.map((item: IItemPedido, idx: number) => (
             <label
-              key={item.livroUuid}
+              key={`${item.livroUuid}-${idx}`}
               className={`${styles.itemCheckbox} ${itensSelecionados.includes(item.livroUuid) ? styles.itemSelecionado : ''}`}
               data-cy={`troca-item-${item.livroUuid}`}
             >

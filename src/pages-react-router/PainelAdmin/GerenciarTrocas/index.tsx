@@ -143,8 +143,8 @@ function GerenciarTrocas() {
                 <td className={styles.colPedido}>#{pedido.uuid?.split('-')[1] || pedido.uuid}</td>
                 <td>{new Date(pedido.data).toLocaleDateString('pt-BR')}</td>
                 <td>
-                  {pedido.itens.map((item) => (
-                    <div key={item.livroUuid} className={styles.itemNome}>
+                  {pedido.itens.map((item, idx) => (
+                    <div key={`${item.livroUuid}-${idx}`} className={styles.itemNome}>
                       {getLivroTitulo(item.livroUuid)} (x{item.quantidade})
                     </div>
                   ))}
@@ -221,8 +221,8 @@ function GerenciarTrocas() {
             </p>
 
             <div className={styles.modalItens}>
-              {modalConfirmar.itens.map((item) => (
-                <div key={item.livroUuid} className={styles.modalItem}>
+              {modalConfirmar.itens.map((item, idx) => (
+                <div key={`${item.livroUuid}-${idx}`} className={styles.modalItem}>
                   <span>{getLivroTitulo(item.livroUuid)}</span>
                   <span>x{item.quantidade}</span>
                 </div>
@@ -285,8 +285,8 @@ function GerenciarTrocas() {
             </p>
 
             <div className={styles.modalItens}>
-              {modalRejeitar.itens.map((item) => (
-                <div key={item.livroUuid} className={styles.modalItem}>
+              {modalRejeitar.itens.map((item, idx) => (
+                <div key={`${item.livroUuid}-${idx}`} className={styles.modalItem}>
                   <span>{getLivroTitulo(item.livroUuid)}</span>
                   <span>x{item.quantidade}</span>
                 </div>

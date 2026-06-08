@@ -42,8 +42,8 @@ export function obterColunasGerenciarPedidos({
       label: 'Itens',
       render: (_: any, pedido: IPedido) => (
         <div className={styles.colItens}>
-          {pedido.itens.map((item) => (
-            <div key={item.livroUuid} className={styles.itemLinha}>
+          {pedido.itens.map((item, idx) => (
+            <div key={`${item.livroUuid}-${idx}`} className={styles.itemLinha}>
               <span>{getLivroTitulo(item.livroUuid)}</span>
               <span className={styles.itemQtd}>×{item.quantidade}</span>
             </div>

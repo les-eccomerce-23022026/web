@@ -78,7 +78,7 @@ export const Header = () => {
             </span>
             <input
               type="text"
-              placeholder="Buscar por título, autor ou sinopse..."
+              placeholder="Buscar livro..."
               value={inputValue}
               onChange={handleSearchChange}
             />

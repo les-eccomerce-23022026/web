@@ -11,6 +11,7 @@ import {
   Package,
   Menu,
   X,
+  TrendingUp,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import styles from './style.module.css';
@@ -27,6 +28,7 @@ type NavItem = {
 
 const MENU_PRINCIPAL: NavItem[] = [
   { href: ROTAS.ADMIN.HOME, label: 'Dashboard Analytics', icon: LayoutDashboard, permissao: 'view_analytics' },
+  { href: ROTAS.ADMIN.ANALISE_VENDAS, label: 'Análise de Vendas', icon: TrendingUp, permissao: 'view_analytics' },
   { href: ROTAS.ADMIN.ADMINISTRADORES, label: 'Gerenciar Administradores', icon: Settings, permissao: 'manage_admins' },
   { href: ROTAS.ADMIN.LIVROS, label: 'Gestão de Catálogo', icon: BookOpen, permissao: 'manage_products' },
   { href: ROTAS.ADMIN.ESTOQUE, label: 'Controle de Estoque', icon: Archive, permissao: 'manage_products' },

@@ -137,6 +137,7 @@
     border-radius: var(--bn-border-radius-md);
     padding: 1.5rem;
     min-height: 300px;
+    box-shadow: var(--bn-shadow-sm);
 }
 
 /* Mobile Large (480px+) - 2 colunas para gráficos pequenos */
@@ -172,7 +173,11 @@
 
 
 .activity-card {
-  padding: 20px;
+  background: var(--bn-bg-card);
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--bn-shadow-sm);
 }
 
 .activity-card h4 {

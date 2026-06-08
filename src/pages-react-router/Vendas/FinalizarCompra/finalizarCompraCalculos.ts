@@ -51,7 +51,7 @@ export function calcularResumoPedidoFinalizarCompra(
   data: ICheckoutInfo,
   freteSelecionado: IFreteOpcao | null,
   cuponsAplicados: ICupomAplicado[],
-  parcelasLiquidacao: IPagamentoParcial[],
+  parcelasLiquidacao: IPagamentoParcial[] = [],
 ) {
   const quantidadeItens =
     carrinho?.itens.reduce((acc, item) => acc + item.quantidade, 0) ?? 0;
@@ -59,7 +59,7 @@ export function calcularResumoPedidoFinalizarCompra(
   const frete = valorFretePedido(freteSelecionado, carrinho, data.resumoPedido.frete);
   const descontoCupons = calcularDescontoCupons(subtotal, cuponsAplicados);
   const total = subtotal + frete - descontoCupons;
-  const valorPagoParcialmente = parcelasLiquidacao.reduce((acc, p) => acc + p.valor, 0);
+  const valorPagoParcialmente = parcelasLiquidacao.reduce((s, p) => s + p.valor, 0);
   return {
     quantidadeItens,
     subtotal,
@@ -86,7 +86,7 @@ export function temFormaPagamentoFinalizarCompra(
 
 /** Tolerância para considerar saldo zerado (cupons cobriram o pedido). */
 const EPS_SALDO_ZERADO = 0.005;
-const EPS_PARCIAL = 0.021;
+const EPS_PARCIAL = 0.02;
 
 /**
  * O total do pedido (após cupons) está coberto por liquidações?

@@ -253,7 +253,6 @@ function MeuPerfil() {
             isOpen={perfilState.showModalSenha}
             onClose={() => perfilState.setShowModalSenha(false)}
             title="⚠️ Confirmação de Segurança"
-            variant="medium"
             footer={
               <>
                 <button
@@ -364,6 +363,17 @@ function MeuPerfil() {
               <h3 className={styles.novoPanelTitle}>
                 {enderecoState.enderecoEditandoUuid ? 'Editar Endereço' : 'Novo Endereço'}
               </h3>
+              <div className="form-group">
+                <label>Apelido *</label>
+                <input
+                  data-cy="endereco-apelido-input"
+                  type="text"
+                  value={enderecoState.novoEndApelido}
+                  onChange={(e) =>
+                    enderecoState.setNovoEndApelido(e.target.value)
+                  }
+                />
+              </div>
               <div className={styles.formRow}>
                 <div className={`form-group ${styles.formGroupLarge}`}>
                   <label>Logradouro *</label>
@@ -811,7 +821,6 @@ function MeuPerfil() {
         isOpen={confirmModal.show}
         onClose={confirmModal.close}
         title={confirmModal.config.title}
-        variant={confirmModal.config.variant === 'danger' ? 'danger' : 'medium'}
         footer={
           <>
             <button 

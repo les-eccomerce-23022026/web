@@ -1,0 +1,47 @@
+/* ============================================================
+   GraficoLinhasVendas.module.css
+   Estilos do componente de gráfico de linhas de vendas
+   ============================================================ */
+
+.estadoVazioGrafico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  background-color: #f9fafb;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  color: #6b7280;
+}
+
+.estadoVazioConteudo {
+  text-align: center;
+  padding: 2rem;
+}
+
+.estadoVazioIcone {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  color: #9ca3af;
+}
+
+.estadoVazioConteudo h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.estadoVazioConteudo p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  max-width: 400px;
+}
+
+.containerGrafico {
+  min-height: 500px;
+  height: 100%;
+  position: relative;
+}

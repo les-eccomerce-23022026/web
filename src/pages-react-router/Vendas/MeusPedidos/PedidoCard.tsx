@@ -17,6 +17,7 @@ type Props = {
   livrosMap: Map<string, ILivro>;
   onRastrear: (pedido: IPedido) => void;
   onDetalhes: (pedido: IPedido) => void;
+  onSolicitarTroca?: (pedido: IPedido) => void;
 };
 
 const itemBarFillByVariant: Record<PedidoStatusVariant, string> = {
@@ -48,6 +49,7 @@ export const PedidoCard = ({
   livrosMap,
   onRastrear,
   onDetalhes,
+  onSolicitarTroca,
 }: Props) => {
   const statusVisual = getPedidoStatusVisual(pedido.status);
   const StatusIcon = statusVisual.Icon;
@@ -168,7 +170,7 @@ export const PedidoCard = ({
             <button
               type="button"
               className={`btn-secondary ${styles.btnAcao} ${styles.btnAcaoNeutra}`}
-              onClick={() => onDetalhes(pedido)}
+              onClick={() => onSolicitarTroca?.(pedido)}
               disabled={!prazoTroca.dentroPrazo}
               title={
                 !prazoTroca.dentroPrazo

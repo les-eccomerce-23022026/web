@@ -79,9 +79,9 @@ export const FinalizarCompraEnderecoCard = ({
   if (temLista || listaAtualizada.length > 0) {
     const enderecosParaExibir = listaAtualizada.length > 0 ? listaAtualizada : data.enderecosDisponiveis;
     return (
-      <div className={`card ${styles['checkout-card-spaced']}`}>
+      <div className={`card ${styles['checkout-card-spaced']}`} data-cy="checkout-addresses">
         <div className={styles['endereco-header']}>
-          <h3>Endereços</h3>
+          <h3 data-cy="checkout-addresses-title">Endereços</h3>
           <div className={styles['endereco-header-actions']}>
             <button
               className={`btn-secondary ${styles['btn-configurar-enderecos']}`}

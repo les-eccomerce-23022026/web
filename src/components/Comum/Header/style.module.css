@@ -179,8 +179,8 @@
 
 .notification-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: 0;
+  right: 0;
   background-color: var(--bn-error);
   color: var(--bn-text-light);
   font-size: 10px;
@@ -195,6 +195,7 @@
   border: 2px solid var(--bn-primary);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   animation: pulse 2s infinite;
+  transform: translate(25%, -25%);
 }
 
 @keyframes pulse {
