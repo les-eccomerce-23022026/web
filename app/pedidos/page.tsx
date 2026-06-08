@@ -7,6 +7,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { usePedidos } from '@/hooks/usePedidos';
 import { fetchPerfilCompleto } from '@/store/slices/clienteSlice';
@@ -41,6 +42,7 @@ function passaAbaGrupo(p: IPedido, aba: AbaGrupo): boolean {
 }
 
 export default function MeusPedidosPage() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const enderecos = useAppSelector((state) => state.cliente.enderecos);
@@ -83,6 +85,15 @@ export default function MeusPedidosPage() {
   const handleAbrirRastreamento = (pedido: IPedido) => {
     setPedidoSelecionado(pedido);
     setModalRastreamentoAberto(true);
+  };
+
+  const handleSolicitarTroca = (pedido: IPedido) => {
+    const pedidoUuid = pedido.uuid;
+    if (!pedidoUuid) {
+      console.error('[handleSolicitarTroca] Pedido sem UUID:', pedido);
+      return;
+    }
+    router.push(`/pedidos/${pedidoUuid}/troca`);
   };
 
   if (loading) {
@@ -142,6 +153,7 @@ export default function MeusPedidosPage() {
             livrosMap={livrosMap}
             onRastrear={handleAbrirRastreamento}
             onDetalhes={handleAbrirDetalhes}
+            onSolicitarTroca={handleSolicitarTroca}
           />
         ))}
       </div>

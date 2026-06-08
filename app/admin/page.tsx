@@ -5,8 +5,8 @@
  * Migrated from src/pages-react-router/PainelAdmin/DashboardAdmin/DashboardAdmin.tsx
  */
 
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler } from 'chart.js';
-import { Line, Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, ArcElement, Filler } from 'chart.js';
+import { Line, Doughnut, Bar } from 'react-chartjs-2';
 import { DollarSign, Percent, Users, Package, AlertTriangle, BookOpen, ShieldCheck } from 'lucide-react';
 import '@/pages-react-router/PainelAdmin/DashboardAdmin/DashboardAdmin.css';
 import type { ChartData } from 'chart.js';
@@ -16,14 +16,15 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchLivrosAdmin } from '@/store/slices/livroSlice';
 import { AdminKPIs } from '@/components/Admin/AdminKPIs';
 import type { ItemKPI } from '@/components/Admin/AdminKPIs/types';
+import { ChartsCarousel } from '@/components/Admin/ChartsCarousel/ChartsCarousel';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, ArcElement, Filler);
 
 export default function DashboardAdminPage() {
   const dispatch = useAppDispatch();
-  const optionsReceita = { responsive: true, plugins: { legend: { position: 'top' as const }, title: { display: true, text: 'Receita Anual Crescente (R$)' } } };
+  const optionsReceita = { responsive: true, plugins: { legend: { position: 'top' as const }, title: { display: true, text: 'Evolução da Receita Anual (R$)' } } };
   const optionsStatus = { responsive: true, plugins: { legend: { position: 'right' as const }, title: { display: true, text: 'Status dos Pedidos' } } };
-  const optionsCategoria = { responsive: true, plugins: { legend: { position: 'top' as const }, title: { display: true, text: 'Vendas por Categoria (Jan-Mar)' } } };
+  const optionsCategoria = { responsive: true, plugins: { legend: { position: 'top' as const }, title: { display: true, text: 'Vendas por Categoria (Jan-Mar)' } }, scales: { y: { beginAtZero: true } } };
 
   const { data, loading, error } = useDashboardAdmin();
 
@@ -85,19 +86,16 @@ export default function DashboardAdminPage() {
       {/* Métricas Principais (KPIS) */}
       <AdminKPIs kpis={kpis} layout="grid" columns={5} enableCarousel={true} />
 
-      {/* Gráficos */}
-      <div className="painel-graficos">
+      {/* Gráficos em Carrossel */}
+      <ChartsCarousel>
         <div className="painel-grafico large-chart">
-          <h3 className="painel-grafico__titulo">Receita Anual Crescente</h3>
+          <h3 className="painel-grafico__titulo">Evolução da Receita Anual</h3>
           <Line options={optionsReceita} data={data.graficoReceitaAnual as unknown as ChartData<'line'>} />
         </div>
         <div className="painel-grafico">
           <h3 className="painel-grafico__titulo">Status dos Pedidos</h3>
           <Doughnut options={optionsStatus} data={data.graficoStatusPedidos as unknown as ChartData<'doughnut'>} />
         </div>
-      </div>
-
-      <div className="painel-graficos mt-20">
         <div className="painel-grafico">
           <h3 className="painel-grafico__titulo">Vendas por Categoria</h3>
           <div className="kpi-secundario-container">
@@ -110,25 +108,25 @@ export default function DashboardAdminPage() {
                 <span>{data.metricas.trocasSolicitadas} Trocas Ativas</span>
              </div>
           </div>
-          <Line options={optionsCategoria} data={data.graficoVendasPorCategoria as unknown as ChartData<'line'>} />
+          <Bar options={optionsCategoria} data={data.graficoVendasPorCategoria as unknown as ChartData<'bar'>} />
         </div>
+      </ChartsCarousel>
 
-        {/* Atividades Recentes */}
-        <div className="card activity-card">
-          <h4>Últimas Atividades</h4>
-          <ul className="activity-list">
-            {data.atividadesRecentes.map((atividade) => (
-              <li key={atividade.uuid} className="activity-item">
-                <span className={`activity-icon ${atividade.sucesso ? 'sucesso' : 'alerta'}`}></span>
-                <div className="activity-content">
-                  <p className="activity-desc"><strong>{atividade.tipo}</strong>: {atividade.descricao}</p>
-                  <span className="activity-time">{atividade.data}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <button className="btn-link-admin">Ver todas as atividades →</button>
-        </div>
+      {/* Atividades Recentes */}
+      <div className="card activity-card mt-20">
+        <h4>Últimas Atividades</h4>
+        <ul className="activity-list">
+          {data.atividadesRecentes.map((atividade) => (
+            <li key={atividade.uuid} className="activity-item">
+              <span className={`activity-icon ${atividade.sucesso ? 'sucesso' : 'alerta'}`}></span>
+              <div className="activity-content">
+                <p className="activity-desc"><strong>{atividade.tipo}</strong>: {atividade.descricao}</p>
+                <span className="activity-time">{atividade.data}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <button className="btn-link-admin">Ver todas as atividades →</button>
       </div>
     </div>
   );
