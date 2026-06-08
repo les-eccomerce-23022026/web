@@ -82,16 +82,9 @@ Cypress.on('uncaught:exception', (err) => {
 });
 
 // Configuração Global para Testes com Backend Real
-// Mantém apenas o interceptor para injetar header x-use-test-db
-// A responsabilidade de visualização de logs é delegada ao cypress-terminal-report
+// Usando banco de desenvolvimento para evitar problemas de configuração
 beforeEach(() => {
-  const forcarBancoTestes = Cypress.env('injectTestDbHeader') === true;
-  if (forcarBancoTestes) {
-    // Intercept apenas para adicionar header, não modificar URL
-    cy.intercept('**', (req) => {
-      req.headers['x-use-test-db'] = 'true';
-    });
-  }
+  // Sem interceptor - usa banco de desenvolvimento por padrão
 });
 
 /** Limpeza básica entre specs para evitar poluição de estado (carrinho, storage) que causa falhas replicadas em batch. */
@@ -99,16 +92,9 @@ afterEach(() => {
   // Evita chamar comandos que podem não existir no contexto de erro precoce; o cleanup por spec é preferível
   try {
     if (typeof cy.limparCarrinhoViaApi === 'function') {
-      cy.limparCarrinhoViaApi({ failOnStatusCode: false } as any);
+      cy.limparCarrinhoViaApi();
     }
   } catch {
     // ignore cleanup errors in afterEach
-  }
-});
-
-/** Garante que a flag global de banco de testes persista entre reloads. */
-Cypress.on('window:before:load', (win) => {
-  if (Cypress.env('injectTestDbHeader') === true) {
-    (win as Window & { __USE_TEST_DB__?: boolean }).__USE_TEST_DB__ = true;
   }
 });

@@ -154,8 +154,9 @@ cypress/e2e/
 
 ### Next.js SSR (MVP)
 
-- **Dev server**: `npm run dev:next` → `http://localhost:3002` (porta 3000 usada pelo backend).
-- **API proxy**: `next.config.mjs` com `rewrites` de `/api/*` → `http://localhost:3000/:path*`.
+- **Dev server**: `npm run dev:e2e` → `http://localhost:3001` (frontend).
+- **Backend**: `npm run dev` (backend) → `http://localhost:5001` (API Express).
+- **API proxy**: `next.config.mjs` com `rewrites` de `/api/*` → `http://localhost:5001/api/:path*`.
 - **Rotas SSR**: `/`, `/livro/[uuid]` (Server Components com `generateMetadata`).
 - **Rotas CSR** (futuro): `/carrinho`, `/minha-conta`, `/checkout`, `/pagamento`, `/admin/*`.
 - **Testes SEO**: `cypress/e2e/seo/` com `cy.request` para validar HTML/meta sem `db:reset:all`.
