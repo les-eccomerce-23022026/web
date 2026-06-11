@@ -38,7 +38,7 @@ module.exports = defineConfig({
   video: false,
   e2e: {
     /** Next.js (telas); API via rewrite — ver `test:e2e:entrega-7-ui:*` e `next.config.mjs`. */
-    baseUrl: "http://localhost:3001",
+    baseUrl: "http://localhost:3000",
     allowCypressEnv: true, // Reativado para permitir acesso síncrono via Cypress.env() necessário para cy.session
     experimentalMemoryManagement: true, // Habilita gerenciamento de memória para evitar crashes em testes longos
     numTestsKeptInMemory: 0, // Não mantém testes em memória após execução para reduzir consumo de memória
@@ -46,7 +46,7 @@ module.exports = defineConfig({
       /** Só injeta `x-use-test-db` no browser quando `true` (suítes que usam Postgres de teste). */
       injectTestDbHeader: false,
       /** URL da API - usa rewrite do Next.js (same-origin para cookies HttpOnly) */
-      apiUrl: "http://localhost:3001/api",
+      apiUrl: "http://localhost:3000/api",
       /**
        * Credenciais de administrador para testes.
        * OBRIGATÓRIO: Configure via cypress.env.json ou variáveis de ambiente.

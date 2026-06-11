@@ -8,6 +8,26 @@
 - Localização: `CupomInput.tsx` linha 80
 - Nota: O seletor é dinâmico baseado no código do cupom
 
+### Input de Cupom
+- Seletor: `checkout-coupon-input`
+- Localização: `CupomInput.tsx` linha 94
+- Nota: Campo de texto para digitar código do cupom
+
+### Botão Aplicar Cupom
+- Seletor: `checkout-apply-coupon-button`
+- Localização: `CupomInput.tsx` linha 100
+- Nota: Botão para aplicar cupom digitado
+
+### Seção de Cupons
+- Seletor: `checkout-coupon-section`
+- Localização: `CupomInput.tsx` linha 72
+- Nota: Container da seção de cupons no checkout
+
+### Erro de Cupom
+- Seletor: `checkout-coupon-error`
+- Localização: `CupomInput.tsx` linha 113
+- Nota: Mensagem de erro quando cupom é inválido
+
 ### Split de Pagamento
 - Seletor de restante: `checkout-split-restante`
 - Localização: `CheckoutSplitPagamento.tsx` linha 145
@@ -18,6 +38,195 @@
 - Seletor: `checkout-split-rn34-error`
 - Localização: `CheckoutSplitPagamento.tsx` linha 152
 - Nota: O erro é mostrado dinamicamente quando a validação falha
+
+### Login Cliente
+- Seletor: `login-form`
+- Localização: `AutenticacaoClienteLoginCard.tsx` linha 43
+- Nota: Container do formulário de login
+
+- Seletor: `login-email-input`
+- Localização: `AutenticacaoClienteLoginCard.tsx` linha 62
+- Nota: Campo de input para e-mail
+
+- Seletor: `login-password-input`
+- Localização: `AutenticacaoClienteLoginCard.tsx` linha 87
+- Nota: Campo de input para senha
+
+- Seletor: `login-submit-button`
+- Localização: `AutenticacaoClienteLoginCard.tsx` linha 116
+- Nota: Botão de submissão do formulário
+
+### Header
+- Seletor: `header-user-profile`
+- Localização: `Header/index.tsx` linha 91
+- Nota: Link para perfil do usuário
+
+- Seletor: `header-pedidos-link`
+- Localização: `Header/index.tsx` linha 94
+- Nota: Link para Meus Pedidos
+
+- Seletor: `header-logout-button`
+- Localização: `Header/index.tsx` linha 107
+- Nota: Botão de logout
+
+- Seletor: `header-admin-link`
+- Localização: `Header/index.tsx` linha 128, 133
+- Nota: Link para painel administrativo
+
+### Meus Pedidos
+- Seletor: `pedido-{uuid}`
+- Localização: `PedidoCard.tsx` linha 67
+- Nota: Card do pedido (dinâmico por UUID)
+
+- Seletor: `pedido-status`
+- Localização: `PedidoCard.tsx` linha 82
+- Nota: Badge de status do pedido
+
+- Seletor: `btn-solicitar-troca-{uuid}`
+- Localização: `PedidoCard.tsx` linha 202
+- Nota: Botão para solicitar troca (dinâmico por UUID)
+
+- Seletor: `btn-detalhes-{uuid}`
+- Localização: `PedidoCard.tsx` linha 187
+- Nota: Botão para ver detalhes (dinâmico por UUID)
+
+### Solicitar Troca
+- Seletor: `troca-erro`
+- Localização: `SolicitarTroca/index.tsx` linha 153
+- Nota: Mensagem de erro na solicitação
+
+- Seletor: `troca-itens-lista`
+- Localização: `SolicitarTroca/index.tsx` linha 158
+- Nota: Lista de itens disponíveis para troca
+
+- Seletor: `troca-item-{livroUuid}`
+- Localização: `SolicitarTroca/index.tsx` linha 163
+- Nota: Checkbox do item para troca (dinâmico por UUID)
+
+- Seletor: `troca-motivo`
+- Localização: `SolicitarTroca/index.tsx` linha 190
+- Nota: Textarea para motivo da troca
+
+- Seletor: `btn-confirmar-troca`
+- Localização: `SolicitarTroca/index.tsx` linha 223
+- Nota: Botão para confirmar solicitação
+
+- Seletor: `btn-cancelar-troca`
+- Localização: `SolicitarTroca/index.tsx` linha 215
+- Nota: Botão para cancelar solicitação
+
+- Seletor: `btn-voltar-pedidos`
+- Localização: `SolicitarTroca/index.tsx` linha 135
+- Nota: Botão para voltar para Meus Pedidos
+
+### Admin - Gerenciar Trocas
+- Seletor: `trocas-painel`
+- Localização: `GerenciarTrocas/index.tsx` linha 32, 39, 46, 117
+- Nota: Container do painel de trocas
+
+- Seletor: `admin-trocas-tabela`
+- Localização: `GerenciarTrocas/index.tsx` linha 133
+- Nota: Tabela de solicitações de troca
+
+- Seletor: `admin-troca-{uuid}`
+- Localização: `GerenciarTrocas/index.tsx` linha 147
+- Nota: Linha da tabela da troca (dinâmico por UUID)
+
+- Seletor: `btn-autorizar-troca-{uuid}`
+- Localização: `GerenciarTrocas/index.tsx` linha 175
+- Nota: Botão para autorizar troca (dinâmico por UUID)
+
+- Seletor: `btn-rejeitar-troca-{uuid}`
+- Localização: `GerenciarTrocas/index.tsx` linha 186
+- Nota: Botão para rejeitar troca (dinâmico por UUID)
+
+- Seletor: `btn-confirmar-recebimento-{uuid}`
+- Localização: `GerenciarTrocas/index.tsx` linha 200
+- Nota: Botão para confirmar recebimento (dinâmico por UUID)
+
+- Seletor: `feedback-banner`
+- Localização: `GerenciarTrocas/index.tsx` linha 124
+- Nota: Banner de feedback de ações
+
+- Seletor: `checkbox-retornar-estoque`
+- Localização: `GerenciarTrocas/index.tsx` linha 243
+- Nota: Checkbox para retornar itens ao estoque
+
+- Seletor: `btn-confirmar-modal`
+- Localização: `GerenciarTrocas/index.tsx` linha 267
+- Nota: Botão para confirmar ação no modal
+
+- Seletor: `btn-cancelar-modal`
+- Localização: `GerenciarTrocas/index.tsx` linha 259
+- Nota: Botão para cancelar ação no modal
+
+### Meu Perfil - Cupons
+- Seletor: `secao-cupons`
+- Localização: `MeuPerfil/index.tsx` linha 824
+- Nota: Seção de cupons no perfil
+
+- Seletor: `cupons-list`
+- Localização: `MeuPerfil/index.tsx` linha 831
+- Nota: Lista de cupons disponíveis
+
+- Seletor: `cupom-{codigo}`
+- Localização: `MeuPerfil/index.tsx` linha 833
+- Nota: Item do cupom (dinâmico por código)
+
+- Seletor: `tab-cupons`
+- Localização: `MeuPerfil/index.tsx` linha 135
+- Nota: Botão para navegar para seção de cupons
+
+### Carrinho
+- Seletor: `carrinho-finalizar-compra`
+- Localização: `Carrinho/index.tsx` linha 252
+- Nota: Botão para finalizar compra
+
+### Controles de Compra
+- Seletor: `adicionar-carrinho-card-button`
+- Localização: `ControlesCompra.tsx` linha 60
+- Nota: Botão de compra em card de produto
+
+### Header - Carrinho
+- Seletor: `header-cart-link`
+- Localização: `Header/index.tsx` linha 119
+- Nota: Link para carrinho de compras
+
+### Checkout - Endereço Selecionado
+- Seletor: `checkout-address-selected`
+- Localização: `FinalizarCompraEnderecoCard.tsx` linha 111
+- Nota: Indicador de endereço selecionado para entrega
+
+### Checkout - Resumo do Pedido
+- Seletor: `checkout-resumo-pedido`
+- Localização: `FinalizarCompraResumoPedido.tsx` linha 22
+- Nota: Container do resumo do pedido
+
+- Seletor: `checkout-subtotal`
+- Localização: `FinalizarCompraResumoPedidoLista.tsx` linha 22
+- Nota: Linha do subtotal no resumo
+
+- Seletor: `checkout-frete`
+- Localização: `FinalizarCompraResumoPedidoLista.tsx` linha 28
+- Nota: Linha do frete no resumo
+
+- Seletor: `checkout-total-pagamento`
+- Localização: `FinalizarCompraResumoPedidoLista.tsx` linha 39
+- Nota: Linha do valor pago em cartões/PIX
+
+### Meus Pedidos - Filtros
+- Seletor: `pedidos-filtro-todos`
+- Localização: `MeusPedidos/index.tsx` linha 174
+- Nota: Botão para filtrar todos os status
+
+- Seletor: `pedidos-filtro-{status}`
+- Localização: `MeusPedidos/index.tsx` linha 184
+- Nota: Botão para filtrar por status específico (dinâmico)
+
+### Admin - Tabela de Pedidos
+- Seletor: `admin-pedidos-tabela`
+- Localização: `AdminTable/index.tsx` linha 57
+- Nota: Tabela de pedidos no painel admin
 
 ### Assistente de Recomendação IA (CDU010) — `data-testid`
 
