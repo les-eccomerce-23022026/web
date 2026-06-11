@@ -29,10 +29,12 @@ export function validarCodigoCupom({
   codigoDigitado,
   cuponsDisponiveis,
   cupomPromocionalAplicado,
+  subtotalAtual,
 }: {
   codigoDigitado: string;
   cuponsDisponiveis: ICupomDisponivel[];
   cupomPromocionalAplicado?: ICupomAplicado;
+  subtotalAtual?: number;
 }) {
   const codigoNormalizado = codigoDigitado.trim();
 
@@ -50,6 +52,13 @@ export function validarCodigoCupom({
 
   if (cupomEncontrado.tipo === 'promocional' && cupomPromocionalAplicado) {
     return { erro: 'Apenas um cupom promocional é permitido por compra' };
+  }
+
+  const valorMinimo = cupomEncontrado.valorMinimo ?? 0;
+  if (valorMinimo > 0 && subtotalAtual !== undefined && subtotalAtual < valorMinimo) {
+    return {
+      erro: `Pedido mínimo de R$ ${valorMinimo.toFixed(2).replace('.', ',')} para este cupom`,
+    };
   }
 
   return { cupom: cupomEncontrado };

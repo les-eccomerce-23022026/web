@@ -12,6 +12,7 @@ import {
 interface CupomInputProps {
   cuponsDisponiveis?: ICupomDisponivel[];
   cuponsAplicados: ICupomAplicado[];
+  subtotalAtual?: number;
   onAplicar: (cupom: ICupomDisponivel) => void;
   onRemover: (cupomUuid: string) => void;
 }
@@ -19,6 +20,7 @@ interface CupomInputProps {
 export const CupomInput = ({
   cuponsDisponiveis = [],
   cuponsAplicados,
+  subtotalAtual,
   onAplicar,
   onRemover
 }: CupomInputProps) => {
@@ -34,6 +36,7 @@ export const CupomInput = ({
       codigoDigitado: codigo,
       cuponsDisponiveis,
       cupomPromocionalAplicado,
+      subtotalAtual,
     });
 
     if (resultadoValidacao.erro) {
@@ -115,6 +118,7 @@ export const CupomInput = ({
         <CupomSugestoesLista
           mostrarSugestoes={mostrarSugestoes}
           cuponsNaoAplicados={cuponsNaoAplicados}
+          subtotalAtual={subtotalAtual}
           onSelecionarSugestao={handleSelecionarSugestao}
         />
       </div>

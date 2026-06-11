@@ -50,6 +50,7 @@ export const FinalizarCompraColunaPrincipal = (p: Props) => (
     <FinalizarCompraPagamentoCard
       data={p.data}
       total={p.total}
+      subtotal={p.subtotal}
       cuponsAplicados={p.cuponsAplicados}
       linhasPagamento={p.linhasPagamento}
       novosCartoesPorLinha={p.novosCartoesPorLinha}

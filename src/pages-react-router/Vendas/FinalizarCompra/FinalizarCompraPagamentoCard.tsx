@@ -12,6 +12,7 @@ import type { ICartaoSalvoPagamento } from '../../../interfaces/pagamento';
 type Props = {
   data: ICheckoutInfo;
   total: number;
+  subtotal: number;
   cuponsAplicados: ICupomAplicado[];
   linhasPagamento: LinhaPagamentoCheckout[];
   novosCartoesPorLinha: Record<string, ICartaoCreditoInput>;
@@ -36,6 +37,7 @@ const cartoesParaLista = (cartoes: ICheckoutInfo['cartoesSalvos']): ICartaoSalvo
 export const FinalizarCompraPagamentoCard = ({
   data,
   total,
+  subtotal,
   cuponsAplicados,
   linhasPagamento,
   novosCartoesPorLinha,
@@ -84,6 +86,7 @@ export const FinalizarCompraPagamentoCard = ({
         <CupomInput
           cuponsDisponiveis={data.cuponsDisponiveis}
           cuponsAplicados={cuponsAplicados}
+          subtotalAtual={subtotal}
           onAplicar={onAplicarCupom}
           onRemover={onRemoverCupom}
         />

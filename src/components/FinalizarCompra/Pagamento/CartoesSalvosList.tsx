@@ -48,6 +48,7 @@ export const CartoesSalvosList = ({
           onClick={() => onSelect(cartao.uuid)}
           onKeyDown={(e) => handleCartaoKeyDown(e, cartao.uuid, onSelect)}
           data-cy={`checkout-card-item-${cartao.ultimosDigitosCartao}`}
+          data-selected={isSel ? 'true' : 'false'}
         >
           <div className={styles['cartao-conteudo']}>
             <div className={styles['cartao-icon']}>

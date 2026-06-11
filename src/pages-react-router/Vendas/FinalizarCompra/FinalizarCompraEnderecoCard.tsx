@@ -108,7 +108,7 @@ export const FinalizarCompraEnderecoCard = ({
           onAdd={() => setModalNovoEndereco(true)}
         />
         {enderecoSelecionado && (
-          <p className={styles['endereco-selecionado-info']}>
+          <p className={styles['endereco-selecionado-info']} data-cy="checkout-address-selected">
             ✓ Endereço selecionado para entrega
           </p>
         )}
