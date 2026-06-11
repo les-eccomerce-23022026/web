@@ -36,7 +36,7 @@ export const Carrinho = () => {
     selecionarFrete,
   } = entrega;
 
-  const { handleUpdateQuantidade, handleRemover } = useCarrinhoHandlers(usarCarrinhoLocal);
+  const { handleUpdateQuantidade, handleRemover, handleLimpar } = useCarrinhoHandlers(usarCarrinhoLocal);
   const { handleFreteSelecionado, carrinhoAssinatura } = useCarrinhoFrete(
     { selecionarFrete, freteCalculado, cepDestino, limparFrete },
     data,
@@ -108,7 +108,7 @@ export const Carrinho = () => {
 
 
   return (
-    <div className="carrinho-page">
+    <div className="carrinho-page" data-cy="carrinho-page">
       <h1 className="page-title">Carrinho de Compras</h1>
       <hr className="carrinho-separator" />
 
@@ -117,6 +117,16 @@ export const Carrinho = () => {
         onUpdateQuantidade={handleUpdateQuantidade}
         onRemover={handleRemover}
       />
+
+      <div className="carrinho-acoes">
+        <button
+          onClick={handleLimpar}
+          className="btn-secondary carrinho-btn-limpar"
+          data-cy="carrinho-limpar"
+        >
+          Limpar Carrinho
+        </button>
+      </div>
 
       <CarrinhoResumo
         subtotal={data.resumo.subtotal}

@@ -200,7 +200,7 @@ export const Carrinho = () => {
                   <span className={styles['carrinho-product-isbn']}>ISBN: {item.isbn}</span>
                 </div>
               </td>
-              <td className={styles['carrinho-td']} data-label="Preço Unit.">R$ {item.precoUnitario.toFixed(2).replace('.', ',')}</td>
+              <td className={styles['carrinho-td']} data-label="Preço Unit.">R$ {(item.precoUnitario ?? 0).toFixed(2).replace('.', ',')}</td>
               <td className={styles['carrinho-td']} data-label="Quant.">
                 <input
                   type="number"

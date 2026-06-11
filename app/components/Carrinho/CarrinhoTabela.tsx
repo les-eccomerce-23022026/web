@@ -13,7 +13,7 @@ interface CarrinhoTabelaProps {
 }
 
 export const CarrinhoTabela = ({ itens, onUpdateQuantidade, onRemover }: CarrinhoTabelaProps) => (
-  <table className="carrinho-table">
+  <table className="carrinho-table" data-cy="carrinho-table">
     <thead>
       <tr className="carrinho-table-header">
         <th className="carrinho-th">Produto</th>

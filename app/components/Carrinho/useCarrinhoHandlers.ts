@@ -2,8 +2,10 @@ import { useCallback } from 'react';
 import { useAppDispatch } from '@/store/hooks';
 import {
   sincronizarLinhaCarrinho,
+  limparCarrinhoRemoto,
   removerItem,
   atualizarQuantidade,
+  limparCarrinho,
 } from '@/store/slices/carrinhoSlice';
 
 export function useCarrinhoHandlers(usarCarrinhoLocal: boolean) {
@@ -18,7 +20,7 @@ export function useCarrinhoHandlers(usarCarrinhoLocal: boolean) {
       return;
     }
 
-    void sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: qtd });
+    void dispatch(sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: qtd }));
   }, [dispatch, usarCarrinhoLocal]);
 
   const handleRemover = useCallback((uuid: string) => {
@@ -27,8 +29,17 @@ export function useCarrinhoHandlers(usarCarrinhoLocal: boolean) {
       return;
     }
 
-    void sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: 0 });
+    void dispatch(sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: 0 }));
   }, [dispatch, usarCarrinhoLocal]);
 
-  return { handleUpdateQuantidade, handleRemover };
+  const handleLimpar = useCallback(() => {
+    if (usarCarrinhoLocal) {
+      dispatch(limparCarrinho());
+      return;
+    }
+
+    void dispatch(limparCarrinhoRemoto());
+  }, [dispatch, usarCarrinhoLocal]);
+
+  return { handleUpdateQuantidade, handleRemover, handleLimpar };
 }

@@ -20,7 +20,7 @@ export const CarrinhoResumo = ({
   freteSelecionado,
   onFreteSelecionado,
 }: CarrinhoResumoProps) => (
-  <div className="resumo carrinho-resumo">
+  <div className="resumo carrinho-resumo" data-cy="carrinho-resumo">
     <div className="frete carrinho-frete">
       <FreteCalculo
         entrega={entrega}
@@ -37,11 +37,11 @@ export const CarrinhoResumo = ({
       )}
     </div>
 
-    <div className="totalizador carrinho-totalizador">
-      <p>Subtotal: R$ {subtotal.toFixed(2).replace('.', ',')}</p>
-      <p>Frete: R$ {frete.toFixed(2).replace('.', ',')}</p>
+    <div className="totalizador carrinho-totalizador" data-cy="carrinho-totalizador">
+      <p data-cy="carrinho-subtotal">Subtotal: R$ {subtotal.toFixed(2).replace('.', ',')}</p>
+      <p data-cy="carrinho-frete">Frete: R$ {frete.toFixed(2).replace('.', ',')}</p>
       <hr className="carrinho-total-separator" />
-      <h2 className="carrinho-total-header">Total: R$ {total.toFixed(2).replace('.', ',')}</h2>
+      <h2 className="carrinho-total-header" data-cy="carrinho-total">Total: R$ {total.toFixed(2).replace('.', ',')}</h2>
 
       <Link href={ROTAS.CHECKOUT}>
         <button
