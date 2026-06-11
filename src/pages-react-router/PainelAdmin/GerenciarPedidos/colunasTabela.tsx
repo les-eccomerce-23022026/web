@@ -1,15 +1,20 @@
-import { Truck, CheckCircle } from 'lucide-react';
+import { Truck, CheckCircle, XCircle, Check } from 'lucide-react';
 import type { IColuna } from '@/components/Admin/AdminTable/types';
 import type { StatusPedido, IPedido } from '../../../interfaces/pedido';
-import { STATUS_LABELS, STATUS_CSS, formatarMoeda, formatarData } from './constantes';
+import { STATUS_LABELS, STATUS_CSS, formatarMoeda, formatarData, type StatusPedidoConstante } from './constantes';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 
 interface PropsColunas {
   getLivroTitulo: (livroUuid: string) => string;
   despachar: (pedido: IPedido) => void;
   confirmarEntrega: (pedidoUuid: string) => void;
+  abrirModalRejeicao: (pedidoUuid: string) => void;
+  aprovarPagamento: (pedidoUuid: string) => void;
+  rejeitarPagamento: (pedidoUuid: string) => void;
   processando: string | null;
   isAprovado: (status: StatusPedido) => boolean;
   isEmTransito: (status: StatusPedido) => boolean;
+  isPagamentoPendente: (status: StatusPedido) => boolean;
   styles: any;
 }
 
@@ -17,9 +22,13 @@ export function obterColunasGerenciarPedidos({
   getLivroTitulo,
   despachar,
   confirmarEntrega,
+  abrirModalRejeicao,
+  aprovarPagamento,
+  rejeitarPagamento,
   processando,
   isAprovado,
   isEmTransito,
+  isPagamentoPendente,
   styles,
 }: PropsColunas): IColuna<IPedido>[] {
   return [
@@ -64,7 +73,7 @@ export function obterColunasGerenciarPedidos({
       render: (status: string) => (
         <span
           className={`${styles.statusBadge} ${
-            styles[STATUS_CSS[status]] ?? styles.statusOutro
+            styles[STATUS_CSS[status as StatusPedidoConstante]] ?? styles.statusOutro
           }`}
           data-cy="status-badge"
         >
@@ -77,6 +86,32 @@ export function obterColunasGerenciarPedidos({
       label: 'Ações',
       render: (_: any, pedido: IPedido) => (
         <div className={styles.colAcoes}>
+          {isPagamentoPendente(pedido.status) && (
+            <>
+              <button
+                id={`btn-aprovar-pagamento-${pedido.uuid}`}
+                data-cy={`btn-aprovar-pagamento-${pedido.uuid}`}
+                className={`${styles.btnAcao} ${styles.btnAprovar}`}
+                disabled={processando === pedido.uuid}
+                onClick={() => aprovarPagamento(pedido.uuid)}
+                title="Aprovar pagamento — RF0019"
+              >
+                <Check size={14} />
+                {processando === pedido.uuid ? 'Aprovando...' : 'Aprovar'}
+              </button>
+              <button
+                id={`btn-rejeitar-pagamento-${pedido.uuid}`}
+                data-cy={`btn-rejeitar-pagamento-${pedido.uuid}`}
+                className={`${styles.btnAcao} ${styles.btnRejeitar}`}
+                disabled={processando === pedido.uuid}
+                onClick={() => rejeitarPagamento(pedido.uuid)}
+                title="Rejeitar pagamento — RF0019"
+              >
+                <XCircle size={14} />
+                {processando === pedido.uuid ? 'Rejeitando...' : 'Rejeitar'}
+              </button>
+            </>
+          )}
           {isAprovado(pedido.status) && (
             <button
               id={`btn-despachar-${pedido.uuid}`}
@@ -105,7 +140,7 @@ export function obterColunasGerenciarPedidos({
             </button>
           )}
 
-          {pedido.status === 'Entregue' && (
+          {pedido.status === STATUS_PEDIDO.ENTREGUE && (
             <span className={styles.concluidoLabel}>
               <CheckCircle size={14} /> Entregue
             </span>

@@ -1,23 +1,50 @@
 import type { StatusPedido } from '../../../interfaces/pedido';
+import { STATUS_PEDIDO, type StatusPedidoConstante } from '@/config/constantesNegocio';
+
+export { STATUS_PEDIDO, type StatusPedidoConstante };
 
 export const STATUS_LABELS: Record<StatusPedido, string> = {
-  'Em Processamento': 'Em Processamento',
-  'Em Trânsito': 'Em Trânsito',
-  Entregue: 'Entregue',
-  Pendentes: 'Pendente',
-  'Aguardando Pagamento': 'Aguardando Pagamento',
-  Preparando: 'Preparando',
-  Cancelado: 'Cancelado',
-  'Em Troca': 'Em Troca',
-  'Troca Autorizada': 'Troca Autorizada',
-  Trocado: 'Trocado',
-  'Devoluções': 'Devoluções',
+  [STATUS_PEDIDO.EM_PROCESSAMENTO]: STATUS_PEDIDO.EM_PROCESSAMENTO,
+  [STATUS_PEDIDO.EM_TRANSITO]: STATUS_PEDIDO.EM_TRANSITO,
+  [STATUS_PEDIDO.ENTREGUE]: STATUS_PEDIDO.ENTREGUE,
+  [STATUS_PEDIDO.PENDENTE]: STATUS_PEDIDO.PENDENTE,
+  [STATUS_PEDIDO.PENDENTES]: STATUS_PEDIDO.PENDENTES,
+  [STATUS_PEDIDO.AGUARDANDO_PAGAMENTO]: STATUS_PEDIDO.AGUARDANDO_PAGAMENTO,
+  [STATUS_PEDIDO.PAGAMENTO_PENDENTE]: STATUS_PEDIDO.PAGAMENTO_PENDENTE,
+  [STATUS_PEDIDO.PREPARANDO]: STATUS_PEDIDO.PREPARANDO,
+  [STATUS_PEDIDO.CANCELADO]: STATUS_PEDIDO.CANCELADO,
+  [STATUS_PEDIDO.REJEITADO]: STATUS_PEDIDO.REJEITADO,
+  [STATUS_PEDIDO.EM_TROCA]: STATUS_PEDIDO.EM_TROCA,
+  [STATUS_PEDIDO.TROCA_AUTORIZADA]: STATUS_PEDIDO.TROCA_AUTORIZADA,
+  [STATUS_PEDIDO.TROCA_REJEITADA]: STATUS_PEDIDO.TROCA_REJEITADA,
+  [STATUS_PEDIDO.TROCADO]: STATUS_PEDIDO.TROCADO,
+  [STATUS_PEDIDO.DEVOLUCOES]: STATUS_PEDIDO.DEVOLUCOES,
+  [STATUS_PEDIDO.EM_DEVOLUCAO]: STATUS_PEDIDO.EM_DEVOLUCAO,
+  [STATUS_PEDIDO.DEVOLUCAO_AUTORIZADA]: STATUS_PEDIDO.DEVOLUCAO_AUTORIZADA,
+  [STATUS_PEDIDO.DEVOLUCAO_REJEITADA]: STATUS_PEDIDO.DEVOLUCAO_REJEITADA,
+  [STATUS_PEDIDO.DEVOLVIDO]: STATUS_PEDIDO.DEVOLVIDO,
 };
 
-export const STATUS_CSS: Record<string, string> = {
-  'Em Processamento': 'statusProcessando',
-  'Em Trânsito': 'statusTransito',
-  Entregue: 'statusEntregue',
+export const STATUS_CSS: Record<StatusPedidoConstante, string> = {
+  [STATUS_PEDIDO.EM_PROCESSAMENTO]: 'status_processando',
+  [STATUS_PEDIDO.EM_TRANSITO]: 'status_transito',
+  [STATUS_PEDIDO.ENTREGUE]: 'status_entregue',
+  [STATUS_PEDIDO.PENDENTE]: 'status_pendente',
+  [STATUS_PEDIDO.PENDENTES]: 'status_pendentes',
+  [STATUS_PEDIDO.AGUARDANDO_PAGAMENTO]: 'status_aguardando_pagamento',
+  [STATUS_PEDIDO.PAGAMENTO_PENDENTE]: 'status_pagamento_pendente',
+  [STATUS_PEDIDO.PREPARANDO]: 'status_preparando',
+  [STATUS_PEDIDO.CANCELADO]: 'status_cancelado',
+  [STATUS_PEDIDO.REJEITADO]: 'status_rejeitado',
+  [STATUS_PEDIDO.EM_TROCA]: 'status_em_troca',
+  [STATUS_PEDIDO.TROCA_AUTORIZADA]: 'status_troca_autorizada',
+  [STATUS_PEDIDO.TROCA_REJEITADA]: 'status_troca_rejeitada',
+  [STATUS_PEDIDO.TROCADO]: 'status_trocado',
+  [STATUS_PEDIDO.EM_DEVOLUCAO]: 'status_em_devolucao',
+  [STATUS_PEDIDO.DEVOLUCAO_AUTORIZADA]: 'status_devolucao_autorizada',
+  [STATUS_PEDIDO.DEVOLUCAO_REJEITADA]: 'status_devolucao_rejeitada',
+  [STATUS_PEDIDO.DEVOLVIDO]: 'status_devolvido',
+  [STATUS_PEDIDO.DEVOLUCOES]: 'status_devolucoes',
 };
 
 export function formatarMoeda(v: number) {

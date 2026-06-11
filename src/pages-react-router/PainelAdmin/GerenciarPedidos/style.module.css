@@ -328,6 +328,16 @@
   color: #2e7d32;
 }
 
+.statusPendente {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.statusRejeitado {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
 .statusOutro {
   background-color: var(--bn-bg-subtle);
   color: var(--bn-text-muted);
@@ -355,6 +365,24 @@
   cursor: not-allowed;
 }
 
+.btnAprovar {
+  background-color: #2e7d32;
+  color: #fff;
+}
+
+.btnAprovar:hover:not(:disabled) {
+  background-color: #388e3c;
+}
+
+.btnRejeitar {
+  background-color: #c62828;
+  color: #fff;
+}
+
+.btnRejeitar:hover:not(:disabled) {
+  background-color: #d32f2f;
+}
+
 .btnDespachar {
   background-color: #1565c0;
   color: #fff;
@@ -364,23 +392,6 @@
   background-color: #1976d2;
 }
 
-.btnEntregue {
-  background-color: var(--bn-primary);
-  color: #fff;
-}
-
-.btnEntregue:hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-.concluidoLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #2e7d32;
-  font-weight: 600;
-}
 .btnEntregue {
   background-color: var(--bn-primary);
   color: #fff;

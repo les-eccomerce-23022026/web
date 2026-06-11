@@ -9,10 +9,16 @@ import {
 } from '../../../store/slices/pedidoSlice';
 import type { IPedido, StatusPedido } from '../../../interfaces/pedido';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 
-const STATUS_APROVADOS: StatusPedido[] = ['Em Processamento'];
-const STATUS_TRANSITO: StatusPedido[] = ['Em Trânsito'];
-const STATUS_GERENCIAVEIS: StatusPedido[] = ['Em Processamento', 'Em Trânsito'];
+const STATUS_APROVADOS: StatusPedido[] = [STATUS_PEDIDO.EM_PROCESSAMENTO];
+const STATUS_TRANSITO: StatusPedido[] = [STATUS_PEDIDO.EM_TRANSITO];
+const STATUS_PAGAMENTO_PENDENTE: StatusPedido[] = [STATUS_PEDIDO.PAGAMENTO_PENDENTE];
+const STATUS_GERENCIAVEIS: StatusPedido[] = [
+  STATUS_PEDIDO.PAGAMENTO_PENDENTE,
+  STATUS_PEDIDO.EM_PROCESSAMENTO,
+  STATUS_PEDIDO.EM_TRANSITO,
+];
 
 export function useGerenciarPedidos() {
   const dispatch = useAppDispatch();
@@ -84,8 +90,85 @@ export function useGerenciarPedidos() {
     [dispatch],
   );
 
+  const [modalRejeicao, setModalRejeicao] = useState<{ uuid: string } | null>(null);
+  const [motivoRejeicao, setMotivoRejeicao] = useState('');
+
+  const abrirModalRejeicao = useCallback((pedidoUuid: string) => {
+    setModalRejeicao({ uuid: pedidoUuid });
+    setMotivoRejeicao('');
+  }, []);
+
+  const fecharModalRejeicao = useCallback(() => {
+    setModalRejeicao(null);
+    setMotivoRejeicao('');
+  }, []);
+
+  const confirmarRejeicao = useCallback(async () => {
+    if (!modalRejeicao) return;
+    const uuid = modalRejeicao.uuid;
+    setProcessando(uuid);
+    try {
+      await fetch('/api/admin/testes/mudar-status-venda', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vendaUuid: uuid, novoStatus: STATUS_PEDIDO.CANCELADO }),
+      });
+      setFeedbackMsg(`Pedido #${uuid.split('-')[1]} rejeitado.`);
+      fecharModalRejeicao();
+      await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Erro ao rejeitar pagamento';
+      setFeedbackMsg(`Erro: ${msg}`);
+    } finally {
+      setProcessando(null);
+    }
+  }, [modalRejeicao, motivoRejeicao, dispatch, fecharModalRejeicao]);
+
+  const aprovarPagamento = useCallback(
+    async (pedidoUuid: string) => {
+      setProcessando(pedidoUuid);
+      try {
+        await fetch('/api/admin/testes/mudar-status-venda', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vendaUuid: pedidoUuid, novoStatus: STATUS_PEDIDO.EM_PROCESSAMENTO }),
+        });
+        setFeedbackMsg(`Pagamento do pedido #${pedidoUuid.split('-')[1]} aprovado.`);
+        await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : 'Erro ao aprovar pagamento';
+        setFeedbackMsg(`Erro: ${msg}`);
+      } finally {
+        setProcessando(null);
+      }
+    },
+    [dispatch],
+  );
+
+  const rejeitarPagamento = useCallback(
+    async (pedidoUuid: string) => {
+      setProcessando(pedidoUuid);
+      try {
+        await fetch('/api/admin/testes/mudar-status-venda', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vendaUuid: pedidoUuid, novoStatus: STATUS_PEDIDO.CANCELADO }),
+        });
+        setFeedbackMsg(`Pagamento do pedido #${pedidoUuid.split('-')[1]} rejeitado.`);
+        await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : 'Erro ao rejeitar pagamento';
+        setFeedbackMsg(`Erro: ${msg}`);
+      } finally {
+        setProcessando(null);
+      }
+    },
+    [dispatch],
+  );
+
   const isAprovado = (status: StatusPedido) => STATUS_APROVADOS.includes(status);
   const isEmTransito = (status: StatusPedido) => STATUS_TRANSITO.includes(status);
+  const isPagamentoPendente = (status: StatusPedido) => STATUS_PAGAMENTO_PENDENTE.includes(status);
 
   return {
     pedidosFiltrados,
@@ -103,5 +186,14 @@ export function useGerenciarPedidos() {
     confirmarEntrega,
     isAprovado,
     isEmTransito,
+    isPagamentoPendente,
+    aprovarPagamento,
+    rejeitarPagamento,
+    modalRejeicao,
+    motivoRejeicao,
+    setMotivoRejeicao,
+    abrirModalRejeicao,
+    fecharModalRejeicao,
+    confirmarRejeicao,
   };
 }
