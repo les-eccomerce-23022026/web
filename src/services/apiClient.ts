@@ -16,13 +16,13 @@ export class ApiClient {
       headers.set('Content-Type', 'application/json');
     }
 
-    if (process.env.NEXT_PUBLIC_USE_TEST_DB === 'true') {
-      headers.set('x-use-test-db', 'true');
-    }
-    // Se o Cypress definiu a flag global para usar banco de testes, adiciona o header
-    if (!headers.has('x-use-test-db') && typeof window !== 'undefined' && window.__USE_TEST_DB__) {
-      headers.set('x-use-test-db', 'true');
-    }
+    // [BANCO DE TESTES DESABILITADO]
+    // if (process.env.NEXT_PUBLIC_USE_TEST_DB === 'true') {
+    //   headers.set('x-use-test-db', 'true');
+    // }
+    // if (!headers.has('x-use-test-db') && typeof window !== 'undefined' && window.__USE_TEST_DB__) {
+    //   headers.set('x-use-test-db', 'true');
+    // }
 
     // ⚠️ SEGURANÇA: Bearer header em desenvolvimento e testes/E2E (banco de testes).
     // Em produção, usa cookie HttpOnly (credentials: 'include').
@@ -50,7 +50,7 @@ export class ApiClient {
       console.log(`[SENIOR-DEBUG] API Request: ${method || 'GET'} ${url}`, {
         hasToken,
         hasTestDbHeader,
-        windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A',
+        // windowTestDbFlag: typeof window !== 'undefined' ? window.__USE_TEST_DB__ : 'N/A', // [BANCO DE TESTES DESABILITADO]
         body: body ? (typeof body === 'string' ? body.substring(0, 1000) : JSON.stringify(body).substring(0, 1000)) : undefined
       });
     }
@@ -90,7 +90,7 @@ export class ApiClient {
       credentials: 'include',
     };
 
-    const hasTestDbHeader = headers.get('x-use-test-db') === 'true';
+    const hasTestDbHeader = false; // [BANCO DE TESTES DESABILITADO] headers.get('x-use-test-db') === 'true'
     this.logRequest(config.method, url, !!token, hasTestDbHeader, config.body);
 
     try {
@@ -98,15 +98,16 @@ export class ApiClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT_MS);
 
-      const response = await fetch(url, {
-        ...config,
+      const originalRequest = new Request(url, { ...config, credentials: 'include' });
+
+      const response = await fetch(originalRequest.clone(), {
         signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
 
       await this.logResponse(response, url);
-      return await responseToResult<T>(url, response);
+      return await responseToResult<T>(url, response, originalRequest);
     } catch (error: unknown) {
       if (process.env.NODE_ENV === 'development') {
         console.error(`[SENIOR-DEBUG] API Network Error: ${url}`, error);

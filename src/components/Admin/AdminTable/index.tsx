@@ -54,7 +54,7 @@ export function AdminTable<T extends Record<string, any>>({
   return (
     <div className={className}>
       <div className={styles.adminTableWrapper}>
-        <table className={styles.adminTable}>
+        <table className={styles.adminTable} data-cy="admin-pedidos-tabela">
           <thead className={styles.adminTableCabecalho}>
             <tr>
               {colunas.map((coluna) => (

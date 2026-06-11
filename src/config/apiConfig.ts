@@ -27,8 +27,12 @@ export const API_ENDPOINTS = {
 
   // Pedidos (histórico do cliente — backend: GET /minhas-vendas)
   obterPedidosCliente: `${BASE_URL}/minhas-vendas`,
+  confirmarRecebimentoEntrega: (pedidoUuid: string) =>
+    `${BASE_URL}/vendas/${pedidoUuid}/confirmar-entrega`,
   solicitarTroca: (pedidoUuid: string) =>
     `${BASE_URL}/vendas/${pedidoUuid}/troca`,
+  solicitarDevolucao: (pedidoUuid: string) =>
+    `${BASE_URL}/vendas/${pedidoUuid}/devolucao`,
 
   // Trocas (Admin)
   obterPedidosEmTroca: `${BASE_URL}/admin/pedidos/trocas`,
@@ -39,8 +43,17 @@ export const API_ENDPOINTS = {
   confirmarRecebimentoTroca: (pedidoUuid: string) =>
     `${BASE_URL}/admin/pedidos/${pedidoUuid}/confirmar-recebimento`,
 
+  // Devoluções (Admin)
+  obterPedidosEmDevolucao: `${BASE_URL}/admin/pedidos/devolucoes`,
+  autorizarDevolucao: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/autorizar-devolucao`,
+  rejeitarDevolucao: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/rejeitar-devolucao`,
+  confirmarRecebimentoDevolucao: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/confirmar-recebimento-devolucao`,
+
   // Cupons de troca
-  obterCuponsCliente: `${BASE_URL}/cupons/troca`,
+  obterCuponsCliente: `${BASE_URL}/clientes/perfil/cupons`,
 
   // Vendas (pedido — backend retorna JSON direto, sem envelope { sucesso, dados })
   criarVenda: `${BASE_URL}/vendas`,

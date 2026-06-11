@@ -31,6 +31,8 @@ const nextConfig = {
   reactStrictMode: true,
   // Static optimization for better performance
   output: 'standalone',
+  // Allow dev origins for browser preview/proxy
+  allowedDevOrigins: ['127.0.0.1', 'localhost'],
   // Disable development indicators
   devIndicators: {
     buildActivity: false,

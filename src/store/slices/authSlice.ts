@@ -64,16 +64,16 @@ export const restoreSession = createAsyncThunk(
         return rejectWithValue(null);
       }
 
-      // E2E: sessão gravada pelo Cypress após login via API (cookie pode falhar no proxy Next)
-      if (
-        typeof window !== 'undefined' &&
-        (window as Window & { __USE_TEST_DB__?: boolean }).__USE_TEST_DB__
-      ) {
-        const storedE2e = lerSessaoArmazenada();
-        if (storedE2e?.user && storedE2e.token) {
-          return { user: storedE2e.user, token: storedE2e.token };
-        }
-      }
+      // [BANCO DE TESTES DESABILITADO]
+      // if (
+      //   typeof window !== 'undefined' &&
+      //   (window as Window & { __USE_TEST_DB__?: boolean }).__USE_TEST_DB__
+      // ) {
+      //   const storedE2e = lerSessaoArmazenada();
+      //   if (storedE2e?.user && storedE2e.token) {
+      //     return { user: storedE2e.user, token: storedE2e.token };
+      //   }
+      // }
 
       const { AuthService } = await import('@/services/authService');
       return await AuthService.me();
@@ -88,16 +88,16 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     loginSuccess: (state, action: PayloadAction<{ token?: string; user: AuthUser | null }>) => {
+      if (!action.payload.user) {
+        // Não alterar estado de autenticação se não houver dados de usuário
+        return;
+      }
       state.isAuthenticated = true;
       const isProduction = process.env.NODE_ENV === 'production';
       state.token = isProduction ? null : (action.payload.token ?? null);
       state.user = action.payload.user;
       state.authError = null;
       state.sessionLoading = false;
-      if (!action.payload.user) {
-        limparSessaoArmazenada();
-        return;
-      }
       salvarSessaoArmazenada(action.payload.user, isProduction ? null : action.payload.token);
     },
     logout: (state) => {

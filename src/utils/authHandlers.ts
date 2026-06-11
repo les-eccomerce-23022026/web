@@ -31,18 +31,23 @@ async function tentarRenovarToken(): Promise<{ token: string; user: unknown }> {
         throw new Error('Falha ao renovar token');
       }
 
-      const data = await response.json();
-      
-      // Atualizar Redux com novo usuário
-      const { store: st } = await import('../store/index');
-      const { loginSuccess } = await import('../store/slices/authSlice');
-      (st.dispatch as AppDispatch)(
-        loginSuccess({
-          user: data.user,
-        }),
-      );
+      const raw = await response.json();
+      const { unwrapEnvelope } = await import('./httpUtils');
+      const data = unwrapEnvelope<{ token?: string; user: unknown }>(raw);
 
-      return { token: data.token, user: data.user };
+      // Atualizar Redux com novo usuário apenas quando o servidor retornou dados válidos
+      if (data.user) {
+        const { store: st } = await import('../store/index');
+        const { loginSuccess } = await import('../store/slices/authSlice');
+        (st.dispatch as AppDispatch)(
+          loginSuccess({
+            token: data.token,
+            user: data.user as import('../store/slices/authSlice').AuthUser,
+          }),
+        );
+      }
+
+      return { token: data.token ?? '', user: data.user };
     } finally {
       refreshPromise = null;
     }
@@ -51,9 +56,9 @@ async function tentarRenovarToken(): Promise<{ token: string; user: unknown }> {
   return refreshPromise;
 }
 
-async function handleUnauthorized<T>(url: string, response: Response): Promise<T> {
+async function handleUnauthorized<T>(url: string, response: Response, originalRequest?: Request): Promise<T> {
   console.warn('[SENIOR-DEBUG] ApiClient - 401 Unauthorized detected', { url });
-  
+
   // Rotas em que 401 é esperado (sem sessão) — não dispara logout global
   if (
     url.includes('/auth/login') ||
@@ -66,19 +71,15 @@ async function handleUnauthorized<T>(url: string, response: Response): Promise<T
     throw new Error(msg);
   }
 
-  // Tentar renovar token
+  // Tentar renovar token e repetir a requisição original
   try {
     await tentarRenovarToken();
-    
-    // Repetir a requisição original
-    const { buildUrl } = await import('./httpUtils');
-    const clonedRequest = response.clone();
-    const originalUrl = response.url;
-    
-    const retryResponse = await fetch(originalUrl, {
-      method: clonedRequest.method,
-      headers: clonedRequest.headers,
-      body: clonedRequest.body,
+
+    if (!originalRequest) {
+      throw new Error('Requisição original não disponível para retry');
+    }
+
+    const retryResponse = await fetch(originalRequest.clone(), {
       credentials: 'include',
     });
 
@@ -86,8 +87,8 @@ async function handleUnauthorized<T>(url: string, response: Response): Promise<T
       throw new Error('Falha ao repetir requisição após refresh');
     }
 
-    const data = await retryResponse.json();
-    return data;
+    const { parseJsonBody } = await import('./httpUtils');
+    return parseJsonBody<T>(retryResponse);
   } catch (erro) {
     // Se refresh falhar, fazer logout
     const { store: st } = await import('../store/index');

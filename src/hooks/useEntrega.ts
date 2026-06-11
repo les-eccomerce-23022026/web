@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { EntregaServiceApi } from '../services/api/entregaServiceApi';
+import { API_ENDPOINTS } from '../config/apiConfig';
 import type { 
   IEntregaInputDto,
   IEntregaOutputDto,
@@ -33,6 +34,7 @@ export function useEntrega() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [entregaCadastrada, setEntregaCadastrada] = useState<IEntregaOutputDto | null>(null);
+  const [confirmandoRecebimento, setConfirmandoRecebimento] = useState<boolean>(false);
 
   const service = useMemo(() => new EntregaServiceApi(), []);
 
@@ -106,6 +108,37 @@ export function useEntrega() {
     [],
   );
 
+  /**
+   * Confirma recebimento do pedido pelo cliente.
+   * Usa endpoint PATCH /api/vendas/:uuid/confirmar-entrega
+   */
+  const confirmarRecebimento = useCallback(async (pedidoUuid: string): Promise<boolean> => {
+    setConfirmandoRecebimento(true);
+    setError(null);
+    try {
+      const url = API_ENDPOINTS.confirmarRecebimentoEntrega(pedidoUuid);
+      const response = await fetch(url, {
+        method: 'PATCH',
+        credentials: 'include', // Para enviar cookie HttpOnly
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.mensagem || 'Erro ao confirmar recebimento');
+      }
+
+      return true;
+    } catch (err) {
+      setError(normalizarErroEntrega(err, 'Erro ao confirmar recebimento'));
+      return false;
+    } finally {
+      setConfirmandoRecebimento(false);
+    }
+  }, []);
+
   return {
     // Estado
     freteCalculado,
@@ -114,6 +147,7 @@ export function useEntrega() {
     loading,
     error,
     entregaCadastrada,
+    confirmandoRecebimento,
     
     // Ações
     calcularFrete,
@@ -121,6 +155,7 @@ export function useEntrega() {
     cadastrarEntrega,
     limparFrete,
     hidratarFrete,
+    confirmarRecebimento,
 
     // Utilitários
     validarCep,

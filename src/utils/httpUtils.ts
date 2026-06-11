@@ -41,10 +41,10 @@ async function parseJsonBody<T>(response: Response): Promise<T> {
   return unwrapEnvelope<T>(resposta);
 }
 
-async function responseToResult<T>(url: string, response: Response): Promise<T> {
+async function responseToResult<T>(url: string, response: Response, originalRequest?: Request): Promise<T> {
   if (response.status === 401) {
     const { handleUnauthorized } = await import('./authHandlers');
-    return handleUnauthorized<T>(url, response);
+    return handleUnauthorized<T>(url, response, originalRequest);
   }
   if (response.status === 403) {
     throw new Error('Você não tem permissão para acessar este recurso.');

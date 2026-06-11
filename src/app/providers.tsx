@@ -6,7 +6,6 @@ import { useAppDispatch } from '../store/hooks';
 import { store } from '../store';
 import { fetchCarrinho } from '../store/slices/carrinhoSlice';
 import { fetchCategoriasCatalogo } from '../store/slices/livroSlice';
-import { fetchAdmins } from '../store/slices/adminSlice';
 import { restoreSession } from '../store/slices/authSlice';
 import { ErrorBoundary } from '../components/Comum/ErrorBoundary/ErrorBoundary.tsx';
 import { NotificationProvider, NotificationContainer } from '../components/Comum/Notification';
@@ -27,10 +26,8 @@ const ClientProviders = ({ children }: { children: React.ReactNode }) => {
         // Só executa ações dependentes após restoreSession ter sucesso
         dispatch(fetchCarrinho());
         dispatch(fetchCategoriasCatalogo());
-        const papeis = store.getState().auth.user?.papeis;
-        if (papeis?.includes('admin') || papeis?.includes('admin_sistema')) {
-          dispatch(fetchAdmins());
-        }
+        // Não carregar admins automaticamente - apenas admin_sistema pode listar
+        // e isso deve ser feito sob demanda na página específica
       } catch (_erro) {
         // Sessão não restaurada - usuário deslogado
       }
