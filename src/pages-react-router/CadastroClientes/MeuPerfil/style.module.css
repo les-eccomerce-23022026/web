@@ -508,3 +508,47 @@
   display: block;
 }
 
+
+/* --- Meus Cupons --- */
+.cuponsList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cupomItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.cupomCodigo {
+  font-weight: 700;
+  font-size: 15px;
+  color: #333;
+  flex: 1;
+}
+
+.cupomValor {
+  font-weight: 600;
+  color: #2e7d32;
+  font-size: 14px;
+}
+
+.cupomValidade {
+  font-size: 13px;
+  color: #757575;
+}
+
+.emptyMsg {
+  color: #757575;
+  font-size: 14px;
+  margin-top: 8px;
+}

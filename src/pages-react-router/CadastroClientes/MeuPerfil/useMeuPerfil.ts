@@ -32,7 +32,7 @@ export function useMeuPerfil() {
   // --- Estado Local para Rascunho de Edição (Formulários) ---
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
-  const [secaoAtiva, setSecaoAtiva] = useState<'perfil' | 'enderecos' | 'cartoes' | 'senha' | 'perigo'>('perfil');
+  const [secaoAtiva, setSecaoAtiva] = useState<'perfil' | 'enderecos' | 'cartoes' | 'senha' | 'cupons' | 'perigo'>('perfil');
 
   // Perfil (Inputs)
   const [nome, setNome] = useState('');

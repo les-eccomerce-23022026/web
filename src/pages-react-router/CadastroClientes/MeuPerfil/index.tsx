@@ -2,12 +2,15 @@
 
 import { useMeuPerfil } from './useMeuPerfil';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import styles from './style.module.css';
 import { Eye, EyeOff } from 'lucide-react';
 import type { Genero } from '@/interfaces/cliente';
+import type { ICupomTroca } from '@/interfaces/devolucao';
 import { Modal } from '@/components/Comum/Modal';
 import { useMaskedField } from '@/hooks/useMaskedField';
 import { ROTAS } from '@/config/rotas';
+import { PedidoService } from '@/services/pedidoService';
 
 function MeuPerfil() {
   const {
@@ -43,6 +46,18 @@ function MeuPerfil() {
     value: perfilState.nome,
     setter: perfilState.setNome
   });
+
+  const [cupons, setCupons] = useState<ICupomTroca[]>([]);
+  const [cuponsCarregando, setCuponsCarregando] = useState(false);
+
+  useEffect(() => {
+    if (secaoAtiva !== 'cupons') return;
+    setCuponsCarregando(true);
+    PedidoService.getCuponsCliente()
+      .then(setCupons)
+      .catch(() => setCupons([]))
+      .finally(() => setCuponsCarregando(false));
+  }, [secaoAtiva]);
 
   if (!user) return null;
 
@@ -115,6 +130,13 @@ function MeuPerfil() {
           onClick={() => setSecaoAtiva('senha')}
         >
           🔒 Senha
+        </button>
+        <button
+          data-cy="tab-cupons"
+          className={`${styles.tabItem} ${secaoAtiva === 'cupons' ? styles.tabItemActive : ''}`}
+          onClick={() => setSecaoAtiva('cupons')}
+        >
+          🎟️ Cupons
         </button>
         <button
           data-cy="tab-perigo"
@@ -798,6 +820,27 @@ function MeuPerfil() {
       )}
 
       {/* Seção: Zona de Perigo - RF0023 */}
+      {secaoAtiva === 'cupons' && (
+        <section className={styles.section} data-cy="secao-cupons">
+          <h2 className={styles.sectionTitle}>🎟️ Meus Cupons</h2>
+          {cuponsCarregando && <p>Carregando cupons...</p>}
+          {!cuponsCarregando && cupons.length === 0 && (
+            <p className={styles.emptyMsg}>Você não possui cupons de troca disponíveis.</p>
+          )}
+          {!cuponsCarregando && cupons.length > 0 && (
+            <ul className={styles.cuponsList} data-cy="cupons-list">
+              {cupons.map((cupom) => (
+                <li key={cupom.uuid} className={styles.cupomItem} data-cy={`cupom-${cupom.codigo}`}>
+                  <span className={styles.cupomCodigo} data-cy={`cupom-codigo-${cupom.codigo}`}>{cupom.codigo}</span>
+                  <span className={styles.cupomValor} data-cy={`cupom-valor-${cupom.codigo}`}>R$ {Number(cupom.valor).toFixed(2).replace('.', ',')}</span>
+                  <span className={styles.cupomValidade} data-cy={`cupom-validade-${cupom.codigo}`}>Válido até {new Date(cupom.validade).toLocaleDateString('pt-BR')}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
       {secaoAtiva === 'perigo' && (
         <section className={`${styles.section} ${styles.dangerZone}`}>
           <h2 className={styles.sectionTitle}>⚠️ Zona de Perigo</h2>
