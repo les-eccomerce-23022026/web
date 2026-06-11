@@ -22,6 +22,14 @@ export const confirmarEntregaThunk = createAsyncThunk('pedido/confirmarEntrega',
   return PedidoService.confirmarEntrega(pedidoUuid);
 });
 
+export const confirmarRecebimentoEntregaThunk = createAsyncThunk(
+  'pedido/confirmarRecebimentoEntrega',
+  async (pedidoUuid: string) => {
+    await PedidoService.confirmarRecebimentoEntrega(pedidoUuid);
+    return pedidoUuid;
+  },
+);
+
 // RF0053 — Baixa em estoque: disparado após pedido aprovado/processado
 export const darBaixaEstoqueThunk = createAsyncThunk('pedido/darBaixaEstoque', async (pedidoUuid: string, { getState }) => {
   const state = getState() as RootState;
@@ -35,6 +43,10 @@ export const darBaixaEstoqueThunk = createAsyncThunk('pedido/darBaixaEstoque', a
 
 export const fetchPedidosEmTroca = createAsyncThunk('pedido/fetchPedidosEmTroca', async () => {
   return PedidoService.getPedidosEmTroca();
+});
+
+export const fetchPedidosEmDevolucao = createAsyncThunk('pedido/fetchPedidosEmDevolucao', async () => {
+  return PedidoService.getPedidosEmDevolucao();
 });
 
 export const solicitarTrocaThunk = createAsyncThunk(
@@ -59,5 +71,30 @@ export const confirmarRecebimentoTrocaThunk = createAsyncThunk(
   'pedido/confirmarRecebimentoTroca',
   async (payload: { pedidoUuid: string; retornarEstoque: boolean }) => {
     return PedidoService.confirmarRecebimentoTroca(payload.pedidoUuid, payload.retornarEstoque);
+  },
+);
+
+export const solicitarDevolucaoThunk = createAsyncThunk(
+  'pedido/solicitarDevolucao',
+  async (payload: { pedidoUuid: string; motivo: string; itensUuids: string[] }) => {
+    return PedidoService.solicitarDevolucao(payload.pedidoUuid, payload.motivo, payload.itensUuids);
+  },
+);
+
+export const autorizarDevolucaoThunk = createAsyncThunk('pedido/autorizarDevolucao', async (pedidoUuid: string) => {
+  return PedidoService.autorizarDevolucao(pedidoUuid);
+});
+
+export const rejeitarDevolucaoThunk = createAsyncThunk(
+  'pedido/rejeitarDevolucao',
+  async (payload: { pedidoUuid: string; motivo: string }) => {
+    return PedidoService.rejeitarDevolucao(payload.pedidoUuid, payload.motivo);
+  },
+);
+
+export const confirmarRecebimentoDevolucaoThunk = createAsyncThunk(
+  'pedido/confirmarRecebimentoDevolucao',
+  async (payload: { pedidoUuid: string; retornarEstoque: boolean }) => {
+    return PedidoService.confirmarRecebimentoDevolucao(payload.pedidoUuid, payload.retornarEstoque);
   },
 );

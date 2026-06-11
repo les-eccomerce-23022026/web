@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { usePedidosTrocaAdmin } from '../../../hooks/usePedidos';
 import { useAppSelector } from '../../../store/hooks';
 import { LoadingState } from '../../../components/Comum/LoadingState/LoadingState.tsx';
@@ -10,9 +10,14 @@ import { Modal } from '../../../components/Comum/Modal';
 import type { IPedido } from '../../../interfaces/pedido';
 import styles from './style.module.css';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
+import { LivroServiceApi } from '../../../services/api/livroServiceApi';
+
+interface ItensSelecionadosState {
+  [pedidoUuid: string]: Set<string>;
+}
 
 function GerenciarTrocas() {
-  const { pedidos, loading, error, autorizarTroca, rejeitarTroca, confirmarRecebimento } = usePedidosTrocaAdmin();
+  const { pedidos, loading, error, autorizarTroca, rejeitarTroca, confirmarRecebimento, autorizarDevolucao, rejeitarDevolucao, confirmarRecebimentoDevolucao } = usePedidosTrocaAdmin();
   const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
   const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);
   const livrosParaTitulo = useMemo(
@@ -22,10 +27,19 @@ function GerenciarTrocas() {
 
   const [modalConfirmar, setModalConfirmar] = useState<IPedido | null>(null);
   const [modalRejeitar, setModalRejeitar] = useState<IPedido | null>(null);
+  const [modalDetalhesItem, setModalDetalhesItem] = useState<any>(null);
+  const [carregandoDetalhes, setCarregandoDetalhes] = useState(false);
   const [retornarEstoque, setRetornarEstoque] = useState(true);
   const [motivoRejeicao, setMotivoRejeicao] = useState('');
   const [processando, setProcessando] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState('');
+  const [itensSelecionados, setItensSelecionados] = useState<ItensSelecionadosState>({});
+
+  useEffect(() => {
+    pedidos.forEach((pedido) => {
+      inicializarItensSelecionados(pedido);
+    });
+  }, [pedidos]);
 
   if (loading) {
     return (
@@ -54,7 +68,64 @@ function GerenciarTrocas() {
     return livro?.titulo || livroUuid;
   };
 
+  const getLivroDetalhes = (livroUuid: string) => {
+    return livrosParaTitulo.find((l) => l.uuid === livroUuid);
+  };
+
+  const handleVerDetalhesItem = async (livroUuid: string) => {
+    // Primeiro tenta buscar no Redux state
+    const livroNoState = getLivroDetalhes(livroUuid);
+    
+    if (livroNoState) {
+      setModalDetalhesItem(livroNoState);
+      return;
+    }
+
+    // Se não encontrar no state, busca via API
+    setCarregandoDetalhes(true);
+    setModalDetalhesItem(null);
+    
+    try {
+      const livroService = new LivroServiceApi();
+      const livro = await livroService.getDetalhes(livroUuid);
+      setModalDetalhesItem(livro);
+    } catch (error) {
+      console.error('Erro ao buscar detalhes do livro:', error);
+      setModalDetalhesItem(null);
+    } finally {
+      setCarregandoDetalhes(false);
+    }
+  };
+
+  const toggleItemSelecionado = (pedidoUuid: string, itemUuid: string, podeSelecionar: boolean) => {
+    if (!podeSelecionar) return;
+
+    setItensSelecionados((prev) => {
+      const current = new Set(prev[pedidoUuid] || []);
+      if (current.has(itemUuid)) {
+        current.delete(itemUuid);
+      } else {
+        current.add(itemUuid);
+      }
+      return { ...prev, [pedidoUuid]: current };
+    });
+  };
+
+  const inicializarItensSelecionados = (pedido: IPedido) => {
+    const itensEmTroca = pedido.itens.filter((item) => item.emTroca).map((item) => item.uuid || item.livroUuid);
+    setItensSelecionados((prev) => ({
+      ...prev,
+      [pedido.uuid]: new Set(itensEmTroca),
+    }));
+  };
+
   const handleAutorizar = async (pedidoUuid: string) => {
+    const itensUuids = Array.from(itensSelecionados[pedidoUuid] || []);
+    if (itensUuids.length === 0) {
+      setFeedbackMsg('Selecione pelo menos um item para autorizar a troca.');
+      return;
+    }
+
     setProcessando(true);
     try {
       await autorizarTroca(pedidoUuid);
@@ -69,6 +140,12 @@ function GerenciarTrocas() {
 
   const handleRejeitar = async () => {
     if (!modalRejeitar) return;
+    const itensUuids = Array.from(itensSelecionados[modalRejeitar.uuid] || []);
+    if (itensUuids.length === 0) {
+      setFeedbackMsg('Selecione pelo menos um item para rejeitar a troca.');
+      return;
+    }
+
     setProcessando(true);
     try {
       await rejeitarTroca(modalRejeitar.uuid, motivoRejeicao);
@@ -87,8 +164,17 @@ function GerenciarTrocas() {
     if (!modalConfirmar) return;
     setProcessando(true);
     try {
-      await confirmarRecebimento(modalConfirmar.uuid, retornarEstoque);
-      setFeedbackMsg(`Recebimento do pedido #${modalConfirmar.uuid?.split('-')[1] || modalConfirmar.uuid} confirmado.`);
+      // Verifica se é devolução ou troca pelo status
+      const isDevolucao = modalConfirmar.status === 'DEVOLUÇÃO AUTORIZADA' || modalConfirmar.status === 'EM DEVOLUÇÃO';
+      const resultado = isDevolucao
+        ? await confirmarRecebimentoDevolucao(modalConfirmar.uuid, retornarEstoque)
+        : await confirmarRecebimento(modalConfirmar.uuid, retornarEstoque);
+      const pedidoId = modalConfirmar.uuid?.split('-')[1] || modalConfirmar.uuid;
+      const cupomGerado = resultado?.cupomGerado;
+      const cupomInfo = cupomGerado
+        ? ` Cupom de ${isDevolucao ? 'devolução' : 'troca'} gerado: ${cupomGerado.codigo} (R$ ${Number(cupomGerado.valorAtual ?? 0).toFixed(2).replace('.', ',')})`
+        : '';
+      setFeedbackMsg(`Recebimento do pedido #${pedidoId} confirmado.${cupomInfo}`);
       setModalConfirmar(null);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Erro ao confirmar recebimento';
@@ -104,6 +190,10 @@ function GerenciarTrocas() {
       'Troca Autorizada': styles.statusTrocaAutorizada,
       'Trocado': styles.statusTrocado,
       'Troca Rejeitada': styles.statusTrocaRejeitada,
+      'EM DEVOLUÇÃO': styles.statusEmTroca,
+      'DEVOLUÇÃO AUTORIZADA': styles.statusTrocaAutorizada,
+      'Devolvido': styles.statusTrocado,
+      'Devolução Rejeitada': styles.statusTrocaRejeitada,
     };
     return map[status] || '';
   };
@@ -143,11 +233,35 @@ function GerenciarTrocas() {
                 <td className={styles.colPedido}>#{pedido.uuid?.split('-')[1] || pedido.uuid}</td>
                 <td>{new Date(pedido.data).toLocaleDateString('pt-BR')}</td>
                 <td>
-                  {pedido.itens.map((item, idx) => (
-                    <div key={`${item.livroUuid}-${idx}`} className={styles.itemNome}>
-                      {getLivroTitulo(item.livroUuid)} (x{item.quantidade})
-                    </div>
-                  ))}
+                  {pedido.itens.map((item, idx) => {
+                    const itemKey = item.uuid || item.livroUuid;
+                    const isSelected = itensSelecionados[pedido.uuid]?.has(itemKey) || false;
+                    const podeSelecionar = item.emTroca === true;
+
+                    return (
+                      <div key={`${item.livroUuid}-${idx}`} className={styles.itemNome}>
+                        <label className={styles.itemCheckboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            disabled={!podeSelecionar}
+                            onChange={() => toggleItemSelecionado(pedido.uuid, itemKey, podeSelecionar)}
+                            data-cy={`item-checkbox-${itemKey}`}
+                          />
+                          <button
+                            type="button"
+                            className={styles.itemLink}
+                            onClick={() => handleVerDetalhesItem(item.livroUuid)}
+                            data-cy={`item-detalhes-${item.livroUuid}`}
+                          >
+                            {getLivroTitulo(item.livroUuid)}
+                          </button>
+                          <span> (x{item.quantidade})</span>
+                          {item.emTroca && <span className={styles.itemEmTrocaBadge}>Em Troca</span>}
+                        </label>
+                      </div>
+                    );
+                  })}
                 </td>
                 <td className={styles.colMotivo}>
                   {pedido.motivo || '—'}
@@ -156,7 +270,10 @@ function GerenciarTrocas() {
                   R$ {(pedido.total ?? 0).toFixed(2).replace('.', ',')}
                 </td>
                 <td>
-                  <span className={`${styles.statusBadge} ${getStatusClass(pedido.status)}`}>
+                  <span
+                    className={`${styles.statusBadge} ${getStatusClass(pedido.status)}`}
+                    data-cy="pedido-status"
+                  >
                     {pedido.status}
                   </span>
                 </td>
@@ -176,6 +293,7 @@ function GerenciarTrocas() {
                         onClick={() => {
                           setModalRejeitar(pedido);
                           setMotivoRejeicao('');
+                          inicializarItensSelecionados(pedido);
                         }}
                         disabled={processando}
                         data-cy={`btn-rejeitar-troca-${pedido.uuid}`}
@@ -184,7 +302,44 @@ function GerenciarTrocas() {
                       </button>
                     </>
                   )}
+                  {pedido.status === 'EM DEVOLUÇÃO' && (
+                    <>
+                      <button
+                        className={`btn-primary ${styles.btnAcao}`}
+                        onClick={() => autorizarDevolucao(pedido.uuid)}
+                        disabled={processando}
+                        data-cy={`btn-autorizar-devolucao-${pedido.uuid}`}
+                      >
+                        Autorizar Devolução
+                      </button>
+                      <button
+                        className={`btn-secondary ${styles.btnAcao}`}
+                        onClick={() => {
+                          setModalRejeitar(pedido);
+                          setMotivoRejeicao('');
+                          inicializarItensSelecionados(pedido);
+                        }}
+                        disabled={processando}
+                        data-cy={`btn-rejeitar-devolucao-${pedido.uuid}`}
+                      >
+                        Rejeitar
+                      </button>
+                    </>
+                  )}
                   {pedido.status === 'Troca Autorizada' && (
+                    <button
+                      className={`btn-secondary ${styles.btnAcao}`}
+                      onClick={() => {
+                        setModalConfirmar(pedido);
+                        setRetornarEstoque(true);
+                      }}
+                      disabled={processando}
+                      data-cy={`btn-confirmar-recebimento-${pedido.uuid}`}
+                    >
+                      Confirmar Recebimento
+                    </button>
+                  )}
+                  {pedido.status === 'DEVOLUÇÃO AUTORIZADA' && (
                     <button
                       className={`btn-secondary ${styles.btnAcao}`}
                       onClick={() => {
@@ -207,6 +362,57 @@ function GerenciarTrocas() {
         </table>
       </div>
 
+      {/* Modal de Detalhes do Item */}
+      <Modal
+        isOpen={modalDetalhesItem !== null || carregandoDetalhes}
+        title="Detalhes do Item"
+        onClose={() => {
+          setModalDetalhesItem(null);
+          setCarregandoDetalhes(false);
+        }}
+      >
+        {carregandoDetalhes ? (
+          <div className={styles.modalContent}>
+            <LoadingState message="Carregando detalhes do livro..." />
+          </div>
+        ) : modalDetalhesItem ? (
+          <div className={styles.modalContent}>
+            <div className={styles.detalhesItem}>
+              <h3>{modalDetalhesItem.titulo || 'Detalhes do Item'}</h3>
+              <p><strong>UUID do Livro:</strong> {modalDetalhesItem.uuid || 'N/A'}</p>
+              <p><strong>Autor:</strong> {modalDetalhesItem.autor || 'N/A'}</p>
+              <p><strong>Categoria:</strong> {modalDetalhesItem.categoria || 'N/A'}</p>
+              <p><strong>Preço:</strong> R$ {(modalDetalhesItem.preco ?? 0).toFixed(2).replace('.', ',')}</p>
+              <p><strong>Descrição:</strong> {modalDetalhesItem.descricao || 'N/A'}</p>
+            </div>
+            <div className={styles.modalAcoes}>
+              <button
+                className="btn-secondary"
+                onClick={() => setModalDetalhesItem(null)}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.modalContent}>
+            <div className={styles.detalhesItem}>
+              <p style={{ color: '#c62828', marginTop: '12px' }}>
+                ⚠️ Detalhes completos do livro não disponíveis no catálogo atual.
+              </p>
+            </div>
+            <div className={styles.modalAcoes}>
+              <button
+                className="btn-secondary"
+                onClick={() => setModalDetalhesItem(null)}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
       {/* Modal de Confirmação de Recebimento (RF0043 / RF0054) */}
       <Modal
         isOpen={modalConfirmar !== null}
@@ -221,12 +427,30 @@ function GerenciarTrocas() {
             </p>
 
             <div className={styles.modalItens}>
-              {modalConfirmar.itens.map((item, idx) => (
-                <div key={`${item.livroUuid}-${idx}`} className={styles.modalItem}>
-                  <span>{getLivroTitulo(item.livroUuid)}</span>
-                  <span>x{item.quantidade}</span>
-                </div>
-              ))}
+              {modalConfirmar.itens.map((item, idx) => {
+                const itemKey = item.uuid || item.livroUuid;
+                const isSelected = itensSelecionados[modalConfirmar.uuid]?.has(itemKey) || false;
+                const podeSelecionar = item.emTroca === true;
+
+                return (
+                  <div key={`${item.livroUuid}-${idx}`} className={styles.modalItem}>
+                    <label className={styles.itemCheckboxLabel}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        disabled={!podeSelecionar}
+                        onChange={() => toggleItemSelecionado(modalConfirmar.uuid, itemKey, podeSelecionar)}
+                        data-cy={`modal-item-checkbox-${itemKey}`}
+                      />
+                      <span className={podeSelecionar ? '' : styles.itemDisabled}>
+                        {getLivroTitulo(item.livroUuid)}
+                      </span>
+                      <span>x{item.quantidade}</span>
+                      {item.emTroca && <span className={styles.itemEmTrocaBadge}>Em Troca</span>}
+                    </label>
+                  </div>
+                );
+              })}
             </div>
 
             <div className={styles.estoqueOption}>
@@ -285,12 +509,30 @@ function GerenciarTrocas() {
             </p>
 
             <div className={styles.modalItens}>
-              {modalRejeitar.itens.map((item, idx) => (
-                <div key={`${item.livroUuid}-${idx}`} className={styles.modalItem}>
-                  <span>{getLivroTitulo(item.livroUuid)}</span>
-                  <span>x{item.quantidade}</span>
-                </div>
-              ))}
+              {modalRejeitar.itens.map((item, idx) => {
+                const itemKey = item.uuid || item.livroUuid;
+                const isSelected = itensSelecionados[modalRejeitar.uuid]?.has(itemKey) || false;
+                const podeSelecionar = item.emTroca === true;
+
+                return (
+                  <div key={`${item.livroUuid}-${idx}`} className={styles.modalItem}>
+                    <label className={styles.itemCheckboxLabel}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        disabled={!podeSelecionar}
+                        onChange={() => toggleItemSelecionado(modalRejeitar.uuid, itemKey, podeSelecionar)}
+                        data-cy={`modal-item-checkbox-${itemKey}`}
+                      />
+                      <span className={podeSelecionar ? '' : styles.itemDisabled}>
+                        {getLivroTitulo(item.livroUuid)}
+                      </span>
+                      <span>x{item.quantidade}</span>
+                      {item.emTroca && <span className={styles.itemEmTrocaBadge}>Em Troca</span>}
+                    </label>
+                  </div>
+                );
+              })}
             </div>
 
             <div className={styles.motivoContainer}>

@@ -5,12 +5,17 @@ import {
   autorizarTrocaThunk,
   confirmarEntregaThunk,
   confirmarRecebimentoTrocaThunk,
+  confirmarRecebimentoEntregaThunk,
   despacharPedidoThunk,
   fetchAllPedidos,
   fetchPedidosCliente,
   fetchPedidosEmTroca,
+  fetchPedidosEmDevolucao,
   rejeitarTrocaThunk,
   solicitarTrocaThunk,
+  autorizarDevolucaoThunk,
+  rejeitarDevolucaoThunk,
+  confirmarRecebimentoDevolucaoThunk,
 } from './pedidoThunks';
 
 interface PedidoState {
@@ -30,12 +35,17 @@ export {
   autorizarTrocaThunk,
   confirmarEntregaThunk,
   confirmarRecebimentoTrocaThunk,
+  confirmarRecebimentoEntregaThunk,
   despacharPedidoThunk,
   fetchAllPedidos,
   fetchPedidosCliente,
   fetchPedidosEmTroca,
+  fetchPedidosEmDevolucao,
   rejeitarTrocaThunk,
   solicitarTrocaThunk,
+  autorizarDevolucaoThunk,
+  rejeitarDevolucaoThunk,
+  confirmarRecebimentoDevolucaoThunk,
 } from './pedidoThunks';
 
 function atualizarPedidoPorUuid(estado: PedidoState, pedidoAtualizado: IPedido) {
@@ -100,12 +110,34 @@ const pedidoSlice = createSlice({
       })
       .addCase(fetchPedidosEmTroca.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.pedidos = action.payload;
+        // Mescla com pedidos existentes para não perder devoluções
+        state.pedidos = [...action.payload, ...state.pedidos.filter(p => 
+          !action.payload.some((novo: IPedido) => novo.uuid === p.uuid)
+        )];
         state.error = null;
       })
       .addCase(fetchPedidosEmTroca.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Erro ao carregar trocas';
+      });
+
+    // fetchPedidosEmDevolucao
+    builder
+      .addCase(fetchPedidosEmDevolucao.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchPedidosEmDevolucao.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // Mescla com pedidos existentes para não perder trocas
+        state.pedidos = [...action.payload, ...state.pedidos.filter(p => 
+          !action.payload.some((novo: IPedido) => novo.uuid === p.uuid)
+        )];
+        state.error = null;
+      })
+      .addCase(fetchPedidosEmDevolucao.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Erro ao carregar devoluções';
       });
 
     builder
@@ -121,11 +153,24 @@ const pedidoSlice = createSlice({
       .addCase(confirmarRecebimentoTrocaThunk.fulfilled, (state, action) => {
         atualizarPedidoPorUuid(state, action.payload.pedido);
       })
+      .addCase(autorizarDevolucaoThunk.fulfilled, (state, action) => {
+        atualizarPedidoPorUuid(state, action.payload);
+      })
+      .addCase(rejeitarDevolucaoThunk.fulfilled, (state, action) => {
+        atualizarPedidoPorUuid(state, action.payload);
+      })
+      .addCase(confirmarRecebimentoDevolucaoThunk.fulfilled, (state, action) => {
+        atualizarPedidoPorUuid(state, action.payload.pedido);
+      })
       .addCase(despacharPedidoThunk.fulfilled, (state, action) => {
         atualizarPedidoPorUuid(state, action.payload);
       })
       .addCase(confirmarEntregaThunk.fulfilled, (state, action) => {
         atualizarPedidoPorUuid(state, action.payload);
+      })
+      .addCase(confirmarRecebimentoEntregaThunk.fulfilled, (state, action) => {
+        const index = state.pedidos.findIndex((p) => p.uuid === action.payload);
+        if (index !== -1) state.pedidos[index].status = 'Entregue';
       })
       .addCase(logout, () => ({ ...initialState }));
   },

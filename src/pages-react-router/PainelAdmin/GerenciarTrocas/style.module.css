@@ -107,6 +107,69 @@
 .itemNome {
   font-size: 13px;
   line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.itemCheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.itemCheckboxLabel input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--bn-primary);
+  cursor: pointer;
+}
+
+.itemCheckboxLabel input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.itemDisabled {
+  color: var(--bn-text-muted);
+  opacity: 0.6;
+}
+
+.itemEmTrocaBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  background-color: #fce4ec;
+  color: #c62828;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.itemLink {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--bn-primary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s, text-decoration 0.2s;
+}
+
+.itemLink:hover {
+  color: var(--bn-primary-dark);
+  text-decoration: underline;
+}
+
+.itemLink:active {
+  color: var(--bn-primary-darker);
 }
 
 /* ===== Status Badges ===== */
@@ -243,4 +306,31 @@
   justify-content: flex-end;
   gap: 12px;
   margin-top: 20px;
+}
+
+.detalhesItem {
+  background-color: var(--bn-bg-secondary);
+  border-radius: var(--bn-border-radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.detalhesItem h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: var(--bn-text-primary);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.detalhesItem p {
+  margin: 8px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--bn-text-secondary);
+}
+
+.detalhesItem strong {
+  color: var(--bn-text-primary);
+  font-weight: 600;
 }

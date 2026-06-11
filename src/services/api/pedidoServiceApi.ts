@@ -21,8 +21,9 @@ interface IVendaApi {
     emTroca?: boolean;
   }>;
   criadoEm: string;
-  dataHoraEntrega?: string; // Data de entrega (ISO 8601)
-  dataEntrega?: string; // Data de entrega (ISO 8601) - campo alternativo
+  dataHoraEntrega?: string;
+  dataEntrega?: string;
+  dataPrevistaEntrega?: string;
 }
 
 /** Formato retornado por GET /admin/pedidos (vendaParaPayloadPedidoAdmin no backend). */
@@ -52,10 +53,18 @@ function mapStatusVendaParaPedido(s: string): StatusPedido {
     'EM TROCA': 'Em Troca',
     'TROCA AUTORIZADA': 'Troca Autorizada',
     'TROCA REJEITADA': 'Troca Rejeitada',
+    CANCELADA: 'Cancelado',
+    'FALHA NA ENTREGA': 'Em Trânsito',
     CONCLUÍDA: 'Trocado',
     'TROCA CONCLUÍDA': 'Trocado',
+    'EM DEVOLUÇÃO': 'Em Devolução',
+    'DEVOLUÇÃO AUTORIZADA': 'Devolução Autorizada',
+    'DEVOLUÇÃO REJEITADA': 'Devolução Rejeitada',
+    'DEVOLUÇÃO CONCLUÍDA': 'Devolvido',
+    DEVOLVIDA: 'Devolvido',
   };
-  return map[key] ?? 'Em Processamento';
+  // Fallback neutro: status desconhecido não deve virar 'Em Processamento'.
+  return map[key] ?? 'Pendentes';
 }
 
 function vendaApiParaPedido(v: IVendaApi): IPedido {
@@ -65,15 +74,18 @@ function vendaApiParaPedido(v: IVendaApi): IPedido {
     uuid: v.uuid,
     data: dataIso,
     dataEntrega: v.dataHoraEntrega || v.dataEntrega,
+    dataPrevistaEntrega: v.dataPrevistaEntrega,
     clienteUuid: v.usuarioUuid,
     total: v.totalVenda,
     status: mapStatusVendaParaPedido(v.status),
     motivo: v.motivoTroca,
     itens: v.itens.map((i) => ({
+      uuid: i.uuid,
       livroUuid: i.livroUuid,
       quantidade: i.quantidade,
-      precoUnitario: i.precoUnitario,
+      precoUnitario: i.precoUnitario ?? 0,
       categoria: 'Livro',
+      emTroca: i.emTroca,
     })),
   };
 }
@@ -88,7 +100,7 @@ function pedidoAdminApiParaPedido(v: IPedidoAdminApi): IPedido {
     itens: v.itens.map((i) => ({
       livroUuid: i.livroUuid,
       quantidade: i.quantidade,
-      precoUnitario: i.precoUnitario,
+      precoUnitario: i.precoUnitario ?? 0,
       categoria: i.categoria,
     })),
   };
@@ -113,8 +125,17 @@ export class PedidoServiceApi implements IPedidoService {
     return ApiClient.patch<IPedido>(API_ENDPOINTS.confirmarEntrega(pedidoUuid));
   }
 
+  async confirmarRecebimentoEntrega(pedidoUuid: string): Promise<void> {
+    await ApiClient.patch<void>(API_ENDPOINTS.confirmarRecebimentoEntrega(pedidoUuid));
+  }
+
   async getPedidosEmTroca(): Promise<IPedido[]> {
     const raw = await ApiClient.get<IVendaApi[]>(API_ENDPOINTS.obterPedidosEmTroca);
+    return raw.map(vendaApiParaPedido);
+  }
+
+  async getPedidosEmDevolucao(): Promise<IPedido[]> {
+    const raw = await ApiClient.get<IVendaApi[]>(API_ENDPOINTS.obterPedidosEmDevolucao);
     return raw.map(vendaApiParaPedido);
   }
 
@@ -148,6 +169,46 @@ export class PedidoServiceApi implements IPedidoService {
   }
 
   async getCuponsCliente(_clienteUuid?: string): Promise<ICupomTroca[]> {
-    return ApiClient.get<ICupomTroca[]>(API_ENDPOINTS.obterCuponsCliente);
+    const response = await ApiClient.get<{ tipo: string; codigo: string; valor: number | string }[]>(API_ENDPOINTS.obterCuponsCliente);
+    // Mapear formato simplificado do backend para formato ICupomTroca esperado pelo frontend
+    return response.map((cupom) => ({
+      uuid: cupom.codigo, // Usar código como UUID temporário
+      pedidoOrigemUuid: '',
+      clienteUuid: '',
+      valor: typeof cupom.valor === 'string' ? parseFloat(cupom.valor) : cupom.valor,
+      codigo: cupom.codigo,
+      validade: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // Validade padrão de 1 ano
+      utilizado: false,
+      dataCriacao: new Date().toISOString(),
+    }));
+  }
+
+  async solicitarDevolucao(
+    pedidoUuid: string,
+    motivo: string,
+    itensUuids: string[],
+  ): Promise<IPedido> {
+    return ApiClient.post<IPedido>(API_ENDPOINTS.solicitarDevolucao(pedidoUuid), {
+      motivo,
+      itensUuids,
+    });
+  }
+
+  async autorizarDevolucao(pedidoUuid: string): Promise<IPedido> {
+    return ApiClient.patch<IPedido>(API_ENDPOINTS.autorizarDevolucao(pedidoUuid));
+  }
+
+  async rejeitarDevolucao(pedidoUuid: string, motivo: string): Promise<IPedido> {
+    return ApiClient.patch<IPedido>(API_ENDPOINTS.rejeitarDevolucao(pedidoUuid), { motivo });
+  }
+
+  async confirmarRecebimentoDevolucao(
+    pedidoUuid: string,
+    retornarEstoque: boolean,
+  ): Promise<{ pedido: IPedido; reembolsoProcessado: boolean }> {
+    return ApiClient.patch<{ pedido: IPedido; reembolsoProcessado: boolean }>(
+      API_ENDPOINTS.confirmarRecebimentoDevolucao(pedidoUuid),
+      { retornarEstoque },
+    );
   }
 }

@@ -128,4 +128,60 @@ export class PedidoServiceMock implements IPedidoService {
       : [...cuponsMemoria];
     return delay(resultado);
   }
+
+  async confirmarRecebimentoEntrega(pedidoUuid: string): Promise<void> {
+    console.log('[Mock] Confirmando recebimento entrega:', pedidoUuid);
+    const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+    if (index === -1) throw new Error('Pedido não encontrado');
+    pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Entregue' };
+    return delay(undefined, 300);
+  }
+
+  async solicitarDevolucao(
+    pedidoUuid: string,
+    motivo: string,
+    _itensUuids: string[],
+  ): Promise<IPedido> {
+    console.log('[Mock] Solicitando devolução para pedido:', pedidoUuid, motivo);
+    const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+    if (index === -1) throw new Error('Pedido não encontrado');
+    if (pedidosMemoria[index].status !== 'Entregue') {
+      throw new Error('Somente pedidos com status "Entregue" podem ser devolvidos (RN0043)');
+    }
+
+    pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Em Devolução', motivo };
+    return delay({ ...pedidosMemoria[index] }, 500);
+  }
+
+  async autorizarDevolucao(pedidoUuid: string): Promise<IPedido> {
+    console.log('[Mock] Autorizando devolução para pedido:', pedidoUuid);
+    const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+    if (index === -1) throw new Error('Pedido não encontrado');
+
+    pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Devolução Autorizada' };
+    return delay({ ...pedidosMemoria[index] }, 500);
+  }
+
+  async rejeitarDevolucao(pedidoUuid: string, motivo: string): Promise<IPedido> {
+    console.log('[Mock] Rejeitando devolução para pedido:', pedidoUuid, motivo);
+    const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+    if (index === -1) throw new Error('Pedido não encontrado');
+
+    pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Devolução Rejeitada', motivo };
+    return delay({ ...pedidosMemoria[index] }, 500);
+  }
+
+  async confirmarRecebimentoDevolucao(
+    pedidoUuid: string,
+    _retornarEstoque: boolean,
+  ): Promise<{ pedido: IPedido; reembolsoProcessado: boolean }> {
+    console.log('[Mock] Confirmando recebimento devolução:', pedidoUuid);
+    const index = pedidosMemoria.findIndex((p) => p.uuid === pedidoUuid);
+    if (index === -1) throw new Error('Pedido não encontrado');
+
+    pedidosMemoria[index] = { ...pedidosMemoria[index], status: 'Devolvido' };
+
+    // TODO: Implementar lógica de reembolso
+    return delay({ pedido: { ...pedidosMemoria[index] }, reembolsoProcessado: false }, 500);
+  }
 }
