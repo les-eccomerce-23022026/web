@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { usePedidos } from '../../../hooks/usePedidos';
 import { fetchPerfilCompleto } from '../../../store/slices/clienteSlice';
+import { fetchPedidosCliente } from '../../../store/slices/pedidoThunks';
 import { LoadingState } from '../../../components/Comum/LoadingState/LoadingState.tsx';
 import { EmptyState } from '../../../components/Comum/EmptyState/EmptyState.tsx';
 import { ErrorState } from '../../../components/Comum/ErrorState/ErrorState.tsx';
@@ -14,21 +16,27 @@ import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
 import { PedidoCard } from './PedidoCard';
 import { ModalRastrearPedido } from './ModalRastrearPedido';
 import { ModalDetalhesPedido } from './ModalDetalhesPedido';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 
 type AbaGrupo = 'todos' | 'aberto' | 'finalizados';
 
 const STATUS_EM_ABERTO: StatusPedido[] = [
-  'Pendentes',
-  'Aguardando Pagamento',
-  'Em Processamento',
-  'Preparando',
-  'Em Trânsito',
-  'Em Troca',
-  'Troca Autorizada',
-  'Devoluções',
+  STATUS_PEDIDO.PENDENTE,
+  STATUS_PEDIDO.PENDENTES,
+  STATUS_PEDIDO.AGUARDANDO_PAGAMENTO,
+  STATUS_PEDIDO.EM_PROCESSAMENTO,
+  STATUS_PEDIDO.PREPARANDO,
+  STATUS_PEDIDO.EM_TRANSITO,
+  STATUS_PEDIDO.EM_TROCA,
+  STATUS_PEDIDO.TROCA_AUTORIZADA,
+  STATUS_PEDIDO.DEVOLUCOES,
 ];
 
-const STATUS_FINALIZADOS: StatusPedido[] = ['Entregue', 'Trocado', 'Cancelado'];
+const STATUS_FINALIZADOS: StatusPedido[] = [
+  STATUS_PEDIDO.ENTREGUE,
+  STATUS_PEDIDO.TROCADO,
+  STATUS_PEDIDO.CANCELADO,
+];
 
 function passaAbaGrupo(p: IPedido, aba: AbaGrupo): boolean {
   if (aba === 'todos') return true;
@@ -37,6 +45,7 @@ function passaAbaGrupo(p: IPedido, aba: AbaGrupo): boolean {
 }
 
 function MeusPedidos() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const enderecos = useAppSelector((state) => state.cliente.enderecos);
@@ -54,11 +63,12 @@ function MeusPedidos() {
     return m;
   }, [livrosMerged]);
 
-  const { pedidos, loading, error } = usePedidos(user?.uuid);
+  const { pedidos, loading, error, confirmarRecebimentoEntrega } = usePedidos(user?.uuid);
   const [abaGrupo, setAbaGrupo] = useState<AbaGrupo>('todos');
   const [statusDetalhe, setStatusDetalhe] = useState<'' | StatusPedido>('');
   const [modalRastrear, setModalRastrear] = useState<IPedido | null>(null);
   const [modalDetalhes, setModalDetalhes] = useState<IPedido | null>(null);
+  const [confirmandoRecebimento, setConfirmandoRecebimento] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (user?.uuid && enderecos.length === 0) {
@@ -69,6 +79,26 @@ function MeusPedidos() {
   const handleMudarAba = (novaAba: AbaGrupo) => {
     setAbaGrupo(novaAba);
     setStatusDetalhe('');
+  };
+
+  const handleConfirmarRecebimento = async (pedido: IPedido) => {
+    if (!pedido.uuid) return;
+    
+    setConfirmandoRecebimento((prev) => new Set(prev).add(pedido.uuid));
+    
+    try {
+      await confirmarRecebimentoEntrega(pedido.uuid);
+      // Após confirmação bem-sucedida, recarregar pedidos
+      dispatch(fetchPedidosCliente(user?.uuid || ''));
+    } catch (err) {
+      console.error('Erro ao confirmar recebimento:', err);
+    } finally {
+      setConfirmandoRecebimento((prev) => {
+        const next = new Set(prev);
+        next.delete(pedido.uuid);
+        return next;
+      });
+    }
   };
 
   const opcoesRefinamento = useMemo(() => {
@@ -149,6 +179,7 @@ function MeusPedidos() {
               type="button"
               className={`${styles.chip} ${statusDetalhe === '' ? styles.chipAtivo : ''}`}
               onClick={() => setStatusDetalhe('')}
+              data-cy="pedidos-filtro-todos"
             >
               Todos os status
             </button>
@@ -158,6 +189,7 @@ function MeusPedidos() {
                 type="button"
                 className={`${styles.chip} ${statusDetalhe === s ? styles.chipAtivo : ''}`}
                 onClick={() => setStatusDetalhe(s)}
+                data-cy={`pedidos-filtro-${s.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 {s}
               </button>
@@ -178,6 +210,12 @@ function MeusPedidos() {
             livrosMap={livrosMap}
             onRastrear={setModalRastrear}
             onDetalhes={setModalDetalhes}
+            onSolicitarTroca={(p) => {
+              // Navegar para página de solicitação de troca usando Next.js router
+              router.push(`/pedidos/${p.uuid}/troca`);
+            }}
+            onConfirmarRecebimento={handleConfirmarRecebimento}
+            confirmandoRecebimento={confirmandoRecebimento.has(pedido.uuid)}
           />
         ))}
       </div>

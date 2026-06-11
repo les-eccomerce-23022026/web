@@ -1,23 +1,25 @@
 import type { StatusPedido } from '../../../interfaces/pedido';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 
 /** Maior etapa concluída (1–4). Troca pós-entrega = 4. Cancelado = 0. */
 export function statusParaEtapaConcluida(status: StatusPedido): number | 'cancelado' {
   switch (status) {
-    case 'Cancelado':
+    case STATUS_PEDIDO.CANCELADO:
       return 'cancelado';
-    case 'Pendentes':
-    case 'Aguardando Pagamento':
-    case 'Em Processamento':
+    case STATUS_PEDIDO.PENDENTE:
+    case STATUS_PEDIDO.PENDENTES:
+    case STATUS_PEDIDO.AGUARDANDO_PAGAMENTO:
+    case STATUS_PEDIDO.EM_PROCESSAMENTO:
       return 1;
-    case 'Preparando':
-    case 'Devoluções':
+    case STATUS_PEDIDO.PREPARANDO:
+    case STATUS_PEDIDO.DEVOLUCOES:
       return 2;
-    case 'Em Trânsito':
+    case STATUS_PEDIDO.EM_TRANSITO:
       return 3;
-    case 'Entregue':
-    case 'Em Troca':
-    case 'Troca Autorizada':
-    case 'Trocado':
+    case STATUS_PEDIDO.ENTREGUE:
+    case STATUS_PEDIDO.EM_TROCA:
+    case STATUS_PEDIDO.TROCA_AUTORIZADA:
+    case STATUS_PEDIDO.TROCADO:
       return 4;
     default:
       return 1;

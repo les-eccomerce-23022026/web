@@ -10,6 +10,7 @@ import {
   tituloItem,
   totalUnidades,
 } from './meusPedidosHelpers';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 import styles from './style.module.css';
 
 type Props = {
@@ -18,6 +19,8 @@ type Props = {
   onRastrear: (pedido: IPedido) => void;
   onDetalhes: (pedido: IPedido) => void;
   onSolicitarTroca?: (pedido: IPedido) => void;
+  onConfirmarRecebimento?: (pedido: IPedido) => void;
+  confirmandoRecebimento?: boolean;
 };
 
 const itemBarFillByVariant: Record<PedidoStatusVariant, string> = {
@@ -29,7 +32,7 @@ const itemBarFillByVariant: Record<PedidoStatusVariant, string> = {
 };
 
 function verificarPrazoTroca(pedido: IPedido): { dentroPrazo: boolean; diasRestantes?: number } {
-  if (!pedido.dataEntrega || pedido.status !== 'Entregue') {
+  if (!pedido.dataEntrega || pedido.status !== STATUS_PEDIDO.ENTREGUE) {
     return { dentroPrazo: false };
   }
 
@@ -50,6 +53,8 @@ export const PedidoCard = ({
   onRastrear,
   onDetalhes,
   onSolicitarTroca,
+  onConfirmarRecebimento,
+  confirmandoRecebimento = false,
 }: Props) => {
   const statusVisual = getPedidoStatusVisual(pedido.status);
   const StatusIcon = statusVisual.Icon;
@@ -81,6 +86,13 @@ export const PedidoCard = ({
           {pedido.status}
         </span>
       </div>
+
+      {pedido.dataPrevistaEntrega && pedido.status === STATUS_PEDIDO.EM_TRANSITO && (
+        <span className={styles.dataPrevistaEntrega}>
+          Previsão de entrega:{' '}
+          {new Date(pedido.dataPrevistaEntrega).toLocaleDateString('pt-BR')}
+        </span>
+      )}
 
       <PedidoTimelineEntrega status={pedido.status} />
 
@@ -137,7 +149,7 @@ export const PedidoCard = ({
       <div className={styles.pedidoFooter}>
         <div className={styles.totalBloco}>
           <span className={styles.pedidoTotalLabel}>Total</span>
-          <span className={styles.pedidoTotal}>
+          <span className={styles.pedidoTotal} data-cy="pedido-total">
             {formatMoeda(pedido.total)}
           </span>
           <span className={styles.pedidoItensCount}>
@@ -147,8 +159,8 @@ export const PedidoCard = ({
         </div>
 
         <div className={styles.acoes}>
-          {(pedido.status === 'Em Trânsito' ||
-            pedido.status === 'Preparando') && (
+          {(pedido.status === STATUS_PEDIDO.EM_TRANSITO ||
+            pedido.status === STATUS_PEDIDO.PREPARANDO) && (
             <button
               type="button"
               className={`btn-primary ${styles.btnAcao}`}
@@ -156,6 +168,17 @@ export const PedidoCard = ({
               data-cy={`btn-rastrear-${pedido.uuid}`}
             >
               Rastrear entrega
+            </button>
+          )}
+          {pedido.status === STATUS_PEDIDO.EM_TRANSITO && onConfirmarRecebimento && (
+            <button
+              type="button"
+              className={styles.btnConfirmarRecebimento}
+              onClick={() => onConfirmarRecebimento(pedido)}
+              disabled={confirmandoRecebimento}
+              data-cy={`btn-confirmar-recebimento-${pedido.uuid}`}
+            >
+              {confirmandoRecebimento ? 'Confirmando...' : 'Confirmar recebimento'}
             </button>
           )}
           <button
@@ -166,7 +189,7 @@ export const PedidoCard = ({
           >
             Ver detalhes
           </button>
-          {pedido.status === 'Entregue' && (
+          {pedido.status === STATUS_PEDIDO.ENTREGUE && (
             <button
               type="button"
               className={`btn-secondary ${styles.btnAcao} ${styles.btnAcaoNeutra}`}
@@ -182,7 +205,7 @@ export const PedidoCard = ({
               Solicitar troca
             </button>
           )}
-          {!prazoTroca.dentroPrazo && pedido.status === 'Entregue' && (
+          {!prazoTroca.dentroPrazo && pedido.status === STATUS_PEDIDO.ENTREGUE && (
             <span className={styles.prazoExpirado}>
               Prazo de troca expirado (7 dias após entrega)
             </span>
