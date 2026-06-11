@@ -10,6 +10,7 @@ import type { IItemPedido } from '../../../interfaces/pedido';
 import styles from './style.module.css';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
 import { ROTAS } from '@/config/rotas';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 
 export const SolicitarTroca = () => {
   const params = useParams();
@@ -58,7 +59,7 @@ export const SolicitarTroca = () => {
       />
     );
   }
-  if (pedido.status !== 'Entregue') {
+  if (pedido.status !== STATUS_PEDIDO.ENTREGUE) {
     return (
       <ErrorState
         title="Troca não disponível"
@@ -170,7 +171,7 @@ export const SolicitarTroca = () => {
               <div className={styles.itemInfo}>
                 <span className={styles.itemTitulo}>{getLivroTitulo(item.livroUuid)}</span>
                 <span className={styles.itemDetalhes}>
-                  Qtd: {item.quantidade} — R$ {item.precoUnitario.toFixed(2).replace('.', ',')}
+                  Qtd: {item.quantidade} — R$ {(item.precoUnitario ?? 0).toFixed(2).replace('.', ',')}
                 </span>
               </div>
             </label>
@@ -200,7 +201,7 @@ export const SolicitarTroca = () => {
             <strong className={styles.valorCupom}>
               R$ {pedido.itens
                 .filter((item) => itensSelecionados.includes(item.livroUuid))
-                .reduce((acc, item) => acc + item.precoUnitario * item.quantidade, 0)
+                .reduce((acc, item) => acc + (item.precoUnitario ?? 0) * item.quantidade, 0)
                 .toFixed(2)
                 .replace('.', ',')}
             </strong>
