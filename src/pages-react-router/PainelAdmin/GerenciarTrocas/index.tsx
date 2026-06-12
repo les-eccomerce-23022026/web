@@ -11,6 +11,15 @@ import type { IPedido } from '../../../interfaces/pedido';
 import styles from './style.module.css';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
 import { LivroServiceApi } from '../../../services/api/livroServiceApi';
+import {
+  getStatusCssClass,
+  isTrocaEmAndamento,
+  isDevolucaoEmAndamento,
+  isTrocaAutorizada,
+  isDevolucaoAutorizada,
+  isConcluido,
+  isDevolucao,
+} from '../../../utils/statusPedidoUtils';
 
 interface ItensSelecionadosState {
   [pedidoUuid: string]: Set<string>;
@@ -120,12 +129,6 @@ function GerenciarTrocas() {
   };
 
   const handleAutorizar = async (pedidoUuid: string) => {
-    const itensUuids = Array.from(itensSelecionados[pedidoUuid] || []);
-    if (itensUuids.length === 0) {
-      setFeedbackMsg('Selecione pelo menos um item para autorizar a troca.');
-      return;
-    }
-
     setProcessando(true);
     try {
       await autorizarTroca(pedidoUuid);
@@ -140,16 +143,16 @@ function GerenciarTrocas() {
 
   const handleRejeitar = async () => {
     if (!modalRejeitar) return;
-    const itensUuids = Array.from(itensSelecionados[modalRejeitar.uuid] || []);
-    if (itensUuids.length === 0) {
-      setFeedbackMsg('Selecione pelo menos um item para rejeitar a troca.');
-      return;
-    }
-
     setProcessando(true);
     try {
-      await rejeitarTroca(modalRejeitar.uuid, motivoRejeicao);
-      setFeedbackMsg(`Troca do pedido #${modalRejeitar.uuid?.split('-')[1] || modalRejeitar.uuid} rejeitada.`);
+      const isDevolucaoStatus = isDevolucao(modalRejeitar.status);
+      if (isDevolucaoStatus) {
+        await rejeitarDevolucao(modalRejeitar.uuid, motivoRejeicao);
+      } else {
+        await rejeitarTroca(modalRejeitar.uuid, motivoRejeicao);
+      }
+      const tipo = isDevolucaoStatus ? 'Devolução' : 'Troca';
+      setFeedbackMsg(`${tipo} do pedido #${modalRejeitar.uuid?.split('-')[1] || modalRejeitar.uuid} rejeitada.`);
       setModalRejeitar(null);
       setMotivoRejeicao('');
     } catch (e: unknown) {
@@ -164,15 +167,17 @@ function GerenciarTrocas() {
     if (!modalConfirmar) return;
     setProcessando(true);
     try {
-      // Verifica se é devolução ou troca pelo status
-      const isDevolucao = modalConfirmar.status === 'DEVOLUÇÃO AUTORIZADA' || modalConfirmar.status === 'EM DEVOLUÇÃO';
-      const resultado = isDevolucao
+      // Verifica se é devolução ou troca pelo status usando utilitário centralizado
+      const isDevolucaoStatus = isDevolucao(modalConfirmar.status);
+      const resultado = isDevolucaoStatus
         ? await confirmarRecebimentoDevolucao(modalConfirmar.uuid, retornarEstoque)
         : await confirmarRecebimento(modalConfirmar.uuid, retornarEstoque);
       const pedidoId = modalConfirmar.uuid?.split('-')[1] || modalConfirmar.uuid;
-      const cupomGerado = resultado?.cupomGerado;
+      
+      // Type guard para verificar se o resultado tem cupomGerado
+      const cupomGerado = 'cupomGerado' in resultado ? resultado.cupomGerado : null;
       const cupomInfo = cupomGerado
-        ? ` Cupom de ${isDevolucao ? 'devolução' : 'troca'} gerado: ${cupomGerado.codigo} (R$ ${Number(cupomGerado.valorAtual ?? 0).toFixed(2).replace('.', ',')})`
+        ? ` Cupom de ${isDevolucaoStatus ? 'devolução' : 'troca'} gerado: ${cupomGerado.codigo} (R$ ${Number(cupomGerado.valor ?? 0).toFixed(2).replace('.', ',')})`
         : '';
       setFeedbackMsg(`Recebimento do pedido #${pedidoId} confirmado.${cupomInfo}`);
       setModalConfirmar(null);
@@ -182,20 +187,6 @@ function GerenciarTrocas() {
     } finally {
       setProcessando(false);
     }
-  };
-
-  const getStatusClass = (status: string): string => {
-    const map: Record<string, string> = {
-      'Em Troca': styles.statusEmTroca,
-      'Troca Autorizada': styles.statusTrocaAutorizada,
-      'Trocado': styles.statusTrocado,
-      'Troca Rejeitada': styles.statusTrocaRejeitada,
-      'EM DEVOLUÇÃO': styles.statusEmTroca,
-      'DEVOLUÇÃO AUTORIZADA': styles.statusTrocaAutorizada,
-      'Devolvido': styles.statusTrocado,
-      'Devolução Rejeitada': styles.statusTrocaRejeitada,
-    };
-    return map[status] || '';
   };
 
   return (
@@ -271,14 +262,14 @@ function GerenciarTrocas() {
                 </td>
                 <td>
                   <span
-                    className={`${styles.statusBadge} ${getStatusClass(pedido.status)}`}
+                    className={`${styles.statusBadge} ${styles[getStatusCssClass(pedido.status)]}`}
                     data-cy="pedido-status"
                   >
                     {pedido.status}
                   </span>
                 </td>
                 <td className={styles.colAcoes}>
-                  {pedido.status === 'Em Troca' && (
+                  {isTrocaEmAndamento(pedido.status) && (
                     <>
                       <button
                         className={`btn-primary ${styles.btnAcao}`}
@@ -302,7 +293,7 @@ function GerenciarTrocas() {
                       </button>
                     </>
                   )}
-                  {pedido.status === 'EM DEVOLUÇÃO' && (
+                  {isDevolucaoEmAndamento(pedido.status) && (
                     <>
                       <button
                         className={`btn-primary ${styles.btnAcao}`}
@@ -326,7 +317,7 @@ function GerenciarTrocas() {
                       </button>
                     </>
                   )}
-                  {pedido.status === 'Troca Autorizada' && (
+                  {(isTrocaAutorizada(pedido.status) || isDevolucaoAutorizada(pedido.status)) && (
                     <button
                       className={`btn-secondary ${styles.btnAcao}`}
                       onClick={() => {
@@ -339,20 +330,7 @@ function GerenciarTrocas() {
                       Confirmar Recebimento
                     </button>
                   )}
-                  {pedido.status === 'DEVOLUÇÃO AUTORIZADA' && (
-                    <button
-                      className={`btn-secondary ${styles.btnAcao}`}
-                      onClick={() => {
-                        setModalConfirmar(pedido);
-                        setRetornarEstoque(true);
-                      }}
-                      disabled={processando}
-                      data-cy={`btn-confirmar-recebimento-${pedido.uuid}`}
-                    >
-                      Confirmar Recebimento
-                    </button>
-                  )}
-                  {pedido.status === 'Trocado' && (
+                  {isConcluido(pedido.status) && (
                     <span className={styles.concluido}>✅ Concluído</span>
                   )}
                 </td>

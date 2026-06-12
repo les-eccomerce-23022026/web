@@ -8,7 +8,6 @@ interface PropsColunas {
   getLivroTitulo: (livroUuid: string) => string;
   despachar: (pedido: IPedido) => void;
   confirmarEntrega: (pedidoUuid: string) => void;
-  abrirModalRejeicao: (pedidoUuid: string) => void;
   aprovarPagamento: (pedidoUuid: string) => void;
   rejeitarPagamento: (pedidoUuid: string) => void;
   processando: string | null;
@@ -22,7 +21,6 @@ export function obterColunasGerenciarPedidos({
   getLivroTitulo,
   despachar,
   confirmarEntrega,
-  abrirModalRejeicao,
   aprovarPagamento,
   rejeitarPagamento,
   processando,
@@ -35,6 +33,7 @@ export function obterColunasGerenciarPedidos({
     {
       key: 'uuid',
       label: 'Pedido',
+      filterable: true,
       render: (_: string, pedido: IPedido) => (
         <span className={styles.colPedido}>
           #{pedido.uuid?.split('-')[1]?.toUpperCase() || pedido.uuid}
@@ -44,6 +43,7 @@ export function obterColunasGerenciarPedidos({
     {
       key: 'data',
       label: 'Data',
+      filterable: true,
       render: (data: string) => formatarData(data),
     },
     {
@@ -63,6 +63,7 @@ export function obterColunasGerenciarPedidos({
     {
       key: 'total',
       label: 'Total',
+      filterable: true,
       render: (total: number) => (
         <span className={styles.colTotal}>{formatarMoeda(total)}</span>
       ),
@@ -70,12 +71,13 @@ export function obterColunasGerenciarPedidos({
     {
       key: 'status',
       label: 'Status',
-      render: (status: string) => (
+      filterable: true,
+      render: (status: string, pedido: IPedido) => (
         <span
           className={`${styles.statusBadge} ${
             styles[STATUS_CSS[status as StatusPedidoConstante]] ?? styles.statusOutro
           }`}
-          data-cy="status-badge"
+          data-cy={`status-badge-${pedido.uuid}`}
         >
           {STATUS_LABELS[status as StatusPedido] ?? status}
         </span>

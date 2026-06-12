@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { ILoja, ILojaFormState } from '../../../interfaces/loja';
-import { BASE_URL } from '../../../config/apiConfig';
+import { lojaService } from '../../../services/lojaService';
 
 const INITIAL_FORM: ILojaFormState = {
   nome: '',
@@ -29,20 +29,8 @@ export function useGerenciarLojas() {
   async function carregarLojas() {
     setIsLoading(true);
     try {
-      const resposta = await fetch(`${BASE_URL}/admin/lojas`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!resposta.ok) {
-        throw new Error('Erro ao carregar lojas');
-      }
-
-      const dados = await resposta.json();
-      setLojas(Array.isArray(dados) ? dados : dados.dados || dados.lojas || []);
+      const dados = await lojaService.listarLojas();
+      setLojas(dados);
     } catch (erro: unknown) {
       const mensagem = erro instanceof Error ? erro.message : 'Erro ao carregar lojas';
       showPageFeedback(mensagem, 'error');
@@ -206,23 +194,7 @@ export function useGerenciarLojas() {
    */
   async function verificarSlugUnico(slug: string, uuidAtual?: string): Promise<boolean> {
     try {
-      const resposta = await fetch(`${BASE_URL}/admin/lojas/verificar-slug?slug=${encodeURIComponent(slug)}`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-      const dados = await resposta.json() as { disponivel?: boolean };
-
-      // Se é edição, verifica se o slug pertence à loja atual
-      if (uuidAtual && !dados.disponivel) {
-        const lojaAtual = await fetch(`${BASE_URL}/admin/lojas/${uuidAtual}`, {
-          method: 'GET',
-          credentials: 'include',
-        });
-        const lojaData = await lojaAtual.json() as { slug?: string };
-        return lojaData.slug === slug;
-      }
-
-      return dados.disponivel ?? false;
+      return await lojaService.verificarSlugDisponivel(slug, uuidAtual);
     } catch {
       return false;
     }
@@ -247,23 +219,11 @@ export function useGerenciarLojas() {
 
       if (editingLoja) {
         // Editar loja
-        const resposta = await fetch(`${BASE_URL}/admin/lojas/${editingLoja.uuid}`, {
-          method: 'PUT',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nome: form.nome,
-            slug: form.slug,
-            cnpj: form.cnpj,
-          }),
+        await lojaService.atualizarLoja(editingLoja.uuid, {
+          nome: form.nome,
+          slug: form.slug,
+          cnpj: form.cnpj,
         });
-
-        if (!resposta.ok) {
-          const erro = await resposta.json();
-          throw new Error(erro.mensagem || 'Erro ao atualizar loja');
-        }
 
         showPageFeedback('Loja atualizada com sucesso!');
         await carregarLojas();
@@ -272,23 +232,12 @@ export function useGerenciarLojas() {
       }
 
       // Criar nova loja
-      const resposta = await fetch(`${BASE_URL}/admin/lojas`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nome: form.nome,
-          slug: form.slug,
-          cnpj: form.cnpj,
-        }),
+      await lojaService.criarLoja({
+        nome: form.nome,
+        slug: form.slug,
+        cnpj: form.cnpj,
+        ativo: true,
       });
-
-      if (!resposta.ok) {
-        const erro = await resposta.json();
-        throw new Error(erro.mensagem || 'Erro ao criar loja');
-      }
 
       showPageFeedback('Loja criada com sucesso!');
       await carregarLojas();

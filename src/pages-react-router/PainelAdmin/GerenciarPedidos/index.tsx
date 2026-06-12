@@ -11,6 +11,12 @@ import styles from './style.module.css';
 export const GerenciarPedidos = () => {
   const {
     pedidosFiltrados,
+    pedidosPaginados,
+    totalPaginas,
+    paginaAtual,
+    aoMudarPagina,
+    filtrosColuna,
+    handleFiltroColunaChange,
     loading,
     error,
     processando,
@@ -27,14 +33,12 @@ export const GerenciarPedidos = () => {
     isPagamentoPendente,
     aprovarPagamento,
     rejeitarPagamento,
-    abrirModalRejeicao,
   } = useGerenciarPedidos();
 
   const colunas = obterColunasGerenciarPedidos({
     getLivroTitulo,
     despachar,
     confirmarEntrega,
-    abrirModalRejeicao,
     aprovarPagamento,
     rejeitarPagamento,
     processando,
@@ -93,7 +97,7 @@ export const GerenciarPedidos = () => {
       {/* Tabela */}
       <AdminTable
         colunas={colunas}
-        dados={pedidosFiltrados}
+        dados={pedidosPaginados}
         rowKey="uuid"
         carregando={loading}
         erro={error || undefined}
@@ -102,6 +106,13 @@ export const GerenciarPedidos = () => {
           mensagem: 'Não encontramos pedidos com esses filtros.',
           icone: <Package size={48} />,
         }}
+        paginacao={{
+          paginaAtual,
+          totalPaginas,
+          aoMudarPagina,
+        }}
+        filtrosColuna={Object.entries(filtrosColuna).map(([key, valor]) => ({ key, valor }))}
+        onFiltroColunaChange={handleFiltroColunaChange}
         className={styles.tabelaWrapper}
       />
     </div>

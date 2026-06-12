@@ -10,6 +10,8 @@ import {
 import type { IPedido, StatusPedido } from '../../../interfaces/pedido';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
 import { STATUS_PEDIDO } from '@/config/constantesNegocio';
+import { ITENS_POR_PAGINA } from '@/config/constantesNegocio';
+import { pedidoService } from '@/services/pedidoService';
 
 const STATUS_APROVADOS: StatusPedido[] = [STATUS_PEDIDO.EM_PROCESSAMENTO];
 const STATUS_TRANSITO: StatusPedido[] = [STATUS_PEDIDO.EM_TRANSITO];
@@ -32,8 +34,10 @@ export function useGerenciarPedidos() {
 
   const [filtroBusca, setFiltroBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
+  const [filtrosColuna, setFiltrosColuna] = useState<Record<string, string>>({});
   const [processando, setProcessando] = useState<string | null>(null);
   const [feedbackMsg, setFeedbackMsg] = useState('');
+  const [paginaAtual, setPaginaAtual] = useState(1);
 
   useEffect(() => {
     dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS)).then(() => {
@@ -53,8 +57,32 @@ export function useGerenciarPedidos() {
       p.uuid.toLowerCase().includes(buscaNome) ||
       p.itens.some((i) => getLivroTitulo(i.livroUuid).toLowerCase().includes(buscaNome));
     const matchStatus = filtroStatus === 'todos' || p.status === filtroStatus;
-    return matchBusca && matchStatus;
+    
+    const matchFiltrosColuna = Object.entries(filtrosColuna).every(([key, valor]) => {
+      if (!valor) return true;
+      const valorLower = valor.toLowerCase();
+      const valorCelula = String((p as Record<string, any>)[key] || '').toLowerCase();
+      return valorCelula.includes(valorLower);
+    });
+
+    return matchBusca && matchStatus && matchFiltrosColuna;
   });
+
+  const handleFiltroColunaChange = useCallback((key: string, valor: string) => {
+    setFiltrosColuna((prev) => ({ ...prev, [key]: valor }));
+    setPaginaAtual(1);
+  }, []);
+
+  const totalPaginas = Math.ceil(pedidosFiltrados.length / ITENS_POR_PAGINA);
+  const pedidosPaginados = useMemo(() => {
+    const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+    const fim = inicio + ITENS_POR_PAGINA;
+    return pedidosFiltrados.slice(inicio, fim);
+  }, [pedidosFiltrados, paginaAtual]);
+
+  const aoMudarPagina = useCallback((pagina: number) => {
+    setPaginaAtual(pagina);
+  }, []);
 
   const despachar = useCallback(
     async (pedido: IPedido) => {
@@ -108,11 +136,7 @@ export function useGerenciarPedidos() {
     const uuid = modalRejeicao.uuid;
     setProcessando(uuid);
     try {
-      await fetch('/api/admin/testes/mudar-status-venda', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vendaUuid: uuid, novoStatus: STATUS_PEDIDO.CANCELADO }),
-      });
+      await pedidoService.mudarStatusVenda(uuid, 'CANCELADA');
       setFeedbackMsg(`Pedido #${uuid.split('-')[1]} rejeitado.`);
       fecharModalRejeicao();
       await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
@@ -128,11 +152,7 @@ export function useGerenciarPedidos() {
     async (pedidoUuid: string) => {
       setProcessando(pedidoUuid);
       try {
-        await fetch('/api/admin/testes/mudar-status-venda', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vendaUuid: pedidoUuid, novoStatus: STATUS_PEDIDO.EM_PROCESSAMENTO }),
-        });
+        await pedidoService.aprovarPagamento(pedidoUuid);
         setFeedbackMsg(`Pagamento do pedido #${pedidoUuid.split('-')[1]} aprovado.`);
         await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
       } catch (e: unknown) {
@@ -149,11 +169,7 @@ export function useGerenciarPedidos() {
     async (pedidoUuid: string) => {
       setProcessando(pedidoUuid);
       try {
-        await fetch('/api/admin/testes/mudar-status-venda', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vendaUuid: pedidoUuid, novoStatus: STATUS_PEDIDO.CANCELADO }),
-        });
+        await pedidoService.rejeitarPagamento(pedidoUuid);
         setFeedbackMsg(`Pagamento do pedido #${pedidoUuid.split('-')[1]} rejeitado.`);
         await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
       } catch (e: unknown) {
@@ -172,6 +188,12 @@ export function useGerenciarPedidos() {
 
   return {
     pedidosFiltrados,
+    pedidosPaginados,
+    totalPaginas,
+    paginaAtual,
+    aoMudarPagina,
+    filtrosColuna,
+    handleFiltroColunaChange,
     loading: status === 'loading',
     error,
     processando,
