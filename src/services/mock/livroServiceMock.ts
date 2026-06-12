@@ -2,7 +2,7 @@ import homeCatalogoMock from '@/mocks/homeCatalogoMock.json';
 import detalhesLivroMock from '@/mocks/detalhesLivroMock.json';
 import listaLivrosAdminMock from '@/mocks/listaLivrosAdminMock.json';
 import type { ICatalogoLivrosResposta, ICategoriaMenu, IFiltroCatalogoLivros } from '@/interfaces/catalogoLivros';
-import type { ILivro } from '@/interfaces/livro';
+import type { ILivro, ICriarLivroPayload } from '@/interfaces/livro';
 import type { ILivroService } from '../contracts/livroService';
 
 /** Store em memória compartilhado por toda a sessão (mock apenas) */
@@ -81,6 +81,22 @@ export class LivroServiceMock implements ILivroService {
 
     console.log('[Mock] Buscando lista admin de livros.');
     return delay([...livrosMemoria]);
+  }
+
+  async criarLivro(payload: ICriarLivroPayload): Promise<ILivro> {
+    const novoLivro: ILivro = {
+      uuid: `mock-${Date.now()}`,
+      titulo: payload.titulo,
+      autor: payload.autorNome,
+      isbn: payload.isbn,
+      preco: payload.precoVenda,
+      estoque: payload.quantidadeEstoque,
+      sinopse: payload.sinopse,
+      status: 'Ativo',
+      categoria: payload.categoriaNome ?? 'Geral',
+    };
+    livrosMemoria.push(novoLivro);
+    return delay(novoLivro, 300);
   }
 
   async darBaixaEstoque(itens: { livroUuid: string; quantidade: number }[]): Promise<void> {

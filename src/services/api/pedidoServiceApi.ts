@@ -44,23 +44,23 @@ interface IPedidoAdminApi {
 function mapStatusVendaParaPedido(s: string): StatusPedido {
   const key = s.trim().toUpperCase();
   const map: Record<string, StatusPedido> = {
-    'EM PROCESSAMENTO': 'Em Processamento',
-    'AGUARDANDO PAGAMENTO': 'Aguardando Pagamento',
+    EM_PROCESSAMENTO: 'Em Processamento',
+    AGUARDANDO_PAGAMENTO: 'Pagamento Pendente',
     APROVADA: 'Em Processamento',
     REPROVADA: 'Cancelado',
-    'EM TRÂNSITO': 'Em Trânsito',
+    EM_TRANSITO: 'Em Trânsito',
     ENTREGUE: 'Entregue',
-    'EM TROCA': 'Em Troca',
-    'TROCA AUTORIZADA': 'Troca Autorizada',
-    'TROCA REJEITADA': 'Troca Rejeitada',
+    EM_TROCA: 'Em Troca',
+    TROCA_AUTORIZADA: 'Troca Autorizada',
+    TROCA_REJEITADA: 'Troca Rejeitada',
     CANCELADA: 'Cancelado',
-    'FALHA NA ENTREGA': 'Em Trânsito',
-    CONCLUÍDA: 'Trocado',
-    'TROCA CONCLUÍDA': 'Trocado',
-    'EM DEVOLUÇÃO': 'Em Devolução',
-    'DEVOLUÇÃO AUTORIZADA': 'Devolução Autorizada',
-    'DEVOLUÇÃO REJEITADA': 'Devolução Rejeitada',
-    'DEVOLUÇÃO CONCLUÍDA': 'Devolvido',
+    FALHA_NA_ENTREGA: 'Em Trânsito',
+    CONCLUIDA: 'Trocado',
+    TROCA_CONCLUIDA: 'Trocado',
+    EM_DEVOLUCAO: 'Em Devolução',
+    DEVOLUCAO_AUTORIZADA: 'Devolução Autorizada',
+    DEVOLUCAO_REJEITADA: 'Devolução Rejeitada',
+    DEVOLUCAO_CONCLUIDA: 'Devolvido',
     DEVOLVIDA: 'Devolvido',
   };
   // Fallback neutro: status desconhecido não deve virar 'Em Processamento'.
@@ -210,5 +210,26 @@ export class PedidoServiceApi implements IPedidoService {
       API_ENDPOINTS.confirmarRecebimentoDevolucao(pedidoUuid),
       { retornarEstoque },
     );
+  }
+
+  async aprovarPagamento(pedidoUuid: string): Promise<void> {
+    await ApiClient.post<void>('/api/admin/testes/mudar-status-venda', {
+      vendaUuid: pedidoUuid,
+      novoStatus: 'EM_PROCESSAMENTO',
+    });
+  }
+
+  async rejeitarPagamento(pedidoUuid: string): Promise<void> {
+    await ApiClient.post<void>('/api/admin/testes/mudar-status-venda', {
+      vendaUuid: pedidoUuid,
+      novoStatus: 'CANCELADA',
+    });
+  }
+
+  async mudarStatusVenda(pedidoUuid: string, novoStatus: string): Promise<void> {
+    await ApiClient.post<void>('/api/admin/testes/mudar-status-venda', {
+      vendaUuid: pedidoUuid,
+      novoStatus,
+    });
   }
 }

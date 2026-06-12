@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { EntregaServiceApi } from '../services/api/entregaServiceApi';
-import { API_ENDPOINTS } from '../config/apiConfig';
-import type { 
+import { PedidoService } from '../services/pedidoService';
+import type {
   IEntregaInputDto,
   IEntregaOutputDto,
   IFreteCalculoOutput,
@@ -116,20 +116,7 @@ export function useEntrega() {
     setConfirmandoRecebimento(true);
     setError(null);
     try {
-      const url = API_ENDPOINTS.confirmarRecebimentoEntrega(pedidoUuid);
-      const response = await fetch(url, {
-        method: 'PATCH',
-        credentials: 'include', // Para enviar cookie HttpOnly
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.mensagem || 'Erro ao confirmar recebimento');
-      }
-
+      await PedidoService.confirmarRecebimentoEntrega(pedidoUuid);
       return true;
     } catch (err) {
       setError(normalizarErroEntrega(err, 'Erro ao confirmar recebimento'));

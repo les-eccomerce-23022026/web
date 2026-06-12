@@ -1,17 +1,17 @@
-export interface DadoAnaliseVendas {
+export interface IDadoAnaliseVendas {
   categoria: string;
   mes: string;
   quantidade: number;
 }
 
-export interface FiltroAnaliseVendas {
+export interface IFiltroAnaliseVendas {
   dataInicio: string;
   dataFim: string;
   categorias?: string[];
 }
 
-export interface RespostaAnaliseVendas {
-  dados: DadoAnaliseVendas[];
+export interface IRespostaAnaliseVendas {
+  dados: IDadoAnaliseVendas[];
   periodo: {
     inicio: string;
     fim: string;
@@ -23,5 +23,5 @@ export interface RespostaAnaliseVendas {
 }
 
 export interface IAnaliseVendasService {
-  obterAnaliseVendasPorCategoria(filtro: FiltroAnaliseVendas): Promise<RespostaAnaliseVendas>;
+  obterAnaliseVendasPorCategoria(filtro: IFiltroAnaliseVendas): Promise<IRespostaAnaliseVendas>;
 }

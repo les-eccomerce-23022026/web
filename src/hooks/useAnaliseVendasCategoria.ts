@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AnaliseVendasService } from '../services/analiseVendasService';
-import type { FiltroAnaliseVendas, RespostaAnaliseVendas } from '../services/contracts/analiseVendasService';
+import type { IFiltroAnaliseVendas, IRespostaAnaliseVendas } from '../services/contracts/analiseVendasService';
 
 export function useAnaliseVendasCategoria() {
-  const [dados, setDados] = useState<RespostaAnaliseVendas | null>(null);
+  const [dados, setDados] = useState<IRespostaAnaliseVendas | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const buscarDados = useCallback(async (filtro: FiltroAnaliseVendas) => {
+  const buscarDados = useCallback(async (filtro: IFiltroAnaliseVendas) => {
     if (!filtro.dataInicio || !filtro.dataFim) {
       setError('Data de início e fim são obrigatórias');
       return;

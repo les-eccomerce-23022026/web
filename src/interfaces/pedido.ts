@@ -17,7 +17,16 @@ export type StatusPedido =
   | 'Em Devolução'
   | 'Devolução Autorizada'
   | 'Devolução Rejeitada'
-  | 'Devolvido';
+  | 'Devolvido'
+  // Backend snake_case format (compatibilidade)
+  | 'EM_TROCA'
+  | 'TROCA_AUTORIZADA'
+  | 'TROCA_REJEITADA'
+  | 'TROCADO'
+  | 'EM_DEVOLUCAO'
+  | 'DEVOLUCAO_AUTORIZADA'
+  | 'DEVOLUCAO_REJEITADA'
+  | 'DEVOLVIDO';
 
 export interface IItemPedido {
   uuid?: string;

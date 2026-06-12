@@ -130,6 +130,7 @@ export const API_ENDPOINTS = {
   listarEstoqueCritico: (limite: number) => `${BASE_URL}/admin/estoque/critico?limite=${limite}`,
   obterKpisEstoque: (limiteCritico: number) => `${BASE_URL}/admin/estoque/kpis?limite=${limiteCritico}`,
   registrarEntradaEstoque: `${BASE_URL}/admin/estoque/entrada`,
+  atualizarEstoque: `${BASE_URL}/admin/estoque/atualizar`,
 
   // Assistente de Recomendação (IA)
   chatRecomendacao: `${BASE_URL}/ia/chat`,

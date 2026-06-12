@@ -1,5 +1,12 @@
 import type { IDashboardAdminInfo } from '@/interfaces/dashboardAdmin';
+import type { PeriodoFiltro } from '@/components/Admin/FiltroPeriodo/FiltroPeriodo';
+import type { StatusFiltro } from '@/components/Admin/FiltroStatus/FiltroStatus';
+
+export interface IDashboardAdminFilters {
+  periodoReceita?: PeriodoFiltro;
+  statusFiltro?: StatusFiltro;
+}
 
 export interface IDashboardAdminService {
-  getDashboardInfo(): Promise<IDashboardAdminInfo>;
+  getDashboardInfo(filters?: IDashboardAdminFilters): Promise<IDashboardAdminInfo>;
 }

@@ -24,4 +24,7 @@ export interface IPedidoService {
     pedidoUuid: string,
     retornarEstoque: boolean,
   ): Promise<{ pedido: IPedido; reembolsoProcessado: boolean }>;
+  aprovarPagamento(pedidoUuid: string): Promise<void>;
+  rejeitarPagamento(pedidoUuid: string): Promise<void>;
+  mudarStatusVenda(pedidoUuid: string, novoStatus: string): Promise<void>;
 }

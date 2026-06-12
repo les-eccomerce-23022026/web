@@ -1,3 +1,5 @@
+import type { ChartData } from 'chart.js';
+
 export interface IMetricasDashboard {
   totalVendasMes: number;
   percentualCrescimento: number;
@@ -35,7 +37,7 @@ export interface IAtividadeRecente {
 export interface IDashboardAdminInfo {
   metricas: IMetricasDashboard;
   graficoVendasPorCategoria: IGraficoInfo;
-  graficoReceitaAnual: IGraficoInfo;
-  graficoStatusPedidos: IGraficoInfo;
+  graficoReceitaAnual: ChartData<'line'>;
+  graficoStatusPedidos: ChartData<'doughnut'>;
   atividadesRecentes: IAtividadeRecente[];
 }
