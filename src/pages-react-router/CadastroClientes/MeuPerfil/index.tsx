@@ -335,6 +335,12 @@ function MeuPerfil() {
             {enderecoState.enderecos.map((end) => (
               <div key={end.uuid} className={styles.enderecoCard} data-cy={`endereco-card-${end.uuid}`}>
                 <div className={styles.enderecoDetalhe}>
+                  {end.apelido && (
+                    <>
+                      <strong data-cy={`endereco-apelido-${end.uuid}`}>{end.apelido}</strong>
+                      <br />
+                    </>
+                  )}
                   {end.logradouro}, {end.numero}
                   {end.complemento && ` - ${end.complemento}`}
                   <br />

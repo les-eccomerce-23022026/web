@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { LoadingState } from '@/components/Comum/LoadingState/LoadingState';
 import { ErrorState } from '@/components/Comum/ErrorState/ErrorState';
 import { EmptyState } from '@/components/Comum/EmptyState/EmptyState';
@@ -17,8 +18,23 @@ export function AdminTable<T extends Record<string, any>>({
   aoTentarNovamente,
   estadoVazio,
   paginacao,
+  filtrosColuna = [],
+  onFiltroColunaChange,
   className = '',
 }: IAdminTableProps<T>) {
+  const [filtrosLocais, setFiltrosLocais] = useState<Record<string, string>>(() => {
+    const inicial: Record<string, string> = {};
+    filtrosColuna.forEach((f) => {
+      inicial[f.key] = f.valor;
+    });
+    return inicial;
+  });
+
+  const handleFiltroChange = (key: string, valor: string) => {
+    setFiltrosLocais((prev) => ({ ...prev, [key]: valor }));
+    onFiltroColunaChange?.(key, valor);
+  };
+
   if (carregando) {
     return <LoadingState message="Carregando dados..." className={className} />;
   }
@@ -34,16 +50,7 @@ export function AdminTable<T extends Record<string, any>>({
     );
   }
 
-  if (dados.length === 0) {
-    return (
-      <EmptyState
-        title={estadoVazio?.titulo || 'Nenhum resultado'}
-        message={estadoVazio?.mensagem || 'Não encontramos dados para exibir.'}
-        icon={estadoVazio?.icone}
-        className={className}
-      />
-    );
-  }
+  const mostrarEstadoVazio = dados.length === 0;
 
   const obterClasseAlinhamento = (alinhamento?: string) => {
     if (alinhamento === 'center') return styles.alinhamentoCenter;
@@ -53,7 +60,7 @@ export function AdminTable<T extends Record<string, any>>({
 
   return (
     <div className={className}>
-      <div className={styles.adminTableWrapper}>
+      <div className={styles.adminTableWrapper} data-cy="admin-table">
         <table className={styles.adminTable} data-cy="admin-pedidos-tabela">
           <thead className={styles.adminTableCabecalho}>
             <tr>
@@ -62,36 +69,61 @@ export function AdminTable<T extends Record<string, any>>({
                   key={coluna.key}
                   className={obterClasseAlinhamento(coluna.alinhamento)}
                 >
-                  {coluna.label}
+                  <div className={styles.colunaHeader}>
+                    <span className={styles.colunaLabel}>{coluna.label}</span>
+                    {coluna.filterable && (
+                      <input
+                        type="text"
+                        placeholder={`Filtrar ${coluna.label.toLowerCase()}...`}
+                        value={filtrosLocais[coluna.key] || ''}
+                        onChange={(e) => handleFiltroChange(coluna.key, e.target.value)}
+                        className={styles.filtroInput}
+                        data-cy={`filtro-${coluna.key}`}
+                      />
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {dados.map((linha) => (
-              <tr
-                key={linha[rowKey]}
-                data-cy={rowKey ? `admin-pedido-${linha[rowKey]}` : undefined}
-                className={`${styles.adminTableLinha} ${
-                  aoClicarLinha ? styles.adminTableLinhaClicavel : ''
-                }`}
-                onClick={() => aoClicarLinha?.(linha)}
-              >
-                {colunas.map((coluna) => (
-                  <td
-                    key={coluna.key}
-                    className={`${styles.adminTableCelula} ${obterClasseAlinhamento(
-                      coluna.alinhamento
-                    )}`}
-                    data-label={coluna.label}
-                  >
-                    {coluna.render
-                      ? coluna.render(linha[coluna.key], linha)
-                      : linha[coluna.key]}
-                  </td>
-                ))}
+            {mostrarEstadoVazio ? (
+              <tr>
+                <td colSpan={colunas.length} className={styles.adminTableCelulaVazia}>
+                  <EmptyState
+                    title={estadoVazio?.titulo || 'Nenhum resultado'}
+                    message={estadoVazio?.mensagem || 'Não encontramos dados para exibir.'}
+                    icon={estadoVazio?.icone}
+                    className={styles.emptyStateInline}
+                  />
+                </td>
               </tr>
-            ))}
+            ) : (
+              dados.map((linha) => (
+                <tr
+                  key={linha[rowKey]}
+                  data-cy={rowKey ? `admin-pedido-${linha[rowKey]}` : undefined}
+                  className={`${styles.adminTableLinha} ${
+                    aoClicarLinha ? styles.adminTableLinhaClicavel : ''
+                  }`}
+                  onClick={() => aoClicarLinha?.(linha)}
+                >
+                  {colunas.map((coluna) => (
+                    <td
+                      key={coluna.key}
+                      className={`${styles.adminTableCelula} ${obterClasseAlinhamento(
+                        coluna.alinhamento
+                      )}`}
+                      data-label={coluna.label}
+                    >
+                      {coluna.render
+                        ? coluna.render(linha[coluna.key], linha)
+                        : linha[coluna.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

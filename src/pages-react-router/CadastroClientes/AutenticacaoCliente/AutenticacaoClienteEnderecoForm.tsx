@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import styles from './style.module.css';
 import type { IEnderecoCliente } from '../../../interfaces/pagamento';
+import { telemetriaService } from '../../../services/telemetriaService';
 
 type Props = {
   titulo: string;
@@ -23,19 +24,14 @@ export const AutenticacaoClienteEnderecoForm = ({ titulo, endereco, onChange }: 
     onChange({ ...endereco, [campo]: valor });
     if (campo === 'numero' || campo === 'estado') {
       // #region agent log
-      fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'cfd192' },
-        body: JSON.stringify({
-          sessionId: 'cfd192',
-          runId: 'pre-fix',
-          hypothesisId: 'H1-H2',
-          location: 'AutenticacaoClienteEnderecoForm.tsx:handleField',
-          message: 'address field changed',
-          data: { campo, valorLen: valor.length, titulo },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
+      telemetriaService.enviarEvento('address-field-changed', {
+        sessionId: 'cfd192',
+        runId: 'pre-fix',
+        hypothesisId: 'H1-H2',
+        location: 'AutenticacaoClienteEnderecoForm.tsx:handleField',
+        message: 'address field changed',
+        data: { campo, valorLen: valor.length, titulo },
+      });
       // #endregion
     }
     if (errosCampo[campo]) {
@@ -73,23 +69,18 @@ export const AutenticacaoClienteEnderecoForm = ({ titulo, endereco, onChange }: 
             onChange={(e) => handleField('numero', e.target.value)}
             onBlur={(e) => {
               // #region agent log
-              fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'cfd192' },
-                body: JSON.stringify({
-                  sessionId: 'cfd192',
-                  runId: 'pre-fix',
-                  hypothesisId: 'H1',
-                  location: 'AutenticacaoClienteEnderecoForm.tsx:numero-onBlur',
-                  message: 'numero blur state vs DOM',
-                  data: {
-                    stateNumero: endereco.numero,
-                    domValue: e.target.value,
-                    titulo,
-                  },
-                  timestamp: Date.now(),
-                }),
-              }).catch(() => {});
+              telemetriaService.enviarEvento('numero-onBlur', {
+                sessionId: 'cfd192',
+                runId: 'pre-fix',
+                hypothesisId: 'H1',
+                location: 'AutenticacaoClienteEnderecoForm.tsx:numero-onBlur',
+                message: 'numero blur state vs DOM',
+                data: {
+                  stateNumero: endereco.numero,
+                  domValue: e.target.value,
+                  titulo,
+                },
+              });
               // #endregion
               validarCampoObrigatorio('numero', endereco.numero, 'Número');
             }}

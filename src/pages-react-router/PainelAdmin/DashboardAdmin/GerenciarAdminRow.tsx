@@ -11,7 +11,7 @@ export const GerenciarAdminRow = ({ adm, onEdit, onToggle }: Props) => {
   const ativo = adm.ativo !== false;
 
   return (
-    <tr>
+    <tr data-cy={`admin-row-${adm.uuid}`}>
       <td>{adm.nome}</td>
       <td>{adm.email}</td>
       <td>
@@ -30,11 +30,12 @@ export const GerenciarAdminRow = ({ adm, onEdit, onToggle }: Props) => {
       </td>
       <td>
         <div className={styles.tableActions}>
-          <button className="btn-primary" onClick={() => onEdit(adm)}>
+          <button className="btn-primary" data-cy={`admin-row-editar-${adm.uuid}`} onClick={() => onEdit(adm)}>
             Editar
           </button>
           <button
             className={ativo ? 'btn-secondary' : 'btn-primary'}
+            data-cy={`admin-row-toggle-${adm.uuid}`}
             onClick={() => onToggle(adm.uuid)}
           >
             {ativo ? 'Inativar' : 'Ativar'}

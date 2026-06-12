@@ -16,6 +16,7 @@ type Props = {
   enderecoCobrancaSelecionado?: string | null;
   onSelectEndereco: (uuid: string | null) => void;
   onSelectEnderecoCobranca?: (uuid: string | null) => void;
+  onEnderecoAdicionado?: () => void;
 };
 
 export const FinalizarCompraEnderecoCard = ({
@@ -24,6 +25,7 @@ export const FinalizarCompraEnderecoCard = ({
   enderecoCobrancaSelecionado,
   onSelectEndereco,
   onSelectEnderecoCobranca,
+  onEnderecoAdicionado,
 }: Props) => {
   const temLista = data.enderecosDisponiveis && data.enderecosDisponiveis.length > 0;
   const [modalAberto, setModalAberto] = useState(false);
@@ -55,6 +57,9 @@ export const FinalizarCompraEnderecoCard = ({
     try {
       const enderecosAtualizados = await ClienteService.adicionarEndereco(novoEndereco);
       setListaAtualizada(enderecosAtualizados);
+      // Propaga ao container para que data.enderecosDisponiveis (usado na submissão
+      // do pedido) inclua o novo endereço; sem isso a venda não encontra o endereço.
+      onEnderecoAdicionado?.();
       setModalNovoEndereco(false);
       setNovoEndereco({
         logradouro: '',
@@ -110,6 +115,10 @@ export const FinalizarCompraEnderecoCard = ({
         {enderecoSelecionado && (
           <p className={styles['endereco-selecionado-info']} data-cy="checkout-address-selected">
             ✓ Endereço selecionado para entrega
+            {(() => {
+              const sel = enderecosParaExibir?.find((e) => e.uuid === enderecoSelecionado);
+              return sel ? `: ${sel.logradouro}, ${sel.numero}` : '';
+            })()}
           </p>
         )}
         {enderecoCobrancaSelecionado && (
@@ -192,6 +201,7 @@ export const FinalizarCompraEnderecoCard = ({
                 className="btn-secondary"
                 onClick={() => setModalNovoEndereco(false)}
                 disabled={salvandoEndereco}
+                data-cy="checkout-cancel-address-button"
               >
                 Cancelar
               </button>

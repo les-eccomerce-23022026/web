@@ -1,27 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, memo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import './ChartsCarousel.css';
 
 interface ChartsCarouselProps {
   children: React.ReactNode[];
+  currentIndex: number;
+  onIndexChange: (index: number) => void;
 }
 
-export function ChartsCarousel({ children }: ChartsCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+// Memoiza cada slide individualmente para evitar rerenders desnecessários
+const CarouselSlide = memo(({ children }: { children: React.ReactNode }) => (
+  <div className="carousel-slide">{children}</div>
+));
 
-  const goToPrevious = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === 0 ? children.length - 1 : prevIndex - 1
-    );
-  };
+CarouselSlide.displayName = 'CarouselSlide';
 
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) => 
-      prevIndex === children.length - 1 ? 0 : prevIndex + 1
-    );
-  };
+export function ChartsCarousel({ children, currentIndex, onIndexChange }: ChartsCarouselProps) {
+  const goToPrevious = useCallback(() => {
+    onIndexChange(currentIndex === 0 ? children.length - 1 : currentIndex - 1);
+  }, [children.length, currentIndex, onIndexChange]);
+
+  const goToNext = useCallback(() => {
+    onIndexChange(currentIndex === children.length - 1 ? 0 : currentIndex + 1);
+  }, [children.length, currentIndex, onIndexChange]);
+
+  const goToSlide = useCallback((index: number) => {
+    onIndexChange(index);
+  }, [onIndexChange]);
+
+  // Previne mudanças de slide acidentais quando o número de children muda
+  useEffect(() => {
+    if (currentIndex >= children.length) {
+      onIndexChange(0);
+    }
+  }, [children.length, currentIndex]);
 
   return (
     <div className="charts-carousel">
@@ -29,6 +43,7 @@ export function ChartsCarousel({ children }: ChartsCarouselProps) {
         className="carousel-button carousel-button--prev" 
         onClick={goToPrevious}
         aria-label="Gráfico anterior"
+        type="button"
       >
         <ChevronLeft size={24} />
       </button>
@@ -39,9 +54,9 @@ export function ChartsCarousel({ children }: ChartsCarouselProps) {
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {children.map((child, index) => (
-            <div key={index} className="carousel-slide">
+            <CarouselSlide key={`slide-${index}`}>
               {child}
-            </div>
+            </CarouselSlide>
           ))}
         </div>
       </div>
@@ -50,6 +65,7 @@ export function ChartsCarousel({ children }: ChartsCarouselProps) {
         className="carousel-button carousel-button--next" 
         onClick={goToNext}
         aria-label="Próximo gráfico"
+        type="button"
       >
         <ChevronRight size={24} />
       </button>
@@ -57,10 +73,11 @@ export function ChartsCarousel({ children }: ChartsCarouselProps) {
       <div className="carousel-indicators">
         {children.map((_, index) => (
           <button
-            key={index}
+            key={`indicator-${index}`}
             className={`carousel-indicator ${index === currentIndex ? 'carousel-indicator--active' : ''}`}
-            onClick={() => setCurrentIndex(index)}
+            onClick={() => goToSlide(index)}
             aria-label={`Ir para gráfico ${index + 1}`}
+            type="button"
           />
         ))}
       </div>

@@ -35,7 +35,7 @@ export const SolicitarTroca = () => {
 
   const pedido = pedidos.find((p) => p.uuid === uuid);
 
-  if (loading) {
+  if (loading && !pedido) {
     return <LoadingState message="Carregando dados do pedido..." />;
   }
 
@@ -91,6 +91,10 @@ export const SolicitarTroca = () => {
         ? prev.filter((id) => id !== livroUuid)
         : [...prev, livroUuid],
     );
+  };
+
+  const selecionarTodos = () => {
+    setItensSelecionados(pedido.itens.map((item) => item.livroUuid));
   };
 
   const handleSubmit = async () => {
@@ -154,7 +158,17 @@ export const SolicitarTroca = () => {
       {erro && <div className={styles.erroMessage} data-cy="troca-erro">{erro}</div>}
 
       <div className={`card ${styles.secao}`}>
-        <h3>Selecione os itens para troca</h3>
+        <div className={styles.secaoHeader}>
+          <h3>Selecione os itens para troca</h3>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={selecionarTodos}
+            data-cy="btn-selecionar-todos"
+          >
+            Selecionar todos
+          </button>
+        </div>
         <p className={styles.dica}>Marque os itens que deseja trocar.</p>
         <div className={styles.itensLista} data-cy="troca-itens-lista">
           {pedido.itens.map((item: IItemPedido, idx: number) => (

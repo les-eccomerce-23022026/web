@@ -108,7 +108,7 @@ export const Carrinho = () => {
 
 
   return (
-    <div className="carrinho-page" data-cy="carrinho-page">
+    <div className="carrinho-page" data-cy="carrinho-page" suppressHydrationWarning>
       <h1 className="page-title">Carrinho de Compras</h1>
       <hr className="carrinho-separator" />
 

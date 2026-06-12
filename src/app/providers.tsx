@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppDispatch } from '../store/hooks';
 import { store } from '../store';
 import { fetchCarrinho } from '../store/slices/carrinhoSlice';
@@ -10,6 +11,17 @@ import { restoreSession } from '../store/slices/authSlice';
 import { ErrorBoundary } from '../components/Comum/ErrorBoundary/ErrorBoundary.tsx';
 import { NotificationProvider, NotificationContainer } from '../components/Comum/Notification';
 import { useActiveSessionValidation } from '../hooks/useActiveSessionValidation';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 // Componente que contém os hooks Redux - só renderiza no client
 const ClientProviders = ({ children }: { children: React.ReactNode }) => {
@@ -72,9 +84,11 @@ const ProvidersContent = ({ children }: { children: React.ReactNode }) => {
 
 const Providers = ({ children }: { children: React.ReactNode }) => {
   return (
-    <ReduxProvider store={store}>
-      <ProvidersContent>{children}</ProvidersContent>
-    </ReduxProvider>
+    <QueryClientProvider client={queryClient}>
+      <ReduxProvider store={store}>
+        <ProvidersContent>{children}</ProvidersContent>
+      </ReduxProvider>
+    </QueryClientProvider>
   );
 };
 

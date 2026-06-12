@@ -1,7 +1,7 @@
 'use client';
 
 import { AdminTable } from '@/components/Admin/AdminTable';
-import { Package } from 'lucide-react';
+import { Package, Edit } from 'lucide-react';
 import type { IItemEstoque } from '@/services/contracts/estoqueService';
 
 interface ITabelaEstoqueCompletoProps {
@@ -9,6 +9,7 @@ interface ITabelaEstoqueCompletoProps {
   paginaAtual: number;
   itensPorPagina: number;
   aoMudarPagina: (pagina: number) => void;
+  aoEditarEstoque: (estoque: IItemEstoque) => void;
 }
 
 export function TabelaEstoqueCompleto({
@@ -16,6 +17,7 @@ export function TabelaEstoqueCompleto({
   paginaAtual,
   itensPorPagina,
   aoMudarPagina,
+  aoEditarEstoque,
 }: ITabelaEstoqueCompletoProps) {
   const dadosPaginados = dados.slice((paginaAtual - 1) * itensPorPagina, paginaAtual * itensPorPagina);
 
@@ -35,6 +37,19 @@ export function TabelaEstoqueCompleto({
           key: 'valorCustoAtual',
           label: 'Custo Atual',
           render: (valor: number) => `R$ ${valor.toFixed(2)}`,
+        },
+        {
+          key: 'acoes',
+          label: 'Ações',
+          render: (_: any, linha: IItemEstoque) => (
+            <button
+              onClick={() => aoEditarEstoque(linha)}
+              className="btn-secondary btn-sm"
+              title="Editar estoque"
+            >
+              <Edit size={16} />
+            </button>
+          ),
         },
       ]}
       dados={dadosPaginados}

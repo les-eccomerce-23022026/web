@@ -153,7 +153,7 @@ export function usePagamentoPixModel() {
   }, [expiraMsPorLinha, nowMs, pagamentoFalhou, payload]);
 
   const aguardandoBackendAinda = Boolean(
-    resumo && vendaStatusNorm(resumo.vendaStatus) === 'AGUARDANDO PAGAMENTO',
+    resumo && vendaStatusNorm(resumo.vendaStatus) === 'AGUARDANDO_PAGAMENTO',
   );
 
   const phase: PagamentoPixPhase = useMemo(() => {

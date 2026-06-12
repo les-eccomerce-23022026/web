@@ -11,11 +11,11 @@ import { AdminToolbar } from '../../../components/Admin/AdminToolbar';
 import { AdminTable } from '../../../components/Admin/AdminTable';
 import { livroPassaFiltrosLista } from './listaLivrosFiltros';
 import { ModalJustificativaStatus } from './ModalJustificativaStatus';
+import { ModalNovoLivro } from '../../../components/Admin/ModalNovoLivro/ModalNovoLivro';
 import { obterKPIsLivros } from './kpisLivros';
 import { obterColunasTabelaLivros } from './tabelaColunas';
 import { calcularPaginacao } from './paginacaoHelper';
 import { useModalJustificativa } from './useModalJustificativa';
-import { ROTAS } from '@/config/rotas';
 
 function ListaLivrosAdmin() {
   const { livros, loading, error } = useListaLivrosAdmin();
@@ -25,7 +25,8 @@ function ListaLivrosAdmin() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'todos' | 'ativos' | 'inativos'>('todos');
   const [paginaAtual, setPaginaAtual] = useState(1);
-  
+  const [modalNovoLivroAberto, setModalNovoLivroAberto] = useState(false);
+
   const modal = useModalJustificativa();
 
   useEffect(() => {
@@ -77,7 +78,7 @@ function ListaLivrosAdmin() {
           acoes={[
             {
               label: '+ Novo Livro',
-              onClick: () => router.push(ROTAS.ADMIN.LIVRO_NOVO),
+              onClick: () => setModalNovoLivroAberto(true),
               variante: 'primario',
             },
           ]}
@@ -110,6 +111,15 @@ function ListaLivrosAdmin() {
         justificativaCategoria={modal.justificativaCategoria}
         setJustificativaCategoria={modal.setJustificativaCategoria}
         erroModal={modal.erroModal}
+      />
+
+      <ModalNovoLivro
+        isOpen={modalNovoLivroAberto}
+        onClose={() => setModalNovoLivroAberto(false)}
+        onSalvoComSucesso={() => {
+          setModalNovoLivroAberto(false);
+          dispatch(fetchLivrosAdmin());
+        }}
       />
     </div>
   );

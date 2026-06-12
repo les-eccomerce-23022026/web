@@ -26,6 +26,17 @@
   margin-bottom: 20px;
 }
 
+.secaoHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.secaoHeader h3 {
+  margin-bottom: 0;
+}
+
 .secao h3 {
   margin-bottom: 8px;
 }

@@ -55,6 +55,7 @@ export const FinalizarCompraPedidoCarregado = ({
     selecionarFrete,
     entregaParaFreteCalculo,
     cepDestinoFrete,
+    recarregar,
   } = hook;
 
   const linhasPagamentoIniciais = useLinhasPagamentoIniciais(data, carrinho, freteSelecionado, cuponsAplicados);
@@ -181,6 +182,7 @@ export const FinalizarCompraPedidoCarregado = ({
           enderecoCobrancaSelecionado={enderecoCobrancaSelecionado}
           onSelectEndereco={setEnderecoSelecionado}
           onSelectEnderecoCobranca={setEnderecoCobrancaSelecionado}
+          onEnderecoAdicionado={recarregar}
           entregaParaFreteCalculo={entregaParaFreteCalculo}
           freteSelecionado={freteSelecionado}
           onFreteSelecionado={selecionarFrete}

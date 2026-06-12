@@ -69,7 +69,7 @@ export const CupomInput = ({
   };
 
   return (
-    <div className={styles['cupom-container']} data-cy="checkout-coupon-section">
+    <div className={styles['cupom-container']}>
       <div className={styles['cupom-header']}>
         <Tag size={20} />
         <h4>Cupons de Desconto</h4>

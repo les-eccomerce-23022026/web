@@ -4,6 +4,7 @@ import { loginSuccess, setAuthError } from '../../../store/slices/authSlice';
 import { fetchCarrinho } from '../../../store/slices/carrinhoSlice';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { AuthService } from '../../../services/authService';
+import { telemetriaService } from '../../../services/telemetriaService';
 import { USE_MOCK } from '../../../config/apiConfig';
 import { ClienteService } from '../../../services/clienteService';
 import clientesMock from '../../../mocks/clientesMock.json';
@@ -90,22 +91,17 @@ export function useAutenticacaoCliente() {
       console.log('[Auth] Login bem-sucedido:', data);
 
       // #region agent log
-      fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8ec46' },
-        body: JSON.stringify({
-          sessionId: 'a8ec46',
-          runId: 'pre-fix',
-          hypothesisId: 'E',
-          location: 'useAutenticacaoCliente.ts:login-success',
-          message: 'AuthService.login succeeded',
-          data: {
-            userRole: data.user?.role ?? null,
-            hasToken: !!data.token,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
+      telemetriaService.enviarEvento('login-success', {
+        sessionId: 'a8ec46',
+        runId: 'pre-fix',
+        hypothesisId: 'E',
+        location: 'useAutenticacaoCliente.ts:login-success',
+        message: 'AuthService.login succeeded',
+        data: {
+          userRole: data.user?.role ?? null,
+          hasToken: !!data.token,
+        },
+      });
       // #endregion
 
       dispatch(
@@ -128,35 +124,25 @@ export function useAutenticacaoCliente() {
       console.log('[Auth] Redirecionando para /');
       router.push(ROTAS.HOME);
       // #region agent log
-      fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8ec46' },
-        body: JSON.stringify({
-          sessionId: 'a8ec46',
-          runId: 'pre-fix',
-          hypothesisId: 'E',
-          location: 'useAutenticacaoCliente.ts:redirect-home',
-          message: 'router.push(/) called after login',
-          data: { target: '/' },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
+      telemetriaService.enviarEvento('redirect-home', {
+        sessionId: 'a8ec46',
+        runId: 'pre-fix',
+        hypothesisId: 'E',
+        location: 'useAutenticacaoCliente.ts:redirect-home',
+        message: 'router.push(/) called after login',
+        data: { target: '/' },
+      });
       // #endregion
     } catch (err) {
       // #region agent log
-      fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8ec46' },
-        body: JSON.stringify({
-          sessionId: 'a8ec46',
-          runId: 'pre-fix',
-          hypothesisId: 'E',
-          location: 'useAutenticacaoCliente.ts:login-error',
-          message: 'AuthService.login failed',
-          data: { errorType: err instanceof Error ? err.name : typeof err },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
+      telemetriaService.enviarEvento('login-error', {
+        sessionId: 'a8ec46',
+        runId: 'pre-fix',
+        hypothesisId: 'E',
+        location: 'useAutenticacaoCliente.ts:login-error',
+        message: 'AuthService.login failed',
+        data: { errorType: err instanceof Error ? err.name : typeof err },
+      });
       // #endregion
       console.error('[Auth] Falha no login:', err);
       setLoginError('E-mail ou senha inválidos. Verifique suas credenciais.');
@@ -207,21 +193,16 @@ export function useAutenticacaoCliente() {
     setRegSuccess('');
 
     // #region agent log
-    fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'cfd192' },
-      body: JSON.stringify({
-        sessionId: 'cfd192',
-        runId: 'pre-fix',
-        hypothesisId: 'H2-H5-H6',
-        location: 'useAutenticacaoCliente.ts:handleRegister-entry',
-        message: 'handleRegister called (sem endereço)',
-        data: {
-          regCpfLen: regCpf.trim().length,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
+    telemetriaService.enviarEvento('handleRegister-entry', {
+      sessionId: 'cfd192',
+      runId: 'pre-fix',
+      hypothesisId: 'H2-H5-H6',
+      location: 'useAutenticacaoCliente.ts:handleRegister-entry',
+      message: 'handleRegister called (sem endereço)',
+      data: {
+        regCpfLen: regCpf.trim().length,
+      },
+    });
     // #endregion
 
     setIsRegistering(true);
@@ -250,19 +231,14 @@ export function useAutenticacaoCliente() {
       const errorMessage =
         err instanceof Error ? err.message : 'Erro ao registrar. Tente novamente.';
       // #region agent log
-      fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'cfd192' },
-        body: JSON.stringify({
-          sessionId: 'cfd192',
-          runId: 'pre-fix',
-          hypothesisId: 'H5-H6',
-          location: 'useAutenticacaoCliente.ts:handleRegister-catch',
-          message: 'register API failed',
-          data: { errorMessage },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
+      telemetriaService.enviarEvento('handleRegister-catch', {
+        sessionId: 'cfd192',
+        runId: 'pre-fix',
+        hypothesisId: 'H5-H6',
+        location: 'useAutenticacaoCliente.ts:handleRegister-catch',
+        message: 'register API failed',
+        data: { errorMessage },
+      });
       // #endregion
       setRegError(errorMessage);
       console.error('[Auth] Falha no registro:', err);

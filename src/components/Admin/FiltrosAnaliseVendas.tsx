@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import type { FiltroAnaliseVendas } from '../../services/contracts/analiseVendasService';
+import type { IFiltroAnaliseVendas } from '../../services/contracts/analiseVendasService';
 import styles from './FiltrosAnaliseVendas.module.css';
 
-interface FiltrosAnaliseVendasProps {
-  onFiltrar: (filtro: FiltroAnaliseVendas) => void;
+interface IFiltrosAnaliseVendasProps {
+  onFiltrar: (filtro: IFiltroAnaliseVendas) => void;
   loading: boolean;
 }
 
-export function FiltrosAnaliseVendas({ onFiltrar, loading }: FiltrosAnaliseVendasProps) {
+export function FiltrosAnaliseVendas({ onFiltrar, loading }: IFiltrosAnaliseVendasProps) {
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
   const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<string[]>([]);

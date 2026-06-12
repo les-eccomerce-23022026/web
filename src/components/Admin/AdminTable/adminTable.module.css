@@ -27,6 +27,42 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   border-bottom: 2px solid #eaedf3;
+  vertical-align: top;
+}
+
+.colunaHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.colunaLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filtroInput {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background-color: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.filtroInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filtroInput::placeholder {
+  color: #9ca3af;
 }
 
 .adminTableCabecalho th.alinhamentoCenter {
@@ -58,6 +94,17 @@
 
 .adminTableCelula.alinhamentoRight {
   text-align: right;
+}
+
+.adminTableCelulaVazia {
+  padding: 40px 20px;
+  vertical-align: middle;
+  text-align: center;
+  border-bottom: none;
+}
+
+.emptyStateInline {
+  padding: 20px;
 }
 
 .adminTableLinhaClicavel {
