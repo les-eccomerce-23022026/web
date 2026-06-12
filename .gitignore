@@ -27,6 +27,7 @@ next-env.d.ts
 *.sln
 *.sw?
 prints
+.claude/
 
 .env
 .env.*
