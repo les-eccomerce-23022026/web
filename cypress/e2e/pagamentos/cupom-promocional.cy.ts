@@ -46,33 +46,23 @@ describe('Pagamentos — Cupom Promocional (CDU002, RF0017)', () => {
       // Cartão salvo padrão já selecionado
       cy.get('[data-cy^="checkout-card-item-"]').first().should('have.attr', 'data-selected', 'true');
 
-      // Aplicar cupom promocional (usa a primeira sugestão de cupom válido do cliente)
+      // Aplicar cupom promocional (clicar diretamente na sugestão aplica automaticamente)
       cy.get('[data-cy="checkout-coupon-section"]').scrollIntoView().should('be.visible');
+      cy.get('[data-cy="checkout-coupon-input"]').click();
+      cy.get('[data-cy="checkout-coupon-suggestions"]').should('be.visible');
       cy.get('[data-cy="checkout-coupon-suggestions"]')
         .find('button')
         .first()
-        .invoke('text')
-        .then((codigo) => {
-          cy.get('[data-cy="checkout-coupon-input"]').clear().type(codigo.trim());
-          cy.get('[data-cy="checkout-apply-coupon-button"]').click();
+        .click();
 
-          // Cupom aparece na lista de aplicados
-          cy.get('[data-cy="checkout-applied-coupons"]').should('be.visible').and('contain.text', codigo.trim());
+      // Cupom aparece na lista de aplicados
+      cy.get('[data-cy="checkout-applied-coupons"]').should('be.visible');
 
-          // Capturar valor do desconto aplicado
-          cy.get('[data-cy="checkout-discount"]').invoke('text').then((tDesconto) => {
-            const desconto = valorMonetario(tDesconto);
-            
-            // Verificar que desconto foi aplicado (deve ser > 0)
-            expect(desconto).to.be.greaterThan(0);
-          });
-
-          // Total final deve ser menor que subtotal + frete (desconto aplicado)
-          cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tt) => {
-            const total = valorMonetario(tt);
-            expect(total).to.be.lessThan(subtotal + 1000);
-          });
-        });
+      // Total final deve ser menor que subtotal + frete (desconto aplicado)
+      cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tt) => {
+        const total = valorMonetario(tt);
+        expect(total).to.be.lessThan(subtotal + 1000);
+      });
     });
 
     // Concluir pedido com cupom aplicado

@@ -20,7 +20,59 @@ const NOVO_ENDERECO = {
 };
 
 describe('Compra — Registrar novo endereço no checkout (CDU001, RF0015)', () => {
+  let devePularTeste = false;
+
+  before(() => {
+    // Verificar se o cliente já tem 5 endereços antes de executar os testes
+    let token = '';
+    cy.request({
+      method: 'POST',
+      url: `${Cypress.env('apiUrl')}/auth/login`,
+      headers: {
+        'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
+      },
+      body: { email: 'clientetest@email.com', senha: '123456' },
+    }).then((loginRes) => {
+      token = loginRes.body.dados.token;
+      return cy.request({
+        method: 'GET',
+        url: `${Cypress.env('apiUrl')}/clientes/perfil`,
+        headers: {
+          'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+    }).then((enderecosRes) => {
+      const enderecos: Array<{ uuid: string; apelido: string }> = enderecosRes.body.dados?.enderecos || [];
+
+      // Limpeza idempotente: remove órfãos "Trabalho E2E" de runs anteriores que
+      // quebraram antes do cleanup final, evitando que o cliente fique 5/5 e o teste
+      // se autopule indefinidamente.
+      const orfaos = enderecos.filter((e) => e.apelido === NOVO_ENDERECO.apelido);
+      orfaos.forEach((e) => {
+        cy.request({
+          method: 'DELETE',
+          url: `${Cypress.env('apiUrl')}/clientes/perfil/enderecos/${e.uuid}`,
+          headers: {
+            'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
+            'Authorization': `Bearer ${token}`,
+          },
+          failOnStatusCode: false,
+        });
+      });
+
+      // Só pula se, mesmo após remover os órfãos, ainda houver 5+ endereços legítimos.
+      if (enderecos.length - orfaos.length >= 5) {
+        devePularTeste = true;
+        cy.log('Cliente já tem 5 endereços. Use o teste validar-limite-enderecos.cy.ts para validar essa regra.');
+      }
+    });
+  });
+
   beforeEach(() => {
+    if (devePularTeste) {
+      return;
+    }
     cy.clearCookies();
     cy.clearLocalStorage();
     loginClienteUi();
@@ -31,7 +83,28 @@ describe('Compra — Registrar novo endereço no checkout (CDU001, RF0015)', () 
     cy.url().should('include', '/checkout');
   });
 
-  it('3 deve registrar um novo endereço durante a compra, entregar nele e salvá-lo na lista', () => {
+  it('3 deve registrar um novo endereço durante a compra, entregar nele e salvá-lo na lista', function () {
+    if (devePularTeste) {
+      this.skip();
+      return;
+    }
+
+    /**
+     * Fluxo (3 Registrar novo endereço no ato da compra):
+     * 1. Cliente faz login
+     * 2. Adiciona livros ao carrinho
+     * 3. Navega para checkout
+     * 4. Clica em "Adicionar novo endereço"
+     * 5. Preenche dados do endereço (rua, número, CEP, cidade, estado)
+     * 6. Clica em "Salvar endereço"
+     * 7. Sistema valida e salva o novo endereço
+     * 8. Novo endereço é automaticamente selecionado para entrega
+     * 9. Calcula frete para novo endereço
+     * 10. Seleciona opção de frete
+     * 11. Conclui pedido
+     * 12. Verifica que pedido foi entregue no novo endereço
+     * 13. Verifica que endereço aparece na lista de endereços salvos
+     */
     /**
      * Fluxo (3 Registrar novo endereço no ato da compra):
      * 1. Cliente faz login
@@ -103,7 +176,7 @@ describe('Compra — Registrar novo endereço no checkout (CDU001, RF0015)', () 
     // Primeiro precisa obter o token do cliente autenticado
     cy.request({
       method: 'POST',
-      url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/auth/login`,
+      url: `${Cypress.env('apiUrl')}/auth/login`,
       headers: {
         'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
       },
@@ -112,7 +185,7 @@ describe('Compra — Registrar novo endereço no checkout (CDU001, RF0015)', () 
       const token = loginRes.body.dados.token;
       cy.request({
         method: 'DELETE',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/clientes/perfil/enderecos/${novoEnderecoUuid}`,
+        url: `${Cypress.env('apiUrl')}/clientes/perfil/enderecos/${novoEnderecoUuid}`,
         headers: {
           'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
           'Authorization': `Bearer ${token}`,

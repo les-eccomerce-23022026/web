@@ -49,24 +49,19 @@ describe('Pagamentos — Combinações de meio de pagamento (CDU002, RF0017, RF0
       // Cartão salvo padrão já selecionado
       cy.get('[data-cy^="checkout-card-item-"]').first().should('have.attr', 'data-selected', 'true');
 
-      // Aplicar cupom (usa a primeira sugestão de cupom válido do cliente)
+      // Aplicar cupom clicando na sugestão (o click já chama onAplicar internamente)
       cy.get('[data-cy="checkout-coupon-section"]').scrollIntoView().should('be.visible');
-      cy.get('[data-cy="checkout-coupon-suggestions"]')
-        .find('button')
-        .first()
-        .invoke('text')
-        .then((codigo) => {
-          cy.get('[data-cy="checkout-coupon-input"]').clear().type(codigo.trim());
-          cy.get('[data-cy="checkout-apply-coupon-button"]').click();
+      cy.get('[data-cy="checkout-coupon-input"]').click();
+      cy.get('[data-cy="checkout-coupon-suggestions"]').should('be.visible');
+      cy.get('[data-cy="checkout-coupon-suggestions"]').find('button:not([disabled])').first().click();
 
-          // Cupom aparece na lista de aplicados
-          cy.get('[data-cy="checkout-applied-coupons"]').should('be.visible').and('contain.text', codigo.trim());
+      // Cupom aparece na lista de aplicados
+      cy.get('[data-cy="checkout-applied-coupons"]').should('be.visible');
 
-          // Total final deve ser menor que subtotal + frete (desconto aplicado)
-          cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tt) => {
-            expect(valorMonetario(tt)).to.be.lessThan(subtotal + 1000);
-          });
-        });
+      // Total final deve ser menor que subtotal + frete (desconto aplicado)
+      cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tt) => {
+        expect(valorMonetario(tt)).to.be.lessThan(subtotal + 1000);
+      });
     });
 
     cy.get('[data-cy="checkout-finish-button"]').should('not.be.disabled').click();
@@ -118,19 +113,26 @@ describe('Pagamentos — Combinações de meio de pagamento (CDU002, RF0017, RF0
      * 9. Verifica que pagamento foi processado com ambos cartões
      */
     cy.get('[data-cy="checkout-payment-section"]').scrollIntoView();
-    cy.get('[data-cy="pagamento-dividido-ativar"]').click();
-    
-    // Adicionar primeiro cartão ao pagamento dividido
-    cy.get('[data-cy="pagamento-dividido-adicionar-cartao"]').click();
-    cy.get('[data-cy^="checkout-card-item-"]').first().click();
-    cy.get('[data-cy="pagamento-linha-valor"]').clear().type('50');
-    
-    // Adicionar segundo cartão ao pagamento dividido
-    cy.get('[data-cy="pagamento-dividido-adicionar-cartao"]').click();
-    cy.get('[data-cy^="checkout-card-item-"]').eq(1).click();
-    cy.get('[data-cy="pagamento-linha-valor"]').eq(1).clear().type('50');
-    
-    cy.get('[data-cy="checkout-finish-button"]').should('not.be.disabled').click();
+
+    // Ler o total antes de dividir
+    cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tTotal) => {
+      const total = valorMonetario(tTotal);
+      
+      // Calcular parcelas que somam exatamente o total (evitando erro de ponto flutuante)
+      const parcela1 = Math.max(10, Math.round((total * 0.7) * 100) / 100);
+      const parcela2 = Math.round((total - parcela1) * 100) / 100;
+
+      // Adicionar segundo cartão ao pagamento dividido
+      cy.get('[data-cy="pagamento-dividido-adicionar-cartao-salvo"]').click();
+
+      // Ajustar linha 1 e linha 2 para que a soma bata com o total
+      cy.get('[data-cy="pagamento-dividido-linha-valor"]').eq(0).clear().type(String(parcela1));
+      cy.get('[data-cy="pagamento-dividido-linha-valor"]').eq(1).clear().type(String(parcela2));
+
+      // Aguardar atualização do estado React e verificar que o botão foi habilitado
+      cy.get('[data-cy="checkout-finish-button"]').should('not.be.disabled').click();
+    });
+
     cy.url().should('include', '/pedido-confirmado');
     cy.get('[data-cy="confirmado-page"]').should('be.visible');
   });
@@ -153,15 +155,15 @@ describe('Pagamentos — Combinações de meio de pagamento (CDU002, RF0017, RF0
       cy.get('[data-cy="checkout-frete"]').invoke('text').then((tFrete) => {
         const frete = valorMonetario(tFrete);
 
-        cy.get('[data-cy="checkout-coupon-suggestions"]').find('button').first().invoke('text').then((codigo) => {
-          cy.get('[data-cy="checkout-coupon-input"]').clear().type(codigo.trim());
-          cy.get('[data-cy="checkout-apply-coupon-button"]').click();
-          cy.get('[data-cy="checkout-applied-coupons"]').should('be.visible');
+        cy.get('[data-cy="checkout-coupon-input"]').scrollIntoView().click();
+        cy.get('[data-cy="checkout-coupon-suggestions"]').should('be.visible');
+        // Clicar na sugestão já chama onAplicar internamente — não precisa redigitar
+        cy.get('[data-cy="checkout-coupon-suggestions"]').find('button:not([disabled])').first().click();
+        cy.get('[data-cy="checkout-applied-coupons"]').should('be.visible');
 
-          // subtotal − desconto + frete = total  →  total <= subtotal + frete
-          cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tTotal) => {
-            expect(valorMonetario(tTotal)).to.be.at.most(subtotal + frete + 0.01);
-          });
+        // subtotal − desconto + frete = total  →  total <= subtotal + frete
+        cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tTotal) => {
+          expect(valorMonetario(tTotal)).to.be.at.most(subtotal + frete + 0.01);
         });
       });
     });

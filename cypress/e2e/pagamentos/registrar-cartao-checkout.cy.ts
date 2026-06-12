@@ -11,7 +11,59 @@ import {
 } from '../../support/fluxo-venda.helpers';
 
 describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', () => {
+  let devePularTeste = false;
+  let novoCartaoUuid: string | undefined;
+
+  before(() => {
+    cy.request({
+      method: 'POST',
+      url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/auth/login`,
+      headers: { 'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}` },
+      body: { email: 'clientetest@email.com', senha: '123456' },
+    }).then((loginRes) => {
+      const token = loginRes.body.dados.token;
+      return cy.request({
+        method: 'GET',
+        url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/clientes/perfil/cartoes`,
+        headers: {
+          'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+    }).then((cartoesRes) => {
+      const cartoes = cartoesRes.body.dados ?? cartoesRes.body;
+      if (Array.isArray(cartoes) && cartoes.length >= 3) {
+        devePularTeste = true;
+        cy.log('Cliente já tem 3 cartões. Use o teste validar-limite-cartoes.cy.ts para validar essa regra.');
+      }
+    });
+  });
+
+  afterEach(() => {
+    if (!novoCartaoUuid) return;
+    const uuid = novoCartaoUuid;
+    novoCartaoUuid = undefined;
+    cy.request({
+      method: 'POST',
+      url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/auth/login`,
+      headers: { 'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}` },
+      body: { email: 'clientetest@email.com', senha: '123456' },
+    }).then((loginRes) => {
+      const token = loginRes.body.dados.token;
+      cy.request({
+        method: 'DELETE',
+        url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/clientes/perfil/cartoes/${uuid}`,
+        headers: {
+          'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
+          'Authorization': `Bearer ${token}`,
+        },
+        failOnStatusCode: false,
+      }).then(() => cy.log('Cartão de teste removido com sucesso'));
+    });
+  });
+
   beforeEach(() => {
+    if (devePularTeste) return;
     cy.clearCookies();
     cy.clearLocalStorage();
     loginClienteUi();
@@ -19,7 +71,11 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
     irParaCheckoutComEnderecoEFrete();
   });
 
-  it('2 deve registrar um novo cartão durante a compra, pagar com ele e salvá-lo na lista', () => {
+  it('2 deve registrar um novo cartão durante a compra, pagar com ele e salvá-lo na lista', function () {
+    if (devePularTeste) {
+      this.skip();
+      return;
+    }
     /**
      * Fluxo (2 Registrar novo cartão no ato da compra):
      * 1. Cliente faz login
@@ -35,19 +91,24 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
      * 11. Verifica que pedido foi pago com novo cartão
      * 12. Verifica que cartão aparece na lista de cartões salvos
      */
-    let novoCartaoUuid: string;
-
-    // Abrir formulário de novo cartão
+    // Adicionar linha de novo cartão e abrir formulário
     cy.get('[data-cy="checkout-payment-section"]').scrollIntoView();
-    cy.get('[data-cy="checkout-add-card-button"]').click();
+    cy.get('[data-cy="pagamento-dividido-adicionar-novo-cartao"]').click();
+    // Se houver cartões salvos disponíveis, clica em "Informar cartão novo"; caso contrário, o botão direto já aparece
+    cy.get('body').then(($body) => {
+      if ($body.find('[data-cy="checkout-split-inform-new-card"]').length) {
+        cy.get('[data-cy="checkout-split-inform-new-card"]').last().click();
+      } else {
+        cy.get('[data-cy="checkout-add-card-button"]').last().click();
+      }
+    });
     cy.get('[data-cy="checkout-new-card-form"]').should('be.visible');
 
-    // Preencher dados do cartão
+    // Preencher dados do cartão (bandeira é auto-detectada pelo número)
     cy.get('[data-cy="checkout-card-number-input"]').clear().type(CARTAO_MASTERCARD.numero);
     cy.get('[data-cy="checkout-card-name-input"]').clear().type(CARTAO_MASTERCARD.nomeTitular);
     cy.get('[data-cy="checkout-card-expiry-input"]').clear().type(CARTAO_MASTERCARD.validade);
     cy.get('[data-cy="checkout-card-cvv-input"]').clear().type('123');
-    cy.get('[data-cy="checkout-card-brand"]').select(CARTAO_MASTERCARD.bandeira);
 
     // Marcar para salvar o cartão
     cy.get('[data-cy="checkout-save-card-checkbox"]').check();
@@ -74,26 +135,5 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
     cy.get('[data-cy="cartao-preferencial-badge"], body').should('exist');
     cy.contains(CARTAO_MASTERCARD.numero.slice(-4)).should('exist');
 
-    // Limpeza: remover o cartão criado via API
-    cy.request({
-      method: 'POST',
-      url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/auth/login`,
-      headers: {
-        'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
-      },
-      body: { email: 'clientetest@email.com', senha: '123456' },
-    }).then((loginRes) => {
-      const token = loginRes.body.dados.token;
-      cy.request({
-        method: 'DELETE',
-        url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/clientes/perfil/cartoes/${novoCartaoUuid}`,
-        headers: {
-          'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
-          'Authorization': `Bearer ${token}`,
-        },
-      }).then(() => {
-        cy.log('Cartão de teste removido com sucesso');
-      });
-    });
   });
 });

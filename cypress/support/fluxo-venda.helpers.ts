@@ -96,7 +96,9 @@ export function aprovarPagamentoApi(tokenCliente: string, vendaUuid: string, val
 
 /** Admin: despacha e confirma entrega de uma venda → status ENTREGUE. */
 export function entregarPedidoApi(tokenAdmin: string, vendaUuid: string) {
+  // Despachar primeiro (status EM_TRANSITO)
   cy.request({ method: 'PATCH', url: `${apiUrl()}/admin/pedidos/${vendaUuid}/despachar`, headers: auth(tokenAdmin) });
+  // Confirmar entrega usando endpoint do módulo vendas (atualiza status + data_hora_entrega)
   return cy.request({ method: 'PATCH', url: `${apiUrl()}/admin/pedidos/${vendaUuid}/entrega`, headers: auth(tokenAdmin) });
 }
 
@@ -172,7 +174,8 @@ export function irParaCheckoutComEnderecoEFrete(cep = '08720-510') {
   cy.get('[data-cy^="checkout-address-item-"]').first().click();
   cy.get('[data-cy="checkout-address-selected"]').should('be.visible');
 
-  cy.get('[data-cy="checkout-freight-zip-input"]').clear().type(cep);
+  cy.get('[data-cy="checkout-freight-section"]').scrollIntoView().should('be.visible');
+  cy.get('[data-cy="checkout-freight-zip-input"]').scrollIntoView().should('be.visible').clear().type(cep);
   cy.get('[data-cy="checkout-freight-calculate-button"]').click();
   cy.get('[data-cy="checkout-freight-options"]').should('be.visible');
   cy.get('[data-cy="checkout-freight-option-PAC"]').click();

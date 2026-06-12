@@ -76,7 +76,7 @@ describe('Trocas — Fluxo de Confirmar Recebimento e Geração de Cupom (RF0044
 
     // === ETAPA 4: Confirmar recebimento da troca ===
     // Clicar em "Confirmar Recebimento" do pedido específico
-    cy.get(`[data-cy="btn-confirmar-recebimento-${pedidoUuid}"]`).click();
+    cy.get(`[data-cy="btn-confirmar-recebimento-${pedidoUuid}"]`).scrollIntoView().click({ force: true });
 
     // === ETAPA 5: Confirmar no modal ===
     // Verificar que modal abriu
@@ -99,7 +99,9 @@ describe('Trocas — Fluxo de Confirmar Recebimento e Geração de Cupom (RF0044
     });
 
     // === ETAPA 6: Logout como Admin ===
-    cy.get('[data-cy="header-logout-button"]').click();
+    // O banner de feedback (cupom gerado) pode sobrepor o header; fecha antes de sair.
+    cy.get('[data-cy="feedback-banner"] button').click({ force: true });
+    cy.get('[data-cy="header-logout-button"]').click({ force: true });
     cy.url().should('include', '/minha-conta');
 
     // === ETAPA 7: Login como Cliente ===

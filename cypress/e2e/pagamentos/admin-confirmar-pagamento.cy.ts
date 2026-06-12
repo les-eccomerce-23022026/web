@@ -10,6 +10,7 @@ import {
   criarVendaApi,
   loginAdminUi,
   CLIENTE,
+  ADMIN,
 } from '../../support/fluxo-venda.helpers';
 
 describe('Pagamentos — Admin confirma pagamento (CDU005, RF0019)', () => {
@@ -18,11 +19,25 @@ describe('Pagamentos — Admin confirma pagamento (CDU005, RF0019)', () => {
   beforeEach(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
-    // Cria um pedido do cliente com pagamento pendente de confirmação.
+    // Cria um pedido e coloca em status "Pagamento Pendente" para o admin atuar.
     loginApi(CLIENTE.email, CLIENTE.senha)
       .then((tokenCliente) => criarVendaApi(tokenCliente))
       .then((venda) => {
         pedidoUuid = venda.uuid;
+        return loginApi(ADMIN.email, ADMIN.senha).then((tokenAdmin) => {
+          return cy.request({
+            method: 'POST',
+            url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/admin/testes/mudar-status-venda`,
+            headers: {
+              'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
+              'Authorization': `Bearer ${tokenAdmin}`,
+              'Content-Type': 'application/json',
+            },
+            body: { vendaUuid: pedidoUuid, novoStatus: 'AGUARDANDO_PAGAMENTO' },
+          });
+        });
+      })
+      .then(() => {
         cy.clearCookies();
         cy.clearLocalStorage();
       });
@@ -44,12 +59,21 @@ describe('Pagamentos — Admin confirma pagamento (CDU005, RF0019)', () => {
     cy.visit('/admin/pedidos');
     cy.get('[data-cy="pedidos-painel"]').should('be.visible');
 
-    // Aprovar o pagamento do pedido criado (botão determinístico por uuid)
-    cy.get(`[data-cy="btn-aprovar-pagamento-${pedidoUuid}"]`).scrollIntoView().click();
+    // Aguardar a tabela carregar e o pedido aparecer
+    cy.get('[data-cy="admin-table"]').should('be.visible');
 
-    // Status atualizado para "Em Processamento"/"Pagamento Aprovado"
-    cy.get(`[data-cy="admin-pedido-${pedidoUuid}"]`)
-      .find('[data-cy="pedido-status"]')
+    // Filtrar pelo UUID do pedido para encontrá-lo rapidamente
+    const pedidoShortId = pedidoUuid.split('-')[1]?.toUpperCase() || pedidoUuid;
+    cy.get('[data-cy="filtro-uuid"]').type(pedidoShortId);
+
+    // Aprovar o pagamento do pedido criado (botão determinístico por uuid)
+    cy.get(`[data-cy="btn-aprovar-pagamento-${pedidoUuid}"]`, { timeout: 10000 })
+      .should('be.visible')
+      .scrollIntoView()
+      .click();
+
+    // Status atualizado para "Em Processamento" (não mais "Pagamento Pendente")
+    cy.get(`[data-cy="status-badge-${pedidoUuid}"]`, { timeout: 10000 })
       .should('be.visible')
       .and('not.contain.text', 'Pagamento Pendente');
   });
@@ -72,11 +96,21 @@ describe('Pagamentos — Admin confirma pagamento (CDU005, RF0019)', () => {
     cy.visit('/admin/pedidos');
     cy.get('[data-cy="pedidos-painel"]').should('be.visible');
 
-    cy.get(`[data-cy="btn-rejeitar-pagamento-${pedidoUuid}"]`).scrollIntoView().click();
+    // Aguardar a tabela carregar e o pedido aparecer
+    cy.get('[data-cy="admin-table"]').should('be.visible');
 
-    // Status atualizado para rejeitado
-    cy.get(`[data-cy="admin-pedido-${pedidoUuid}"]`)
-      .find('[data-cy="pedido-status"]')
-      .should('contain.text', 'Rejeitado');
+    // Filtrar pelo UUID do pedido para encontrá-lo rapidamente
+    const pedidoShortId = pedidoUuid.split('-')[1]?.toUpperCase() || pedidoUuid;
+    cy.get('[data-cy="filtro-uuid"]').type(pedidoShortId);
+
+    cy.get(`[data-cy="btn-rejeitar-pagamento-${pedidoUuid}"]`, { timeout: 10000 })
+      .should('be.visible')
+      .scrollIntoView()
+      .click();
+
+    // Status atualizado para cancelado
+    cy.get(`[data-cy="status-badge-${pedidoUuid}"]`, { timeout: 10000 })
+      .should('be.visible')
+      .and('contain.text', 'Cancelado');
   });
 });

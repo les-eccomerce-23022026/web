@@ -38,22 +38,38 @@ describe('Pós-venda — Admin nega troca/devolução (CDU008, RF0043, RF0047)',
      * 12. Verifica que motivo da rejeição é exibido
      */
     prepararPedidoEntregueApi().then(({ uuid, itemUuid }) => {
+      // Usar timestamp para garantir unicidade e facilitar identificação
+      const timestamp = Date.now();
+      const motivoUnico = `Capa danificada - ${timestamp}`;
+      
       loginApi(CLIENTE.email, CLIENTE.senha).then((tokenCliente) => {
-        solicitarTrocaApi(tokenCliente, uuid, [itemUuid], 'Capa danificada');
+        solicitarTrocaApi(tokenCliente, uuid, [itemUuid], motivoUnico);
         cy.clearCookies();
         cy.clearLocalStorage();
       });
 
       // Admin rejeita a troca
       loginAdminUi();
-      cy.visit('/admin/trocas');
+      cy.visit('/admin/trocas', { timeout: 15000 });
       cy.get('[data-cy="trocas-painel"]').should('be.visible');
 
-      cy.get(`[data-cy="admin-troca-${uuid}"]`).should('exist');
-      cy.get(`[data-cy="btn-rejeitar-troca-${uuid}"]`).scrollIntoView().click();
+      // Encontrar o pedido pelo motivo único (mais resiliente que UUID)
+      cy.contains(motivoUnico).parents('[data-cy^="admin-troca-"]').should('exist').within(() => {
+        cy.get('[data-cy="pedido-status"]').should('contain.text', 'Em Troca');
+        cy.get('[data-cy^="btn-rejeitar-troca-"]').scrollIntoView().click({ force: true });
+      });
 
       cy.get('[data-cy="troca-motivo-rejeicao"]').should('be.visible').type('Fora do prazo de 7 dias');
       cy.get('[data-cy="btn-confirmar-rejeicao"]').click();
+      
+      // Aguardar a rejeição ser processada
+      cy.wait(3000);
+      
+      // Recarregar página para ver status atualizado
+      cy.visit('/admin/trocas', { timeout: 15000 });
+      cy.get(`[data-cy="admin-troca-${uuid}"]`).within(() => {
+        cy.get('[data-cy="pedido-status"]').should('contain.text', 'Troca Rejeitada');
+      });
 
       // Cliente vê a troca rejeitada com o motivo
       cy.clearCookies();
@@ -61,7 +77,7 @@ describe('Pós-venda — Admin nega troca/devolução (CDU008, RF0043, RF0047)',
       loginClienteUi();
       cy.visit('/pedidos');
       cy.get(`[data-cy="pedido-${uuid}"]`).within(() => {
-        cy.get('[data-cy="pedido-status"]').should('contain.text', 'Troca Rejeitada');
+        cy.get('[data-cy="pedido-status"]', { timeout: 15000 }).should('contain.text', 'Troca Rejeitada');
       });
     });
   });
@@ -81,28 +97,44 @@ describe('Pós-venda — Admin nega troca/devolução (CDU008, RF0043, RF0047)',
      * 10. Cliente verifica status atualizado
      */
     prepararPedidoEntregueApi().then(({ uuid, itemUuid }) => {
+      // Usar timestamp para garantir unicidade
+      const timestamp = Date.now();
+      const motivoUnico = `Desisti da compra - ${timestamp}`;
+      
       loginApi(CLIENTE.email, CLIENTE.senha).then((tokenCliente) => {
-        solicitarDevolucaoApi(tokenCliente, uuid, [itemUuid], 'Desisti da compra');
+        solicitarDevolucaoApi(tokenCliente, uuid, [itemUuid], motivoUnico);
         cy.clearCookies();
         cy.clearLocalStorage();
       });
 
       loginAdminUi();
-      cy.visit('/admin/trocas');
-      cy.get(`[data-cy="admin-troca-${uuid}"]`).should('exist');
-      cy.get(`[data-cy="btn-rejeitar-troca-${uuid}"]`).scrollIntoView().click();
+      cy.visit('/admin/trocas', { timeout: 15000 });
+      
+      // Encontrar o pedido pelo motivo único
+      cy.contains(motivoUnico).parents('[data-cy^="admin-troca-"]').should('exist').within(() => {
+        cy.get('[data-cy="pedido-status"]').should('contain.text', 'Em Devolução');
+        cy.get('[data-cy^="btn-rejeitar-devolucao-"]').scrollIntoView().click({ force: true });
+      });
 
-      cy.get('[data-cy="troca-motivo-rejeicao"]')
-        .should('be.visible')
-        .type('Produto fora das condições de devolução');
+      cy.get('[data-cy="troca-motivo-rejeicao"]').should('be.visible').type('Produto sem defeito');
       cy.get('[data-cy="btn-confirmar-rejeicao"]').click();
+      
+      // Aguardar a rejeição ser processada
+      cy.wait(3000);
+      
+      // Recarregar página para ver status atualizado
+      cy.visit('/admin/trocas', { timeout: 15000 });
+      cy.get(`[data-cy="admin-troca-${uuid}"]`).within(() => {
+        cy.get('[data-cy="pedido-status"]').should('contain.text', 'Devolução Rejeitada');
+      });
 
+      // Cliente vê a devolução rejeitada com o motivo
       cy.clearCookies();
       cy.clearLocalStorage();
       loginClienteUi();
       cy.visit('/pedidos');
       cy.get(`[data-cy="pedido-${uuid}"]`).within(() => {
-        cy.get('[data-cy="pedido-status"]').should('contain.text', 'Devolução Rejeitada');
+        cy.get('[data-cy="pedido-status"]', { timeout: 15000 }).should('contain.text', 'Devolução Rejeitada');
       });
     });
   });

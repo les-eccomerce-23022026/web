@@ -100,7 +100,7 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     cy.url().should('include', '/admin');
 
     // Navegar para gerenciar trocas
-    cy.visit('/admin/trocas');
+    cy.visit('/admin/trocas', { timeout: 15000 });
     cy.url().should('include', '/admin/trocas');
 
     // === ETAPA 8: Autorizar a troca ===
@@ -128,7 +128,7 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     });
 
     // Clicar em "Confirmar Recebimento"
-    cy.get(`[data-cy="btn-confirmar-recebimento-${pedidoUuid}"]`).click();
+    cy.get(`[data-cy="btn-confirmar-recebimento-${pedidoUuid}"]`).scrollIntoView().click({ force: true });
 
     // No modal, confirmar e gerar cupom
     cy.get('[data-cy="checkbox-retornar-estoque"]').should('be.checked');
@@ -147,7 +147,9 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     });
 
     // === ETAPA 10: Logout como Admin ===
-    cy.get('[data-cy="header-logout-button"]').click();
+    // O banner de feedback (cupom gerado) pode sobrepor o header; fecha antes de sair.
+    cy.get('[data-cy="feedback-banner"] button').click({ force: true });
+    cy.get('[data-cy="header-logout-button"]').click({ force: true });
     cy.visit('/minha-conta');
     cy.url().should('include', '/minha-conta');
 

@@ -40,6 +40,10 @@ describe('Trocas — Troca do pedido completo (CDU008, RF0042, RF0044)', () => {
      * 14. Cliente pode usar cupom em nova compra
      */
     prepararPedidoEntregueApi().then(({ uuid }) => {
+      // Usar timestamp para garantir unicidade
+      const timestamp = Date.now();
+      const motivoUnico = `Quero trocar o pedido inteiro por outros títulos - ${timestamp}`;
+      
       // === Cliente solicita troca completa ===
       loginClienteUi();
       cy.visit('/pedidos');
@@ -49,11 +53,12 @@ describe('Trocas — Troca do pedido completo (CDU008, RF0042, RF0044)', () => {
         const totalPedido = valorMonetario(tTotal);
 
         cy.get(`[data-cy="btn-solicitar-troca-${uuid}"]`).scrollIntoView().click();
+        cy.url().should('include', '/pedidos');
         cy.url().should('include', '/troca');
 
         // Seleciona TODOS os itens (troca completa)
-        cy.get('[data-cy="troca-selecionar-tudo"]').check();
-        cy.get('[data-cy="troca-motivo-input"]').clear().type('Quero trocar o pedido inteiro por outros títulos');
+        cy.get('[data-cy="btn-selecionar-todos"]').scrollIntoView().click({ force: true });
+        cy.get('[data-cy="troca-motivo-input"]').clear().type(motivoUnico);
         cy.get('[data-cy="btn-confirmar-troca"]').click();
         cy.get('[data-cy="btn-voltar-pedidos"]').should('be.visible');
 
@@ -61,9 +66,21 @@ describe('Trocas — Troca do pedido completo (CDU008, RF0042, RF0044)', () => {
         cy.clearCookies();
         cy.clearLocalStorage();
         loginAdminUi();
-        cy.visit('/admin/trocas');
-        cy.get(`[data-cy="admin-troca-${uuid}"]`).should('exist');
-        cy.get(`[data-cy="btn-autorizar-troca-${uuid}"]`).scrollIntoView().click();
+        cy.visit('/admin/trocas', { timeout: 15000 });
+        
+        // Encontrar o pedido pelo motivo único
+        cy.contains(motivoUnico).parents('[data-cy^="admin-troca-"]').should('exist').within(() => {
+          cy.get('[data-cy="pedido-status"]').should('contain.text', 'Em Troca');
+          cy.get('[data-cy^="btn-autorizar-troca-"]').scrollIntoView().click();
+        });
+        
+        // Aguardar status mudar para "Troca Autorizada"
+        cy.wait(2000);
+        cy.visit('/admin/trocas', { timeout: 15000 });
+        cy.get(`[data-cy="admin-troca-${uuid}"]`).within(() => {
+          cy.get('[data-cy="pedido-status"]').should('contain.text', 'Troca Autorizada');
+        });
+        
         cy.get(`[data-cy="btn-confirmar-recebimento-${uuid}"]`).scrollIntoView().click();
         cy.get('[data-cy="checkbox-retornar-estoque"]').check();
         cy.get('[data-cy="btn-confirmar-modal"]').click();

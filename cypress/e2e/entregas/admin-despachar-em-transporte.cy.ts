@@ -54,6 +54,10 @@ describe('Entregas — Admin despacha pedido para transporte (CDU007, RF0038)', 
     cy.visit('/admin/pedidos');
     cy.get('[data-cy="pedidos-painel"]').should('be.visible');
 
+    // Filtrar pelo UUID do pedido para encontrá-lo rapidamente
+    const pedidoShortId = pedidoUuid.split('-')[1]?.toUpperCase() || pedidoUuid;
+    cy.get('[data-cy="filtro-uuid"]').type(pedidoShortId);
+
     cy.get(`[data-cy="btn-despachar-${pedidoUuid}"]`).scrollIntoView().click();
 
     // Após despachar, o botão de confirmar entrega ao cliente aparece (status Em Trânsito)

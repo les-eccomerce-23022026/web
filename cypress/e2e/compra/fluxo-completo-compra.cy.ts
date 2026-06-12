@@ -62,11 +62,11 @@ describe('Fluxo Completo de Compra', () => {
    * Helper para navegar para checkout
    */
   function navegarParaCheckout() {
-    cy.visit('/carrinho');
+    cy.visit('/carrinho', { timeout: 15000 });
     cy.url().should('include', '/carrinho');
     
     // Verificar que há itens no carrinho
-    cy.get('[data-cy="carrinho-page"]').should('be.visible');
+    cy.get('[data-cy="carrinho-page"]', { timeout: 10000 }).should('be.visible');
     cy.get('[data-cy="carrinho-table"]').should('be.visible');
     
     // Clicar em Finalizar Compra
@@ -91,7 +91,7 @@ describe('Fluxo Completo de Compra', () => {
    */
   function calcularFrete() {
     // Preencher CEP de destino
-    cy.get('[data-cy="checkout-freight-zip-input"]').clear().type(cepTeste);
+    cy.get('[data-cy="checkout-freight-zip-input"]').scrollIntoView().clear({force: true}).type(cepTeste);
     
     // Clicar em Calcular
     cy.get('[data-cy="checkout-freight-calculate-button"]').click();
