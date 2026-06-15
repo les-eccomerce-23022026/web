@@ -151,24 +151,13 @@ export const ChatInterface = ({ onHistoricoToggle }: ChatInterfaceProps) => {
           </div>
         )}
 
-        {mensagens.length <= 1 && !iteracaoAtual ? (
-          mensagens.map((mensagem) => (
-            <ChatMensagem
-              key={mensagem.id}
-              mensagem={mensagem}
-              onPerguntaFollowUp={enviarPerguntaFollowUp}
-            />
-          ))
-        ) : (
-          <ChatHistoricoIteracoes
-            boasVindas={boasVindas}
-            iteracoesAnteriores={iteracoesAnteriores}
-            iteracaoAtual={iteracaoAtual}
-            isEnviando={isEnviando}
+        {mensagens.map((mensagem) => (
+          <ChatMensagem
+            key={mensagem.id}
+            mensagem={mensagem}
             onPerguntaFollowUp={enviarPerguntaFollowUp}
-            onContinuarDaIteracao={continuarDaIteracao}
           />
-        )}
+        ))}
 
         {isEnviando && <ChatLoadingIndicator />}
       </div>

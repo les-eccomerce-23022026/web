@@ -8,7 +8,7 @@ import { buildUrl, responseToResult, rethrowNetworkError } from '../utils/httpUt
  * - 401 em rotas autenticadas: encerra sessão (logoutSession). Login com credenciais inválidas não dispara logout global.
  */
 export class ApiClient {
-  private static readonly TIMEOUT_MS = 10000; // 10 segundos
+  private static readonly TIMEOUT_MS = 20000; // 20 segundos
 
   private static prepararHeaders(fetchOptions: RequestInit, token: string | null): Headers {
     const headers = new Headers(fetchOptions.headers);

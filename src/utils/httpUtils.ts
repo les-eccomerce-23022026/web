@@ -65,7 +65,7 @@ function rethrowNetworkError(error: unknown): never {
   // Erro de timeout (AbortController)
   if (err?.name === 'AbortError') {
     throw new Error(
-      'Tempo de conexão esgotado. O servidor não respondeu em 10 segundos. Verifique se o backend está rodando.',
+      'Tempo de conexão esgotado. O servidor não respondeu em 20 segundos. Verifique se o backend está rodando.',
     );
   }
 
