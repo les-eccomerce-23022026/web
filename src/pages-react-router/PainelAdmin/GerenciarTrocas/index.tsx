@@ -1,6 +1,8 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+
+const ITENS_POR_PAGINA = 10;
 import { usePedidosTrocaAdmin } from '../../../hooks/usePedidos';
 import { useAppSelector } from '../../../store/hooks';
 import { LoadingState } from '../../../components/Comum/LoadingState/LoadingState.tsx';
@@ -43,11 +45,23 @@ function GerenciarTrocas() {
   const [processando, setProcessando] = useState(false);
   const [feedbackMsg, setFeedbackMsg] = useState('');
   const [itensSelecionados, setItensSelecionados] = useState<ItensSelecionadosState>({});
+  const [paginaAtual, setPaginaAtual] = useState(1);
+
+  const totalPaginas = Math.ceil(pedidos.length / ITENS_POR_PAGINA);
+  const pedidosPaginados = useMemo(() => {
+    const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+    return pedidos.slice(inicio, inicio + ITENS_POR_PAGINA);
+  }, [pedidos, paginaAtual]);
+
+  const irParaPagina = useCallback((pagina: number) => {
+    setPaginaAtual(Math.max(1, Math.min(pagina, totalPaginas)));
+  }, [totalPaginas]);
 
   useEffect(() => {
     pedidos.forEach((pedido) => {
       inicializarItensSelecionados(pedido);
     });
+    setPaginaAtual(1);
   }, [pedidos]);
 
   if (loading) {
@@ -219,7 +233,7 @@ function GerenciarTrocas() {
             </tr>
           </thead>
           <tbody>
-            {pedidos.map((pedido) => (
+            {pedidosPaginados.map((pedido) => (
               <tr key={pedido.uuid} data-cy={`admin-troca-${pedido.uuid}`}>
                 <td className={styles.colPedido}>#{pedido.uuid?.split('-')[1] || pedido.uuid}</td>
                 <td>{new Date(pedido.data).toLocaleDateString('pt-BR')}</td>
@@ -339,6 +353,28 @@ function GerenciarTrocas() {
           </tbody>
         </table>
       </div>
+
+      {totalPaginas > 1 && (
+        <div className={styles.paginacao}>
+          <button
+            className={styles.paginacaoBtn}
+            onClick={() => irParaPagina(paginaAtual - 1)}
+            disabled={paginaAtual === 1}
+          >
+            ‹ Anterior
+          </button>
+          <span className={styles.paginacaoInfo}>
+            Página {paginaAtual} de {totalPaginas} ({pedidos.length} itens)
+          </span>
+          <button
+            className={styles.paginacaoBtn}
+            onClick={() => irParaPagina(paginaAtual + 1)}
+            disabled={paginaAtual === totalPaginas}
+          >
+            Próxima ›
+          </button>
+        </div>
+      )}
 
       {/* Modal de Detalhes do Item */}
       <Modal

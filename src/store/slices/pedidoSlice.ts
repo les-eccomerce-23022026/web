@@ -30,6 +30,21 @@ const initialState: PedidoState = {
   error: null,
 };
 
+/**
+ * Mescla os pedidos recém-carregados com os existentes (evitando duplicatas por uuid)
+ * e ordena por data decrescente. A ordenação torna a posição determinística
+ * independentemente da ordem em que as thunks de troca/devolução são resolvidas,
+ * garantindo que pedidos recentes apareçam no topo (primeira página).
+ */
+function mesclarEOrdenarPedidos(novos: IPedido[], existentes: IPedido[]): IPedido[] {
+  const semDuplicatas = existentes.filter(
+    (p) => !novos.some((novo) => novo.uuid === p.uuid),
+  );
+  return [...novos, ...semDuplicatas].sort(
+    (a, b) => new Date(b.data).getTime() - new Date(a.data).getTime(),
+  );
+}
+
 export { darBaixaEstoqueThunk } from './pedidoThunks';
 export {
   autorizarTrocaThunk,
@@ -110,10 +125,8 @@ const pedidoSlice = createSlice({
       })
       .addCase(fetchPedidosEmTroca.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // Mescla com pedidos existentes para não perder devoluções
-        state.pedidos = [...action.payload, ...state.pedidos.filter(p => 
-          !action.payload.some((novo: IPedido) => novo.uuid === p.uuid)
-        )];
+        // Mescla com pedidos existentes (para não perder devoluções) e ordena por data
+        state.pedidos = mesclarEOrdenarPedidos(action.payload, state.pedidos);
         state.error = null;
       })
       .addCase(fetchPedidosEmTroca.rejected, (state, action) => {
@@ -129,10 +142,8 @@ const pedidoSlice = createSlice({
       })
       .addCase(fetchPedidosEmDevolucao.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // Mescla com pedidos existentes para não perder trocas
-        state.pedidos = [...action.payload, ...state.pedidos.filter(p => 
-          !action.payload.some((novo: IPedido) => novo.uuid === p.uuid)
-        )];
+        // Mescla com pedidos existentes (para não perder trocas) e ordena por data
+        state.pedidos = mesclarEOrdenarPedidos(action.payload, state.pedidos);
         state.error = null;
       })
       .addCase(fetchPedidosEmDevolucao.rejected, (state, action) => {

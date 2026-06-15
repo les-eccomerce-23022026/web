@@ -11,7 +11,7 @@ import type { IPedido, StatusPedido } from '../../../interfaces/pedido';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
 import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 import { ITENS_POR_PAGINA } from '@/config/constantesNegocio';
-import { pedidoService } from '@/services/pedidoService';
+import { PedidoService } from '@/services/pedidoService';
 
 const STATUS_APROVADOS: StatusPedido[] = [STATUS_PEDIDO.EM_PROCESSAMENTO];
 const STATUS_TRANSITO: StatusPedido[] = [STATUS_PEDIDO.EM_TRANSITO];
@@ -136,7 +136,7 @@ export function useGerenciarPedidos() {
     const uuid = modalRejeicao.uuid;
     setProcessando(uuid);
     try {
-      await pedidoService.mudarStatusVenda(uuid, 'CANCELADA');
+      await PedidoService.mudarStatusVenda(uuid, 'CANCELADA');
       setFeedbackMsg(`Pedido #${uuid.split('-')[1]} rejeitado.`);
       fecharModalRejeicao();
       await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
@@ -152,7 +152,7 @@ export function useGerenciarPedidos() {
     async (pedidoUuid: string) => {
       setProcessando(pedidoUuid);
       try {
-        await pedidoService.aprovarPagamento(pedidoUuid);
+        await PedidoService.aprovarPagamento(pedidoUuid);
         setFeedbackMsg(`Pagamento do pedido #${pedidoUuid.split('-')[1]} aprovado.`);
         await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
       } catch (e: unknown) {
@@ -169,7 +169,7 @@ export function useGerenciarPedidos() {
     async (pedidoUuid: string) => {
       setProcessando(pedidoUuid);
       try {
-        await pedidoService.rejeitarPagamento(pedidoUuid);
+        await PedidoService.rejeitarPagamento(pedidoUuid);
         setFeedbackMsg(`Pagamento do pedido #${pedidoUuid.split('-')[1]} rejeitado.`);
         await dispatch(fetchAllPedidos(STATUS_GERENCIAVEIS));
       } catch (e: unknown) {

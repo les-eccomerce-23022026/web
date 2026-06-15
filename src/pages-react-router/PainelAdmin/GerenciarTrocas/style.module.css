@@ -334,3 +334,39 @@
   color: var(--bn-text-primary);
   font-weight: 600;
 }
+
+/* ===== Paginação ===== */
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 0 8px;
+}
+
+.paginacaoBtn {
+  padding: 6px 16px;
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  background: #fff;
+  color: var(--bn-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.paginacaoBtn:hover:not(:disabled) {
+  background: var(--bn-primary);
+  color: #fff;
+}
+
+.paginacaoBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.paginacaoInfo {
+  font-size: 13px;
+  color: var(--bn-text-muted);
+}
