@@ -22,6 +22,8 @@ describe('Pagamentos — Combinações de meio de pagamento (CDU002, RF0017, RF0
     cy.clearCookies();
     cy.clearLocalStorage();
     loginClienteUi();
+    // Limpar carrinho para evitar conflitos de reserva (backend corrigido com lojId)
+    cy.limparCarrinhoViaApi();
     adicionarLivrosAoCarrinho(2);
     irParaCheckoutComEnderecoEFrete();
   });

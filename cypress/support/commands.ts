@@ -5,6 +5,7 @@ declare namespace Cypress {
     criarTrocaAutorizada(pedidoUuid?: string): Chainable<void>;
     prepararPedidoEntregue(): Chainable<string>;
     autorizarTrocaViaApi(pedidoUuid: string): Chainable<void>;
+    limparCarrinhoViaApi(): Chainable<void>;
   }
 }
 
@@ -155,6 +156,34 @@ Cypress.Commands.add('criarTrocaAutorizada', (pedidoUuidAlvo?: string) => {
   // começar deslogado (formulário de login visível).
   cy.clearCookies();
   cy.clearLocalStorage();
+});
+
+/**
+ * Limpa o carrinho do cliente via API (requer autenticação).
+ * NÃO limpa cookies para preservar sessão UI existente.
+ */
+Cypress.Commands.add('limparCarrinhoViaApi', () => {
+  const apiUrl = getApiUrl();
+  const hdr = getTestDbHeaders();
+
+  // Login como cliente para obter token
+  cy.request({
+    method: 'POST',
+    url: `${apiUrl}/auth/login`,
+    headers: hdr,
+    body: { email: 'clientetest@email.com', senha: '123456' },
+  }).then((loginResponse) => {
+    const token = loginResponse.body.dados.token;
+    const auth = { ...hdr, Authorization: `Bearer ${token}` };
+
+    // Limpar carrinho sem limpar cookies (preserva sessão UI)
+    cy.request({
+      method: 'DELETE',
+      url: `${apiUrl}/carrinho`,
+      headers: auth,
+      failOnStatusCode: false,
+    });
+  });
 });
 
 /**

@@ -179,13 +179,9 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     });
 
     // === ETAPA 13: Aplicar cupom no checkout ===
-    // Limpar carrinho antes de adicionar novo item (evita constraint uq_reserva_usuario_livro_ativa)
-    const API = Cypress.env('apiUrl') ?? 'http://localhost:3001/api';
-    cy.request({ method: 'DELETE', url: `${API}/carrinho`, failOnStatusCode: false });
-
-    // Adicionar um item DIFERENTE ao carrinho (evita constraint com livro do pedido)
+    // Usar um item DIFERENTE (índice 2) para evitar constraint com livro do pedido
     cy.visit('/');
-    cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(1).click();
+    cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(2).click();
     cy.url().should('include', '/carrinho');
 
     // Ir para checkout
