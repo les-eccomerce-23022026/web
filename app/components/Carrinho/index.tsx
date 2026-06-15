@@ -11,6 +11,7 @@ import { USE_MOCK } from '@/config/apiConfig';
 import { CarrinhoTabela } from './CarrinhoTabela';
 import { CarrinhoResumo } from './CarrinhoResumo';
 import { CarrinhoVazio } from './CarrinhoVazio';
+import { CarrinhoItensExpirados } from './CarrinhoItensExpirados';
 import { useCarrinhoHandlers } from './useCarrinhoHandlers';
 import { useCarrinhoFrete } from './useCarrinhoFrete';
 import '@/pages-react-router/Vendas/Carrinho/style.module.css';
@@ -19,8 +20,9 @@ export const Carrinho = () => {
   const dispatch = useAppDispatch();
   const { data, error, status } = useAppSelector((state) => state.carrinho);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const sessionLoading = useAppSelector((state) => state.auth.sessionLoading);
 
-  const usarCarrinhoLocal = USE_MOCK || !isAuthenticated;
+  const usarCarrinhoLocal = USE_MOCK || (!isAuthenticated && !sessionLoading);
 
   const entrega = useEntrega();
   const {
@@ -98,11 +100,17 @@ export const Carrinho = () => {
   }
   if (data.itens.length === 0) {
     return (
-      <>
+      <div className="carrinho-page" data-cy="carrinho-page" suppressHydrationWarning>
         <h1 className="page-title">Carrinho de Compras</h1>
         <hr className="carrinho-separator" />
+
+        {/* Itens expirados (se houver) */}
+        {data.itensExpirados && data.itensExpirados.length > 0 && (
+          <CarrinhoItensExpirados itensExpirados={data.itensExpirados} />
+        )}
+
         <CarrinhoVazio />
-      </>
+      </div>
     );
   }
 
@@ -111,6 +119,11 @@ export const Carrinho = () => {
     <div className="carrinho-page" data-cy="carrinho-page" suppressHydrationWarning>
       <h1 className="page-title">Carrinho de Compras</h1>
       <hr className="carrinho-separator" />
+
+      {/* Itens expirados (se houver) */}
+      {data.itensExpirados && data.itensExpirados.length > 0 && (
+        <CarrinhoItensExpirados itensExpirados={data.itensExpirados} />
+      )}
 
       <CarrinhoTabela
         itens={data.itens}

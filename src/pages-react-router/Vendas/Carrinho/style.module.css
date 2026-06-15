@@ -6,6 +6,113 @@
   padding: 0 var(--container-gutter-mobile);
 }
 
+/* Itens Expirados */
+.carrinho-itens-expirados {
+  background: var(--bn-warning-bg);
+  border: 2px solid var(--bn-warning-border);
+  border-radius: var(--bn-border-radius-md);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.carrinho-expirados-header {
+  margin-bottom: 1.5rem;
+}
+
+.carrinho-expirados-titulo {
+  color: var(--bn-warning-text);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.carrinho-expirados-mensagem {
+  color: var(--bn-warning-text);
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.carrinho-expirados-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.carrinho-expirado-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bn-bg-light);
+  border-radius: var(--bn-border-radius-sm);
+  border: 1px solid var(--bn-border-color);
+}
+
+.carrinho-expirado-imagem img {
+  width: 80px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--bn-border-radius-sm);
+}
+
+.carrinho-expirado-info {
+  flex: 1;
+}
+
+.carrinho-expirado-titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: var(--bn-text-primary);
+}
+
+.carrinho-expirado-isbn,
+.carrinho-expirado-preco,
+.carrinho-expirado-quantidade {
+  font-size: 0.875rem;
+  margin: 0.25rem 0;
+  color: var(--bn-text-secondary);
+}
+
+.carrinho-expirado-motivo {
+  font-size: 0.875rem;
+  margin: 0.5rem 0 0 0;
+  color: var(--bn-warning-text);
+  font-weight: 500;
+}
+
+.carrinho-expirado-acao {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.carrinho-expirado-botao {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: var(--bn-border-radius-sm);
+}
+
+.carrinho-expirado-aviso {
+  font-size: 0.75rem;
+  color: var(--bn-text-tertiary);
+  margin: 0;
+}
+
+/* Tablet (480px+) */
+@media (min-width: 480px) {
+  .carrinho-expirado-item {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .carrinho-expirado-acao {
+    align-items: center;
+  }
+}
+
 /* Tablet (480px+) */
 @media (min-width: 480px) {
   .carrinho-page {
@@ -314,4 +421,171 @@
   object-fit: cover;
   border-radius: 4px;
   background-color: #e0e0e0;
+}
+
+/* --- Seção de Itens Expirados --- */
+.carrinho-expirados-section {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #fff8e6;
+  border: 1px solid #ffc107;
+  border-radius: var(--bn-border-radius-md);
+}
+
+.carrinho-expirados-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  color: #856404;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.carrinho-expirados-icon {
+  color: #ffc107;
+  flex-shrink: 0;
+}
+
+.carrinho-expirados-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.carrinho-expirado-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  background-color: #ffffff;
+  border: 1px solid #ffe082;
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease;
+}
+
+.carrinho-expirado-item:hover {
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+}
+
+.carrinho-expirado-image {
+  width: 50px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  flex-shrink: 0;
+}
+
+.carrinho-expirado-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.carrinho-expirado-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--bn-text-primary);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.carrinho-expirado-isbn {
+  font-size: 12px;
+  color: var(--bn-text-muted);
+  margin-bottom: 4px;
+}
+
+.carrinho-expirado-preco {
+  font-size: 14px;
+  color: var(--bn-text-primary);
+  font-weight: 500;
+}
+
+.carrinho-expirado-actions {
+  flex-shrink: 0;
+}
+
+.carrinho-expirado-btn-restaurar {
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--bn-border-radius-sm);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.carrinho-expirado-btn-restaurar:hover {
+  background-color: #e0a800;
+}
+
+.carrinho-expirado-btn-restaurar:active {
+  transform: scale(0.98);
+}
+
+.carrinho-expirado-btn-limpar {
+  background-color: transparent;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--bn-border-radius-sm);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.carrinho-expirado-btn-limpar:hover {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+/* Responsividade para itens expirados */
+/* Base: Mobile (0px+) */
+@media (max-width: 767px) {
+  .carrinho-expirado-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .carrinho-expirado-image {
+    width: 60px;
+    height: 90px;
+  }
+
+  .carrinho-expirado-actions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .carrinho-expirado-btn-restaurar,
+  .carrinho-expirado-btn-limpar {
+    flex: 1;
+  }
+
+  .carrinho-expirado-btn-limpar {
+    margin-left: 0;
+  }
+}
+
+/* Tablet/Desktop (768px+) */
+@media (min-width: 768px) {
+  .carrinho-expirado-item {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .carrinho-expirado-actions {
+    width: auto;
+  }
 }

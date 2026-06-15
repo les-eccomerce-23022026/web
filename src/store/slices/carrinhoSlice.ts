@@ -8,17 +8,21 @@ import {
   atualizarQuantidadeItemCarrinho,
   limparItensCarrinho,
   removerItemCarrinho,
+  adicionarItensExpirados as adicionarItensExpiradosHelper,
+  removerItemExpirado,
 } from './carrinhoSliceHelpers';
 import { logout } from './authSlice';
 
 interface CarrinhoState {
   data: ICarrinho | null;
+  itensExpirados: IItemCarrinho[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
 }
 
 const initialState: CarrinhoState = {
   data: null,
+  itensExpirados: [],
   status: 'idle',
   error: null,
 };
@@ -79,6 +83,26 @@ const carrinhoSlice = createSlice({
       state.data.resumo.frete = frete;
       state.data.resumo.total = state.data.resumo.subtotal + frete;
     },
+    /** Adiciona itens à lista de expirados (removidos por tempo) */
+    adicionarItensExpirados: (state, action: PayloadAction<IItemCarrinho[]>) => {
+      const itensNovos = action.payload;
+      if (itensNovos.length === 0) return;
+      state.itensExpirados = adicionarItensExpiradosHelper(state.itensExpirados, itensNovos);
+    },
+    /** Limpa a lista de itens expirados */
+    limparItensExpirados: (state) => {
+      state.itensExpirados = [];
+    },
+    /** Restaura um item expirado de volta ao carrinho */
+    restaurarItemExpirado: (state, action: PayloadAction<string>) => {
+      const itemUuid = action.payload;
+      const itemExpirado = state.itensExpirados.find((item) => item.uuid === itemUuid);
+      if (!itemExpirado) return;
+      if (!state.data) return;
+
+      state.itensExpirados = removerItemExpirado(state.itensExpirados, itemUuid);
+      adicionarOuAtualizarItemCarrinho(state.data, itemExpirado);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -108,6 +132,7 @@ const carrinhoSlice = createSlice({
       })
       .addCase(logout, (state) => {
         state.data = criarCarrinhoVazio();
+        state.itensExpirados = [];
         state.status = 'succeeded';
         state.error = null;
       });
@@ -120,6 +145,9 @@ export const {
   atualizarQuantidade,
   limparCarrinho,
   definirFreteResumoCarrinho,
+  adicionarItensExpirados,
+  limparItensExpirados,
+  restaurarItemExpirado,
 } = carrinhoSlice.actions;
 
 export default carrinhoSlice.reducer;
