@@ -490,3 +490,174 @@
     opacity: 1;
   }
 }
+
+/* --- Sidebar de Histórico ---------------------------------- */
+.historicoSidebar {
+  width: 280px;
+  background-color: var(--bn-bg-card);
+  border-right: 1px solid var(--bn-border-light);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.historicoSidebarHeader {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--bn-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bn-bg-subtle);
+}
+
+.historicoSidebarTitulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bn-text-primary);
+}
+
+.historicoSidebarFechar {
+  background: none;
+  border: none;
+  color: var(--bn-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--bn-border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.historicoSidebarFechar:hover {
+  color: var(--bn-text-primary);
+  background-color: var(--bn-bg-subtle);
+}
+
+.historicoSidebarLista {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.historicoVazio {
+  font-size: 0.8rem;
+  color: var(--bn-text-muted);
+  text-align: center;
+  padding: 20px 10px;
+  margin: 0;
+}
+
+.historicoItem {
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-md);
+  background-color: var(--bn-bg-main);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.historicoItemAtivo {
+  border-color: var(--bn-primary);
+  background-color: var(--bn-bg-subtle);
+}
+
+.historicoItemResumo {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 10px 12px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.15s;
+}
+
+.historicoItemResumo:hover {
+  background-color: var(--bn-bg-subtle);
+}
+
+.historicoItemCabecalho {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.historicoItemTexto {
+  font-size: 0.8rem;
+  color: var(--bn-text-body);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historicoItemChevron {
+  flex-shrink: 0;
+  color: var(--bn-text-muted);
+  transition: transform 0.15s ease;
+}
+
+.historicoItemChevronAberto {
+  transform: rotate(90deg);
+}
+
+.historicoItemConteudo {
+  padding: 0 12px 10px;
+  border-top: 1px solid var(--bn-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.historicoMensagem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.historicoMensagemRotulo {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--bn-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.historicoMensagemTexto {
+  font-size: 0.8rem;
+  color: var(--bn-text-body);
+  line-height: 1.4;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* --- Layout com Sidebar ------------------------------------ */
+.painelComSidebar {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+}
+
+.painelConteudo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}

@@ -1,7 +1,7 @@
 /**
  * Root layout - Server Component
  * Includes Redux Providers for CSR routes (carrinho, checkout, admin)
- * Includes Header, Footer and ChatFlutuante (global — visible only for authenticated clients)
+ * Includes Header, Footer and ChatFlutuante (global — visible for authenticated clients and admins)
  */
 
 import type { Metadata } from 'next';

@@ -64,12 +64,46 @@ export function obterIteracaoAtual(iteracoes: IIteracaoChat[]): IIteracaoChat | 
   return iteracoes.at(-1);
 }
 
-/** Rótulo do dropdown — intenção resumida (backend) ou pergunta truncada. */
+/** Rótulo do dropdown — intenção resumida (backend) ou pergunta truncada em português. */
 export function rotuloIteracao(iteracao: IIteracaoChat): string {
-  const resumo =
-    iteracao.respostaAssistente?.intencaoResumida?.trim() ||
-    iteracao.perguntaUsuario.conteudo;
-  return truncarTexto(resumo);
+  const intencao = iteracao.respostaAssistente?.intencaoResumida?.trim();
+  const pergunta = iteracao.perguntaUsuario.conteudo;
+  
+  if (intencao) {
+    return traduzirIntencao(intencao);
+  }
+  
+  return truncarTexto(pergunta);
+}
+
+/** Traduz intenções do backend para português com contexto. */
+function traduzirIntencao(intencao: string): string {
+  const mapaTraducoes: Record<string, string> = {
+    'recomendacao': 'Recomendação de livros',
+    'status_pedido': 'Status do pedido',
+    'mais_vendidos': 'Livros mais vendidos',
+    'categoria': 'Busca por categoria',
+    'autor': 'Busca por autor',
+    'titulo': 'Busca por título',
+  };
+  
+  // Intentions compostas (ex: "recomendacao · ficcao_cientifica")
+  if (intencao.includes(' · ')) {
+    return intencao
+      .split(' · ')
+      .map((parte) => mapaTraducoes[parte] || formatarCategoria(parte))
+      .join(' • ');
+  }
+  
+  return mapaTraducoes[intencao] || formatarCategoria(intencao);
+}
+
+/** Formata nomes de categorias para português. */
+function formatarCategoria(texto: string): string {
+  return texto
+    .split('_')
+    .map((palavra) => palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase())
+    .join(' ');
 }
 
 /** Mensagens até o fim da iteração escolhida (inclusive), preservando boas-vindas. */

@@ -10,11 +10,12 @@ import styles from './ChatInterface.module.css';
 /**
  * FAB fixo (canto inferior direito) que abre o PainelLateral
  * com o Assistente da Livraria.
- * Visível apenas para clientes autenticados.
+ * Visível para clientes e administradores autenticados.
  */
 export const ChatFlutuante = () => {
   const [isAberto, setIsAberto] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [historicoAberto, setHistoricoAberto] = useState(false);
   const { isAuthenticated, user, sessionLoading } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -30,13 +31,20 @@ export const ChatFlutuante = () => {
     };
   }, [isAberto]);
 
-  const exibirParaClienteLogado =
-    mounted && !sessionLoading && isAuthenticated && user?.role === 'cliente';
+  // Permite acesso a clientes e administradores (admin e admin_sistema)
+  const temPapelAutorizado = user?.papeis?.some(
+    (papel) => papel === 'cliente' || papel === 'admin' || papel === 'admin_sistema'
+  );
+
+  const exibirChat =
+    mounted && !sessionLoading && isAuthenticated && temPapelAutorizado;
 
   const abrirChat = () => setIsAberto(true);
   const fecharChat = () => setIsAberto(false);
 
-  if (!exibirParaClienteLogado) {
+  const larguraPainel = historicoAberto ? 'min(750px, 90vw)' : 'min(500px, 90vw)';
+
+  if (!exibirChat) {
     return null;
   }
 
@@ -48,10 +56,12 @@ export const ChatFlutuante = () => {
         onFechar={fecharChat}
         titulo="Assistente da Livraria"
         lado="esquerda"
-        largura="min(420px, 100vw)"
+        largura={larguraPainel}
         dataCy="chat-sidebar"
       >
-        <ChatInterface />
+        <ChatInterface
+          onHistoricoToggle={setHistoricoAberto}
+        />
       </PainelLateral>
 
       {/* FAB fixo — canto inferior direito */}

@@ -83,8 +83,11 @@ export function useChatRecomendacao() {
   const authUser = useSelector((state: RootState) => state.auth.user);
   const enderecosCliente = useSelector((state: RootState) => state.cliente.enderecos);
 
+  // Para administradores, não usa estado do endereço (não tem enderecos de cliente)
   const estadoPerfil =
-    enderecosCliente.find((e) => e.principal)?.estado ?? enderecosCliente[0]?.estado;
+    authUser?.papeis?.includes('admin') || authUser?.papeis?.includes('admin_sistema')
+      ? undefined
+      : enderecosCliente.find((e) => e.principal)?.estado ?? enderecosCliente[0]?.estado;
 
   const [mensagens, setMensagens] = useState<IMensagemChat[]>(() => [
     criarMensagemBoasVindas(authUser?.nome, estadoPerfil),
