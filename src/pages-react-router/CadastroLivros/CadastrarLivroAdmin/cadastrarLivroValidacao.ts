@@ -49,6 +49,11 @@ function erroCamposEstoqueRN(form: FormCadastro): string | null {
   return null;
 }
 
+function erroCategoriaObrigatoria(form: FormCadastro): string | null {
+  if (!form.categoria) return 'Categoria Principal é obrigatória.';
+  return null;
+}
+
 function erroQuantidadeEstoque(form: FormCadastro): string | null {
   const qtdEstoque = parseInt(form.estoque, 10);
   if (isNaN(qtdEstoque) || qtdEstoque <= 0) {
@@ -64,6 +69,7 @@ export function mensagemErroSalvarLivro(
   return (
     erroCamposBasicos(form, precoVendaCalculado) ??
     erroCamposEstoqueRN(form) ??
+    erroCategoriaObrigatoria(form) ??
     erroQuantidadeEstoque(form) ??
     compararCustoPreco(form.custo, precoVendaCalculado)
   );

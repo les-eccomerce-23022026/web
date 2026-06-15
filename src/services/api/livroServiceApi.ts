@@ -1,5 +1,6 @@
 import type { ICatalogoLivrosResposta, ICategoriaMenu, IFiltroCatalogoLivros } from '@/interfaces/catalogoLivros';
 import type { ILivro, ICriarLivroPayload } from '@/interfaces/livro';
+import type { ILivroAdminDetalhe, IPayloadAtualizacaoLivro } from '@/interfaces/livroAdmin';
 import { API_ENDPOINTS } from '@/config/apiConfig';
 import { ApiClient } from '../apiClient';
 import type { ILivroService } from '../contracts/livroService';
@@ -45,5 +46,16 @@ export class LivroServiceApi implements ILivroService {
 
   async criarLivro(payload: ICriarLivroPayload): Promise<ILivro> {
     return ApiClient.post<ILivro>(API_ENDPOINTS.obterListaLivrosAdmin, payload);
+  }
+
+  async obterLivroAdmin(uuid: string): Promise<ILivroAdminDetalhe> {
+    return ApiClient.get<ILivroAdminDetalhe>(API_ENDPOINTS.obterLivroAdmin(uuid));
+  }
+
+  async atualizarLivro(uuid: string, dados: IPayloadAtualizacaoLivro): Promise<{ sucesso: boolean; aprovacaoNecessaria?: boolean; mensagem?: string }> {
+    return ApiClient.patch<{ sucesso: boolean; aprovacaoNecessaria?: boolean; mensagem?: string }>(
+      API_ENDPOINTS.atualizarLivro(uuid),
+      dados,
+    );
   }
 }
