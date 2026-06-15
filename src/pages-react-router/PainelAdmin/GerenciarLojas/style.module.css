@@ -134,3 +134,40 @@
   font-size: 48px;
   margin-bottom: 16px;
 }
+
+.skeletonCell {
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bn-border, #e5e7eb) 25%, var(--bn-bg-secondary, #f3f4f6) 50%, var(--bn-border, #e5e7eb) 75%);
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes skeletonPulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.lojaHeaderInfo {
+  font-size: 14px;
+  color: var(--bn-text-muted);
+  margin-bottom: 8px;
+}
+
+
+.filtroStatus {
+  padding: 8px 12px;
+  border: 1px solid var(--bn-border, #e5e7eb);
+  border-radius: 6px;
+  background: var(--bn-bg, #fff);
+  color: var(--bn-text, #111);
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.filtroStatus:focus {
+  outline: none;
+  border-color: var(--bn-primary, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+}

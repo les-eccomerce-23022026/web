@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { ILoja, ILojaFormState } from '../../../interfaces/loja';
 import { lojaService } from '../../../services/lojaService';
+
+const ITENS_POR_PAGINA = 20;
 
 const INITIAL_FORM: ILojaFormState = {
   nome: '',
@@ -8,8 +10,13 @@ const INITIAL_FORM: ILojaFormState = {
   cnpj: '',
 };
 
+export type IFiltroStatus = 'todos' | 'ativo' | 'inativo';
+
 export function useGerenciarLojas() {
   const [lojas, setLojas] = useState<ILoja[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalAtivas, setTotalAtivas] = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [editingLoja, setEditingLoja] = useState<ILoja | null>(null);
   const [form, setForm] = useState<ILojaFormState>(INITIAL_FORM);
@@ -21,27 +28,53 @@ export function useGerenciarLojas() {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [lojaToToggle, setLojaToToggle] = useState<ILoja | null>(null);
-  const [filtro, setFiltro] = useState('');
+  const [filtroNome, setFiltroNome] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState<IFiltroStatus>('todos');
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const [itensPorPagina] = useState(10);
 
-  // Carrega lojas da API
-  async function carregarLojas() {
+  const carregarLojas = useCallback(async (pagina: number, nome: string, status: IFiltroStatus) => {
     setIsLoading(true);
     try {
-      const dados = await lojaService.listarLojas();
-      setLojas(dados);
+      const ativo =
+        status === 'ativo' ? true : status === 'inativo' ? false : null;
+
+      const resposta = await lojaService.listarLojas({
+        pagina,
+        limite: ITENS_POR_PAGINA,
+        nome: nome || undefined,
+        ativo: ativo ?? undefined,
+      });
+
+      setLojas(resposta.lojas);
+      setTotal(resposta.total);
+      setTotalPaginas(resposta.totalPaginas);
+
+      // Calcula total de ativas: se a API retornar tudo, conta direto;
+      // caso contrário, faz chamada separada para contar ativas
+      if (status === 'ativo') {
+        setTotalAtivas(resposta.total);
+      } else if (status === 'inativo') {
+        // mantém o valor que já temos (outra chamada seria necessária)
+        // para não exceder requests, recalculamos ao carregar 'todos'
+      } else {
+        const qtdAtivas = resposta.lojas.filter((l) => l.ativo).length;
+        // se está na primeira página e total === lojas.length, podemos contar diretamente
+        if (resposta.total === resposta.lojas.length) {
+          setTotalAtivas(qtdAtivas);
+        }
+        // caso contrário, mantém valor anterior (sem request extra)
+      }
     } catch (erro: unknown) {
       const mensagem = erro instanceof Error ? erro.message : 'Erro ao carregar lojas';
       showPageFeedback(mensagem, 'error');
     } finally {
       setIsLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    carregarLojas();
-  }, []);
+    carregarLojas(paginaAtual, filtroNome, filtroStatus);
+  }, [paginaAtual, filtroNome, filtroStatus, carregarLojas]);
 
   function showPageFeedback(msg: string, type: 'success' | 'error' = 'success') {
     setPageMessage(msg);
@@ -94,9 +127,6 @@ export function useGerenciarLojas() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-  /**
-   * Auto-gera slug a partir do nome
-   */
   function gerarSlugDoNome(nome: string) {
     const slug = nome
       .toLowerCase()
@@ -106,18 +136,11 @@ export function useGerenciarLojas() {
     setForm((prev) => ({ ...prev, slug }));
   }
 
-  /**
-   * Valida CNPJ usando algoritmo padrão de dígitos verificadores
-   */
   function validarCNPJ(cnpj: string): boolean {
     const apenasNumeros = cnpj.replace(/\D/g, '');
-
     if (apenasNumeros.length !== 14) return false;
-
-    // Verifica se todos os dígitos são iguais
     if (/^(\d)\1{13}$/.test(apenasNumeros)) return false;
 
-    // Calcula primeiro dígito verificador
     let soma = 0;
     let multiplicador = 5;
     for (let i = 0; i < 8; i++) {
@@ -127,7 +150,6 @@ export function useGerenciarLojas() {
     let resto = soma % 11;
     const primeiroDigito = resto < 2 ? 0 : 11 - resto;
 
-    // Calcula segundo dígito verificador
     soma = 0;
     multiplicador = 6;
     for (let i = 0; i < 8; i++) {
@@ -144,38 +166,18 @@ export function useGerenciarLojas() {
     );
   }
 
-  /**
-   * Valida slug (apenas letras minúsculas e hífens)
-   */
   function validarSlug(slug: string): boolean {
     return /^[a-z\-]{3,}$/.test(slug);
   }
 
-  /**
-   * Valida todos os campos do formulário
-   */
   function validarFormulario(): string | null {
-    if (!form.nome.trim()) {
-      return 'Nome da loja é obrigatório';
-    }
-    if (form.nome.trim().length < 3) {
-      return 'Nome deve ter no mínimo 3 caracteres';
-    }
-
-    if (!form.slug.trim()) {
-      return 'Slug é obrigatório';
-    }
-    if (!validarSlug(form.slug)) {
+    if (!form.nome.trim()) return 'Nome da loja é obrigatório';
+    if (form.nome.trim().length < 3) return 'Nome deve ter no mínimo 3 caracteres';
+    if (!form.slug.trim()) return 'Slug é obrigatório';
+    if (!validarSlug(form.slug))
       return 'Slug deve ter no mínimo 3 caracteres e conter apenas letras minúsculas e hífens';
-    }
-
-    if (!form.cnpj.trim()) {
-      return 'CNPJ é obrigatório';
-    }
-    if (!validarCNPJ(form.cnpj)) {
-      return 'CNPJ inválido';
-    }
-
+    if (!form.cnpj.trim()) return 'CNPJ é obrigatório';
+    if (!validarCNPJ(form.cnpj)) return 'CNPJ inválido';
     return null;
   }
 
@@ -189,9 +191,6 @@ export function useGerenciarLojas() {
     setIsConfirmModalOpen(true);
   }
 
-  /**
-   * Verifica se slug é único via API
-   */
   async function verificarSlugUnico(slug: string, uuidAtual?: string): Promise<boolean> {
     try {
       return await lojaService.verificarSlugDisponivel(slug, uuidAtual);
@@ -210,7 +209,6 @@ export function useGerenciarLojas() {
         return;
       }
 
-      // Verifica slug único
       const slugUnico = await verificarSlugUnico(form.slug, editingLoja?.uuid);
       if (!slugUnico) {
         showModalFeedback('Slug já está em uso por outra loja', 'error');
@@ -218,29 +216,23 @@ export function useGerenciarLojas() {
       }
 
       if (editingLoja) {
-        // Editar loja
         await lojaService.atualizarLoja(editingLoja.uuid, {
           nome: form.nome,
           slug: form.slug,
           cnpj: form.cnpj,
         });
-
         showPageFeedback('Loja atualizada com sucesso!');
-        await carregarLojas();
-        resetForm();
-        return;
+      } else {
+        await lojaService.criarLoja({
+          nome: form.nome,
+          slug: form.slug,
+          cnpj: form.cnpj,
+          ativo: true,
+        });
+        showPageFeedback('Loja criada com sucesso!');
       }
 
-      // Criar nova loja
-      await lojaService.criarLoja({
-        nome: form.nome,
-        slug: form.slug,
-        cnpj: form.cnpj,
-        ativo: true,
-      });
-
-      showPageFeedback('Loja criada com sucesso!');
-      await carregarLojas();
+      await carregarLojas(paginaAtual, filtroNome, filtroStatus);
       resetForm();
     } catch (erro: unknown) {
       const mensagem = erro instanceof Error ? erro.message : 'Erro ao salvar loja';
@@ -261,34 +253,39 @@ export function useGerenciarLojas() {
     if (!lojaToToggle) return;
 
     try {
-      // Implementar endpoint de ativação/desativação se necessário
-      showPageFeedback('Funcionalidade de exclusão ainda não implementada no backend');
+      if (lojaToToggle.ativo) {
+        await lojaService.inativarLoja(lojaToToggle.uuid);
+        showPageFeedback(`Loja "${lojaToToggle.nome}" desativada com sucesso!`);
+      } else {
+        await lojaService.ativarLoja(lojaToToggle.uuid);
+        showPageFeedback(`Loja "${lojaToToggle.nome}" ativada com sucesso!`);
+      }
       setIsDeleteModalOpen(false);
       setLojaToToggle(null);
+      await carregarLojas(paginaAtual, filtroNome, filtroStatus);
     } catch (erro: unknown) {
       const mensagem = erro instanceof Error ? erro.message : 'Erro ao alterar status da loja';
       showPageFeedback(mensagem, 'error');
+      setIsDeleteModalOpen(false);
+      setLojaToToggle(null);
     }
   }
 
-  // Filtrar lojas
-  const lojasFiltradas = lojas.filter((loja) => {
-    const termo = filtro.toLowerCase();
-    return (
-      loja.nome.toLowerCase().includes(termo) ||
-      loja.slug.toLowerCase().includes(termo) ||
-      loja.cnpj.includes(termo)
-    );
-  });
+  function handleFiltroNomeChange(valor: string) {
+    setFiltroNome(valor);
+    setPaginaAtual(1);
+  }
 
-  // Paginar
-  const totalPaginas = Math.ceil(lojasFiltradas.length / itensPorPagina);
-  const indiceInicio = (paginaAtual - 1) * itensPorPagina;
-  const lojasPaginadas = lojasFiltradas.slice(indiceInicio, indiceInicio + itensPorPagina);
+  function handleFiltroStatusChange(valor: IFiltroStatus) {
+    setFiltroStatus(valor);
+    setPaginaAtual(1);
+  }
 
   return {
-    lojas: lojasPaginadas,
-    lojasFiltradas,
+    lojas,
+    total,
+    totalAtivas,
+    totalPaginas,
     isLoading,
     form,
     showForm,
@@ -300,13 +297,14 @@ export function useGerenciarLojas() {
     isConfirmModalOpen,
     isDeleteModalOpen,
     lojaToToggle,
-    filtro,
+    filtroNome,
+    filtroStatus,
     paginaAtual,
-    totalPaginas,
     setIsConfirmModalOpen,
     setIsDeleteModalOpen,
-    setFiltro,
     setPaginaAtual,
+    handleFiltroNomeChange,
+    handleFiltroStatusChange,
     startCreate,
     startEdit,
     handleFieldChange,
