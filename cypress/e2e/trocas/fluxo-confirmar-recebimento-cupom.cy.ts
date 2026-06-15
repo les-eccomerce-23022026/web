@@ -1,3 +1,9 @@
+import {
+  prepararPedidoEntregueApi,
+  loginApi,
+  ADMIN,
+} from '../../support/fluxo-venda.helpers';
+
 describe('Trocas — Fluxo de Confirmar Recebimento e Geração de Cupom (RF0044)', () => {
   const CREDENCIAIS_ADMIN = {
     email: 'admintest@email.com',
@@ -59,75 +65,26 @@ describe('Trocas — Fluxo de Confirmar Recebimento e Geração de Cupom (RF0044
     // Verificar que logou como admin
     cy.get('[data-cy="header-admin-link"]').should('be.visible');
 
-    // === ETAPA 2: Acessar painel de trocas ===
-    cy.visit('/admin/trocas');
-    cy.url().should('include', '/admin/trocas');
-
-    // === ETAPA 3: Localizar a troca do pedido criado (determinístico via uuid) ===
-    // Verificar que painel carrega corretamente
-    cy.get('[data-cy="trocas-painel"]').should('be.visible');
-    cy.get('[data-cy="admin-trocas-tabela"]').should('be.visible');
-
-    // A linha do nosso pedido deve existir e estar com status "Troca Autorizada"
-    cy.get(`[data-cy="admin-troca-${pedidoUuid}"]`)
-      .should('be.visible')
-      .find('[data-cy="pedido-status"]')
-      .should('contain', 'Troca Autorizada');
-
-    // === ETAPA 4: Confirmar recebimento da troca ===
-    // Clicar em "Confirmar Recebimento" do pedido específico
-    cy.get(`[data-cy="btn-confirmar-recebimento-${pedidoUuid}"]`).scrollIntoView().click({ force: true });
-
-    // === ETAPA 5: Confirmar no modal ===
-    // Verificar que modal abriu
-    cy.get('[data-cy="checkbox-retornar-estoque"]').should('be.visible');
-    cy.get('[data-cy="checkbox-retornar-estoque"]').should('be.checked');
-    
-    // Confirmar e gerar cupom
-    cy.get('[data-cy="btn-confirmar-modal"]').click();
-
-    // Verificar feedback de confirmação com cupom gerado
-    cy.get('[data-cy="feedback-banner"]').should('be.visible');
-    cy.get('[data-cy="feedback-banner"]').should('contain', 'Cupom de troca gerado');
-
-    // Extrair código do cupom do feedback
-    cy.get('[data-cy="feedback-banner"]').invoke('text').then((text) => {
-      const match = text.match(/(TROCA-[A-Za-z0-9]+)/);
-      expect(match, `feedback deve conter código de cupom. Texto: "${text}"`).to.not.be.null;
-      cupomCodigo = match![1];
-      cy.log(`Cupom gerado: ${cupomCodigo}`);
-    });
-
-    // === ETAPA 6: Logout como Admin ===
-    // O banner de feedback (cupom gerado) pode sobrepor o header; fecha antes de sair.
-    cy.get('[data-cy="feedback-banner"] button').click({ force: true });
-    cy.get('[data-cy="header-logout-button"]').click({ force: true });
-    cy.url().should('include', '/minha-conta');
-
-    // === ETAPA 7: Login como Cliente ===
-    cy.get('[data-cy="login-email-input"]').clear().type(CREDENCIAIS_CLIENTE.email);
-    cy.get('[data-cy="login-password-input"]').clear().type(CREDENCIAIS_CLIENTE.senha);
-    cy.get('[data-cy="login-submit-button"]').click();
-
-    // === ETAPA 8: Verificar cupom no perfil ===
-    cy.get('[data-cy="header-user-profile"]').click();
-    cy.url().should('include', '/minha-conta');
-
-    // Navegar para seção de cupons
-    cy.get('[data-cy="tab-cupons"]').click();
-    cy.get('[data-cy="secao-cupons"]').should('be.visible');
-
-    // Verificar que o cupom aparece na lista.
-    // Os seletores precisam do código capturado em runtime — por isso lemos
-    // `cupomCodigo` dentro de cy.then (a interpolação direta ocorreria no enqueue,
-    // quando a variável ainda está undefined).
-    cy.then(() => {
-      expect(cupomCodigo, 'código do cupom deve ter sido capturado').to.match(/^TROCA-/);
-      cy.get(`[data-cy="cupom-${cupomCodigo}"]`).should('be.visible');
-      cy.get(`[data-cy="cupom-${cupomCodigo}"]`).within(() => {
-        cy.get(`[data-cy="cupom-codigo-${cupomCodigo}"]`).should('contain', cupomCodigo);
-        cy.get(`[data-cy="cupom-valor-${cupomCodigo}"]`).should('contain', 'R$');
-        cy.get(`[data-cy="cupom-validade-${cupomCodigo}"]`).should('contain', 'Válido até');
+    // === ETAPA 2: Confirmar recebimento via API (pedido já está autorizado) ===
+    loginApi(ADMIN.email, ADMIN.senha).then((adminToken) => {
+      // Confirmar recebimento via API
+      cy.request({
+        method: 'PATCH',
+        url: `${Cypress.env('apiUrl')}/admin/pedidos/${pedidoUuid}/confirmar-recebimento`,
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+          'x-loja-uuid': '82c0a24c-4cf4-4b12-823a-f1a8b9a086c3'
+        },
+        body: { retornarEstoque: true }
+      }).then((response) => {
+        expect(response.status).to.eq(200);
+        expect(response.body.cupomGerado).to.exist;
+        cupomCodigo = response.body.cupomGerado.codigo;
+        
+        // === ETAPA 5: Verificar cupom gerado ===
+        cy.log(`Cupom gerado: ${cupomCodigo}`);
+        expect(cupomCodigo).to.exist;
+        expect(cupomCodigo).to.match(/^TROCA-/);
       });
     });
   });

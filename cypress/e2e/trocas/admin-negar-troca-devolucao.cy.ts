@@ -124,7 +124,8 @@ describe('Pós-venda — Admin nega troca/devolução (CDU008, RF0043, RF0047)',
       
       // Recarregar página para ver status atualizado
       cy.visit('/admin/trocas', { timeout: 15000 });
-      cy.get(`[data-cy="admin-troca-${uuid}"]`).within(() => {
+      // Usar o motivo único para encontrar o pedido
+      cy.contains(motivoUnico).parents('[data-cy^="admin-troca-"]').within(() => {
         cy.get('[data-cy="pedido-status"]').should('contain.text', 'Devolução Rejeitada');
       });
 

@@ -37,10 +37,10 @@ export const GerenciarAdminsModalFormulario = ({
     title={editingAdmin ? 'Editar Administrador' : 'Novo Administrador'}
     footer={
       <>
-        <button className="btn-secondary" onClick={onClose}>
+        <button className="btn-secondary" onClick={onClose} data-cy="admin-form-cancelar">
           Cancelar
         </button>
-        <button className="btn-primary" onClick={onTriggerSaveConfirm}>
+        <button className="btn-primary" onClick={onTriggerSaveConfirm} data-cy="admin-form-salvar">
           {editingAdmin ? 'Atualizar Dados' : 'Criar Administrador'}
         </button>
       </>
@@ -65,6 +65,7 @@ export const GerenciarAdminsModalFormulario = ({
           placeholder="Ex: João Silva"
           value={form.nome}
           onChange={(e) => onFieldChange('nome', e.target.value)}
+          data-cy="admin-form-nome"
         />
       </div>
 
@@ -76,6 +77,7 @@ export const GerenciarAdminsModalFormulario = ({
           placeholder="adm@empresa.com"
           value={form.email}
           onChange={(e) => onFieldChange('email', e.target.value)}
+          data-cy="admin-form-email"
         />
       </div>
 

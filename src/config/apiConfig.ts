@@ -24,6 +24,12 @@ export const API_ENDPOINTS = {
   obterCheckoutInfo: `${BASE_URL}/checkout`,
   obterDashboardAdminInfo: `${BASE_URL}/admin/dashboard`,
   obterDetalhesLivro: (uuid: string) => `${BASE_URL}/livros/${uuid}`,
+  obterLivroAdmin: (uuid: string) => `${BASE_URL}/admin/livros/${uuid}`,
+  atualizarLivro: (uuid: string) => `${BASE_URL}/admin/livros/${uuid}`,
+  inativacaoAutomaticaLivros: `${BASE_URL}/admin/livros/inativacao-automatica`,
+  aprovacoesPrecoPendentes: `${BASE_URL}/admin/livros/aprovacoes-preco`,
+  aprovarPrecoLivro: (uuid: string) => `${BASE_URL}/admin/livros/aprovacoes-preco/${uuid}/aprovar`,
+  rejeitarPrecoLivro: (uuid: string) => `${BASE_URL}/admin/livros/aprovacoes-preco/${uuid}/rejeitar`,
 
   // Pedidos (histórico do cliente — backend: GET /minhas-vendas)
   obterPedidosCliente: `${BASE_URL}/minhas-vendas`,
@@ -114,6 +120,7 @@ export const API_ENDPOINTS = {
   // Clientes (Admin)
   listarClientes: `${BASE_URL}/clientes`,
   obterClienteAdmin: (uuid: string) => `${BASE_URL}/clientes/${uuid}`,
+  inativarClienteAdmin: (uuid: string) => `${BASE_URL}/admin/clientes/${uuid}/inativar`,
 
   // Pedidos (Admin)
   obterTodosPedidosAdmin: `${BASE_URL}/admin/pedidos`,
@@ -122,8 +129,15 @@ export const API_ENDPOINTS = {
   confirmarEntrega: (uuid: string) =>
     `${BASE_URL}/admin/pedidos/${uuid}/entrega`,
 
-  // Lojas (Admin)
+  // Lojas (Admin Sistema)
   minhasLojas: `${BASE_URL}/admin/lojas/minhas-lojas`,
+  listarLojas: `${BASE_URL}/admin/lojas`,
+  obterLoja: (uuid: string) => `${BASE_URL}/admin/lojas/${uuid}`,
+  criarLoja: `${BASE_URL}/admin/lojas`,
+  atualizarLoja: (uuid: string) => `${BASE_URL}/admin/lojas/${uuid}`,
+  inativarLoja: (uuid: string) => `${BASE_URL}/admin/lojas/${uuid}/inativar`,
+  ativarLoja: (uuid: string) => `${BASE_URL}/admin/lojas/${uuid}/ativar`,
+  verificarSlugLoja: `${BASE_URL}/admin/lojas/verificar-slug`,
 
   // Estoque (Admin)
   listarEstoque: `${BASE_URL}/admin/estoque`,

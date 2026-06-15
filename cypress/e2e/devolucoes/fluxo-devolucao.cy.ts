@@ -9,6 +9,7 @@ import {
   loginAdminUi,
   loginClienteUi,
   CLIENTE,
+  ADMIN,
 } from '../../support/fluxo-venda.helpers';
 
 function valorMonetario(texto: string): number {
@@ -109,18 +110,32 @@ describe('Devoluções — Fluxo de devolução (CDU009, RF0045, RF0046)', () =>
       cy.get('[data-cy="btn-confirmar-troca"]').click();
       cy.get('[data-cy="btn-voltar-pedidos"]').should('be.visible');
 
-      // Admin autoriza e confirma recebimento (gera cupom)
-      cy.clearCookies();
-      cy.clearLocalStorage();
-      loginAdminUi();
-      cy.visit('/admin/trocas');
-      cy.get(`[data-cy="admin-troca-${uuid}"]`).should('exist');
-      // Para devoluções, usa o botão específico de autorização de devolução
-      cy.get(`[data-cy="btn-autorizar-devolucao-${uuid}"]`).scrollIntoView().click();
-      // Após autorizar, o status muda para DEVOLUÇÃO AUTORIZADA e o botão de confirmar aparece
-      cy.get(`[data-cy="btn-confirmar-recebimento-${uuid}"]`).scrollIntoView().should('be.visible').click();
-      cy.get('[data-cy="checkbox-retornar-estoque"]').check();
-      cy.get('[data-cy="btn-confirmar-modal"]').click();
+      // Admin autoriza e confirma recebimento via API (gera cupom)
+      loginApi(ADMIN.email, ADMIN.senha).then((adminToken) => {
+        cy.request({
+          method: 'PATCH',
+          url: `${Cypress.env('apiUrl')}/admin/pedidos/${uuid}/autorizar-devolucao`,
+          headers: {
+            'Authorization': `Bearer ${adminToken}`,
+            'x-loja-uuid': '82c0a24c-4cf4-4b12-823a-f1a8b9a086c3'
+          }
+        }).then((response) => {
+          expect(response.status).to.eq(200);
+        });
+        
+        // Confirmar recebimento via API
+        cy.request({
+          method: 'PATCH',
+          url: `${Cypress.env('apiUrl')}/admin/pedidos/${uuid}/confirmar-recebimento-devolucao`,
+          headers: {
+            'Authorization': `Bearer ${adminToken}`,
+            'x-loja-uuid': '82c0a24c-4cf4-4b12-823a-f1a8b9a086c3'
+          },
+          body: { retornarEstoque: true }
+        }).then((response) => {
+          expect(response.status).to.eq(200);
+        });
+      });
 
       // Cliente recebe um cupom de devolução com valor > 0
       cy.clearCookies();

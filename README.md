@@ -6,6 +6,13 @@
 - O cliente HTTP usa `credentials: 'include'`. O JWT **não** fica em `sessionStorage`; apenas um snapshot de `user` pode ser guardado para UX.
 - Com backend em outra origem (ex.: URL absoluta em `VITE_API_BASE_URL`), cookies exigem `SameSite=None; Secure` e HTTPS — prefira proxy ou mesmo host em produção.
 
+## Autenticação de Clientes
+
+> [!IMPORTANT]
+> **Não existe URL `/login` separada.** Tanto o login quanto o registro de clientes são feitos na página **Minha Conta** (`/minha-conta`).
+>
+> Ao implementar funcionalidades de autenticação, redirecionamentos ou guards de rota, use sempre `/minha-conta` como a página de login/registro.
+
 ## Documentação (SSoT e quadro local)
 
 - Especificação e ADRs: [`../documentacao-exigida/README.md`](../documentacao-exigida/README.md)

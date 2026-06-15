@@ -11,6 +11,7 @@
 
 export const CLIENTE = { email: 'clientetest@email.com', senha: '123456' };
 export const ADMIN = { email: 'admintest@email.com', senha: '123456' };
+export const ADMIN_SISTEMA = { email: 'admin_sistema@test.com', senha: '123456' };
 
 export const CARTAO_VISA = {
   numero: '4111111111111111',
@@ -43,7 +44,7 @@ export function loginApi(email: string, senha: string) {
 }
 
 function auth(token: string): Record<string, string> {
-  return { ...headers(), Authorization: `Bearer ${token}` };
+  return { ...headers(), Authorization: `Bearer ${token}`, 'x-loja-uuid': '82c0a24c-4cf4-4b12-823a-f1a8b9a086c3' };
 }
 
 /** Cria uma venda do cliente (nasce EM PROCESSAMENTO) e retorna { uuid, itemUuid, valorTotal }. */
@@ -122,6 +123,32 @@ export function solicitarDevolucaoApi(tokenCliente: string, vendaUuid: string, i
   });
 }
 
+/** Cria um pedido EM_PROCESSAMENTO (aprovado mas não despachado); retorna { uuid, itemUuid }. */
+export function prepararPedidoEmProcessamentoApi() {
+  return loginApi(CLIENTE.email, CLIENTE.senha).then((tokenCliente) =>
+    criarVendaApi(tokenCliente).then((venda) =>
+      cy.request({
+        method: 'POST',
+        url: `${apiUrl()}/pagamentos/selecionar`,
+        headers: auth(tokenCliente),
+        body: { vendaUuid: venda.uuid, valor: venda.valorTotal, tipoPagamento: 'cartao_credito', cartao: CARTAO_VISA },
+      }).then((sel) => {
+        const pagamentoUuid = sel.body.id as string;
+        return cy.request({
+          method: 'POST',
+          url: `${apiUrl()}/pagamentos/${pagamentoUuid}/processar`,
+          headers: auth(tokenCliente),
+        }).then(() => {
+          // Limpa a sessão deixada pelos logins via cy.request.
+          cy.clearCookies();
+          cy.clearLocalStorage();
+          return cy.wrap({ uuid: venda.uuid, itemUuid: venda.itemUuid });
+        });
+      })
+    )
+  );
+}
+
 /** Cria um pedido ENTREGUE pronto para o fluxo de pós-venda; retorna { uuid, itemUuid }. */
 export function prepararPedidoEntregueApi() {
   return loginApi(CLIENTE.email, CLIENTE.senha).then((tokenCliente) =>
@@ -139,6 +166,8 @@ export function prepararPedidoEntregueApi() {
 
 /** Login de cliente via UI, esperando o redirect (evita abortar a request de login). */
 export function loginClienteUi() {
+  cy.clearCookies();
+  cy.clearLocalStorage();
   cy.visit('/minha-conta');
   cy.get('[data-cy="login-email-input"]').clear().type(CLIENTE.email);
   cy.get('[data-cy="login-password-input"]').clear().type(CLIENTE.senha);
@@ -148,11 +177,18 @@ export function loginClienteUi() {
 
 /** Login de admin via UI, esperando o redirect. */
 export function loginAdminUi() {
+  cy.clearCookies();
+  cy.clearLocalStorage();
   cy.visit('/minha-conta');
   cy.get('[data-cy="login-email-input"]').clear().type(ADMIN.email);
   cy.get('[data-cy="login-password-input"]').clear().type(ADMIN.senha);
   cy.get('[data-cy="login-submit-button"]').click();
   cy.url().should('include', '/admin');
+}
+
+/** Login de admin_sistema via API (para testes de endpoints sem UI). */
+export function loginAdminSistemaApi() {
+  return loginApi(ADMIN_SISTEMA.email, ADMIN_SISTEMA.senha);
 }
 
 /** Adiciona N livros ao carrinho a partir da home. */

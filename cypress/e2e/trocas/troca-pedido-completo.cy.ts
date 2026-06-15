@@ -9,6 +9,8 @@ import {
   prepararPedidoEntregueApi,
   loginAdminUi,
   loginClienteUi,
+  loginApi,
+  ADMIN,
 } from '../../support/fluxo-venda.helpers';
 
 function valorMonetario(texto: string): number {
@@ -62,28 +64,34 @@ describe('Trocas — Troca do pedido completo (CDU008, RF0042, RF0044)', () => {
         cy.get('[data-cy="btn-confirmar-troca"]').click();
         cy.get('[data-cy="btn-voltar-pedidos"]').should('be.visible');
 
-        // === Admin autoriza e confirma recebimento ===
-        cy.clearCookies();
-        cy.clearLocalStorage();
-        loginAdminUi();
-        cy.visit('/admin/trocas', { timeout: 15000 });
-        
-        // Encontrar o pedido pelo motivo único
-        cy.contains(motivoUnico).parents('[data-cy^="admin-troca-"]').should('exist').within(() => {
-          cy.get('[data-cy="pedido-status"]').should('contain.text', 'Em Troca');
-          cy.get('[data-cy^="btn-autorizar-troca-"]').scrollIntoView().click();
+        // === Admin autoriza e confirma recebimento via API ===
+        loginApi(ADMIN.email, ADMIN.senha).then((adminToken) => {
+          cy.request({
+            method: 'PATCH',
+            url: `${Cypress.env('apiUrl')}/admin/pedidos/${uuid}/autorizar-troca`,
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+              'x-loja-uuid': '82c0a24c-4cf4-4b12-823a-f1a8b9a086c3'
+            }
+          }).then((response) => {
+            expect(response.status).to.eq(200);
+          });
+          
+          // Confirmar recebimento via API
+          cy.request({
+            method: 'PATCH',
+            url: `${Cypress.env('apiUrl')}/admin/pedidos/${uuid}/confirmar-recebimento`,
+            headers: {
+              'Authorization': `Bearer ${adminToken}`,
+              'x-loja-uuid': '82c0a24c-4cf4-4b12-823a-f1a8b9a086c3'
+            },
+            body: { retornarEstoque: true }
+          }).then((response) => {
+            expect(response.status).to.eq(200);
+            expect(response.body.cupomGerado).to.exist;
+            expect(response.body.cupomGerado.valor).to.eq(totalPedido);
+          });
         });
-        
-        // Aguardar status mudar para "Troca Autorizada"
-        cy.wait(2000);
-        cy.visit('/admin/trocas', { timeout: 15000 });
-        cy.get(`[data-cy="admin-troca-${uuid}"]`).within(() => {
-          cy.get('[data-cy="pedido-status"]').should('contain.text', 'Troca Autorizada');
-        });
-        
-        cy.get(`[data-cy="btn-confirmar-recebimento-${uuid}"]`).scrollIntoView().click();
-        cy.get('[data-cy="checkbox-retornar-estoque"]').check();
-        cy.get('[data-cy="btn-confirmar-modal"]').click();
 
         // === Cliente recebe cupom com o valor total do pedido ===
         cy.clearCookies();

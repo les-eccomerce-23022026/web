@@ -9,6 +9,7 @@ import {
   Users,
   Settings,
   Package,
+  Store,
   Menu,
   X,
 } from 'lucide-react';
@@ -41,8 +42,9 @@ const MENU_ATENDIMENTO: NavItem[] = [
 
 const MENU_ADMIN_SISTEMA: NavItem[] = [
   { href: ROTAS.ADMIN.HOME, label: 'Dashboard Analytics', icon: LayoutDashboard },
-  { href: ROTAS.ADMIN.CLIENTES, label: 'Gestão de Clientes', icon: Users },
+  { href: ROTAS.ADMIN.LOJAS, label: 'Gestão de Lojas', icon: Store },
   { href: ROTAS.ADMIN.ADMINISTRADORES, label: 'Administradores de Lojas', icon: Settings },
+  { href: ROTAS.ADMIN.CLIENTES, label: 'Gestão de Clientes', icon: Users },
 ];
 
 export const AdminLayoutNav = () => {

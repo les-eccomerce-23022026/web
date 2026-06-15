@@ -8,6 +8,7 @@
  * 
  * Não inclui fluxo de compra (assumindo pedido já existe)
  */
+import { prepararPedidoEmProcessamentoApi } from '../../support/fluxo-venda.helpers';
 
 describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
   const clienteEmail = 'clientetest@email.com';
@@ -326,15 +327,18 @@ describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
     });
 
     it('deve mostrar botão "Despachar" para pedidos em processamento', () => {
-      loginAdmin();
-      cy.visit('/admin/pedidos');
-      
-      cy.get('[data-cy="pedidos-painel"]', { timeout: 10000 }).should('be.visible');
-      
-      // Verificar que há pedidos com botão "Despachar" usando data-cy
-      cy.get('[data-cy^="btn-despachar-"]').should('exist');
+      // Preparar um pedido em EM_PROCESSAMENTO para garantir que existe um pedido com botão Despachar
+      prepararPedidoEmProcessamentoApi().then(() => {
+        loginAdmin();
+        cy.visit('/admin/pedidos');
+        
+        cy.get('[data-cy="pedidos-painel"]', { timeout: 10000 }).should('be.visible');
+        
+        // Verificar que há pedidos com botão "Despachar" usando data-cy
+        cy.get('[data-cy^="btn-despachar-"]').should('exist');
 
-      cy.log('[ENTREGA] Botão "Despachar" exibido para pedidos em processamento');
+        cy.log('[ENTREGA] Botão "Despachar" exibido para pedidos em processamento');
+      });
     });
   });
 });

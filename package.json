@@ -15,6 +15,8 @@
     "preview:vite": "vite preview",
     "dev:backend": "cd ../backend && docker compose up -d",
     "dev:full": "npm run dev:backend && npm run dev:e2e",
+    "test:e2e:admin-sistema:gestao-usuarios": "cypress run --browser chrome --spec 'cypress/e2e/admin-sistema/gestao-usuarios.cy.ts'",
+    "test:e2e:admin-sistema:gestao-usuarios:headed": "cypress open --browser chrome --e2e --spec 'cypress/e2e/admin-sistema/gestao-usuarios.cy.ts'",
     "test:e2e:registro-admin-loja:headed": "cypress run --browser chrome --headed --spec 'cypress/e2e/cadastro/registro-admin-loja.cy.ts'",
     "test:e2e:registro-cliente:headed": "cypress run --browser chrome --headed --spec 'cypress/e2e/cadastro/registro-cliente.cy.ts'",
     "test:e2e:fluxo-completo-compra:headed": "cypress run --browser chrome --headed --spec 'cypress/e2e/compra/fluxo-completo-compra.cy.ts'",
@@ -32,6 +34,8 @@
     "test:e2e:fluxo-completo-troca-cupom:headed": "cypress run --browser chrome --headed --spec 'cypress/e2e/trocas/fluxo-completo-troca-cupom.cy.ts'",
     "test:e2e:troca-pedido-completo:headed": "cypress run --browser chrome --headed --spec 'cypress/e2e/trocas/troca-pedido-completo.cy.ts'",
     "test:e2e:fluxo-confirmar-recebimento-cupom:headed": "cypress run --browser chrome --headed --spec 'cypress/e2e/trocas/fluxo-confirmar-recebimento-cupom.cy.ts'",
+    "test:e2e:venda-completa": "cypress run --browser chrome --spec 'cypress/e2e/compra/fluxo-completo-compra.cy.ts,cypress/e2e/pagamentos/combinacoes-pagamento.cy.ts,cypress/e2e/pagamentos/cupom-promocional.cy.ts,cypress/e2e/pagamentos/registrar-cartao-checkout.cy.ts,cypress/e2e/compra/registrar-endereco-checkout.cy.ts,cypress/e2e/compra/validar-limite-enderecos.cy.ts,cypress/e2e/pagamentos/validar-limite-cupom.cy.ts,cypress/e2e/pagamentos/admin-confirmar-pagamento.cy.ts,cypress/e2e/trocas/fluxo-completo-troca-cupom.cy.ts,cypress/e2e/trocas/troca-pedido-completo.cy.ts,cypress/e2e/trocas/admin-negar-troca-devolucao.cy.ts,cypress/e2e/devolucoes/fluxo-devolucao.cy.ts,cypress/e2e/trocas/fluxo-confirmar-recebimento-cupom.cy.ts,cypress/e2e/entregas/admin-despachar-em-transporte.cy.ts,cypress/e2e/entregas/confirmar-entrega-cliente.cy.ts'",
+    "test:e2e:venda-completa:headed": "cypress run --browser chrome --headed --config slowMo=400 --spec 'cypress/e2e/compra/fluxo-completo-compra.cy.ts,cypress/e2e/pagamentos/combinacoes-pagamento.cy.ts,cypress/e2e/pagamentos/cupom-promocional.cy.ts,cypress/e2e/pagamentos/registrar-cartao-checkout.cy.ts,cypress/e2e/compra/registrar-endereco-checkout.cy.ts,cypress/e2e/compra/validar-limite-enderecos.cy.ts,cypress/e2e/pagamentos/validar-limite-cupom.cy.ts,cypress/e2e/pagamentos/admin-confirmar-pagamento.cy.ts,cypress/e2e/trocas/fluxo-completo-troca-cupom.cy.ts,cypress/e2e/trocas/troca-pedido-completo.cy.ts,cypress/e2e/trocas/admin-negar-troca-devolucao.cy.ts,cypress/e2e/devolucoes/fluxo-devolucao.cy.ts,cypress/e2e/trocas/fluxo-confirmar-recebimento-cupom.cy.ts,cypress/e2e/entregas/admin-despachar-em-transporte.cy.ts,cypress/e2e/entregas/confirmar-entrega-cliente.cy.ts'",
     "test:e2e:all": "cypress run --browser chrome --headed --config slowMo=500"
   },
   "dependencies": {
