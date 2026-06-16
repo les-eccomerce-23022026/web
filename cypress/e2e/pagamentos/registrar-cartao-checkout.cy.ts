@@ -64,14 +64,7 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
     // Adicionar linha de novo cartão e abrir formulário
     cy.get('[data-cy="checkout-payment-section"]').scrollIntoView();
     cy.get('[data-cy="pagamento-dividido-adicionar-novo-cartao"]').click();
-    // Se houver cartões salvos disponíveis, clica em "Informar cartão novo"; caso contrário, o botão direto já aparece
-    cy.get('body').then(($body) => {
-      if ($body.find('[data-cy="checkout-split-inform-new-card"]').length) {
-        cy.get('[data-cy="checkout-split-inform-new-card"]').last().click();
-      } else {
-        cy.get('[data-cy="checkout-add-card-button"]').last().click();
-      }
-    });
+    cy.get('[data-cy="checkout-split-inform-new-card"], [data-cy="checkout-add-card-button"]').last().click();
     cy.get('[data-cy="checkout-new-card-form"]').should('be.visible');
 
     // Preencher dados do cartão (bandeira é auto-detectada pelo número)
@@ -85,6 +78,9 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
 
     // Salvar/confirmar o cartão
     cy.get('[data-cy="checkout-card-submit-button"]').click();
+
+    // Verificar que o novo cartão aparece na lista de cartões salvos
+    cy.get('[data-cy="checkout-saved-cards"]', { timeout: 10000 }).should('be.visible');
 
     // Capturar UUID do cartão para limpeza posterior
     cy.get('[data-cy^="checkout-card-item-"]').then(($el) => {

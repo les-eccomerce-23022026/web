@@ -20,7 +20,15 @@ describe('Sistema de Reservas de Estoque', () => {
     // Isola o estado: o carrinho do cliente é persistido no backend e acumula
     // itens entre execuções. Limpa via API para cada teste começar vazio.
     cy.request('POST', `${API}/auth/login`, { email: clienteEmail, senha: clienteSenha })
-      .then(() => cy.request({ method: 'DELETE', url: `${API}/carrinho`, failOnStatusCode: false }));
+      .then((loginRes) => {
+        const token = loginRes.body.dados.token;
+        cy.request({
+          method: 'DELETE',
+          url: `${API}/carrinho`,
+          headers: { Authorization: `Bearer ${token}` },
+          failOnStatusCode: false,
+        });
+      });
     cy.clearCookies();
     cy.clearLocalStorage();
   });
@@ -35,7 +43,7 @@ describe('Sistema de Reservas de Estoque', () => {
     cy.get('[data-cy="login-email-input"]').type(clienteEmail);
     cy.get('[data-cy="login-password-input"]').type(clienteSenha);
     cy.get('[data-cy="login-submit-button"]').click();
-    cy.url().should('not.include', '/minha-conta');
+    cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
   }
 
   /**

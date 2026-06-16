@@ -58,7 +58,9 @@ describe('Entregas — Admin despacha pedido para transporte (CDU007, RF0038)', 
     const pedidoShortId = pedidoUuid.split('-')[1]?.toUpperCase() || pedidoUuid;
     cy.get('[data-cy="filtro-uuid"]').type(pedidoShortId);
 
+    cy.intercept('PATCH', '**/despachar**').as('despacharPedido');
     cy.get(`[data-cy="btn-despachar-${pedidoUuid}"]`).scrollIntoView().click();
+    cy.wait('@despacharPedido');
 
     // Após despachar, o botão de confirmar entrega ao cliente aparece (status Em Trânsito)
     cy.get(`[data-cy="btn-confirmar-entrega-${pedidoUuid}"]`).should('be.visible');

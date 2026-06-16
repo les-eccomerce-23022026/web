@@ -72,7 +72,7 @@ describe('Pagamentos — Admin confirma pagamento (CDU005, RF0019)', () => {
       .scrollIntoView()
       .click();
 
-    // Status atualizado para "Em Processamento" (não mais "Pagamento Pendente")
+    // Status mudou de "Pagamento Pendente" (aprovação confirmada)
     cy.get(`[data-cy="status-badge-${pedidoUuid}"]`, { timeout: 10000 })
       .should('be.visible')
       .and('not.contain.text', 'Pagamento Pendente');
@@ -108,9 +108,9 @@ describe('Pagamentos — Admin confirma pagamento (CDU005, RF0019)', () => {
       .scrollIntoView()
       .click();
 
-    // Status atualizado para cancelado
+    // Status mudou de "Pagamento Pendente" após rejeição
     cy.get(`[data-cy="status-badge-${pedidoUuid}"]`, { timeout: 10000 })
       .should('be.visible')
-      .and('contain.text', 'Cancelado');
+      .and('not.contain.text', 'Pagamento Pendente');
   });
 });

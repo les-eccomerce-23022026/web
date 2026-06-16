@@ -59,12 +59,11 @@ describe('Pós-venda — Admin nega troca/devolução (CDU008, RF0043, RF0047)',
         cy.get('[data-cy^="btn-rejeitar-troca-"]').scrollIntoView().click({ force: true });
       });
 
+      cy.intercept('PATCH', `**/pedidos/${uuid}/rejeitar-troca`).as('rejeitarTroca');
       cy.get('[data-cy="troca-motivo-rejeicao"]').should('be.visible').type('Fora do prazo de 7 dias');
       cy.get('[data-cy="btn-confirmar-rejeicao"]').click();
-      
-      // Aguardar a rejeição ser processada
-      cy.wait(3000);
-      
+      cy.wait('@rejeitarTroca');
+
       // Recarregar página para ver status atualizado
       cy.visit('/admin/trocas', { timeout: 15000 });
       cy.get(`[data-cy="admin-troca-${uuid}"]`).within(() => {
@@ -116,12 +115,11 @@ describe('Pós-venda — Admin nega troca/devolução (CDU008, RF0043, RF0047)',
         cy.get('[data-cy^="btn-rejeitar-devolucao-"]').scrollIntoView().click({ force: true });
       });
 
+      cy.intercept('PATCH', `**/pedidos/${uuid}/rejeitar-devolucao`).as('rejeitarDevolucao');
       cy.get('[data-cy="troca-motivo-rejeicao"]').should('be.visible').type('Produto sem defeito');
       cy.get('[data-cy="btn-confirmar-rejeicao"]').click();
-      
-      // Aguardar a rejeição ser processada
-      cy.wait(3000);
-      
+      cy.wait('@rejeitarDevolucao');
+
       // Recarregar página para ver status atualizado
       cy.visit('/admin/trocas', { timeout: 15000 });
       // Usar o motivo único para encontrar o pedido

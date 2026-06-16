@@ -79,12 +79,10 @@ describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
         
         cy.wrap(pedidoEmTransito.first()).within(() => {
           // Clicar no botão "Confirmar recebimento" usando data-cy específico
-          if (pedidoId) {
-            cy.get(`[data-cy="btn-confirmar-recebimento-${pedidoId}"]`).scrollIntoView().click();
-          } else {
-            // Fallback para texto se não conseguir extrair UUID
-            cy.get('button').contains('Confirmar recebimento').scrollIntoView().click();
+          if (!pedidoId) {
+            throw new Error('UUID do pedido em trânsito não encontrado — verifique o atributo data-cy do card');
           }
+          cy.get(`[data-cy="btn-confirmar-recebimento-${pedidoId}"]`).scrollIntoView().click();
         });
       } else {
         cy.log('Nenhum pedido em trânsito encontrado para confirmação');
@@ -101,7 +99,7 @@ describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
     
     // Verificar que pelo menos um pedido tem status "Entregue"
     cy.get('[data-cy^="pedido-"]').first().within(() => {
-      cy.get('[data-cy="pedido-status"]').should('be.visible');
+      cy.get('[data-cy="pedido-status"]').should('be.visible').and('contain.text', 'Entregue');
     });
   }
 
@@ -120,6 +118,10 @@ describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
   }
 
   describe('Fluxo Completo de Confirmação de Entrega', () => {
+    beforeEach(() => {
+      prepararPedidoEmProcessamentoApi();
+    });
+
     it('deve permitir cliente confirmar recebimento de pedido em trânsito', () => {
       /**
        * Fluxo (Admin confirma que o produto foi ENTREGUE):
@@ -154,6 +156,10 @@ describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
   });
 
   describe('Verificação de Interface de Pedidos', () => {
+    beforeEach(() => {
+      prepararPedidoEmProcessamentoApi();
+    });
+
     it('deve exibir filtros de pedidos (Todos, Em Aberto, Finalizados)', () => {
       loginCliente();
       cy.visit('/pedidos');
@@ -187,6 +193,10 @@ describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
   });
 
   describe('Verificação de Botões de Ação', () => {
+    beforeEach(() => {
+      prepararPedidoEmProcessamentoApi();
+    });
+
     it('deve exibir botão "Confirmar recebimento" para pedidos em trânsito', () => {
       loginCliente();
       navegarParaPedidosEmAberto();
@@ -247,6 +257,10 @@ describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
   });
 
   describe('Verificação de Status de Entrega', () => {
+    beforeEach(() => {
+      prepararPedidoEmProcessamentoApi();
+    });
+
     it('deve mostrar progresso de entrega (etapas 1 a 4)', () => {
       loginCliente();
       navegarParaPedidosEmAberto();
@@ -289,7 +303,7 @@ describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
           }
           
           cy.get('[data-cy^="pedido-"]').first().within(() => {
-            cy.get('[data-cy="pedido-status"]').should('be.visible');
+            cy.get('[data-cy="pedido-status"]').should('be.visible').and('contain.text', 'Entregue');
           });
         }
       });

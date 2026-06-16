@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev -H 0.0.0.0 --webpack",
+    "dev": "next dev -H 0.0.0.0 --turbopack",
     "predev:e2e": "fuser -k 3000/tcp 2>/dev/null; fuser -k 3001/tcp 2>/dev/null; exit 0",
-    "dev:e2e": "next dev -H 0.0.0.0 -p 3001",
+    "dev:e2e": "next dev -H 0.0.0.0 -p 3001 --turbopack",
     "dev:vite": "vite",
     "build": "next build",
     "build:vite": "tsc -b && vite build",

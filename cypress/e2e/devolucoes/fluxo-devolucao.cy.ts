@@ -83,7 +83,10 @@ describe('Devoluções — Fluxo de devolução (CDU009, RF0045, RF0046)', () =>
       cy.get('[data-cy="troca-motivo-input"]').clear().type('Não era o que eu esperava — devolução completa');
       cy.get('[data-cy="btn-confirmar-troca"]').click();
 
-      cy.get('[data-cy="btn-voltar-pedidos"]').should('be.visible');
+      cy.get('[data-cy="btn-voltar-pedidos"]').should('be.visible').click();
+      cy.get(`[data-cy="pedido-${uuid}"]`).within(() => {
+        cy.get('[data-cy="pedido-status"]').should('contain', 'Em Devolução');
+      });
     });
   });
 
@@ -146,6 +149,9 @@ describe('Devoluções — Fluxo de devolução (CDU009, RF0045, RF0046)', () =>
       cy.get('[data-cy^="cupom-"]').first().within(() => {
         cy.get('[data-cy^="cupom-valor-"]').invoke('text').then((t) => {
           expect(valorMonetario(t)).to.be.greaterThan(0);
+        });
+        cy.get('[data-cy^="cupom-"]').invoke('attr', 'data-cy').then((attr) => {
+          expect(attr).to.match(/(TROCA|DEV)-[A-Z0-9]+/);
         });
       });
     });

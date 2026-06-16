@@ -94,11 +94,15 @@ describe('Validação de Regra de Negócio — Limite de Endereços (RN)', () =>
         // Navegar para página de endereços após preencher
         cy.visit('/minha-conta');
         cy.get('[data-cy="tab-enderecos"]').should('be.visible').click();
-        cy.contains('📍 Meus Endereços de Entrega', { timeout: 10000 }).should('be.visible');
+        cy.get('[data-cy^="endereco-card-"]', { timeout: 10000 }).should('have.length', 5);
 
         // Verificar que o botão de adicionar está desabilitado
         cy.get('[data-cy="endereco-add-button"]').should('be.disabled');
         cy.get('[data-cy="endereco-add-button"]').should('contain.text', 'Limite de 5 Endereços Atingido');
+
+        // Confirmar que a UI bloqueia mesmo com tentativa forçada (comportamento real de usuário)
+        cy.get('[data-cy="endereco-add-button"]').click({ force: true });
+        cy.get('[data-cy="endereco-add-button"]').should('be.disabled');
 
         // Validar que o endereço não foi adicionado (ainda tem 5)
         cy.request({

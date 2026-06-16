@@ -49,7 +49,8 @@ describe('Registro de Cliente', () => {
     // ── 4. Verificar mensagem de sucesso ─────────────────────────────────────
     cy.get('[data-cy="register-success-message"]', { timeout: 10000 })
       .should('be.visible')
-      .and('contain.text', cliente.nome);
+      .and('contain.text', cliente.nome)
+      .and('contain.text', 'sucesso');
 
     // ── 5. Login com as credenciais recém-criadas ────────────────────────────
     cy.get('[data-cy="login-email-input"]').clear().type(cliente.email);
@@ -61,8 +62,9 @@ describe('Registro de Cliente', () => {
     cy.get('[data-cy="header-logout-button"]').should('be.visible');
 
     // ── 7. Logout ────────────────────────────────────────────────────────────
-    cy.get('[data-cy="header-logout-button"]').click();
+    cy.get('[data-cy="header-logout-button"]').click({ force: true });
     cy.get('[data-cy="header-login-link"]').should('be.visible');
+    cy.get('[data-cy="header-user-profile"]').should('not.exist');
   });
 
   it('registra um segundo cliente com dados distintos e confirma cadastro', () => {
@@ -94,7 +96,8 @@ describe('Registro de Cliente', () => {
 
     cy.get('[data-cy="register-success-message"]', { timeout: 10000 })
       .should('be.visible')
-      .and('contain.text', cliente2.nome);
+      .and('contain.text', cliente2.nome)
+      .and('contain.text', 'sucesso');
 
     cy.get('[data-cy="login-email-input"]').clear().type(cliente2.email);
     cy.get('[data-cy="login-password-input"]').clear().type(cliente2.senha);
@@ -102,8 +105,9 @@ describe('Registro de Cliente', () => {
 
     cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
 
-    cy.get('[data-cy="header-logout-button"]').click();
+    cy.get('[data-cy="header-logout-button"]').click({ force: true });
     cy.get('[data-cy="header-login-link"]').should('be.visible');
+    cy.get('[data-cy="header-user-profile"]').should('not.exist');
   });
 });
 

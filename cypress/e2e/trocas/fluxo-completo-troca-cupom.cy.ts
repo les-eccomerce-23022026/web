@@ -50,8 +50,8 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     cy.get('[data-cy="login-password-input"]').clear().type(CREDENCIAIS_CLIENTE.senha);
     cy.get('[data-cy="login-submit-button"]').click();
 
-    // Verificar que logou com sucesso (cliente é redirecionado para home)
-    cy.url().should('not.include', '/minha-conta');
+    // Verificar que logou com sucesso (header do usuário autenticado visível)
+    cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
 
     // === ETAPA 2: Acessar Meus Pedidos ===
     cy.get('[data-cy="header-pedidos-link"]').click();
@@ -83,7 +83,7 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     cy.url().should('include', '/pedidos');
 
     // === ETAPA 5: Logout como Cliente ===
-    cy.get('[data-cy="header-logout-button"]').click();
+    cy.get('[data-cy="header-logout-button"]').click({ force: true });
     cy.visit('/minha-conta');
     cy.get('[data-cy="login-email-input"]').should('be.visible');
 
@@ -96,7 +96,7 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     cy.get('[data-cy="header-admin-link"]').should('be.visible');
 
     // === ETAPA 7: Acessar painel de trocas ===
-    cy.get('[data-cy="header-admin-link"]').click();
+    cy.get('[data-cy="header-admin-link"]').click({ force: true });
     cy.url().should('include', '/admin');
 
     // Navegar para gerenciar trocas
@@ -124,7 +124,7 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     // === ETAPA 9: Confirmar recebimento da troca ===
     // Aguardar status mudar para "Troca Autorizada"
     cy.get(`[data-cy="admin-troca-${pedidoUuid}"]`).within(() => {
-      cy.get('[data-cy="pedido-status"]').should('contain', 'Troca Autorizada');
+      cy.get('[data-cy="pedido-status"]', { timeout: 15000 }).should('contain', 'Troca Autorizada');
     });
 
     // Clicar em "Confirmar Recebimento"
@@ -166,9 +166,8 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     cy.get('[data-cy="tab-cupons"]').click();
     cy.get('[data-cy="secao-cupons"]').should('be.visible');
 
-    // Verificar que o cupom aparece na lista. Envolto em cy.then para que os
-    // seletores sejam construídos após `cupomCodigo` ser preenchido (evita
-    // `cupom-undefined`, já que template literals são avaliados de imediato).
+    // cy.then() é necessário para diferir a avaliação do template literal até que
+    // cupomCodigo seja preenchido pelo .invoke('text').then() acima.
     cy.then(() => {
       cy.get(`[data-cy="cupom-${cupomCodigo}"]`).should('be.visible');
       cy.get(`[data-cy="cupom-${cupomCodigo}"]`).within(() => {
@@ -182,7 +181,7 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     // Usar um item DIFERENTE (índice 2) para evitar constraint com livro do pedido
     cy.visit('/');
     cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(2).click();
-    
+
     // Navegar para carrinho explicitamente
     cy.visit('/carrinho');
     cy.url().should('include', '/carrinho');
@@ -191,13 +190,12 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     cy.get('[data-cy="carrinho-finalizar-compra"]', { timeout: 10000 }).click({ force: true });
     cy.url().should('include', '/checkout');
 
-    // Aplicar o cupom (dentro de cy.then pelo mesmo motivo do bloco anterior)
+    // cy.then() pelo mesmo motivo: diferir avaliação do template literal
     cy.then(() => {
       cy.get('[data-cy="checkout-coupon-input"]').scrollIntoView();
       cy.get('[data-cy="checkout-coupon-input"]').clear().type(cupomCodigo);
       cy.get('[data-cy="checkout-apply-coupon-button"]').click();
 
-      // Verificar que o cupom foi aplicado
       cy.get(`[data-cy="checkout-coupon-${cupomCodigo}"]`).should('be.visible');
       cy.get(`[data-cy="checkout-coupon-${cupomCodigo}"]`).should('contain', cupomCodigo);
     });

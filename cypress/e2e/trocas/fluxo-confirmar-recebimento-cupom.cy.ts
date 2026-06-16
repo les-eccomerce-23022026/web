@@ -1,6 +1,7 @@
 import {
   prepararPedidoEntregueApi,
   loginApi,
+  loginAdminUi,
   ADMIN,
 } from '../../support/fluxo-venda.helpers';
 
@@ -54,16 +55,8 @@ describe('Trocas — Fluxo de Confirmar Recebimento e Geração de Cupom (RF0044
      * 10. Cliente recebe notificação e cupom
      * 11. Produto retorna ao estoque
      */
-    // === ETAPA 1: Login como Admin ===
-    cy.visit('/minha-conta');
-    
-    // Preencher formulário de login
-    cy.get('[data-cy="login-email-input"]').clear().type(CREDENCIAIS_ADMIN.email);
-    cy.get('[data-cy="login-password-input"]').clear().type(CREDENCIAIS_ADMIN.senha);
-    cy.get('[data-cy="login-submit-button"]').click();
-
-    // Verificar que logou como admin
-    cy.get('[data-cy="header-admin-link"]').should('be.visible');
+    // === ETAPA 1: Login como Admin via UI ===
+    loginAdminUi();
 
     // === ETAPA 2: Confirmar recebimento via API (pedido já está autorizado) ===
     loginApi(ADMIN.email, ADMIN.senha).then((adminToken) => {

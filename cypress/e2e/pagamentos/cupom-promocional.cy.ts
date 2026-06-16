@@ -46,22 +46,22 @@ describe('Pagamentos — Cupom Promocional (CDU002, RF0017)', () => {
       // Cartão salvo padrão já selecionado
       cy.get('[data-cy^="checkout-card-item-"]').first().should('have.attr', 'data-selected', 'true');
 
-      // Aplicar cupom promocional (clicar diretamente na sugestão aplica automaticamente)
+      // Aplicar cupom via sugestão
       cy.get('[data-cy="checkout-coupon-section"]').scrollIntoView().should('be.visible');
       cy.get('[data-cy="checkout-coupon-input"]').click();
       cy.get('[data-cy="checkout-coupon-suggestions"]').should('be.visible');
-      cy.get('[data-cy="checkout-coupon-suggestions"]')
-        .find('button')
-        .first()
-        .click();
+      cy.get('[data-cy="checkout-coupon-suggestions"]').find('button').first().click();
 
       // Cupom aparece na lista de aplicados
       cy.get('[data-cy="checkout-applied-coupons"]').should('be.visible');
 
-      // Total final deve ser menor que subtotal + frete (desconto aplicado)
-      cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tt) => {
-        const total = valorMonetario(tt);
-        expect(total).to.be.lessThan(subtotal + 1000);
+      // Ler frete real da UI
+      cy.get('[data-cy="checkout-freight-selected-info"], [data-cy="checkout-frete"]').invoke('text').then((tFrete) => {
+        const frete = valorMonetario(tFrete);
+        cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tt) => {
+          const total = valorMonetario(tt);
+          expect(total).to.be.lessThan(subtotal + frete + 0.01);
+        });
       });
     });
 

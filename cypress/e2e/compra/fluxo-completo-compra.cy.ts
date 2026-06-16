@@ -44,18 +44,11 @@ describe('Fluxo Completo de Compra', () => {
    */
   function adicionarLivrosAoCarrinho() {
     cy.visit('/');
-    
-    // Adicionar primeiro livro
-    cy.get('[data-cy="adicionar-carrinho-card-button"]').first().click();
-    
-    // Verificar que foi adicionado ao carrinho
+    cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(0).click();
     cy.get('[data-cy="header-cart-link"]').should('be.visible');
-    
-    // Voltar para home e adicionar segundo livro
+
     cy.visit('/');
     cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(1).click();
-    
-    // Verificar que 2 livros estão no carrinho
     cy.get('[data-cy="header-cart-link"]').should('be.visible');
   }
 
@@ -117,8 +110,8 @@ describe('Fluxo Completo de Compra', () => {
     cy.get('[data-cy="checkout-saved-cards"]').should('be.visible');
     cy.get('[data-cy^="checkout-card-item-"]').first().should('have.attr', 'data-selected', 'true');
     
-    // Verificar que não há cupom aplicado
-    cy.get('[data-cy="checkout-coupon-input"]').should('be.empty');
+    // Sem cupom aplicado: elemento não deve existir no DOM
+    cy.get('[data-cy="checkout-applied-coupons"]').should('not.exist');
   }
 
   /**

@@ -143,24 +143,24 @@ describe('Compra — Registrar novo endereço no checkout (CDU001, RF0015)', () 
     // Aguardar o modal fechar e o endereço aparecer na lista
     cy.get('[data-cy="checkout-new-address-form"]').should('not.exist');
 
-    // Selecionar o novo endereço clicando nele na lista
-    cy.contains(NOVO_ENDERECO.logradouro).click();
-
-    // Capturar o UUID do endereço para limpeza posterior
-    cy.get('[data-cy^="checkout-address-item-"]').then(($el) => {
-      novoEnderecoUuid = $el.attr('data-cy')?.replace('checkout-address-item-', '') || '';
+    // Selecionar o novo endereço pelo seletor data-cy específico
+    cy.get('[data-cy^="checkout-address-item-"]').filter(`:contains("${NOVO_ENDERECO.logradouro}")`).first().then(($el) => {
+      novoEnderecoUuid = ($el.attr('data-cy') ?? '').replace('checkout-address-item-', '');
+      cy.wrap($el).click();
     });
 
-    // Verificar que o endereço foi selecionado e contém o logradouro
-    cy.get('[data-cy="checkout-address-selected"]').should('be.visible');
-    cy.get('[data-cy="checkout-address-selected"]').should('contain.text', NOVO_ENDERECO.logradouro);
+    // Verificar que o endereço selecionado contém o logradouro correto
+    cy.get('[data-cy="checkout-address-selected"]').should('be.visible').and('contain.text', NOVO_ENDERECO.logradouro);
 
     // Calcular frete para o novo endereço e selecionar
-    cy.get('[data-cy="checkout-freight-zip-input"]').clear().type(NOVO_ENDERECO.cep);
+    cy.get('[data-cy="checkout-freight-zip-input"]').scrollIntoView().clear({ force: true }).type(NOVO_ENDERECO.cep);
     cy.get('[data-cy="checkout-freight-calculate-button"]').click();
     cy.get('[data-cy="checkout-freight-options"]').should('be.visible');
     cy.get('[data-cy="checkout-freight-option-PAC"]').scrollIntoView().click();
     cy.get('[data-cy="checkout-freight-selected-info"]').should('be.visible');
+
+    // Verificar que o endereço selecionado corresponde ao criado antes de concluir
+    cy.get('[data-cy="checkout-address-selected"]').should('contain.text', NOVO_ENDERECO.logradouro);
 
     // Concluir pedido (cartão padrão já selecionado)
     cy.get('[data-cy="checkout-finish-button"]').should('not.be.disabled').click();
@@ -170,7 +170,10 @@ describe('Compra — Registrar novo endereço no checkout (CDU001, RF0015)', () 
     // Endereço aparece na lista de endereços salvos
     cy.visit('/minha-conta');
     cy.get('[data-cy="tab-enderecos"]').click();
-    cy.contains(NOVO_ENDERECO.apelido).should('exist');
+    cy.get('[data-cy^="endereco-card-"]').filter(`:contains("${NOVO_ENDERECO.apelido}")`).should('be.visible').within(() => {
+      cy.contains(NOVO_ENDERECO.logradouro).should('be.visible');
+      cy.contains(NOVO_ENDERECO.numero).should('be.visible');
+    });
 
     // Limpeza: remover o endereço criado via API
     // Primeiro precisa obter o token do cliente autenticado

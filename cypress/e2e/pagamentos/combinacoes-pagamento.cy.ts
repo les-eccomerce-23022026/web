@@ -51,7 +51,7 @@ describe('Pagamentos — Combinações de meio de pagamento (CDU002, RF0017, RF0
       // Cartão salvo padrão já selecionado
       cy.get('[data-cy^="checkout-card-item-"]').first().should('have.attr', 'data-selected', 'true');
 
-      // Aplicar cupom clicando na sugestão (o click já chama onAplicar internamente)
+      // Aplicar cupom via sugestão
       cy.get('[data-cy="checkout-coupon-section"]').scrollIntoView().should('be.visible');
       cy.get('[data-cy="checkout-coupon-input"]').click();
       cy.get('[data-cy="checkout-coupon-suggestions"]').should('be.visible');
@@ -60,9 +60,12 @@ describe('Pagamentos — Combinações de meio de pagamento (CDU002, RF0017, RF0
       // Cupom aparece na lista de aplicados
       cy.get('[data-cy="checkout-applied-coupons"]').should('be.visible');
 
-      // Total final deve ser menor que subtotal + frete (desconto aplicado)
-      cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tt) => {
-        expect(valorMonetario(tt)).to.be.lessThan(subtotal + 1000);
+      // Ler o frete real da UI e usar na asserção
+      cy.get('[data-cy="checkout-freight-selected-info"], [data-cy="checkout-frete"]').invoke('text').then((tFrete) => {
+        const frete = valorMonetario(tFrete);
+        cy.get('[data-cy="checkout-total-pagamento"]').invoke('text').then((tt) => {
+          expect(valorMonetario(tt)).to.be.lessThan(subtotal + frete + 0.01);
+        });
       });
     });
 

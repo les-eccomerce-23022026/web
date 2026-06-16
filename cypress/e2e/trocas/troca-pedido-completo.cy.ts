@@ -104,7 +104,7 @@ describe('Trocas — Troca do pedido completo (CDU008, RF0042, RF0044)', () => {
             const valorCupom = valorMonetario(tCupom);
             expect(valorCupom).to.be.greaterThan(0);
             // O cupom de troca completa deve corresponder ao valor dos itens do pedido.
-            expect(valorCupom).to.be.closeTo(totalPedido, totalPedido * 0.2 + 0.01);
+            expect(valorCupom).to.be.closeTo(totalPedido, totalPedido * 0.05 + 0.01);
           });
         });
       });

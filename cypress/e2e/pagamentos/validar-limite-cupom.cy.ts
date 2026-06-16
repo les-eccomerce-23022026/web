@@ -48,11 +48,7 @@ describe('Validação de Regra de Negócio — Limite de Desconto de Cupom (RN)'
       // Validar que o sistema exibe erro de cupom inválido
       cy.get('[data-cy="checkout-coupon-error"], [data-cy="coupon-error-message"]', { timeout: 10000 })
         .should('be.visible')
-        .then(($el) => {
-          const texto = $el.text();
-          const contemErro = texto.includes('inválido') || texto.includes('desconto') || texto.includes('excede');
-          expect(contemErro).to.be.true;
-        });
+        .and('contain.text', 'inválido');
 
       // Validar que o cupom não aparece na lista de aplicados
       cy.get('[data-cy="checkout-applied-coupons"]').should('not.exist');
@@ -87,11 +83,7 @@ describe('Validação de Regra de Negócio — Limite de Desconto de Cupom (RN)'
       // Validar erro
       cy.get('[data-cy="checkout-coupon-error"], [data-cy="coupon-error-message"]', { timeout: 10000 })
         .should('be.visible')
-        .then(($el) => {
-          const texto = $el.text();
-          const contemErro = texto.includes('inválido') || texto.includes('valor') || texto.includes('excede');
-          expect(contemErro).to.be.true;
-        });
+        .and('contain.text', 'inválido');
 
       // Validar que o total permanece inalterado
       cy.get('[data-cy="checkout-total-pagamento"]').should('have.text', totalTexto);
@@ -136,13 +128,7 @@ describe('Validação de Regra de Negócio — Limite de Desconto de Cupom (RN)'
           // Validar erro de limite de cupom
           cy.get('[data-cy="checkout-coupon-error"], [data-cy="coupon-error-message"]', { timeout: 10000 })
             .should('be.visible')
-            .then(($el) => {
-              const texto = $el.text().toLowerCase();
-              // Verificar qualquer mensagem de erro relacionada a cupom
-              const contemErro = texto.includes('inválido') || texto.includes('já aplicado') || 
-                                texto.includes('limite') || texto.includes('apenas') || texto.includes('um');
-              expect(contemErro).to.be.true;
-            });
+            .and('contain.text', 'inválido');
 
           // Validar que ainda há apenas 1 cupom aplicado
           cy.get('[data-cy="checkout-applied-coupons"]').should('have.length', quantidadeInicial);

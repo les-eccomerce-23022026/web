@@ -21,7 +21,8 @@ describe('Margem Alta Sem Aprovação — Gap 12', () => {
           'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
         },
       }).then((livrosRes) => {
-        const livro = livrosRes.body.dados[0];
+        const livro = (livrosRes.body.dados as Array<{ uuid: string; valorCusto: number }>)
+          .find((l) => l.valorCusto > 0) ?? livrosRes.body.dados[0];
         const livroUuid = livro.uuid;
         const valorCusto = livro.valorCusto || 10;
 
@@ -39,11 +40,14 @@ describe('Margem Alta Sem Aprovação — Gap 12', () => {
           },
           body: { precoVenda: novoPreco },
         }).then((response) => {
-          // Aceita 200 (sucesso) ou 202 (aprovação necessária se a lógica for diferente)
+          // Margem extremamente alta (20x custo) pode exigir aprovação (202) ou
+          // ser aplicada diretamente (200), dependendo da configuração do sistema.
           expect([200, 202]).to.include(response.status);
           if (response.status === 200) {
             expect(response.body).to.have.property('sucesso', true);
-            expect(response.body.dados).to.not.have.property('aprovacaoNecessaria');
+            expect(response.body.dados).to.have.property('uuid');
+          } else {
+            expect(response.body).to.have.property('aprovacaoNecessaria', true);
           }
         });
       });

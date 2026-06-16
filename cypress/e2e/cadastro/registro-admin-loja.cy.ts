@@ -81,7 +81,7 @@ describe('Registro e Ciclo do Administrador de Loja', () => {
     cy.get('[data-cy="header-admin-link"]').should('be.visible');
 
     // Logout
-    cy.get('[data-cy="header-logout-button"]').click();
+    cy.get('[data-cy="header-logout-button"]').click({ force: true });
     cy.get('[data-cy="header-login-link"]').should('be.visible');
   });
 
@@ -140,7 +140,7 @@ describe('Registro e Ciclo do Administrador de Loja', () => {
       .should('contain.text', 'Inativo');
 
     // Logout do admin_sistema
-    cy.get('[data-cy="header-logout-button"]').click();
+    cy.get('[data-cy="header-logout-button"]').click({ force: true });
     cy.get('[data-cy="header-login-link"]').should('be.visible');
   });
 
@@ -185,7 +185,7 @@ describe('Registro e Ciclo do Administrador de Loja', () => {
     cy.get('[data-cy="header-user-profile"]').should('be.visible');
 
     // Logout do admin de loja
-    cy.get('[data-cy="header-logout-button"]').click();
+    cy.get('[data-cy="header-logout-button"]').click({ force: true });
     cy.get('[data-cy="header-login-link"]').should('be.visible');
 
     // Login como admin_sistema
@@ -214,7 +214,7 @@ describe('Registro e Ciclo do Administrador de Loja', () => {
       .should('contain.text', 'Inativo');
 
     // Logout do admin_sistema
-    cy.get('[data-cy="header-logout-button"]').click();
+    cy.get('[data-cy="header-logout-button"]').click({ force: true });
     cy.get('[data-cy="header-login-link"]').should('be.visible');
   });
 });
