@@ -10,7 +10,7 @@
 
 describe('Sistema de Reservas de Estoque', () => {
   const clienteEmail = 'clientetest@email.com';
-  const clienteSenha = '123456';
+  const clienteSenha = 'Teste@123456';
 
   const API = Cypress.env('apiUrl') ?? 'http://localhost:3001/api';
 

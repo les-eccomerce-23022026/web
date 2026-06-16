@@ -14,7 +14,7 @@ describe('Dados de Domínio', () => {
   const adminEmail = 'admintest@email.com';
   const adminSenha = '123456';
   const clienteEmail = 'clientetest@email.com';
-  const clienteSenha = '123456';
+  const clienteSenha = 'Teste@123456';
 
   beforeEach(() => {
     cy.clearCookies();

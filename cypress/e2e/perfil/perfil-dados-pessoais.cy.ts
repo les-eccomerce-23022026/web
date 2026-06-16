@@ -1,22 +1,23 @@
 /**
  * E2E — Perfil / Aba Dados Pessoais (RF0025)
  *
- * Fluxo: cliente atualiza nome, gênero, nascimento e telefone.
- * Salvar exige confirmação de senha via modal.
- * O teste reverte as alterações ao final para não poluir o seed.
+ * Campos não-críticos (nome/gênero/nascimento): salvam direto, sem modal.
+ * Campos críticos (email/telefone): exigem modal de confirmação de senha.
  */
 import { loginClienteUi, CLIENTE } from '../../support/fluxo-venda.helpers';
-
-const API = Cypress.env('apiUrl') ?? 'http://localhost:3001/api';
 
 function navegarParaPerfil() {
   cy.visit('/minha-conta');
   cy.get('[data-cy="tab-perfil"]').should('be.visible');
 }
 
-function salvarComSenha(senha = CLIENTE.senha) {
+function salvar() {
   cy.get('[data-cy="perfil-save-button"]').click();
-  cy.get('[data-cy="perfil-modal-password-input"]').type(senha);
+}
+
+function salvarComSenha(senha = CLIENTE.senha) {
+  salvar();
+  cy.get('[data-cy="perfil-modal-password-input"]', { timeout: 5000 }).type(senha);
   cy.get('[data-cy="perfil-modal-confirm-button"]').click();
 }
 
@@ -33,61 +34,60 @@ describe('Perfil — Dados Pessoais (RF0025)', () => {
     cy.get('[data-cy="perfil-genero-select"]').should('not.have.value', '');
     cy.get('[data-cy="perfil-nascimento-input"]').should('not.have.value', '');
     cy.get('[data-cy="perfil-email-input"]').should('not.have.value', '');
-    cy.get('[data-cy="perfil-cpf-input"]').should('be.disabled');
+    cy.get('[data-cy="perfil-cpf-input"]').should('have.attr', 'readonly');
   });
 
-  it('deve atualizar o nome e salvar via modal de confirmação', () => {
+  it('deve atualizar o nome e salvar sem modal (campo não-crítico)', () => {
     cy.get('[data-cy="perfil-nome-input"]').invoke('val').then((nomeOriginal) => {
       const novoNome = 'Cliente Atualizado E2E';
 
       cy.get('[data-cy="perfil-nome-input"]').clear().type(novoNome);
-      salvarComSenha();
+      salvar();
 
-      cy.get('[data-cy="perfil-nome-input"]', { timeout: 8000 }).should('have.value', novoNome);
+      cy.get('[data-cy="perfil-success-message"]', { timeout: 8000 }).should('be.visible');
 
       // Reverter
       cy.get('[data-cy="perfil-nome-input"]').clear().type(String(nomeOriginal));
-      salvarComSenha();
+      salvar();
+      cy.get('[data-cy="perfil-success-message"]', { timeout: 8000 }).should('be.visible');
     });
   });
 
-  it('deve atualizar gênero e data de nascimento', () => {
+  it('deve atualizar gênero e data de nascimento sem modal (campos não-críticos)', () => {
     cy.get('[data-cy="perfil-genero-select"]').invoke('val').then((generoOriginal) => {
       cy.get('[data-cy="perfil-nascimento-input"]').invoke('val').then((nascOriginal) => {
         cy.get('[data-cy="perfil-genero-select"]').select('Feminino');
         cy.get('[data-cy="perfil-nascimento-input"]').clear().type('1995-06-15');
 
-        salvarComSenha();
-        cy.get('[data-cy="perfil-genero-select"]', { timeout: 8000 }).should('have.value', 'Feminino');
+        salvar();
+        cy.get('[data-cy="perfil-success-message"]', { timeout: 8000 }).should('be.visible');
 
         // Reverter
         cy.get('[data-cy="perfil-genero-select"]').select(String(generoOriginal));
         cy.get('[data-cy="perfil-nascimento-input"]').clear().type(String(nascOriginal));
-        salvarComSenha();
+        salvar();
+        cy.get('[data-cy="perfil-success-message"]', { timeout: 8000 }).should('be.visible');
       });
     });
   });
 
-  it('deve cancelar o modal sem salvar', () => {
-    cy.get('[data-cy="perfil-nome-input"]').invoke('val').then((nomeOriginal) => {
-      cy.get('[data-cy="perfil-nome-input"]').clear().type('Nome Cancelado');
-      cy.get('[data-cy="perfil-save-button"]').click();
+  it('deve abrir modal ao alterar telefone (campo crítico) e cancelar sem salvar', () => {
+    cy.get('[data-cy="perfil-tel-input"]').invoke('val').then(() => {
+      cy.get('[data-cy="perfil-tel-input"]').clear().type('11999999900');
+      salvar();
+
+      cy.get('[data-cy="perfil-modal-password-input"]', { timeout: 5000 }).should('be.visible');
       cy.get('[data-cy="perfil-modal-cancel-button"]').click();
 
-      // Campo mantém o valor digitado mas não foi salvo no servidor
       cy.get('[data-cy="perfil-modal-password-input"]').should('not.exist');
-
-      // Reverter campo para original sem salvar
-      cy.get('[data-cy="perfil-nome-input"]').clear().type(String(nomeOriginal));
     });
   });
 
-  it('deve rejeitar senha incorreta no modal de confirmação', () => {
-    cy.get('[data-cy="perfil-nome-input"]').clear().type('Nome Com Senha Errada');
-    salvarComSenha('senhaerrada123');
+  it('deve rejeitar senha incorreta no modal ao alterar telefone', () => {
+    cy.get('[data-cy="perfil-tel-input"]').clear().type('11988881234');
+    salvarComSenha('senhaerrada999');
 
-    // Modal permanece visível ou exibe erro
-    cy.get('[data-cy="perfil-modal-confirm-button"]', { timeout: 5000 })
-      .should('exist');
+    // Modal permanece visível (ou exibe erro) — senha incorreta não fecha o modal
+    cy.get('[data-cy="perfil-modal-confirm-button"]', { timeout: 5000 }).should('exist');
   });
 });

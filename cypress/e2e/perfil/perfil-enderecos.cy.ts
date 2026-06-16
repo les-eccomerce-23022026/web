@@ -98,7 +98,7 @@ describe('Perfil — Endereços (RF0026)', () => {
     cy.get('[data-cy="endereco-form-panel"]').should('be.visible');
 
     preencherFormEndereco();
-    cy.get('[data-cy="endereco-submit-button"]').click();
+    cy.get('[data-cy="endereco-submit-button"]').scrollIntoView().click();
 
     cy.get('[data-cy="endereco-form-panel"]', { timeout: 8000 }).should('not.exist');
     cy.contains('[data-cy^="endereco-card-"]', ENDERECO_TESTE.apelido).should('be.visible');
@@ -129,8 +129,9 @@ describe('Perfil — Endereços (RF0026)', () => {
       .click();
 
     cy.get('[data-cy="endereco-form-panel"]').should('be.visible');
-    cy.get('[data-cy="endereco-numero-input"]').clear().type('999');
-    cy.get('[data-cy="endereco-submit-button"]').click();
+    // Formulário não pré-preenche ao editar: preenche todos os campos obrigatórios
+    preencherFormEndereco({ ...ENDERECO_TESTE, numero: '999' });
+    cy.get('[data-cy="endereco-submit-button"]').scrollIntoView().click();
 
     cy.get('[data-cy="endereco-form-panel"]', { timeout: 8000 }).should('not.exist');
     cy.contains('[data-cy^="endereco-card-"]', ENDERECO_TESTE.apelido).should('be.visible');
@@ -140,7 +141,7 @@ describe('Perfil — Endereços (RF0026)', () => {
     cy.get('[data-cy="endereco-add-button"]').click();
     cy.get('[data-cy="endereco-form-panel"]').should('be.visible');
     cy.get('[data-cy="endereco-apelido-input"]').type('Endereço Cancelado');
-    cy.get('[data-cy="endereco-cancel-button"]').click();
+    cy.get('[data-cy="endereco-cancel-button"]').scrollIntoView().click();
     cy.get('[data-cy="endereco-form-panel"]').should('not.exist');
     cy.contains('[data-cy^="endereco-card-"]', 'Endereço Cancelado').should('not.exist');
   });
@@ -166,7 +167,9 @@ describe('Perfil — Endereços (RF0026)', () => {
 
     cy.contains('[data-cy^="endereco-card-"]', ENDERECO_TESTE.apelido)
       .find('[data-cy^="endereco-delete-button-"]')
-      .click();
+      .click({ force: true });
+
+    cy.get('[data-cy="modal-confirm-button"]', { timeout: 5000 }).click();
 
     cy.contains('[data-cy^="endereco-card-"]', ENDERECO_TESTE.apelido, { timeout: 8000 }).should('not.exist');
   });

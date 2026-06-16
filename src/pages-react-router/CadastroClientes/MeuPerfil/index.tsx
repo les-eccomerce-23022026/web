@@ -91,6 +91,7 @@ function MeuPerfil() {
       {/* Global Message */}
       {message && (
         <p
+          data-cy={messageType === 'success' ? 'perfil-success-message' : 'perfil-error-message'}
           className={
             messageType === 'success'
               ? styles.messageSuccess
@@ -352,9 +353,10 @@ function MeuPerfil() {
                   <button
                     data-cy={`endereco-edit-button-${end.uuid}`}
                     className={`btn-secondary ${styles.btnSmall}`}
-                    onClick={() =>
-                      enderecoState.setEnderecoEditandoUuid(end.uuid)
-                    }
+                    onClick={() => {
+                      enderecoState.setEnderecoEditandoUuid(end.uuid);
+                      enderecoState.setShowNovoEndereco(true);
+                    }}
                   >
                     Editar
                   </button>

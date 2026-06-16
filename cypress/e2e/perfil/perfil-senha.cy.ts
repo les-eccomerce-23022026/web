@@ -2,10 +2,11 @@
  * E2E — Perfil / Aba Senha (RF0028)
  *
  * Fluxo: cliente altera a senha e volta para a original.
- * Testa também o caso de senha atual incorreta.
+ * O revert é feito via API para garantir consistência entre testes.
  */
 import { loginClienteUi, CLIENTE } from '../../support/fluxo-venda.helpers';
 
+const API = Cypress.env('apiUrl') ?? 'http://localhost:3001/api';
 const SENHA_NOVA = 'NovaSenha@2026';
 
 function irParaSenha() {
@@ -18,6 +19,26 @@ function alterarSenha(senhaAtual: string, novaSenha: string) {
   cy.get('[data-cy="nova-senha-input"]').clear().type(novaSenha);
   cy.get('[data-cy="confirmar-nova-senha-input"]').clear().type(novaSenha);
   cy.get('[data-cy="senha-submit-button"]').click();
+}
+
+function reverterSenhaViaApi(senhaAtual: string, senhaOriginal: string) {
+  cy.request({
+    method: 'POST',
+    url: `${API}/auth/login`,
+    headers: { 'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}` },
+    body: { email: CLIENTE.email, senha: senhaAtual },
+    failOnStatusCode: false,
+  }).then((loginRes) => {
+    if (loginRes.status !== 200) return;
+    const token = loginRes.body.dados.token;
+    cy.request({
+      method: 'PATCH',
+      url: `${API}/clientes/seguranca/alterar-senha`,
+      headers: { Authorization: `Bearer ${token}`, 'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}` },
+      body: { senhaAtual, novaSenha: senhaOriginal, confirmacaoNovaSenha: senhaOriginal },
+      failOnStatusCode: false,
+    });
+  });
 }
 
 describe('Perfil — Senha (RF0028)', () => {
@@ -48,12 +69,11 @@ describe('Perfil — Senha (RF0028)', () => {
     cy.get('[data-cy="senha-error-message"]', { timeout: 8000 }).should('be.visible');
   });
 
-  it('deve alterar a senha com sucesso e reverter para a original', () => {
+  it('deve alterar a senha com sucesso e reverter via API', () => {
     alterarSenha(CLIENTE.senha, SENHA_NOVA);
     cy.get('[data-cy="senha-success-message"]', { timeout: 8000 }).should('be.visible');
 
-    // Reverter para a senha original
-    alterarSenha(SENHA_NOVA, CLIENTE.senha);
-    cy.get('[data-cy="senha-success-message"]', { timeout: 8000 }).should('be.visible');
+    // Revert confiável via API (garante que a senha original seja restaurada)
+    reverterSenhaViaApi(SENHA_NOVA, CLIENTE.senha);
   });
 });

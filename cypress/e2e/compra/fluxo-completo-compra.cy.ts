@@ -16,7 +16,7 @@
 
 describe('Fluxo Completo de Compra', () => {
   const clienteEmail = 'clientetest@email.com';
-  const clienteSenha = '123456';
+  const clienteSenha = 'Teste@123456';
   const cepTeste = '08720-510';
 
   beforeEach(() => {

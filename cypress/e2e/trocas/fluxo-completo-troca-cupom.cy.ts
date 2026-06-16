@@ -1,7 +1,7 @@
 describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU006, CDU008, CDU009, RF0041, RF0042, RF0044, RF0046)', () => {
   const CREDENCIAIS_CLIENTE = {
     email: 'clientetest@email.com',
-    senha: '123456',
+    senha: 'Teste@123456',
   };
 
   const CREDENCIAIS_ADMIN = {

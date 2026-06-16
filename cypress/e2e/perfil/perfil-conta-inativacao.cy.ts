@@ -9,15 +9,20 @@
 const API = Cypress.env('apiUrl') ?? 'http://localhost:3001/api';
 
 function gerarCpfValido(seed: number): string {
-  const base = String(seed).slice(-9).padStart(9, '1');
-  const digits = base.split('').map(Number);
-  let soma = digits.reduce((acc, d, i) => acc + d * (10 - i), 0);
-  let resto = (soma * 10) % 11;
-  const d1 = resto >= 10 ? 0 : resto;
-  soma = [...digits, d1].reduce((acc, d, i) => acc + d * (11 - i), 0);
-  resto = (soma * 10) % 11;
-  const d2 = resto >= 10 ? 0 : resto;
-  return `${base}${d1}${d2}`;
+  // Deriva 9 dígitos do seed evitando sequências iguais
+  const raw = String(Math.abs(seed % 1000000000)).padStart(9, '0');
+  const digits = raw.split('').map(Number);
+  // Se todos os dígitos são iguais, altera o último
+  if (new Set(digits).size === 1) digits[8] = (digits[8] + 1) % 10;
+
+  const soma1 = digits.reduce((acc, d, i) => acc + d * (10 - i), 0);
+  const d1 = (soma1 * 10) % 11 >= 10 ? 0 : (soma1 * 10) % 11;
+
+  const base2 = [...digits, d1];
+  const soma2 = base2.reduce((acc, d, i) => acc + d * (11 - i), 0);
+  const d2 = (soma2 * 10) % 11 >= 10 ? 0 : (soma2 * 10) % 11;
+
+  return `${digits.join('')}${d1}${d2}`;
 }
 
 function criarClienteDescartavel(): Cypress.Chainable<{ email: string; senha: string }> {
@@ -28,9 +33,9 @@ function criarClienteDescartavel(): Cypress.Chainable<{ email: string; senha: st
     email: `descartavel.${seed}@e2e.com`,
     senha: 'Descart@2026',
     confirmacaoSenha: 'Descart@2026',
-    nascimento: '1995-05-10',
-    genero: 'Outro',
-    telefone: '11988887777',
+    dataNascimento: '1995-05-10',
+    genero: 'Masculino',
+    telefone: { tipo: 'Celular', numero: '11988887777' },
   };
 
   return cy

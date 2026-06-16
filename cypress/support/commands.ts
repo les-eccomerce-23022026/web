@@ -58,7 +58,7 @@ Cypress.Commands.add('criarTrocaAutorizada', (pedidoUuidAlvo?: string) => {
     headers: getTestDbHeaders(),
     body: {
       email: 'clientetest@email.com',
-      senha: '123456',
+      senha: 'Teste@123456',
     },
   }).then((loginResponse) => {
     const token = loginResponse.body.dados.token;
@@ -171,7 +171,7 @@ Cypress.Commands.add('limparCarrinhoViaApi', () => {
     method: 'POST',
     url: `${apiUrl}/auth/login`,
     headers: hdr,
-    body: { email: 'clientetest@email.com', senha: '123456' },
+    body: { email: 'clientetest@email.com', senha: 'Teste@123456' },
   }).then((loginResponse) => {
     const token = loginResponse.body.dados.token;
     const auth = { ...hdr, Authorization: `Bearer ${token}` };
@@ -200,7 +200,7 @@ Cypress.Commands.add('prepararPedidoEntregue', () => {
     method: 'POST',
     url: `${apiUrl}/auth/login`,
     headers: hdr,
-    body: { email: 'clientetest@email.com', senha: '123456' },
+    body: { email: 'clientetest@email.com', senha: 'Teste@123456' },
   }).then((loginCliente) => {
     const tokenCliente = loginCliente.body.dados.token;
     const authCliente = { ...hdr, Authorization: `Bearer ${tokenCliente}` };

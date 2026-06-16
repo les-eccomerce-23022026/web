@@ -13,7 +13,7 @@ describe('Trocas — Fluxo de Confirmar Recebimento e Geração de Cupom (RF0044
 
   const CREDENCIAIS_CLIENTE = {
     email: 'clientetest@email.com',
-    senha: '123456',
+    senha: 'Teste@123456',
   };
 
   let pedidoUuid: string;
