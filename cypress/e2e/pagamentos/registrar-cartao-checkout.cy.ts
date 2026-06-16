@@ -22,7 +22,7 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
       method: 'POST',
       url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/auth/login`,
       headers: { 'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}` },
-      body: { email: 'clientetest@email.com', senha: 'Teste@123456' },
+      body: { email: 'clientetest@email.com', senha: '@asdf123' },
     }).then((loginRes) => {
       const token = loginRes.body.dados.token;
       cy.request({
@@ -64,7 +64,7 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
     // Adicionar linha de novo cartão e abrir formulário
     cy.get('[data-cy="checkout-payment-section"]').scrollIntoView();
     cy.get('[data-cy="pagamento-dividido-adicionar-novo-cartao"]').click();
-    cy.get('[data-cy="checkout-split-inform-new-card"], [data-cy="checkout-add-card-button"]').last().click();
+    cy.get('[data-cy="checkout-split-inform-new-card"], [data-cy="checkout-add-card-button"]').last().scrollIntoView().click({ force: true });
     cy.get('[data-cy="checkout-new-card-form"]').should('be.visible');
 
     // Preencher dados do cartão (bandeira é auto-detectada pelo número)
@@ -91,7 +91,7 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
     cy.get('[data-cy^="checkout-card-item-"]').first().should('have.attr', 'data-selected', 'true');
 
     // Verificar que o cartão foi salvo (usar API para validar)
-    loginApi('clientetest@email.com', 'Teste@123456').then((token) => {
+    loginApi('clientetest@email.com', '@asdf123').then((token) => {
       cy.request({
         method: 'GET',
         url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/clientes/perfil/cartoes`,

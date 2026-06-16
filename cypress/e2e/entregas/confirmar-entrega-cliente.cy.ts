@@ -12,9 +12,9 @@ import { prepararPedidoEmProcessamentoApi } from '../../support/fluxo-venda.help
 
 describe('Entregas — Confirmação de Entrega pelo Cliente', () => {
   const clienteEmail = 'clientetest@email.com';
-  const clienteSenha = 'Teste@123456';
+  const clienteSenha = '@asdf123';
   const adminEmail = 'admintest@email.com';
-  const adminSenha = '123456';
+  const adminSenha = '@asdf123';
 
   beforeEach(() => {
     cy.clearCookies();

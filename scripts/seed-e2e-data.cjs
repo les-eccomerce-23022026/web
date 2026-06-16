@@ -56,7 +56,7 @@ async function seedDatabase() {
     console.log('🔐 Fazendo login como admin...');
     const adminLogin = await apiRequest('POST', '/auth/login', {
       email: 'admin@vendas.com.br',
-      senha: '123456',
+      senha: '@asdf123',
     });
     const adminToken = adminLogin.dados.token;
     console.log('✅ Admin logado com sucesso');
@@ -66,7 +66,7 @@ async function seedDatabase() {
     try {
       await apiRequest('POST', '/auth/login', {
         email: 'clientetest@email.com',
-        senha: '123456',
+        senha: '@asdf123',
       });
       console.log('✅ Cliente de teste já existe');
     } catch (error) {
@@ -75,8 +75,8 @@ async function seedDatabase() {
         nome: 'Cliente Teste',
         cpf: '245.699.622-46',
         email: 'clientetest@email.com',
-        senha: '123456',
-        confirmacaoSenha: '123456',
+        senha: '@asdf123',
+        confirmacaoSenha: '@asdf123',
         genero: 'M',
         dataNascimento: '1990-01-01',
         telefone: {
@@ -102,7 +102,7 @@ async function seedDatabase() {
     console.log('🔐 Fazendo login como cliente...');
     const clienteLogin = await apiRequest('POST', '/auth/login', {
       email: 'clientetest@email.com',
-      senha: '123456',
+      senha: '@asdf123',
     });
     const clienteToken = clienteLogin.dados.token;
     console.log('✅ Cliente logado com sucesso');

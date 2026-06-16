@@ -31,7 +31,7 @@ describe('Compra — Registrar novo endereço no checkout (CDU001, RF0015)', () 
       headers: {
         'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
       },
-      body: { email: 'clientetest@email.com', senha: 'Teste@123456' },
+      body: { email: 'clientetest@email.com', senha: '@asdf123' },
     }).then((loginRes) => {
       token = loginRes.body.dados.token;
       return cy.request({
@@ -183,7 +183,7 @@ describe('Compra — Registrar novo endereço no checkout (CDU001, RF0015)', () 
       headers: {
         'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
       },
-      body: { email: 'clientetest@email.com', senha: 'Teste@123456' },
+      body: { email: 'clientetest@email.com', senha: '@asdf123' },
     }).then((loginRes) => {
       const token = loginRes.body.dados.token;
       cy.request({

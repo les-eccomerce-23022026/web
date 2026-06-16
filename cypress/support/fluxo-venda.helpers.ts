@@ -9,9 +9,9 @@
  * - Usar uuids DETERMINÍSTICOS (nunca `.first()` em listas grandes).
  */
 
-export const CLIENTE = { email: 'clientetest@email.com', senha: 'Teste@123456' };
-export const ADMIN = { email: 'admintest@email.com', senha: '123456' };
-export const ADMIN_SISTEMA = { email: 'admin_sistema@test.com', senha: '123456' };
+export const CLIENTE = { email: 'clientetest@email.com', senha: '@asdf123' };
+export const ADMIN = { email: 'admintest@email.com', senha: '@asdf123' };
+export const ADMIN_SISTEMA = { email: 'admin_sistema@test.com', senha: '@asdf123' };
 
 export const CARTAO_VISA = {
   numero: '4111111111111111',

@@ -7,7 +7,7 @@
  */
 
 const ADMIN_SISTEMA_EMAIL = 'admin@livraria.com.br';
-const ADMIN_SISTEMA_SENHA = 'password123';
+const ADMIN_SISTEMA_SENHA = '@asdf123';
 const SENHA_PADRAO = 'Teste@12345';
 
 // ─────────────────────────────────────────────────────────────────────────────
