@@ -128,8 +128,8 @@ describe('Pagamentos — Combinações de meio de pagamento (CDU002, RF0017, RF0
       cy.get('[data-cy="pagamento-dividido-adicionar-cartao-salvo"]').click();
 
       // Ajustar linha 1 e linha 2 para que a soma bata com o total
-      cy.get('[data-cy="pagamento-dividido-linha-valor"]').eq(0).clear().type(String(parcela1));
-      cy.get('[data-cy="pagamento-dividido-linha-valor"]').eq(1).clear().type(String(parcela2));
+      cy.get('[data-cy="pagamento-dividido-linha-valor"]').eq(0).scrollIntoView().clear().type(String(parcela1));
+      cy.get('[data-cy="pagamento-dividido-linha-valor"]').eq(1).scrollIntoView().clear().type(String(parcela2));
 
       // Aguardar atualização do estado React e verificar que o botão foi habilitado
       cy.get('[data-cy="checkout-finish-button"]').should('not.be.disabled').click();

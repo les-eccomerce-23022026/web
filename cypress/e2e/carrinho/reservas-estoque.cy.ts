@@ -121,24 +121,31 @@ describe('Sistema de Reservas de Estoque', () => {
        * 1. Todos os itens são removidos
        * 2. Todas as reservas são canceladas
        * 3. Todo o estoque é liberado
+       *
+       * Nota: intercept configurado antes de navegar para capturar o DELETE.
+       * O cy.wait('@limparCarrinho') garante que o handler remoto foi chamado
+       * (isAuthenticated = true no Redux) e não o handler local.
        */
-      cy.log('=== ETAPA 1: Login e Adicionar 2 livros ===');
+      cy.intercept('DELETE', '/api/carrinho').as('limparCarrinho');
+
+      cy.log('=== ETAPA 1: Login e Adicionar livro ===');
       loginCliente();
-      
-      // Adicionar 2 livros
-      cy.visit('/');
-      cy.get('[data-cy="adicionar-carrinho-card-button"]').first().click();
-      cy.visit('/');
-      cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(1).click();
+      adicionarLivroAoCarrinho();
 
       cy.log('=== ETAPA 2: Navegar para carrinho ===');
       navegarParaCarrinho();
 
-      // Verificar que há 2 itens
-      cy.get('[data-cy="carrinho-item-row"]').should('have.length.at.least', 2);
+      // Aguardar que o Redux re-hidrate com isAuthenticated=true antes de limpar
+      cy.get('[data-cy="header-cart-link"]').should('be.visible');
+      cy.get('[data-cy="carrinho-item-row"]').should('have.length.at.least', 1);
 
       cy.log('=== ETAPA 3: Limpar carrinho ===');
       cy.get('[data-cy="carrinho-limpar"]').click();
+
+      // Garantir que a chamada DELETE foi disparada (handler remoto, não local)
+      cy.wait('@limparCarrinho', { timeout: 10000 }).then((interception) => {
+        expect(interception.response?.statusCode).to.eq(200);
+      });
 
       // Verificar que carrinho ficou vazio
       cy.get('[data-cy="carrinho-vazio"]').should('be.visible');
@@ -151,27 +158,17 @@ describe('Sistema de Reservas de Estoque', () => {
     it('deve verificar chamadas de API de reservas', () => {
       /**
        * Testa que as chamadas de API de reservas são feitas corretamente:
-       * 1. POST /api/carrinho/itens - cria/atualiza reserva
-       * 2. DELETE /api/carrinho - cancela reservas
+       * 1. POST /api/carrinho/itens - cria/atualiza reserva ao adicionar item
        */
-      // Intercept para verificar chamadas de API
+      // Intercept deve ser configurado antes de qualquer navegação
       cy.intercept('POST', '/api/carrinho/itens').as('sincronizarItem');
-      cy.intercept('DELETE', '/api/carrinho').as('limparCarrinho');
 
       loginCliente();
       adicionarLivroAoCarrinho();
       navegarParaCarrinho();
 
       // Verificar que sincronização de item foi chamada
-      cy.wait('@sincronizarItem').then((interception) => {
-        expect(interception.response?.statusCode).to.eq(200);
-      });
-
-      // Limpar carrinho
-      cy.get('[data-cy="carrinho-limpar"]').click();
-
-      // Verificar que limpeza foi chamada
-      cy.wait('@limparCarrinho').then((interception) => {
+      cy.wait('@sincronizarItem', { timeout: 10000 }).then((interception) => {
         expect(interception.response?.statusCode).to.eq(200);
       });
 

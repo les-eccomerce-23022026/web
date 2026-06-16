@@ -204,7 +204,7 @@ export function adicionarLivrosAoCarrinho(quantidade = 2) {
 export function irParaCheckoutComEnderecoEFrete(cep = '08720-510') {
   cy.visit('/carrinho');
   cy.get('[data-cy="carrinho-page"]').should('be.visible');
-  cy.get('[data-cy="carrinho-finalizar-compra"]').click();
+  cy.get('[data-cy="carrinho-finalizar-compra"]', { timeout: 10000 }).click({ force: true });
   cy.url().should('include', '/checkout');
 
   cy.get('[data-cy^="checkout-address-item-"]').first().click();

@@ -7,6 +7,8 @@ export interface IDashboardAdminFilters {
   statusFiltro?: StatusFiltro;
 }
 
+export type DashboardAdminFilters = IDashboardAdminFilters;
+
 export interface IDashboardAdminService {
   getDashboardInfo(filters?: IDashboardAdminFilters): Promise<IDashboardAdminInfo>;
 }

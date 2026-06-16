@@ -89,12 +89,8 @@ beforeEach(() => {
 
 /** Limpeza básica entre specs para evitar poluição de estado (carrinho, storage) que causa falhas replicadas em batch. */
 afterEach(() => {
-  // Evita chamar comandos que podem não existir no contexto de erro precoce; o cleanup por spec é preferível
-  try {
-    if (typeof cy.limparCarrinhoViaApi === 'function') {
-      cy.limparCarrinhoViaApi();
-    }
-  } catch {
-    // ignore cleanup errors in afterEach
-  }
+  // Limpeza local + API para garantir carrinho limpo entre testes em batch
+  cy.clearCookies();
+  cy.clearLocalStorage();
+  cy.limparCarrinhoViaApi();
 });

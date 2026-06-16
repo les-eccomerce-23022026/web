@@ -98,6 +98,21 @@ export function useChatRecomendacao() {
   const [servicoIndisponivel, setServicoIndisponivel] = useState(false);
   const listaRef = useRef<HTMLDivElement>(null);
   const entradaRef = useRef<HTMLTextAreaElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  /** Aborta a request de stream em andamento (se houver). */
+  const cancelar = useCallback(() => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setIsEnviando(false);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+      abortRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     if (!authUser?.nome) {
@@ -134,32 +149,91 @@ export function useChatRecomendacao() {
       setIsEnviando(true);
 
       const mensagemUsuario = criarMensagem(texto, 'usuario');
-      setMensagens((prev) => [...prev, mensagemUsuario]);
+      // Mensagem do assistente vazia: o texto é acumulado a cada onDelta.
+      const mensagemAssistente = criarMensagem('', 'assistente');
+      const idAssistente = mensagemAssistente.id;
+      setMensagens((prev) => [...prev, mensagemUsuario, mensagemAssistente]);
+
+      // Aborta um stream anterior e cria um novo controller para esta request.
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      const { signal } = controller;
+
+      /** Atualiza a mensagem do assistente em andamento de forma imutável. */
+      const atualizarAssistente = (
+        patch: (msg: IMensagemChat) => IMensagemChat,
+      ): void => {
+        setMensagens((prev) =>
+          prev.map((m) => (m.id === idAssistente ? patch(m) : m)),
+        );
+      };
+
+      const historico = construirHistorico([...mensagens, mensagemUsuario]);
 
       try {
-        const historico = construirHistorico([...mensagens, mensagemUsuario]);
-        const resposta = await IaRecomendacaoService.enviarMensagem({
-          mensagem: texto,
-          historico,
-          clienteUuid: authUser?.uuid,
-        });
-        setMensagens((prev) => [
-          ...prev,
-          criarMensagem(resposta.resposta, 'assistente', {
-            produtosRecomendados: resposta.produtosRecomendados,
-            contextoUsado: resposta.contextoUsado,
-            tipoResposta: resposta.tipoResposta,
-            perguntasFollowUp: resposta.perguntasFollowUp,
-            intencaoResumida: resposta.intencaoResumida,
-            numeroTurno: resposta.numeroTurno,
-          }),
-        ]);
+        await IaRecomendacaoService.enviarMensagemStream(
+          {
+            mensagem: texto,
+            historico,
+            clienteUuid: authUser?.uuid,
+          },
+          {
+            onMeta: (meta) => {
+              atualizarAssistente((m) => ({
+                ...m,
+                tipoResposta: meta.tipoResposta ?? m.tipoResposta,
+                intencaoResumida: meta.intencaoResumida ?? m.intencaoResumida,
+                contextoUsado: meta.contextoUsado ?? m.contextoUsado,
+                numeroTurno: meta.numeroTurno ?? m.numeroTurno,
+              }));
+            },
+            onProdutos: (produtos) => {
+              atualizarAssistente((m) => ({ ...m, produtosRecomendados: produtos }));
+            },
+            onDelta: (delta) => {
+              atualizarAssistente((m) => ({ ...m, conteudo: m.conteudo + delta }));
+            },
+            onDone: (resposta) => {
+              if (signal.aborted) return;
+              atualizarAssistente((m) => ({
+                ...m,
+                conteudo: resposta.resposta || m.conteudo,
+                produtosRecomendados: resposta.produtosRecomendados ?? m.produtosRecomendados,
+                contextoUsado: resposta.contextoUsado ?? m.contextoUsado,
+                tipoResposta: resposta.tipoResposta ?? m.tipoResposta,
+                perguntasFollowUp: resposta.perguntasFollowUp ?? m.perguntasFollowUp,
+                intencaoResumida: resposta.intencaoResumida ?? m.intencaoResumida,
+                numeroTurno: resposta.numeroTurno ?? m.numeroTurno,
+              }));
+              setIsEnviando(false);
+            },
+            onError: (mensagemErro) => {
+              if (signal.aborted) return;
+              setErroEnvio(mensagemErro);
+              // Remove a mensagem vazia do assistente em caso de erro.
+              setMensagens((prev) => prev.filter((m) => m.id !== idAssistente));
+              setIsEnviando(false);
+            },
+          },
+          signal,
+        );
       } catch (erro) {
+        if (signal.aborted) {
+          return;
+        }
         console.error('[useChatRecomendacao] Erro ao enviar mensagem:', erro);
-        const mensagemErro = erro instanceof Error ? erro.message : 'Não foi possível obter uma resposta. Verifique sua conexão e tente novamente.';
+        const mensagemErro =
+          erro instanceof Error
+            ? erro.message
+            : 'Não foi possível obter uma resposta. Verifique sua conexão e tente novamente.';
         setErroEnvio(mensagemErro);
-      } finally {
+        setMensagens((prev) => prev.filter((m) => m.id !== idAssistente));
         setIsEnviando(false);
+      } finally {
+        if (abortRef.current === controller) {
+          abortRef.current = null;
+        }
       }
     },
     [textoEntrada, isEnviando, mensagens, authUser?.uuid],
@@ -207,5 +281,6 @@ export function useChatRecomendacao() {
     enviarPerguntaFollowUp,
     limparConversa,
     continuarDaIteracao,
+    cancelar,
   };
 }

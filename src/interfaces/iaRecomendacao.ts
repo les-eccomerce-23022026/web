@@ -50,6 +50,12 @@ export interface IRequisicaoChat {
   clienteUuid?: string;
 }
 
+export interface IMetricasChat {
+  tempoRespostaMs?: number;
+  tokensEntrada?: number;
+  tokensSaida?: number;
+}
+
 export interface IRespostaChat {
   resposta: string;
   produtosRecomendados?: IProdutoRecomendado[];
@@ -59,4 +65,32 @@ export interface IRespostaChat {
   numeroTurno?: number;
   perguntasFollowUp?: string[];
   intencaoResumida?: string;
+  metricas?: IMetricasChat;
+}
+
+/** Payload do evento SSE `meta` emitido pelo backend antes do streaming de tokens. */
+export interface IMetaChatStream {
+  tipoResposta?: TipoRespostaChat;
+  intencaoResumida?: string;
+  contextoUsado?: boolean;
+  numeroTurno?: number;
+}
+
+/** Payload do evento SSE `produtos`. */
+export interface IProdutosChatStream {
+  produtosRecomendados: IProdutoRecomendado[];
+}
+
+/** Payload do evento SSE `token` (delta incremental do texto). */
+export interface IDeltaChatStream {
+  delta: string;
+}
+
+/** Callbacks tipados para consumo do streaming SSE do chat. */
+export interface ICallbacksChatStream {
+  onMeta?: (meta: IMetaChatStream) => void;
+  onProdutos?: (produtos: IProdutoRecomendado[]) => void;
+  onDelta?: (delta: string) => void;
+  onDone?: (resposta: IRespostaChat) => void;
+  onError?: (mensagem: string) => void;
 }

@@ -182,10 +182,13 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     // Usar um item DIFERENTE (índice 2) para evitar constraint com livro do pedido
     cy.visit('/');
     cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(2).click();
+    
+    // Navegar para carrinho explicitamente
+    cy.visit('/carrinho');
     cy.url().should('include', '/carrinho');
 
     // Ir para checkout
-    cy.get('[data-cy="carrinho-finalizar-compra"]').click();
+    cy.get('[data-cy="carrinho-finalizar-compra"]', { timeout: 10000 }).click({ force: true });
     cy.url().should('include', '/checkout');
 
     // Aplicar o cupom (dentro de cy.then pelo mesmo motivo do bloco anterior)

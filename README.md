@@ -1,4 +1,23 @@
-# React + TypeScript + Vite (LES — frontend)
+# React + TypeScript + Next.js (LES — frontend)
+
+## 🚀 Setup Automatizado (Recomendado)
+
+Para configurar e iniciar o frontend automaticamente em um novo ambiente, execute:
+
+```bash
+# No diretório web
+cd web
+./scripts/setup-complete.sh
+```
+
+Este script automatizado irá:
+- ✅ Verificar pré-requisitos (Node.js 18+, npm)
+- ✅ Configurar o arquivo `.env` automaticamente
+- ✅ Instalar dependências npm
+- ✅ Validar configuração
+- ✅ Exibir instruções para iniciar o frontend
+
+**Documentação completa dos scripts:** [`scripts/README-SETUP.md`](scripts/README-SETUP.md)
 
 ## Sessão e API
 
@@ -47,6 +66,24 @@ Se você ainda vir o erro em ambiente desktop:
    ```
 
 Isso resolve o problema recorrente de agentes/ferramentas caírem em "análise estática apenas porque Cypress falhou".
+
+## Scripts Úteis
+
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Iniciar frontend em desenvolvimento (porta 3000) |
+| `npm run build` | Build para produção |
+| `npm run start` | Iniciar produção |
+| `npm run lint` | Executar lint |
+| `./scripts/setup-complete.sh` | Setup completo automático |
+| `./scripts/check-prerequisitos.sh` | Verificar pré-requisitos |
+| `./scripts/setup-env.sh` | Configurar arquivo .env |
+
+## Contexto no Monorepo
+
+- Backend API: [`../backend/README.md`](../backend/README.md)
+- Visão geral do projeto: [`../README.md`](../README.md)
+- Especificação e ADRs: [`../documentacao-exigida/README.md`](../documentacao-exigida/README.md)
 
 ### Fluxo de Compra Principal (Visual / Headed)
 

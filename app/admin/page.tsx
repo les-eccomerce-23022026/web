@@ -91,7 +91,7 @@ function DashboardAdminLoja() {
             <h3 className="painel-grafico__titulo">Evolução da Receita Anual</h3>
             <FiltroPeriodo periodoSelecionado={periodoReceita} onChangePeriodo={setPeriodoReceita} />
           </div>
-          <Line options={CHART_OPTIONS_RECEITA} data={graficoReceitaComCores} />
+          <Line key={`receita-${periodoReceita}`} options={CHART_OPTIONS_RECEITA} data={graficoReceitaComCores} />
         </div>
         <div className="painel-grafico painel-grafico--compacto">
           <div className="painel-grafico__cabecalho">
@@ -101,7 +101,7 @@ function DashboardAdminLoja() {
             </h3>
             <FiltroStatus statusSelecionado={statusSelecionado} onChangeStatus={setStatusSelecionado} />
           </div>
-          <Bar options={CHART_OPTIONS_STATUS} data={graficoStatusComCores} />
+          <Bar key={`status-${statusSelecionado}`} options={CHART_OPTIONS_STATUS} data={graficoStatusComCores} />
         </div>
         <GraficoAnaliseVendasDashboard />
       </MemoizedChartsCarousel>
