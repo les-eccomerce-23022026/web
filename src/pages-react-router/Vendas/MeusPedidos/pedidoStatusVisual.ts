@@ -7,6 +7,7 @@ import {
   Truck,
 } from 'lucide-react';
 import type { StatusPedido } from '../../../interfaces/pedido';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 
 /** Agrupa estilos de badge e barra no CSS module. */
 export type PedidoStatusVariant =
@@ -23,22 +24,23 @@ export type PedidoStatusVisual = {
 
 export function getPedidoStatusVisual(status: StatusPedido): PedidoStatusVisual {
   switch (status) {
-    case 'Entregue':
+    case STATUS_PEDIDO.ENTREGUE:
       return { Icon: CheckCircle, variant: 'entregue' };
-    case 'Em Trânsito':
+    case STATUS_PEDIDO.EM_TRANSITO:
       return { Icon: Truck, variant: 'transito' };
-    case 'Preparando':
+    case STATUS_PEDIDO.PREPARANDO:
       return { Icon: Package, variant: 'preparando' };
-    case 'Pendentes':
-    case 'Aguardando Pagamento':
-    case 'Em Processamento':
+    case STATUS_PEDIDO.PENDENTE:
+    case STATUS_PEDIDO.PENDENTES:
+    case STATUS_PEDIDO.AGUARDANDO_PAGAMENTO:
+    case STATUS_PEDIDO.EM_PROCESSAMENTO:
       return { Icon: Clock, variant: 'processamento' };
-    case 'Trocado':
+    case STATUS_PEDIDO.TROCADO:
       return { Icon: CheckCircle, variant: 'entregue' };
-    case 'Em Troca':
-    case 'Troca Autorizada':
-    case 'Devoluções':
-    case 'Cancelado':
+    case STATUS_PEDIDO.EM_TROCA:
+    case STATUS_PEDIDO.TROCA_AUTORIZADA:
+    case STATUS_PEDIDO.DEVOLUCOES:
+    case STATUS_PEDIDO.CANCELADO:
       return { Icon: AlertTriangle, variant: 'problema' };
     default:
       return { Icon: Package, variant: 'preparando' };

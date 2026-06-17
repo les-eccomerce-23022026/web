@@ -8,7 +8,7 @@ export function useAuthorization() {
     if (!user) return false;
     
     // Verifica permissão em todos os papéis do usuário
-    const papeis = user.papeis || [user.role];
+    const papeis = (user.papeis && user.papeis.length > 0) ? user.papeis : [user.role];
     for (const papel of papeis) {
       const role = papel as Role;
       const capabilities = rolePermissions[role] || [];

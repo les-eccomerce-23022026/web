@@ -1,0 +1,43 @@
+{
+  "sucesso": true,
+  "dados": {
+    "resposta": "Com base no seu interesse em ficção científica épica, recomendo os seguintes livros que combinam mundos complexos, política intergaláctica e personagens marcantes:",
+    "produtosRecomendados": [
+      {
+        "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "titulo": "Duna",
+        "autor": "Frank Herbert",
+        "categoria": "Ficção Científica",
+        "sinopse": "Uma épica história de sobrevivência no planeta deserto de Arrakis.",
+        "isbn": "978-0-441-17271-9",
+        "preco": 49.90,
+        "similaridade": 0.92,
+        "motivo": "Por seu interesse em civilizações complexas e impérios políticos intergalácticos"
+      },
+      {
+        "uuid": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
+        "titulo": "Fundação",
+        "autor": "Isaac Asimov",
+        "categoria": "Ficção Científica",
+        "sinopse": "A queda do Império Galáctico e os esforços de um grupo de cientistas.",
+        "isbn": "978-0-553-29335-7",
+        "preco": 39.90,
+        "similaridade": 0.88,
+        "motivo": "Livros de civilizações épicas com forte componente político"
+      },
+      {
+        "uuid": "c3d4e5f6-a7b8-9012-cdef-012345678912",
+        "titulo": "Neuromancer",
+        "autor": "William Gibson",
+        "categoria": "Ficção Científica",
+        "sinopse": "Um hacker e seus parceiros são contratados para uma missão perigosa no ciberespaço.",
+        "isbn": "978-0-441-56956-4",
+        "preco": 44.90,
+        "similaridade": 0.85,
+        "motivo": "Considerando seu perfil de leitor de obras de ficção especulativa de alto impacto"
+      }
+    ],
+    "contextoUsado": true,
+    "tempoRespostaMs": 1243
+  }
+}

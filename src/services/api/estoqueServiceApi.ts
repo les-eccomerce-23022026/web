@@ -1,4 +1,4 @@
-import type { IEstoqueService, IItemEstoque, IKpisEstoque, IEntradaEstoque } from '../contracts/estoqueService';
+import type { IEstoqueService, IItemEstoque, IKpisEstoque, IEntradaEstoque, IAtualizacaoEstoque } from '../contracts/estoqueService';
 import { ApiClient } from '../apiClient';
 import { API_ENDPOINTS } from '@/config/apiConfig';
 import { LIMITE_ESTOQUE_CRITICO } from '@/config/constantesNegocio';
@@ -21,6 +21,11 @@ export const estoqueServiceApi: IEstoqueService = {
 
   async registrarEntrada(dados: IEntradaEstoque): Promise<{ mensagem: string }> {
     const response = await ApiClient.post<{ mensagem: string }>(API_ENDPOINTS.registrarEntradaEstoque, dados);
+    return response;
+  },
+
+  async atualizarEstoque(dados: IAtualizacaoEstoque): Promise<{ mensagem: string }> {
+    const response = await ApiClient.patch<{ mensagem: string }>(API_ENDPOINTS.atualizarEstoque, dados);
     return response;
   },
 };

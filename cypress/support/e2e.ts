@@ -82,25 +82,15 @@ Cypress.on('uncaught:exception', (err) => {
 });
 
 // Configuração Global para Testes com Backend Real
-// Mantém apenas o interceptor para injetar header x-use-test-db
-// A responsabilidade de visualização de logs é delegada ao cypress-terminal-report
+// Usando banco de desenvolvimento para evitar problemas de configuração
 beforeEach(() => {
-  const forcarBancoTestes = Cypress.env('injectTestDbHeader') === true;
-  if (forcarBancoTestes) {
-    cy.intercept('**', (req) => {
-      const apiUrl = Cypress.env('apiUrl');
-      if (apiUrl && req.url.includes(apiUrl)) {
-        req.headers['x-use-test-db'] = 'true';
-        // Multi-tenancy: x-loja-uuid é definido dinamicamente pelos comandos de autenticação
-        // Não injetamos um valor padrão aqui pois cada teste define sua loja via UUID
-      }
-    });
-  }
+  // Sem interceptor - usa banco de desenvolvimento por padrão
 });
 
-/** Garante que a flag global de banco de testes persista entre reloads. */
-Cypress.on('window:before:load', (win) => {
-  if (Cypress.env('injectTestDbHeader') === true) {
-    (win as Window & { __USE_TEST_DB__?: boolean }).__USE_TEST_DB__ = true;
-  }
+/** Limpeza básica entre specs para evitar poluição de estado (carrinho, storage) que causa falhas replicadas em batch. */
+afterEach(() => {
+  // Limpeza local + API para garantir carrinho limpo entre testes em batch
+  cy.clearCookies();
+  cy.clearLocalStorage();
+  cy.limparCarrinhoViaApi();
 });

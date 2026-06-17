@@ -1,0 +1,241 @@
+/* ============================================================
+   DetalhesLivro.module.css
+   Estilos da página de detalhes do livro
+   ============================================================ */
+
+/* --- Breadcrumb ------------------------------------------- */
+.breadcrumb {
+  margin-bottom: 16px;
+  font-size: 0.8125rem;
+  color: var(--bn-text-body);
+}
+
+.breadcrumbPath {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.breadcrumbLink {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumbLink:hover {
+  color: var(--bn-primary);
+  text-decoration: underline;
+}
+
+.breadcrumbSeparator {
+  color: var(--bn-text-muted);
+}
+
+.breadcrumbCurrent {
+  color: var(--bn-primary);
+  font-weight: 500;
+}
+
+/* --- Layout principal --------------------------------------- */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@media (min-width: 768px) {
+  .container {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 40px;
+  }
+}
+
+/* --- Coluna da imagem -------------------------------------- */
+.imageColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.imageContainer {
+  background-color: var(--bn-bg-card);
+  border-radius: var(--bn-border-radius-lg);
+  padding: 16px;
+  box-shadow: var(--bn-shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.bookCover {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  border-radius: var(--bn-border-radius-sm);
+}
+
+.bookCoverPlaceholder {
+  width: 100%;
+  aspect-ratio: 2/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bn-bg-secondary) 0%, var(--bn-bg-main) 100%);
+  color: var(--bn-text-muted);
+  border-radius: var(--bn-border-radius-sm);
+  font-size: 0.875rem;
+}
+
+/* --- Coluna de informações ---------------------------------- */
+.infoColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* --- Cabeçalho do livro ------------------------------------ */
+.bookHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bookTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--bn-text-primary);
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .bookTitle {
+    font-size: 2rem;
+  }
+}
+
+.bookAuthor {
+  font-size: 0.9375rem;
+  color: var(--bn-text-body);
+  margin: 0;
+}
+
+.authorLink {
+  color: var(--bn-primary);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.authorLink:hover {
+  color: var(--bn-primary-dark);
+  text-decoration: underline;
+}
+
+/* --- Avaliação ------------------------------------------- */
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+}
+
+.stars {
+  color: var(--bn-secondary-dark);
+  letter-spacing: 2px;
+}
+
+.ratingCount {
+  color: var(--bn-text-muted);
+  font-size: 0.8125rem;
+}
+
+/* --- Informações rápidas ---------------------------------- */
+.quickInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--bn-bg-secondary);
+  border-radius: var(--bn-border-radius-md);
+}
+
+.infoBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--bn-bg-main);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--bn-text-body);
+}
+
+.infoBadgeIcon {
+  color: var(--bn-primary);
+}
+
+/* --- Preço e compra --------------------------------------- */
+.pricing {
+  padding: 20px;
+  background-color: var(--bn-bg-card);
+  border: 1px solid var(--bn-border-light);
+  border-radius: var(--bn-border-radius-lg);
+}
+
+.price {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--bn-primary);
+  margin-bottom: 16px;
+}
+
+/* --- Sinopse --------------------------------------------- */
+.synopsis {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.synopsisTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--bn-text-primary);
+  margin: 0;
+}
+
+.synopsisDivider {
+  border: none;
+  border-top: 1px solid var(--bn-border-light);
+  margin: 0;
+}
+
+.synopsisText {
+  line-height: 1.8;
+  color: var(--bn-text-body);
+  margin: 0;
+}
+
+/* --- Estados de carregamento/erro ------------------------- */
+.statusMessage {
+  padding: 40px;
+  text-align: center;
+  color: var(--bn-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* --- Animações ------------------------------------------- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

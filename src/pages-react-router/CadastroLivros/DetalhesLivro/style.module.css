@@ -43,8 +43,9 @@
 @media (min-width: 768px) {
   .detalhes-grid {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 220px 1fr;
     gap: 40px;
+    align-items: start;
   }
 }
 
@@ -54,9 +55,12 @@
   background: var(--bn-bg-card);
 }
 
-.detalhes-img {
-  width: 100%;
-  display: block;
+.coluna-imagem {
+  align-self: start;
+}
+
+.coluna-info {
+  align-self: start;
 }
 
 /* Base: Mobile (0px+) */

@@ -8,13 +8,13 @@ type Props = {
 
 export const CheckoutSplitToolbar = ({ totalCartoesSalvos, onAdicionarLinha }: Props) => {
   return (
-    <div className={styles.toolbar} data-cy="checkout-split-toolbar">
+    <div className={styles.toolbar} data-cy="pagamento-dividido-barra-ferramentas">
       <button
         type="button"
         className="btn-secondary"
         onClick={() => onAdicionarLinha('cartao_salvo')}
         disabled={totalCartoesSalvos === 0}
-        data-cy="checkout-split-add-saved-card"
+        data-cy="pagamento-dividido-adicionar-cartao-salvo"
       >
         + Cartão salvo
       </button>
@@ -22,7 +22,7 @@ export const CheckoutSplitToolbar = ({ totalCartoesSalvos, onAdicionarLinha }: P
         type="button"
         className="btn-secondary"
         onClick={() => onAdicionarLinha('cartao_novo')}
-        data-cy="checkout-split-add-new-card"
+        data-cy="pagamento-dividido-adicionar-novo-cartao"
       >
         + Novo cartão
       </button>
@@ -30,7 +30,7 @@ export const CheckoutSplitToolbar = ({ totalCartoesSalvos, onAdicionarLinha }: P
         type="button"
         className="btn-secondary"
         onClick={() => onAdicionarLinha('pix')}
-        data-cy="checkout-split-add-pix"
+        data-cy="pagamento-dividido-adicionar-pix"
       >
         + PIX
       </button>

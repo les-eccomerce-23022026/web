@@ -1,0 +1,29 @@
+.filtroStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+}
+
+.icone {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.select {
+  background: transparent;
+  border: none;
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+  font-weight: 500;
+}
+
+.select:hover {
+  color: #111827;
+}

@@ -1,18 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, AlertTriangle } from 'lucide-react';
 import styles from './style.module.css';
 import { EmptyState } from '@/components/Comum/EmptyState/EmptyState.tsx';
 import { Skeleton } from '@/components/Comum/Skeleton';
 import { FreteCalculo, type FreteCalculoEntregaApi } from '@/components/FinalizarCompra/Entrega';
 import { useEntrega } from '@/hooks/useEntrega';
+import { useNotification } from '@/components/Comum/Notification/useNotification';
 import type { IFreteOpcao } from '@/interfaces/entrega';
+import type { IItemCarrinho } from '@/interfaces/carrinho';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
   removerItem,
   atualizarQuantidade,
   sincronizarLinhaCarrinho,
   definirFreteResumoCarrinho,
+  adicionarItensExpirados,
+  limparItensExpirados,
+  restaurarItemExpirado,
 } from '@/store/slices/carrinhoSlice';
 import {
   persistirCotacaoFreteCarrinho,
@@ -24,8 +29,9 @@ import { ROTAS } from '@/config/rotas';
 
 export const Carrinho = () => {
   const dispatch = useAppDispatch();
-  const { data, error, status } = useAppSelector((state) => state.carrinho);
+  const { data, error, status, itensExpirados } = useAppSelector((state) => state.carrinho);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+  const { showWarning } = useNotification();
 
   const usarCarrinhoLocal = USE_MOCK || !isAuthenticated;
 
@@ -71,6 +77,24 @@ export const Carrinho = () => {
     }
     prevCarrinhoAssinaturaRef.current = carrinhoAssinatura;
   }, [carrinhoAssinatura, limparFrete, dispatch]);
+
+  const prevItensExpiradosRef = useRef<IItemCarrinho[]>([]);
+
+  useEffect(() => {
+    if (itensExpirados.length > prevItensExpiradosRef.current.length) {
+      const novosItens = itensExpirados.filter(
+        (item) => !prevItensExpiradosRef.current.some((prev) => prev.uuid === item.uuid),
+      );
+      if (novosItens.length > 0) {
+        const mensagem =
+          novosItens.length === 1
+            ? `O item "${novosItens[0].titulo}" foi removido por tempo expirado.`
+            : `${novosItens.length} itens foram removidos por tempo expirado.`;
+        showWarning(mensagem, 5000);
+      }
+    }
+    prevItensExpiradosRef.current = itensExpirados;
+  }, [itensExpirados, showWarning]);
 
   const handleFreteSelecionado = useCallback(
     (opcao: IFreteOpcao) => {
@@ -175,6 +199,22 @@ export const Carrinho = () => {
     void dispatch(sincronizarLinhaCarrinho({ livroUuid: uuid, quantidade: 0 }));
   };
 
+  const handleRestaurarItemExpirado = (itemUuid: string) => {
+    if (usarCarrinhoLocal) {
+      dispatch(restaurarItemExpirado(itemUuid));
+      return;
+    }
+
+    const itemExpirado = itensExpirados.find((item) => item.uuid === itemUuid);
+    if (!itemExpirado) return;
+
+    void dispatch(sincronizarLinhaCarrinho({ livroUuid: itemUuid, quantidade: itemExpirado.quantidade }));
+  };
+
+  const handleLimparItensExpirados = () => {
+    dispatch(limparItensExpirados());
+  };
+
   return (
     <div className={styles['carrinho-page']}>
       <h1 className="page-title">Carrinho de Compras</h1>
@@ -200,7 +240,7 @@ export const Carrinho = () => {
                   <span className={styles['carrinho-product-isbn']}>ISBN: {item.isbn}</span>
                 </div>
               </td>
-              <td className={styles['carrinho-td']} data-label="Preço Unit.">R$ {item.precoUnitario.toFixed(2).replace('.', ',')}</td>
+              <td className={styles['carrinho-td']} data-label="Preço Unit.">R$ {(item.precoUnitario ?? 0).toFixed(2).replace('.', ',')}</td>
               <td className={styles['carrinho-td']} data-label="Quant.">
                 <input
                   type="number"
@@ -222,6 +262,65 @@ export const Carrinho = () => {
           ))}
         </tbody>
       </table>
+
+      {itensExpirados.length > 0 && (
+        <section
+          className={styles['carrinho-expirados-section']}
+          aria-live="polite"
+          data-cy="carrinho-itens-expirados"
+        >
+          <div className={styles['carrinho-expirados-header']}>
+            <AlertTriangle size={20} className={styles['carrinho-expirados-icon']} />
+            <span>
+              {itensExpirados.length === 1
+                ? '1 item foi removido por tempo expirado'
+                : `${itensExpirados.length} itens foram removidos por tempo expirado`}
+            </span>
+          </div>
+
+          <div className={styles['carrinho-expirados-list']}>
+            {itensExpirados.map((item) => (
+              <div key={item.uuid} className={styles['carrinho-expirado-item']} data-cy="carrinho-item-expirado">
+                <img
+                  src={item.imagem}
+                  alt={`Capa de ${item.titulo}`}
+                  className={styles['carrinho-expirado-image']}
+                />
+                <div className={styles['carrinho-expirado-info']}>
+                  <div className={styles['carrinho-expirado-title']} title={item.titulo}>
+                    {item.titulo}
+                  </div>
+                  <div className={styles['carrinho-expirado-isbn']}>ISBN: {item.isbn}</div>
+                  <div className={styles['carrinho-expirado-preco']}>
+                    R$ {item.precoUnitario.toFixed(2).replace('.', ',')}
+                  </div>
+                </div>
+                <div className={styles['carrinho-expirado-actions']}>
+                  <button
+                    type="button"
+                    onClick={() => handleRestaurarItemExpirado(item.uuid)}
+                    className={styles['carrinho-expirado-btn-restaurar']}
+                    data-cy="carrinho-btn-restaurar-item"
+                  >
+                    Adicionar novamente
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: '15px', textAlign: 'right' }}>
+            <button
+              type="button"
+              onClick={handleLimparItensExpirados}
+              className={styles['carrinho-expirado-btn-limpar']}
+              data-cy="carrinho-btn-limpar-expirados"
+            >
+              Limpar lista
+            </button>
+          </div>
+        </section>
+      )}
 
       <div className={`resumo ${styles['carrinho-resumo']}`}>
         <div className={`frete ${styles['carrinho-frete']}`}>

@@ -5,12 +5,17 @@ import {
   autorizarTrocaThunk,
   confirmarEntregaThunk,
   confirmarRecebimentoTrocaThunk,
+  confirmarRecebimentoEntregaThunk,
   despacharPedidoThunk,
   fetchAllPedidos,
   fetchPedidosCliente,
   fetchPedidosEmTroca,
+  fetchPedidosEmDevolucao,
   rejeitarTrocaThunk,
   solicitarTrocaThunk,
+  autorizarDevolucaoThunk,
+  rejeitarDevolucaoThunk,
+  confirmarRecebimentoDevolucaoThunk,
 } from './pedidoThunks';
 
 interface PedidoState {
@@ -25,17 +30,37 @@ const initialState: PedidoState = {
   error: null,
 };
 
+/**
+ * Mescla os pedidos recém-carregados com os existentes (evitando duplicatas por uuid)
+ * e ordena por data decrescente. A ordenação torna a posição determinística
+ * independentemente da ordem em que as thunks de troca/devolução são resolvidas,
+ * garantindo que pedidos recentes apareçam no topo (primeira página).
+ */
+function mesclarEOrdenarPedidos(novos: IPedido[], existentes: IPedido[]): IPedido[] {
+  const semDuplicatas = existentes.filter(
+    (p) => !novos.some((novo) => novo.uuid === p.uuid),
+  );
+  return [...novos, ...semDuplicatas].sort(
+    (a, b) => new Date(b.data).getTime() - new Date(a.data).getTime(),
+  );
+}
+
 export { darBaixaEstoqueThunk } from './pedidoThunks';
 export {
   autorizarTrocaThunk,
   confirmarEntregaThunk,
   confirmarRecebimentoTrocaThunk,
+  confirmarRecebimentoEntregaThunk,
   despacharPedidoThunk,
   fetchAllPedidos,
   fetchPedidosCliente,
   fetchPedidosEmTroca,
+  fetchPedidosEmDevolucao,
   rejeitarTrocaThunk,
   solicitarTrocaThunk,
+  autorizarDevolucaoThunk,
+  rejeitarDevolucaoThunk,
+  confirmarRecebimentoDevolucaoThunk,
 } from './pedidoThunks';
 
 function atualizarPedidoPorUuid(estado: PedidoState, pedidoAtualizado: IPedido) {
@@ -100,12 +125,30 @@ const pedidoSlice = createSlice({
       })
       .addCase(fetchPedidosEmTroca.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.pedidos = action.payload;
+        // Mescla com pedidos existentes (para não perder devoluções) e ordena por data
+        state.pedidos = mesclarEOrdenarPedidos(action.payload, state.pedidos);
         state.error = null;
       })
       .addCase(fetchPedidosEmTroca.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Erro ao carregar trocas';
+      });
+
+    // fetchPedidosEmDevolucao
+    builder
+      .addCase(fetchPedidosEmDevolucao.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(fetchPedidosEmDevolucao.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // Mescla com pedidos existentes (para não perder trocas) e ordena por data
+        state.pedidos = mesclarEOrdenarPedidos(action.payload, state.pedidos);
+        state.error = null;
+      })
+      .addCase(fetchPedidosEmDevolucao.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Erro ao carregar devoluções';
       });
 
     builder
@@ -121,11 +164,24 @@ const pedidoSlice = createSlice({
       .addCase(confirmarRecebimentoTrocaThunk.fulfilled, (state, action) => {
         atualizarPedidoPorUuid(state, action.payload.pedido);
       })
+      .addCase(autorizarDevolucaoThunk.fulfilled, (state, action) => {
+        atualizarPedidoPorUuid(state, action.payload);
+      })
+      .addCase(rejeitarDevolucaoThunk.fulfilled, (state, action) => {
+        atualizarPedidoPorUuid(state, action.payload);
+      })
+      .addCase(confirmarRecebimentoDevolucaoThunk.fulfilled, (state, action) => {
+        atualizarPedidoPorUuid(state, action.payload.pedido);
+      })
       .addCase(despacharPedidoThunk.fulfilled, (state, action) => {
         atualizarPedidoPorUuid(state, action.payload);
       })
       .addCase(confirmarEntregaThunk.fulfilled, (state, action) => {
         atualizarPedidoPorUuid(state, action.payload);
+      })
+      .addCase(confirmarRecebimentoEntregaThunk.fulfilled, (state, action) => {
+        const index = state.pedidos.findIndex((p) => p.uuid === action.payload);
+        if (index !== -1) state.pedidos[index].status = 'Entregue';
       })
       .addCase(logout, () => ({ ...initialState }));
   },

@@ -115,6 +115,71 @@
   font-weight: 600;
 }
 
+/* ===== Página Meus Pedidos (App Router) ===== */
+.meus-pedidos-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.meus-pedidos-titulo {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.meus-pedidos-loading,
+.meus-pedidos-erro,
+.meus-pedidos-vazio {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.meus-pedidos-aba-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--bn-border-light);
+}
+
+.meus-pedidos-aba {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bn-text-muted);
+  background: #fafafa;
+  border: 1px solid var(--bn-border-light);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.meus-pedidos-aba:hover {
+  color: var(--bn-primary);
+  border-color: rgba(15, 76, 58, 0.35);
+}
+
+.meus-pedidos-aba-ativa {
+  color: var(--bn-primary);
+  background: rgba(15, 76, 58, 0.08);
+  border-color: var(--bn-primary);
+}
+
+.meus-pedidos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 /* ===== Lista ===== */
 .lista {
   display: flex;
@@ -499,4 +564,32 @@
   color: #c62828;
   margin-top: 8px;
   display: block;
+}
+
+.dataPrevistaEntrega {
+  font-size: 12px;
+  color: var(--bn-text-muted);
+  margin-top: 4px;
+  display: block;
+}
+
+.btnConfirmarRecebimento {
+  background-color: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.btnConfirmarRecebimento:hover:not(:disabled) {
+  background-color: #1b5e20;
+}
+
+.btnConfirmarRecebimento:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

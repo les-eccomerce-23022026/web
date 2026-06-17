@@ -6,7 +6,9 @@ export interface IPedidoService {
   getAllPedidos(statusFiltro?: string[]): Promise<IPedido[]>;
   despacharPedido(pedidoUuid: string): Promise<IPedido>;
   confirmarEntrega(pedidoUuid: string): Promise<IPedido>;
+  confirmarRecebimentoEntrega(pedidoUuid: string): Promise<void>;
   getPedidosEmTroca(): Promise<IPedido[]>;
+  getPedidosEmDevolucao(): Promise<IPedido[]>;
   solicitarTroca(pedidoUuid: string, motivo: string, itensUuids: string[]): Promise<IPedido>;
   autorizarTroca(pedidoUuid: string): Promise<IPedido>;
   rejeitarTroca(pedidoUuid: string, motivo: string): Promise<IPedido>;
@@ -15,4 +17,14 @@ export interface IPedidoService {
     retornarEstoque: boolean,
   ): Promise<{ pedido: IPedido; cupomGerado: ICupomTroca }>;
   getCuponsCliente(clienteUuid?: string): Promise<ICupomTroca[]>;
+  solicitarDevolucao(pedidoUuid: string, motivo: string, itensUuids: string[]): Promise<IPedido>;
+  autorizarDevolucao(pedidoUuid: string): Promise<IPedido>;
+  rejeitarDevolucao(pedidoUuid: string, motivo: string): Promise<IPedido>;
+  confirmarRecebimentoDevolucao(
+    pedidoUuid: string,
+    retornarEstoque: boolean,
+  ): Promise<{ pedido: IPedido; reembolsoProcessado: boolean }>;
+  aprovarPagamento(pedidoUuid: string): Promise<void>;
+  rejeitarPagamento(pedidoUuid: string): Promise<void>;
+  mudarStatusVenda(pedidoUuid: string, novoStatus: string): Promise<void>;
 }

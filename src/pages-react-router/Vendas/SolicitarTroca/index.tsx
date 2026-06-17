@@ -3,12 +3,14 @@ import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { solicitarTrocaThunk } from '../../../store/slices/pedidoSlice';
+import { usePedidos } from '../../../hooks/usePedidos';
 import { LoadingState } from '../../../components/Comum/LoadingState/LoadingState.tsx';
 import { ErrorState } from '../../../components/Comum/ErrorState/ErrorState.tsx';
 import type { IItemPedido } from '../../../interfaces/pedido';
 import styles from './style.module.css';
 import { mergeLivrosDestaqueEAdmin } from '../../../utils/livrosLookup';
 import { ROTAS } from '@/config/rotas';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 
 export const SolicitarTroca = () => {
   const params = useParams();
@@ -16,7 +18,8 @@ export const SolicitarTroca = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { pedidos } = useAppSelector((state) => state.pedido);
+  const { user } = useAppSelector((state) => state.auth);
+  const { pedidos, loading } = usePedidos(user?.uuid);
   const livrosDestaque = useAppSelector((state) => state.livro.livrosDestaque);
   const livrosAdmin = useAppSelector((state) => state.livro.livrosAdmin);
   const livrosParaTitulo = useMemo(
@@ -31,6 +34,10 @@ export const SolicitarTroca = () => {
   const [sucesso, setSucesso] = useState(false);
 
   const pedido = pedidos.find((p) => p.uuid === uuid);
+
+  if (loading && !pedido) {
+    return <LoadingState message="Carregando dados do pedido..." />;
+  }
 
   if (!pedido) {
     return (
@@ -52,7 +59,7 @@ export const SolicitarTroca = () => {
       />
     );
   }
-  if (pedido.status !== 'Entregue') {
+  if (pedido.status !== STATUS_PEDIDO.ENTREGUE) {
     return (
       <ErrorState
         title="Troca não disponível"
@@ -84,6 +91,10 @@ export const SolicitarTroca = () => {
         ? prev.filter((id) => id !== livroUuid)
         : [...prev, livroUuid],
     );
+  };
+
+  const selecionarTodos = () => {
+    setItensSelecionados(pedido.itens.map((item) => item.livroUuid));
   };
 
   const handleSubmit = async () => {
@@ -147,12 +158,22 @@ export const SolicitarTroca = () => {
       {erro && <div className={styles.erroMessage} data-cy="troca-erro">{erro}</div>}
 
       <div className={`card ${styles.secao}`}>
-        <h3>Selecione os itens para troca</h3>
+        <div className={styles.secaoHeader}>
+          <h3>Selecione os itens para troca</h3>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={selecionarTodos}
+            data-cy="btn-selecionar-todos"
+          >
+            Selecionar todos
+          </button>
+        </div>
         <p className={styles.dica}>Marque os itens que deseja trocar.</p>
         <div className={styles.itensLista} data-cy="troca-itens-lista">
-          {pedido.itens.map((item: IItemPedido) => (
+          {pedido.itens.map((item: IItemPedido, idx: number) => (
             <label
-              key={item.livroUuid}
+              key={`${item.livroUuid}-${idx}`}
               className={`${styles.itemCheckbox} ${itensSelecionados.includes(item.livroUuid) ? styles.itemSelecionado : ''}`}
               data-cy={`troca-item-${item.livroUuid}`}
             >
@@ -164,7 +185,7 @@ export const SolicitarTroca = () => {
               <div className={styles.itemInfo}>
                 <span className={styles.itemTitulo}>{getLivroTitulo(item.livroUuid)}</span>
                 <span className={styles.itemDetalhes}>
-                  Qtd: {item.quantidade} — R$ {item.precoUnitario.toFixed(2).replace('.', ',')}
+                  Qtd: {item.quantidade} — R$ {(item.precoUnitario ?? 0).toFixed(2).replace('.', ',')}
                 </span>
               </div>
             </label>
@@ -194,7 +215,7 @@ export const SolicitarTroca = () => {
             <strong className={styles.valorCupom}>
               R$ {pedido.itens
                 .filter((item) => itensSelecionados.includes(item.livroUuid))
-                .reduce((acc, item) => acc + item.precoUnitario * item.quantidade, 0)
+                .reduce((acc, item) => acc + (item.precoUnitario ?? 0) * item.quantidade, 0)
                 .toFixed(2)
                 .replace('.', ',')}
             </strong>

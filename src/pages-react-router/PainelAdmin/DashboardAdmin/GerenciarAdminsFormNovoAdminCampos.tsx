@@ -24,6 +24,7 @@ export const GerenciarAdminsFormNovoAdminCampos = ({
         placeholder="000.000.000-00"
         value={form.cpf}
         onChange={(e) => onFieldChange('cpf', e.target.value)}
+        data-cy="admin-form-cpf"
       />
     </div>
 
@@ -59,6 +60,7 @@ export const GerenciarAdminsFormNovoAdminCampos = ({
               className={styles.passwordInput}
               value={form.senha}
               onChange={(e) => onFieldChange('senha', e.target.value)}
+              data-cy="admin-form-senha"
             />
             <button
               type="button"
@@ -79,6 +81,7 @@ export const GerenciarAdminsFormNovoAdminCampos = ({
               className={styles.passwordInput}
               value={form.confirmacaoSenha}
               onChange={(e) => onFieldChange('confirmacaoSenha', e.target.value)}
+              data-cy="admin-form-confirmar-senha"
             />
           </div>
         </div>

@@ -239,12 +239,40 @@
   margin: 0;
 }
 
+.endereco-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .btn-configurar-enderecos {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 14px;
   padding: 8px 12px;
+}
+
+.modal-novo-endereco {
+  padding: 10px 0;
+}
+
+.error-banner {
+  padding: 12px 16px;
+  background-color: var(--bn-error-bg, #ffebee);
+  border: 1px solid var(--bn-error, #c62828);
+  border-radius: 6px;
+  color: var(--bn-error, #c62828);
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.modal-novo-endereco-acoes {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bn-border-light);
 }
 
 .modal-tabs {

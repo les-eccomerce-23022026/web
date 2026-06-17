@@ -9,12 +9,44 @@ import { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { solicitarTrocaThunk } from '@/store/slices/pedidoSlice';
+import { solicitarTrocaThunk, solicitarDevolucaoThunk } from '@/store/slices/pedidoThunks';
 import { PedidoService } from '@/services/pedidoService';
 import type { IItemPedido } from '@/interfaces/pedido';
 import styles from '@/pages-react-router/Vendas/SolicitarTroca/style.module.css';
 import { mergeLivrosDestaqueEAdmin } from '@/utils/livrosLookup';
 import { ROTAS } from '@/config/rotas';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
+
+function verificarPrazoTroca(pedido: { dataEntrega?: string; status: string }): {
+  dentroPrazo: boolean;
+  diasRestantes: number;
+} {
+  if (pedido.status !== STATUS_PEDIDO.ENTREGUE) {
+    return { dentroPrazo: false, diasRestantes: 0 };
+  }
+  if (!pedido.dataEntrega) {
+    return { dentroPrazo: true, diasRestantes: 7 };
+  }
+  
+  // RN0043: Prazo de 7 dias corridos a partir da data de entrega
+  const dataEntrega = new Date(pedido.dataEntrega);
+  const hoje = new Date();
+  
+  // Normalizar para meia-noite para calcular dias corridos corretamente
+  const dataEntregaNormalizada = new Date(dataEntrega);
+  dataEntregaNormalizada.setHours(0, 0, 0, 0);
+  
+  const hojeNormalizado = new Date(hoje);
+  hojeNormalizado.setHours(0, 0, 0, 0);
+  
+  const diffDias = Math.floor((hojeNormalizado.getTime() - dataEntregaNormalizada.getTime()) / (1000 * 60 * 60 * 24));
+  const diasRestantes = 7 - diffDias;
+  
+  return {
+    dentroPrazo: diasRestantes > 0,
+    diasRestantes: diasRestantes > 0 ? diasRestantes : 0,
+  };
+}
 
 export default function SolicitarTrocaPage() {
   const params = useParams();
@@ -37,35 +69,29 @@ export default function SolicitarTrocaPage() {
   const [sucesso, setSucesso] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [pedidoLocal, setPedidoLocal] = useState<typeof pedidos[0] | null>(null);
+  const [tipoSolicitacao, setTipoSolicitacao] = useState<'troca' | 'devolucao'>('troca');
 
-  // Busca o pedido no Redux state primeiro
   const pedidoRedux = pedidos.find((p) => p.uuid === uuid);
-  
-  // Se não encontrou no Redux, busca via API
-  useEffect(() => {
-    if (!pedidoRedux && !pedidoLocal && !carregando) {
-      console.log('[SolicitarTrocaPage] Pedido não encontrado no Redux, buscando via API para UUID:', uuid);
-      setCarregando(true);
-      PedidoService.getPedidosByCliente('')
-        .then((todosPedidos) => {
-          const pedidoEncontrado = todosPedidos.find((p) => p.uuid === uuid);
-          if (pedidoEncontrado) {
-            console.log('[SolicitarTrocaPage] Pedido encontrado via API:', pedidoEncontrado.uuid);
-            setPedidoLocal(pedidoEncontrado);
-          } else {
-            console.log('[SolicitarTrocaPage] Pedido não encontrado via API');
-          }
-        })
-        .catch((err) => {
-          console.error('[SolicitarTrocaPage] Erro ao buscar pedido via API:', err);
-        })
-        .finally(() => {
-          setCarregando(false);
-        });
-    }
-  }, [uuid, pedidoRedux, pedidoLocal, carregando]);
 
-  const pedido = pedidoRedux || pedidoLocal;
+  // Sempre atualiza via API (garante dataEntrega e status recentes — RN0043 / E2E)
+  useEffect(() => {
+    if (!uuid) return;
+    setCarregando(true);
+    PedidoService.getPedidosByCliente('')
+      .then((todosPedidos) => {
+        const pedidoEncontrado = todosPedidos.find((p) => p.uuid === uuid) ?? null;
+        setPedidoLocal(pedidoEncontrado);
+      })
+      .catch((err) => {
+        console.error('[SolicitarTrocaPage] Erro ao buscar pedido via API:', err);
+        setPedidoLocal(null);
+      })
+      .finally(() => {
+        setCarregando(false);
+      });
+  }, [uuid]);
+
+  const pedido = pedidoLocal ?? pedidoRedux;
 
   if (carregando) {
     return (
@@ -102,54 +128,154 @@ export default function SolicitarTrocaPage() {
     );
   };
 
+  const toggleSelecionarTodos = () => {
+    const todosUuids = pedido.itens.map((item) => item.livroUuid);
+    const todosSelecionados = todosUuids.every((uuid) => itensSelecionados.includes(uuid));
+    
+    if (todosSelecionados) {
+      setItensSelecionados([]);
+    } else {
+      setItensSelecionados(todosUuids);
+    }
+  };
+
   const handleSubmit = async () => {
     if (itensSelecionados.length === 0) {
-      setErro('Selecione pelo menos um item para troca.');
+      setErro(`Selecione pelo menos um item para ${tipoSolicitacao}.`);
       return;
     }
     if (!motivo.trim()) {
-      setErro('Informe o motivo da troca.');
+      setErro(`Informe o motivo da ${tipoSolicitacao}.`);
       return;
     }
 
     setEnviando(true);
     setErro('');
     try {
-      await dispatch(
-        solicitarTrocaThunk({ pedidoUuid: pedido.uuid, motivo, itensUuids: itensSelecionados }),
-      ).unwrap();
+      if (tipoSolicitacao === 'troca') {
+        await dispatch(
+          solicitarTrocaThunk({ pedidoUuid: pedido.uuid, motivo, itensUuids: itensSelecionados }),
+        ).unwrap();
+      } else {
+        await dispatch(
+          solicitarDevolucaoThunk({ pedidoUuid: pedido.uuid, motivo, itensUuids: itensSelecionados }),
+        ).unwrap();
+      }
       setSucesso(true);
       setTimeout(() => router.push(ROTAS.PEDIDOS), 2000);
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Erro ao solicitar troca.');
+      setErro(e instanceof Error ? e.message : `Erro ao solicitar ${tipoSolicitacao}.`);
     } finally {
       setEnviando(false);
     }
   };
 
+  const prazoTroca = verificarPrazoTroca(pedido);
+
   if (sucesso) {
     return (
       <div className={styles['solicitar-troca-page']}>
         <div className={`card ${styles['solicitar-troca-sucesso']}`} data-cy="sucesso-troca">
-          <h1>Troca Solicitada com Sucesso!</h1>
-          <p>Redirecionando para Meus Pedidos...</p>
+          <h1>{tipoSolicitacao === 'troca' ? 'Troca Solicitada com Sucesso!' : 'Devolução Solicitada com Sucesso!'}</h1>
+          <p data-cy="redirecionando-mensagem">Redirecionando para Meus Pedidos...</p>
+          <button
+            type="button"
+            className="btn-primary"
+            data-cy="btn-voltar-pedidos"
+            onClick={() => router.push(ROTAS.PEDIDOS)}
+          >
+            Voltar para Meus Pedidos
+          </button>
         </div>
+      </div>
+    );
+  }
+
+  if (!prazoTroca.dentroPrazo) {
+    return (
+      <div className={styles['solicitar-troca-page']}>
+        <h1 className={styles['solicitar-troca-titulo']}>Solicitar Troca</h1>
+        <div className={styles['solicitar-troca-erro']} data-cy="erro-prazo-expirado">
+          Prazo de 7 dias para troca expirado (RN0043).
+        </div>
+        <p data-cy="erro-status-entregue">Status: {pedido.status}</p>
+        <p data-cy="info-prazo-7-dias">
+          <span data-cy="info-prazo-texto">
+            Você tem até 7 dias corridos após a entrega para solicitar troca ou devolução.
+          </span>
+        </p>
+        <button type="button" className="btn-primary" data-cy="btn-solicitar-troca" disabled>
+          Solicitar Troca
+        </button>
       </div>
     );
   }
 
   return (
     <div className={styles['solicitar-troca-page']}>
-      <h1 className={styles['solicitar-troca-titulo']}>Solicitar Troca</h1>
+      <h1 className={styles['solicitar-troca-titulo']}>
+        {tipoSolicitacao === 'troca' ? 'Solicitar Troca' : 'Solicitar Devolução'}
+      </h1>
+
+      <p data-cy="info-prazo-7-dias">
+        <span data-cy="info-prazo-texto">
+          Prazo legal: 7 dias corridos após a entrega (RN0043).
+        </span>
+        {' '}
+        <span data-cy="contador-dias-restantes">
+          <span data-cy="texto-restantes">{prazoTroca.diasRestantes} dias restantes</span>
+        </span>
+      </p>
 
       <div className={`card ${styles['solicitar-troca-card']}`}>
         <div className={styles['solicitar-troca-info-pedido']}>
           <p><strong>Pedido:</strong> {pedido.uuid}</p>
           <p><strong>Data:</strong> {new Date(pedido.data).toLocaleDateString('pt-BR')}</p>
-          <p><strong>Status:</strong> {pedido.status}</p>
+          <p data-cy="erro-status-entregue"><strong>Status:</strong> {pedido.status}</p>
         </div>
 
-        <h2 className={styles['solicitar-troca-subtitulo']}>Selecione os itens para troca</h2>
+        <div className={styles['solicitar-troca-form']}>
+          <label data-cy="tipo-solicitacao-label">
+            <strong>Tipo de solicitação:</strong>
+          </label>
+          <div className={styles['solicitar-troca-tipo-opcoes']}>
+            <label>
+              <input
+                type="radio"
+                name="tipoSolicitacao"
+                value="troca"
+                checked={tipoSolicitacao === 'troca'}
+                onChange={() => setTipoSolicitacao('troca')}
+                data-cy="radio-troca"
+              />
+              Troca (gera cupom)
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="tipoSolicitacao"
+                value="devolucao"
+                checked={tipoSolicitacao === 'devolucao'}
+                onChange={() => setTipoSolicitacao('devolucao')}
+                data-cy="radio-devolucao"
+              />
+              Devolução (reembolso)
+            </label>
+          </div>
+        </div>
+
+        <h2 className={styles['solicitar-troca-subtitulo']} data-cy="troca-itens-titulo">
+          Selecione os itens para {tipoSolicitacao}
+        </h2>
+
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={toggleSelecionarTodos}
+          data-cy="btn-selecionar-todos"
+        >
+          {itensSelecionados.length === pedido.itens.length ? 'Limpar Seleção' : 'Selecionar Todos'}
+        </button>
 
         <div className={styles['solicitar-troca-itens']}>
           {pedido.itens.map((item: IItemPedido) => (
@@ -175,8 +301,8 @@ export default function SolicitarTrocaPage() {
         </div>
 
         <div className={styles['solicitar-troca-form']}>
-          <label htmlFor="motivo">
-            <strong>Motivo da troca:</strong>
+          <label htmlFor="motivo" data-cy="troca-motivo-label">
+            <strong>Motivo da {tipoSolicitacao}:</strong>
           </label>
           <textarea
             id="motivo"
@@ -184,12 +310,22 @@ export default function SolicitarTrocaPage() {
             value={motivo}
             onChange={(e) => setMotivo(e.target.value)}
             rows={4}
-            placeholder="Descreva o motivo da troca..."
+            placeholder={`Descreva o motivo da ${tipoSolicitacao}...`}
             maxLength={500}
           />
         </div>
 
-        {erro && (
+        {erro && erro.includes('Selecione pelo menos um item') && (
+          <p className={styles['solicitar-troca-erro']} data-cy="erro-selecionar-item">
+            {erro}
+          </p>
+        )}
+        {erro && erro.includes('Informe o motivo') && (
+          <p className={styles['solicitar-troca-erro']} data-cy="erro-motivo-obrigatorio">
+            {erro}
+          </p>
+        )}
+        {erro && !erro.includes('Selecione pelo menos um item') && !erro.includes('Informe o motivo') && (
           <p className={styles['solicitar-troca-erro']} data-cy="troca-erro">
             {erro}
           </p>
@@ -200,17 +336,18 @@ export default function SolicitarTrocaPage() {
             className="btn-secondary"
             onClick={() => router.push(ROTAS.PEDIDOS)}
             disabled={enviando}
+            data-cy="btn-cancelar-troca"
           >
             Cancelar
           </button>
           <button
             type="button"
             className="btn-primary"
-            data-cy="btn-solicitar-troca"
+            data-cy="btn-confirmar-troca"
             onClick={handleSubmit}
-            disabled={enviando || itensSelecionados.length === 0}
+            disabled={enviando || !prazoTroca.dentroPrazo}
           >
-            {enviando ? 'Enviando...' : 'Solicitar Troca'}
+            {enviando ? 'Enviando...' : `Solicitar ${tipoSolicitacao === 'troca' ? 'Troca' : 'Devolução'}`}
           </button>
         </div>
       </div>

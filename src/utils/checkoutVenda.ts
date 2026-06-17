@@ -34,19 +34,15 @@ export async function criarVendaCheckout(params: {
   const { subtotal, total } = totaisFinalizarCompraComFrete(carrinho, frete, cuponsAplicados);
   const pagamentosEfetivos = montarLiquidaçõesEfetivasFinalizarCompra(opcoes, total, parcelasLiquidacao);
 
-  const valorTotalPedido = valorTotalPedidoSemCupons(subtotal, frete);
-
   const payloadVenda = montarPayloadVenda(
     usuario,
     carrinho,
     frete,
-    subtotal,
-    valorTotalPedido,
     freteSelecionado ?? null,
   );
 
   const resultado = await CheckoutService.finalizarCompra(payloadVenda);
-  const vendaUuid = resultado.id ?? resultado.ven_uuid;
+  const vendaUuid = resultado.uuid;
   if (!vendaUuid) {
     throw new Error('Resposta da venda sem identificador.');
   }

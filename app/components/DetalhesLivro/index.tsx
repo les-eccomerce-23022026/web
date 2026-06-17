@@ -6,8 +6,9 @@ import { CapaLivro } from '@/components/Comum/CapaLivro/CapaLivro';
 import { ControlesCompra } from '../ControlesCompra';
 import type { ILivro } from '@/interfaces/livro';
 import { LivroServiceApi } from '@/services/api/livroServiceApi';
-import '@/pages-react-router/CadastroLivros/DetalhesLivro/style.module.css';
+import { Book, Tag } from 'lucide-react';
 import { ROTAS } from '@/config/rotas';
+import styles from './DetalhesLivro.module.css';
 
 interface DetalhesLivroProps {
   livro?: ILivro;
@@ -41,55 +42,86 @@ export const DetalhesLivro = ({ livro: data, livroUuid }: DetalhesLivroProps) =>
     }
   }, [livroUuid, data]);
 
-  if (loading) return <p className="detalhes-status-message">Carregando...</p>;
-  if (error) return <p className="detalhes-status-message">{error}</p>;
-  if (!livro) return <p className="detalhes-status-message">Livro não encontrado.</p>;
+  if (loading) return <p className={styles.statusMessage}>Carregando...</p>;
+  if (error) return <p className={styles.statusMessage}>{error}</p>;
+  if (!livro) return <p className={styles.statusMessage}>Livro não encontrado.</p>;
+
+  const categoriaPrincipal = livro.categorias?.[0] || 'Geral';
 
   return (
-    <div className="detalhes-livro page-transition-enter">
-      <div className="breadcrumb detalhes-breadcrumb">
-        <span className="detalhes-breadcrumb-path">
-          <Link href={ROTAS.HOME} className="breadcrumb-link">Início</Link>
-          {livro.categorias && livro.categorias.length > 0 && livro.categorias.map((cat: string, index: number) => (
-            <span key={index}>
-              {' > '}
-              <Link
-                href={ROTAS.CATEGORIA(cat.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'))}
-                className="breadcrumb-link"
-              >
-                {cat}
-              </Link>
-            </span>
-          ))}
-          {' > '}
-          <strong className="detalhes-breadcrumb-current">{livro.titulo}</strong>
-        </span>
-      </div>
+    <div className={styles.container}>
+      {/* Breadcrumb */}
+      <nav className={styles.breadcrumb}>
+        <div className={styles.breadcrumbPath}>
+          <Link href={ROTAS.HOME} className={styles.breadcrumbLink}>Início</Link>
+          <span>›</span>
+          <Link
+            href={ROTAS.CATEGORIA(categoriaPrincipal.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-'))}
+            className={styles.breadcrumbLink}
+          >
+            {categoriaPrincipal}
+          </Link>
+          <span>›</span>
+          <strong className={styles.breadcrumbCurrent}>{livro.titulo}</strong>
+        </div>
+      </nav>
 
-      <div className="detalhes-grid">
-        <div className="coluna-imagem">
-          <div className="imagem-destaque detalhes-imagem-destaque">
-            <CapaLivro src={livro.imagem} alt={livro.titulo} titulo={livro.titulo} className="detalhes-img" />
+      {/* Grid layout - responsivo */}
+      <div className={styles.gridContainer}>
+        {/* Coluna da imagem */}
+        <div className={styles.imageColumn}>
+          <div className={styles.imageContainer}>
+            {livro.imagem ? (
+              <CapaLivro src={livro.imagem} alt={livro.titulo} titulo={livro.titulo} className={styles.bookCover} />
+            ) : (
+              <div className={styles.bookCoverPlaceholder}>
+                <Book size={48} />
+                <span>Sem capa</span>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="coluna-info">
-          <h1 className="detalhes-title">{livro.titulo}</h1>
-          <p className="detalhes-author">por <a href="#" className="detalhes-author-link">{livro.autor}</a></p>
-
-          <div className="rating detalhes-rating">
-            {'★'.repeat(livro.estrelas || 0)}{'☆'.repeat(5 - (livro.estrelas || 0))} <span className="detalhes-rating-count">({livro.numeroAvaliacoes || 0} avaliações)</span>
+        {/* Coluna de informações */}
+        <div className={styles.infoColumn}>
+          {/* Cabeçalho */}
+          <div>
+            <h1 className={styles.title}>{livro.titulo}</h1>
+            <p className={styles.author}>por <a href="#" className={styles.authorLink}>{livro.autor}</a></p>
           </div>
 
-          <div className="pricing detalhes-pricing">
-            <h2 className="detalhes-price">R$ {Number(livro.preco).toFixed(2).replace('.', ',')}</h2>
+          {/* Avaliação */}
+          <div className={styles.rating}>
+            {'★'.repeat(livro.estrelas || 0)}{'☆'.repeat(5 - (livro.estrelas || 0))} <span className={styles.ratingCount}>({livro.numeroAvaliacoes || 0} avaliações)</span>
+          </div>
+
+          {/* Badges */}
+          <div className={styles.badgesContainer}>
+            {livro.categorias && livro.categorias.length > 0 && (
+              <div className={styles.badge}>
+                <Tag size={14} className={styles.badgeIcon} />
+                <span>{livro.categorias[0]}</span>
+              </div>
+            )}
+            {livro.isbn && (
+              <div className={styles.badge}>
+                <Book size={14} className={styles.badgeIcon} />
+                <span>ISBN: {livro.isbn}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Preço e compra */}
+          <div className={styles.pricing}>
+            <h2 className={styles.price}>R$ {Number(livro.preco).toFixed(2).replace('.', ',')}</h2>
             <ControlesCompra livro={livro} variant="detalhes" />
           </div>
 
-          <div className="sinopse">
-            <h3>Sinopse</h3>
-            <hr className="detalhes-synopsis-divider" />
-            <p className="detalhes-synopsis-text">{livro.sinopse}</p>
+          {/* Sinopse */}
+          <div className={styles.synopsis}>
+            <h3 className={styles.synopsisTitle}>Sinopse</h3>
+            <hr className={styles.synopsisDivider} />
+            <p className={styles.synopsisText}>{livro.sinopse}</p>
           </div>
         </div>
       </div>

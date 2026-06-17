@@ -35,7 +35,7 @@ export const BlocoNovoCartaoCheckout = ({
               cartaoSalvoUuid: uuid,
             });
           }}
-          data-cy="checkout-split-pick-saved-on-new-line"
+          data-cy="pagamento-dividido-selecionar-salvo-nova-linha"
           aria-label="Usar outro cartão cadastrado"
         >
           <option value="">Usar outro cartão cadastrado</option>

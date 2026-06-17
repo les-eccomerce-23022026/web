@@ -5,11 +5,18 @@ import { useGerenciarPedidos } from './useGerenciarPedidos';
 import { AdminToolbar } from '@/components/Admin/AdminToolbar';
 import { AdminTable } from '@/components/Admin/AdminTable';
 import { obterColunasGerenciarPedidos } from './colunasTabela';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 import styles from './style.module.css';
 
 export const GerenciarPedidos = () => {
   const {
     pedidosFiltrados,
+    pedidosPaginados,
+    totalPaginas,
+    paginaAtual,
+    aoMudarPagina,
+    filtrosColuna,
+    handleFiltroColunaChange,
     loading,
     error,
     processando,
@@ -23,15 +30,21 @@ export const GerenciarPedidos = () => {
     confirmarEntrega,
     isAprovado,
     isEmTransito,
+    isPagamentoPendente,
+    aprovarPagamento,
+    rejeitarPagamento,
   } = useGerenciarPedidos();
 
   const colunas = obterColunasGerenciarPedidos({
     getLivroTitulo,
     despachar,
     confirmarEntrega,
+    aprovarPagamento,
+    rejeitarPagamento,
     processando,
     isAprovado,
     isEmTransito,
+    isPagamentoPendente,
     styles,
   });
 
@@ -50,7 +63,7 @@ export const GerenciarPedidos = () => {
 
       {/* Feedback */}
       {feedbackMsg && (
-        <div className={styles.feedbackBanner}>
+        <div className={styles.feedbackBanner} data-cy="feedback-banner">
           <CheckCircle size={16} />
           <span>{feedbackMsg}</span>
           <button className={styles.fecharFeedback} onClick={() => setFeedbackMsg('')}>×</button>
@@ -68,9 +81,11 @@ export const GerenciarPedidos = () => {
             value: filtroStatus,
             opcoes: [
               { label: 'Todos os status', value: 'todos' },
-              { label: 'Em Processamento', value: 'Em Processamento' },
-              { label: 'Em Trânsito', value: 'Em Trânsito' },
-              { label: 'Entregue', value: 'Entregue' },
+              { label: 'Pagamento Pendente', value: STATUS_PEDIDO.PAGAMENTO_PENDENTE },
+              { label: 'Em Processamento', value: STATUS_PEDIDO.EM_PROCESSAMENTO },
+              { label: 'Em Trânsito', value: STATUS_PEDIDO.EM_TRANSITO },
+              { label: 'Entregue', value: STATUS_PEDIDO.ENTREGUE },
+              { label: 'Rejeitado', value: STATUS_PEDIDO.REJEITADO },
             ],
           },
         ]}
@@ -82,15 +97,22 @@ export const GerenciarPedidos = () => {
       {/* Tabela */}
       <AdminTable
         colunas={colunas}
-        dados={pedidosFiltrados}
+        dados={pedidosPaginados}
         rowKey="uuid"
         carregando={loading}
-        erro={error}
+        erro={error || undefined}
         estadoVazio={{
           titulo: 'Nenhum pedido encontrado',
           mensagem: 'Não encontramos pedidos com esses filtros.',
           icone: <Package size={48} />,
         }}
+        paginacao={{
+          paginaAtual,
+          totalPaginas,
+          aoMudarPagina,
+        }}
+        filtrosColuna={Object.entries(filtrosColuna).map(([key, valor]) => ({ key, valor }))}
+        onFiltroColunaChange={handleFiltroColunaChange}
         className={styles.tabelaWrapper}
       />
     </div>

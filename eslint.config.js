@@ -71,7 +71,6 @@ export default tseslint.config(
       ],
       'react-hooks/rules-of-hooks': 'off',
       'react-hooks/error-boundaries': 'off',
-      'react/jsx-no-style-attr': 'error',
     },
   },
   {

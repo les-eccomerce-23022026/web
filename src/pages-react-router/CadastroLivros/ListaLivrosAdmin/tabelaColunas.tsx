@@ -42,8 +42,9 @@ export function obterColunasTabelaLivros(
       label: 'Ações',
       render: (_: string, livro: ILivro) => (
         <div className={styles.flexActions}>
-          <button 
-            className={`${styles.btnActionAdmin} ${styles.edit}`} 
+          <button
+            data-cy="btn-editar-livro"
+            className={`${styles.btnActionAdmin} ${styles.edit}`}
             title="Editar informações"
             onClick={() => onEditar(livro.uuid)}
           >

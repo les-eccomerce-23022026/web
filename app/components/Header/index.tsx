@@ -8,7 +8,6 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { logoutSession } from '@/store/slices/authSlice';
 import { setTermoBusca } from '@/store/slices/livroSlice';
 import styles from '@/components/Comum/Header/style.module.css';
-import { STORE_INSTANCE_ID } from '@/store/index';
 import { ROTAS } from '@/config/rotas';
 
 export const Header = () => {
@@ -30,34 +29,6 @@ export const Header = () => {
   const { isAuthenticated, user, sessionLoading } = useAppSelector((state) => state.auth);
   const categoriasMenu = useAppSelector((state) => state.livro.categoriasMenu);
   const exibirAutenticado = mounted && isAuthenticated;
-
-  // #region agent log
-  if (typeof fetch !== 'undefined') {
-    fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8ec46' },
-      body: JSON.stringify({
-        sessionId: 'a8ec46',
-        runId: 'post-fix',
-        hypothesisId: 'A,C',
-        location: 'Header/index.tsx:render',
-        message: 'Header render auth snapshot',
-        data: {
-          storeInstanceId: STORE_INSTANCE_ID,
-          isServer: typeof window === 'undefined',
-          mounted,
-          isAuthenticated,
-          exibirAutenticado,
-          userNome: user?.nome ?? null,
-          sessionLoading,
-          pathname,
-          uiBranch: exibirAutenticado ? 'authenticated' : 'guest',
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-  }
-  // #endregion
 
   // Debug hydration mismatch
   useEffect(() => {
@@ -140,8 +111,8 @@ export const Header = () => {
 
             <Link href={ROTAS.CARRINHO} className={`${styles['action-icon']} ${styles['cart-container']}`} data-cy="header-cart-link" title="Carrinho">
               <ShoppingCart size={22} strokeWidth={2} />
-              {quantidadeItens > 0 && (
-                <span className={styles['cart-badge']}>{quantidadeItens}</span>
+              {mounted && quantidadeItens > 0 && (
+                <span className={styles['cart-badge']} data-cy="header-cart-badge">{quantidadeItens}</span>
               )}
             </Link>
 

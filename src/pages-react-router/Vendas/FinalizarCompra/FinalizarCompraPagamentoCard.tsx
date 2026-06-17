@@ -12,6 +12,7 @@ import type { ICartaoSalvoPagamento } from '../../../interfaces/pagamento';
 type Props = {
   data: ICheckoutInfo;
   total: number;
+  subtotal: number;
   cuponsAplicados: ICupomAplicado[];
   linhasPagamento: LinhaPagamentoCheckout[];
   novosCartoesPorLinha: Record<string, ICartaoCreditoInput>;
@@ -36,6 +37,7 @@ const cartoesParaLista = (cartoes: ICheckoutInfo['cartoesSalvos']): ICartaoSalvo
 export const FinalizarCompraPagamentoCard = ({
   data,
   total,
+  subtotal,
   cuponsAplicados,
   linhasPagamento,
   novosCartoesPorLinha,
@@ -51,7 +53,7 @@ export const FinalizarCompraPagamentoCard = ({
 
   return (
     <>
-      <div className={`card ${styles['checkout-card-spaced']}`}>
+      <div className={`card ${styles['checkout-card-spaced']}`} data-cy="checkout-payment-section">
         <h3 className={styles['checkout-section-title']} data-cy="checkout-payment-section-title">
           Como você quer pagar?
         </h3>
@@ -60,11 +62,13 @@ export const FinalizarCompraPagamentoCard = ({
         </p>
 
         {temCartoesSalvos ? (
-          <CartoesSalvosList
-            cartoes={cartoesParaLista(data.cartoesSalvos)}
-            selecionado={primeiroSalvo}
-            onSelect={onSelecionarCartaoSalvoNaLista}
-          />
+          <div data-cy="checkout-saved-cards">
+            <CartoesSalvosList
+              cartoes={cartoesParaLista(data.cartoesSalvos)}
+              selecionado={primeiroSalvo}
+              onSelect={onSelecionarCartaoSalvoNaLista}
+            />
+          </div>
         ) : null}
 
         <CheckoutSplitPagamento
@@ -78,10 +82,11 @@ export const FinalizarCompraPagamentoCard = ({
         />
       </div>
 
-      <div className={`card ${styles['checkout-cupom-card']}`}>
+      <div className={`card ${styles['checkout-cupom-card']}`} data-cy="checkout-coupon-section">
         <CupomInput
           cuponsDisponiveis={data.cuponsDisponiveis}
           cuponsAplicados={cuponsAplicados}
+          subtotalAtual={subtotal}
           onAplicar={onAplicarCupom}
           onRemover={onRemoverCupom}
         />

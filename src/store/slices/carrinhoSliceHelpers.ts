@@ -42,3 +42,21 @@ export function limparItensCarrinho(carrinho: ICarrinho) {
   carrinho.resumo.frete = 0;
   carrinho.resumo.total = 0;
 }
+
+export function adicionarItensExpirados(
+  itensExpirados: IItemCarrinho[],
+  itensNovos: IItemCarrinho[],
+): IItemCarrinho[] {
+  const itensAtualizados = [...itensExpirados];
+  itensNovos.forEach((itemNovo) => {
+    const jaExiste = itensAtualizados.some((item) => item.uuid === itemNovo.uuid);
+    if (!jaExiste) {
+      itensAtualizados.push(itemNovo);
+    }
+  });
+  return itensAtualizados;
+}
+
+export function removerItemExpirado(itensExpirados: IItemCarrinho[], itemUuid: string): IItemCarrinho[] {
+  return itensExpirados.filter((item) => item.uuid !== itemUuid);
+}

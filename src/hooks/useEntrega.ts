@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { EntregaServiceApi } from '../services/api/entregaServiceApi';
-import type { 
+import { PedidoService } from '../services/pedidoService';
+import type {
   IEntregaInputDto,
   IEntregaOutputDto,
   IFreteCalculoOutput,
@@ -33,6 +34,7 @@ export function useEntrega() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const [entregaCadastrada, setEntregaCadastrada] = useState<IEntregaOutputDto | null>(null);
+  const [confirmandoRecebimento, setConfirmandoRecebimento] = useState<boolean>(false);
 
   const service = useMemo(() => new EntregaServiceApi(), []);
 
@@ -106,6 +108,24 @@ export function useEntrega() {
     [],
   );
 
+  /**
+   * Confirma recebimento do pedido pelo cliente.
+   * Usa endpoint PATCH /api/vendas/:uuid/confirmar-entrega
+   */
+  const confirmarRecebimento = useCallback(async (pedidoUuid: string): Promise<boolean> => {
+    setConfirmandoRecebimento(true);
+    setError(null);
+    try {
+      await PedidoService.confirmarRecebimentoEntrega(pedidoUuid);
+      return true;
+    } catch (err) {
+      setError(normalizarErroEntrega(err, 'Erro ao confirmar recebimento'));
+      return false;
+    } finally {
+      setConfirmandoRecebimento(false);
+    }
+  }, []);
+
   return {
     // Estado
     freteCalculado,
@@ -114,6 +134,7 @@ export function useEntrega() {
     loading,
     error,
     entregaCadastrada,
+    confirmandoRecebimento,
     
     // Ações
     calcularFrete,
@@ -121,6 +142,7 @@ export function useEntrega() {
     cadastrarEntrega,
     limparFrete,
     hidratarFrete,
+    confirmarRecebimento,
 
     // Utilitários
     validarCep,

@@ -1,0 +1,229 @@
+/* DetalhesLivro.module.css - CSS Module para Next.js */
+
+/* --- Container principal --- */
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* --- Breadcrumb --- */
+.breadcrumb {
+  margin-bottom: 16px;
+  font-size: 0.8125rem;
+  color: var(--bn-text-body);
+}
+
+@media (min-width: 768px) {
+  .breadcrumb {
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+  }
+}
+
+.breadcrumbPath {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.breadcrumbLink {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumbLink:hover {
+  color: var(--bn-primary);
+  text-decoration: underline;
+}
+
+.breadcrumbCurrent {
+  color: var(--bn-primary);
+  font-weight: 500;
+}
+
+/* --- Grid layout responsivo --- */
+/* Mobile: layout empilhado */
+.gridContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Desktop: grid 2 colunas */
+@media (min-width: 768px) {
+  .gridContainer {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+}
+
+/* --- Coluna da imagem --- */
+.imageColumn {
+  align-self: start;
+}
+
+.imageContainer {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  background: var(--bn-bg-card);
+}
+
+.bookCover {
+  width: 100%;
+  display: block;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+}
+
+.bookCoverPlaceholder {
+  width: 100%;
+  aspect-ratio: 2/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bn-bg-secondary) 0%, var(--bn-bg-main) 100%);
+  color: var(--bn-text-muted);
+  border-radius: var(--bn-border-radius-sm);
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* --- Coluna de informações --- */
+.infoColumn {
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* --- Título --- */
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--bn-text-primary);
+  margin-bottom: 8px;
+}
+
+@media (min-width: 768px) {
+  .title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+}
+
+/* --- Autor --- */
+.author {
+  font-size: 0.875rem;
+  color: var(--bn-text-body);
+  margin-bottom: 12px;
+}
+
+@media (min-width: 768px) {
+  .author {
+    font-size: 1rem;
+    margin-bottom: 15px;
+  }
+}
+
+.authorLink {
+  text-decoration: underline;
+  color: inherit;
+}
+
+.authorLink:hover {
+  color: var(--bn-primary);
+}
+
+/* --- Avaliação --- */
+.rating {
+  color: var(--bn-secondary-dark);
+  font-size: 1.125rem;
+  margin-bottom: 20px;
+}
+
+.ratingCount {
+  color: var(--bn-text-body);
+  font-size: 0.875rem;
+  margin-left: 10px;
+}
+
+/* --- Badges --- */
+.badgesContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--bn-bg-secondary);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--bn-text-body);
+}
+
+.badgeIcon {
+  color: var(--bn-primary);
+}
+
+/* --- Preço e compra --- */
+.pricing {
+  padding: 20px;
+  background-color: var(--bn-bg-secondary);
+  border-radius: var(--bn-border-radius-md);
+}
+
+.price {
+  font-size: 1.5rem;
+  color: var(--bn-primary);
+  margin-bottom: 12px;
+}
+
+@media (min-width: 768px) {
+  .price {
+    font-size: 1.75rem;
+    margin-bottom: 15px;
+  }
+}
+
+/* --- Sinopse --- */
+.synopsis {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.synopsisTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--bn-text-primary);
+  margin: 0;
+}
+
+.synopsisDivider {
+  border: none;
+  border-top: 1px solid var(--bn-border-light);
+  margin: 0;
+}
+
+.synopsisText {
+  line-height: 1.8;
+  color: var(--bn-text-body);
+  margin: 0;
+}
+
+/* --- Status messages --- */
+.statusMessage {
+  padding: 20px;
+  text-align: center;
+  color: var(--bn-text-muted);
+}

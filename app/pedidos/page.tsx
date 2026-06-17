@@ -7,6 +7,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { usePedidos } from '@/hooks/usePedidos';
 import { fetchPerfilCompleto } from '@/store/slices/clienteSlice';
@@ -18,21 +19,27 @@ import { PedidoCard } from '@/pages-react-router/Vendas/MeusPedidos/PedidoCard';
 import { ModalRastrearPedido } from '@/pages-react-router/Vendas/MeusPedidos/ModalRastrearPedido';
 import { ModalDetalhesPedido } from '@/pages-react-router/Vendas/MeusPedidos/ModalDetalhesPedido';
 import { ROTAS } from '@/config/rotas';
+import { STATUS_PEDIDO } from '@/config/constantesNegocio';
 
 type AbaGrupo = 'todos' | 'aberto' | 'finalizados';
 
 const STATUS_EM_ABERTO: StatusPedido[] = [
-  'Pendentes',
-  'Aguardando Pagamento',
-  'Em Processamento',
-  'Preparando',
-  'Em Trânsito',
-  'Em Troca',
-  'Troca Autorizada',
-  'Devoluções',
+  STATUS_PEDIDO.PENDENTE,
+  STATUS_PEDIDO.PENDENTES,
+  STATUS_PEDIDO.AGUARDANDO_PAGAMENTO,
+  STATUS_PEDIDO.EM_PROCESSAMENTO,
+  STATUS_PEDIDO.PREPARANDO,
+  STATUS_PEDIDO.EM_TRANSITO,
+  STATUS_PEDIDO.EM_TROCA,
+  STATUS_PEDIDO.TROCA_AUTORIZADA,
+  STATUS_PEDIDO.DEVOLUCOES,
 ];
 
-const STATUS_FINALIZADOS: StatusPedido[] = ['Entregue', 'Trocado', 'Cancelado'];
+const STATUS_FINALIZADOS: StatusPedido[] = [
+  STATUS_PEDIDO.ENTREGUE,
+  STATUS_PEDIDO.TROCADO,
+  STATUS_PEDIDO.CANCELADO,
+];
 
 function passaAbaGrupo(p: IPedido, aba: AbaGrupo): boolean {
   if (aba === 'todos') return true;
@@ -41,6 +48,7 @@ function passaAbaGrupo(p: IPedido, aba: AbaGrupo): boolean {
 }
 
 export default function MeusPedidosPage() {
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const enderecos = useAppSelector((state) => state.cliente.enderecos);
@@ -58,7 +66,8 @@ export default function MeusPedidosPage() {
     return m;
   }, [livrosMerged]);
 
-  const { pedidos, loading, error } = usePedidos(user?.uuid);
+  const { pedidos, loading, error, confirmarRecebimentoEntrega } = usePedidos(user?.uuid);
+  const [confirmandoUuid, setConfirmandoUuid] = useState<string | null>(null);
   const [abaGrupo, setAbaGrupo] = useState<AbaGrupo>('todos');
   const [pedidoSelecionado, setPedidoSelecionado] = useState<IPedido | null>(null);
   const [modalDetalhesAberto, setModalDetalhesAberto] = useState(false);
@@ -85,8 +94,27 @@ export default function MeusPedidosPage() {
     setModalRastreamentoAberto(true);
   };
 
+  const handleConfirmarRecebimento = async (pedido: IPedido) => {
+    setConfirmandoUuid(pedido.uuid);
+    await confirmarRecebimentoEntrega(pedido.uuid);
+    setConfirmandoUuid(null);
+  };
+
+  const handleSolicitarTroca = (pedido: IPedido) => {
+    const pedidoUuid = pedido.uuid;
+    if (!pedidoUuid) {
+      console.error('[handleSolicitarTroca] Pedido sem UUID:', pedido);
+      return;
+    }
+    router.push(`/pedidos/${pedidoUuid}/troca`);
+  };
+
   if (loading) {
-    return <div className={styles['meus-pedidos-loading']}>Carregando seus pedidos...</div>;
+    return (
+      <div className={styles['meus-pedidos-loading']} data-cy="loading">
+        Carregando seus pedidos...
+      </div>
+    );
   }
 
   if (error) {
@@ -113,24 +141,27 @@ export default function MeusPedidosPage() {
         <button
           className={`${styles['meus-pedidos-aba']} ${abaGrupo === 'todos' ? styles['meus-pedidos-aba-ativa'] : ''}`}
           onClick={() => setAbaGrupo('todos')}
+          data-cy="pedidos-filtro-todos"
         >
           Todos ({pedidos.length})
         </button>
         <button
           className={`${styles['meus-pedidos-aba']} ${abaGrupo === 'aberto' ? styles['meus-pedidos-aba-ativa'] : ''}`}
           onClick={() => setAbaGrupo('aberto')}
+          data-cy="pedidos-filtro-em-aberto"
         >
           Em Aberto ({pedidos.filter((p) => STATUS_EM_ABERTO.includes(p.status)).length})
         </button>
         <button
           className={`${styles['meus-pedidos-aba']} ${abaGrupo === 'finalizados' ? styles['meus-pedidos-aba-ativa'] : ''}`}
           onClick={() => setAbaGrupo('finalizados')}
+          data-cy="pedidos-filtro-finalizados"
         >
           Finalizados ({pedidos.filter((p) => STATUS_FINALIZADOS.includes(p.status)).length})
         </button>
       </div>
 
-      <div className={styles['meus-pedidos-lista']}>
+      <div className={styles['meus-pedidos-lista']} data-cy="pedidos-lista">
         {pedidosFiltrados.map((pedido) => (
           <PedidoCard
             key={pedido.uuid}
@@ -138,6 +169,9 @@ export default function MeusPedidosPage() {
             livrosMap={livrosMap}
             onRastrear={handleAbrirRastreamento}
             onDetalhes={handleAbrirDetalhes}
+            onSolicitarTroca={handleSolicitarTroca}
+            onConfirmarRecebimento={handleConfirmarRecebimento}
+            confirmandoRecebimento={confirmandoUuid === pedido.uuid}
           />
         ))}
       </div>

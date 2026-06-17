@@ -27,10 +27,10 @@ export const GerenciarAdminsModalSalvar = ({
     title={editingAdmin ? 'Confirmar Atualização' : 'Confirmar Criação'}
     footer={
       <>
-        <button className="btn-secondary" onClick={onClose}>
+        <button className="btn-secondary" onClick={onClose} data-cy="admin-modal-salvar-revisar">
           Revisar
         </button>
-        <button className="btn-primary" onClick={onSave}>
+        <button className="btn-primary" onClick={onSave} data-cy="admin-modal-salvar-confirmar">
           {editingAdmin ? 'Confirmar Atualização' : 'Confirmar Criação'}
         </button>
       </>

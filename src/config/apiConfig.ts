@@ -20,15 +20,23 @@ export const API_ENDPOINTS = {
   obterLivrosCatalogo: `${BASE_URL}/livros`,
   categoriasCatalogo: `${BASE_URL}/categorias/catalogo`,
   obterListaLivrosAdmin: `${BASE_URL}/admin/livros`,
-  /** Legado / mock: o fluxo real de checkout usa `GET /pagamento/info` via `PagamentoService.obterPagamentoInfo`. */
-  obterCheckoutInfo: `${BASE_URL}/checkout`,
   obterDashboardAdminInfo: `${BASE_URL}/admin/dashboard`,
   obterDetalhesLivro: (uuid: string) => `${BASE_URL}/livros/${uuid}`,
+  obterLivroAdmin: (uuid: string) => `${BASE_URL}/admin/livros/${uuid}`,
+  atualizarLivro: (uuid: string) => `${BASE_URL}/admin/livros/${uuid}`,
+  inativacaoAutomaticaLivros: `${BASE_URL}/admin/livros/inativacao-automatica`,
+  aprovacoesPrecoPendentes: `${BASE_URL}/admin/livros/aprovacoes-preco`,
+  aprovarPrecoLivro: (uuid: string) => `${BASE_URL}/admin/livros/aprovacoes-preco/${uuid}/aprovar`,
+  rejeitarPrecoLivro: (uuid: string) => `${BASE_URL}/admin/livros/aprovacoes-preco/${uuid}/rejeitar`,
 
   // Pedidos (histórico do cliente — backend: GET /minhas-vendas)
   obterPedidosCliente: `${BASE_URL}/minhas-vendas`,
+  confirmarRecebimentoEntrega: (pedidoUuid: string) =>
+    `${BASE_URL}/vendas/${pedidoUuid}/confirmar-entrega`,
   solicitarTroca: (pedidoUuid: string) =>
     `${BASE_URL}/vendas/${pedidoUuid}/troca`,
+  solicitarDevolucao: (pedidoUuid: string) =>
+    `${BASE_URL}/vendas/${pedidoUuid}/devolucao`,
 
   // Trocas (Admin)
   obterPedidosEmTroca: `${BASE_URL}/admin/pedidos/trocas`,
@@ -39,8 +47,17 @@ export const API_ENDPOINTS = {
   confirmarRecebimentoTroca: (pedidoUuid: string) =>
     `${BASE_URL}/admin/pedidos/${pedidoUuid}/confirmar-recebimento`,
 
+  // Devoluções (Admin)
+  obterPedidosEmDevolucao: `${BASE_URL}/admin/pedidos/devolucoes`,
+  autorizarDevolucao: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/autorizar-devolucao`,
+  rejeitarDevolucao: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/rejeitar-devolucao`,
+  confirmarRecebimentoDevolucao: (pedidoUuid: string) =>
+    `${BASE_URL}/admin/pedidos/${pedidoUuid}/confirmar-recebimento-devolucao`,
+
   // Cupons de troca
-  obterCuponsCliente: `${BASE_URL}/cupons/troca`,
+  obterCuponsCliente: `${BASE_URL}/clientes/perfil/cupons`,
 
   // Vendas (pedido — backend retorna JSON direto, sem envelope { sucesso, dados })
   criarVenda: `${BASE_URL}/vendas`,
@@ -101,6 +118,7 @@ export const API_ENDPOINTS = {
   // Clientes (Admin)
   listarClientes: `${BASE_URL}/clientes`,
   obterClienteAdmin: (uuid: string) => `${BASE_URL}/clientes/${uuid}`,
+  inativarClienteAdmin: (uuid: string) => `${BASE_URL}/admin/clientes/${uuid}/inativar`,
 
   // Pedidos (Admin)
   obterTodosPedidosAdmin: `${BASE_URL}/admin/pedidos`,
@@ -109,14 +127,27 @@ export const API_ENDPOINTS = {
   confirmarEntrega: (uuid: string) =>
     `${BASE_URL}/admin/pedidos/${uuid}/entrega`,
 
-  // Lojas (Admin)
+  // Lojas (Admin Sistema)
   minhasLojas: `${BASE_URL}/admin/lojas/minhas-lojas`,
+  listarLojas: `${BASE_URL}/admin/lojas`,
+  obterLoja: (uuid: string) => `${BASE_URL}/admin/lojas/${uuid}`,
+  criarLoja: `${BASE_URL}/admin/lojas`,
+  atualizarLoja: (uuid: string) => `${BASE_URL}/admin/lojas/${uuid}`,
+  inativarLoja: (uuid: string) => `${BASE_URL}/admin/lojas/${uuid}/inativar`,
+  ativarLoja: (uuid: string) => `${BASE_URL}/admin/lojas/${uuid}/ativar`,
+  verificarSlugLoja: `${BASE_URL}/admin/lojas/verificar-slug`,
 
   // Estoque (Admin)
   listarEstoque: `${BASE_URL}/admin/estoque`,
   listarEstoqueCritico: (limite: number) => `${BASE_URL}/admin/estoque/critico?limite=${limite}`,
   obterKpisEstoque: (limiteCritico: number) => `${BASE_URL}/admin/estoque/kpis?limite=${limiteCritico}`,
   registrarEntradaEstoque: `${BASE_URL}/admin/estoque/entrada`,
+  atualizarEstoque: `${BASE_URL}/admin/estoque/atualizar`,
+
+  // Assistente de Recomendação (IA)
+  chatRecomendacao: `${BASE_URL}/ia/chat`,
+  obterRecomendacoes: `${BASE_URL}/ia/recomendar`,
+  saudeIA: `${BASE_URL}/ia/saude`,
 };
 
 export const MOCK_TOKEN_PREFIX = "mock-token";

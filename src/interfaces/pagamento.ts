@@ -75,6 +75,7 @@ export interface ICupomDisponivel {
   tipo: 'promocional' | 'troca';
   valor: number;
   descricao: string;
+  valorMinimo?: number;
   valido?: boolean;
 }
 

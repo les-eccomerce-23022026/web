@@ -63,7 +63,7 @@ export const LinhaPagamentoConfiguracao = ({
               const v = parseFloat(e.target.value.replace(',', '.'));
               onAtualizarLinha(linha.id, { valor: Number.isFinite(v) ? v : 0 });
             }}
-            data-cy="checkout-split-line-value"
+            data-cy="pagamento-dividido-linha-valor"
             aria-invalid={abaixoMin}
           />
           {abaixoMin ? (

@@ -19,7 +19,7 @@ type Props = {
 
 export const FinalizarCompraResumoPedido = (props: Props) => (
   <div className={styles['coluna-lateral']}>
-    <div className={`card ${styles['checkout-summary-card']}`}>
+    <div className={`card ${styles['checkout-summary-card']}`} data-cy="checkout-resumo-pedido">
       <h3 className={styles['checkout-summary-title']}>Resumo do Pedido</h3>
       <FinalizarCompraResumoPedidoLista
         quantidadeItens={props.quantidadeItens}

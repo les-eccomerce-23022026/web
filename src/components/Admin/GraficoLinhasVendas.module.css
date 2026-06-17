@@ -1,0 +1,95 @@
+/* ============================================================
+   GraficoLinhasVendas.module.css
+   Estilos do componente de gráfico de linhas de vendas
+   ============================================================ */
+
+.estadoVazioGrafico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 500px;
+  background-color: #f9fafb;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  color: #6b7280;
+}
+
+.estadoVazioConteudo {
+  text-align: center;
+  padding: 2rem;
+}
+
+.estadoVazioIcone {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  color: #9ca3af;
+}
+
+.estadoVazioConteudo h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.estadoVazioConteudo p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  max-width: 400px;
+}
+
+.wrapperGrafico {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.containerGrafico {
+  min-height: 500px;
+  height: 100%;
+  position: relative;
+}
+
+.badgeFiltroAtivo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #1d4ed8;
+}
+
+.badgeTexto {
+  line-height: 1;
+}
+
+.badgeLimpar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #1d4ed8;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.badgeLimpar:hover {
+  opacity: 1;
+}
+
+.dicaClique {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  text-align: center;
+}

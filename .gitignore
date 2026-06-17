@@ -27,6 +27,7 @@ next-env.d.ts
 *.sln
 *.sw?
 prints
+.claude/
 
 .env
 .env.*
@@ -36,6 +37,7 @@ cypress.env.json
 AGENTS.md
 CHANGES.md
 .agents
+.devin
 .windsurf
 .cursor
 .gemini

@@ -20,7 +20,7 @@ export const GerenciarAdminsTabela = ({ admins, onEdit, onToggle }: Props) => (
           <th>Ações</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody data-cy="admins-tabela-body">
         {admins.map((adm) => (
           <GerenciarAdminRow key={adm.uuid} adm={adm} onEdit={onEdit} onToggle={onToggle} />
         ))}

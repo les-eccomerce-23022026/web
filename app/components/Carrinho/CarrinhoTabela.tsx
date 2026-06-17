@@ -13,7 +13,7 @@ interface CarrinhoTabelaProps {
 }
 
 export const CarrinhoTabela = ({ itens, onUpdateQuantidade, onRemover }: CarrinhoTabelaProps) => (
-  <table className="carrinho-table">
+  <table className="carrinho-table" data-cy="carrinho-table">
     <thead>
       <tr className="carrinho-table-header">
         <th className="carrinho-th">Produto</th>
@@ -25,7 +25,7 @@ export const CarrinhoTabela = ({ itens, onUpdateQuantidade, onRemover }: Carrinh
     </thead>
     <tbody>
       {itens.map((item) => (
-        <tr key={item.uuid} data-cy="carrinho-linha-item">
+        <tr key={item.uuid} data-cy="carrinho-item-row">
           <td className="carrinho-td-product">
             <img src={item.imagem} alt="Livro" className="carrinho-item-image" />
             <div>
@@ -40,6 +40,7 @@ export const CarrinhoTabela = ({ itens, onUpdateQuantidade, onRemover }: Carrinh
               value={item.quantidade}
               onChange={(e) => onUpdateQuantidade(item.uuid, e)}
               className="carrinho-input-qty"
+              data-cy="carrinho-item-quantidade"
             />
           </td>
           <td className="carrinho-td" data-label="Subtotal">R$ {item.subtotal.toFixed(2).replace('.', ',')}</td>
@@ -47,6 +48,7 @@ export const CarrinhoTabela = ({ itens, onUpdateQuantidade, onRemover }: Carrinh
             <button
               onClick={() => onRemover(item.uuid)}
               className="btn-secondary carrinho-btn-remove"
+              data-cy="carrinho-item-remover"
             >
               Remover
             </button>

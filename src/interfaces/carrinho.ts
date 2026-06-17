@@ -6,6 +6,11 @@ export interface IItemCarrinho {
   precoUnitario: number;
   quantidade: number;
   subtotal: number;
+  motivoExpiracao?: string;
+}
+
+export interface IItemCarrinhoExpirado extends IItemCarrinho {
+  motivoExpiracao: string;
 }
 
 export interface IFretePadrao {
@@ -21,6 +26,7 @@ export interface IResumoCarrinho {
 
 export interface ICarrinho {
   itens: IItemCarrinho[];
+  itensExpirados?: IItemCarrinho[];
   fretePadrao: IFretePadrao;
   resumo: IResumoCarrinho;
 }

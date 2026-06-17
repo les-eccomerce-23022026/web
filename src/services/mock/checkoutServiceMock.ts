@@ -25,7 +25,7 @@ export class CheckoutServiceMock implements ICheckoutService {
         () =>
           resolve({
             id: 'mock-uuid-venda',
-            status: 'EM PROCESSAMENTO',
+            status: 'EM_PROCESSAMENTO',
             frete: dados.valorFrete,
           }),
         500,

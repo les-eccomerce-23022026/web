@@ -1,0 +1,24 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--bn-surface-secondary);
+  border: 1px dashed var(--bn-border);
+  border-radius: 8px;
+  margin: 8px 0;
+  text-align: center;
+}
+
+.icon {
+  color: var(--bn-text-tertiary);
+  margin-bottom: 8px;
+}
+
+.texto {
+  font-size: 13px;
+  color: var(--bn-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}

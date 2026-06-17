@@ -7,6 +7,7 @@ export interface IColuna<T> {
   label: string;
   render?: (valor: any, linha: T) => ReactNode;
   sortable?: boolean;
+  filterable?: boolean;
   alinhamento?: AlinhamentoColuna;
 }
 
@@ -22,6 +23,11 @@ export interface IPaginacao {
   aoMudarPagina: (pagina: number) => void;
 }
 
+export interface IFiltroColuna {
+  key: string;
+  valor: string;
+}
+
 export interface IAdminTableProps<T> {
   colunas: IColuna<T>[];
   dados: T[];
@@ -32,5 +38,7 @@ export interface IAdminTableProps<T> {
   aoTentarNovamente?: () => void;
   estadoVazio?: IEstadoVazio;
   paginacao?: IPaginacao;
+  filtrosColuna?: IFiltroColuna[];
+  onFiltroColunaChange?: (key: string, valor: string) => void;
   className?: string;
 }

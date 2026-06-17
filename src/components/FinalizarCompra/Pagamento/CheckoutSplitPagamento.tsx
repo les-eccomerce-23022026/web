@@ -92,7 +92,7 @@ export const CheckoutSplitPagamento = ({
   });
 
   return (
-    <div className={styles.wrap} data-cy="checkout-split-payment">
+    <div className={styles.wrap} data-cy="pagamento-dividido-container">
       <div data-cy="checkout-partial-payment">
         <h4 className={styles.sectionTitle} data-testid="checkout-split-title">Pagamento (cartões e PIX)</h4>
         <p className={styles.pixInfo} data-testid="checkout-split-description">
@@ -110,14 +110,14 @@ export const CheckoutSplitPagamento = ({
 
         <p
           className={styles.restanteSr}
-          data-cy="checkout-split-restante"
+          data-cy="pagamento-dividido-restante"
           aria-hidden="true"
         >
           {textoRestanteE2e}
         </p>
 
         {!rn.ok && rn.mensagem ? (
-          <p className={styles.restanteAviso} role="alert" data-cy="checkout-split-rn34-error">
+          <p className={styles.restanteAviso} role="alert" data-cy="pagamento-dividido-erro-rn34">
             {rn.mensagem}
           </p>
         ) : null}

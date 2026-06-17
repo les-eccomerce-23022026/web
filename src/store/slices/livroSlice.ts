@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/tool
 import { logout } from './authSlice';
 import { LivroService } from '@/services/livroService';
 import type { ICategoriaMenu, IFiltroCatalogoLivros } from '@/interfaces/catalogoLivros';
-import type { ILivro } from '@/interfaces/livro';
+import type { ILivro, ICriarLivroPayload } from '@/interfaces/livro';
 
 type LoadStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 
@@ -60,6 +60,14 @@ export const fetchCategoriasCatalogo = createAsyncThunk(
 export const fetchLivrosAdmin = createAsyncThunk('livro/fetchLivrosAdmin', async () => {
   return LivroService.getListaAdmin();
 });
+
+/** Criar livro via API (POST /admin/livros). */
+export const criarLivroThunk = createAsyncThunk(
+  'livro/criarLivro',
+  async (payload: ICriarLivroPayload) => {
+    return LivroService.criarLivro(payload);
+  },
+);
 
 const livroSlice = createSlice({
   name: 'livro',
@@ -137,6 +145,9 @@ const livroSlice = createSlice({
       .addCase(fetchLivrosAdmin.rejected, (state, action) => {
         state.statusAdmin = 'failed';
         state.errorAdmin = action.error.message || 'Erro ao carregar livros';
+      })
+      .addCase(criarLivroThunk.fulfilled, (state, action) => {
+        state.livrosAdmin.push(action.payload);
       })
       .addCase(logout, (state) => {
         // Limpar apenas dados sensíveis (admin), manter dados públicos (catálogo)

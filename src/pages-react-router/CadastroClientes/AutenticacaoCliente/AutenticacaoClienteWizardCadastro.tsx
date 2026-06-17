@@ -21,7 +21,7 @@ export const AutenticacaoClienteWizardCadastro = ({ registerState, dominios }: P
     )}
 
     {registerState.regSuccess && (
-      <p className={styles['auth-message-success']}>{registerState.regSuccess}</p>
+      <p data-cy="register-success-message" className={styles['auth-message-success']}>{registerState.regSuccess}</p>
     )}
 
     {registerState.regStep === 1 && (

@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
-import { MapPin, Settings } from 'lucide-react';
+import { MapPin, Settings, Plus } from 'lucide-react';
 import styles from './style.module.css';
 import enderecoStyles from '../../../components/FinalizarCompra/Entrega/style.module.css';
 import { EnderecoEntregaCard } from '../../../components/FinalizarCompra/Entrega';
 import { Modal } from '../../../components/Comum/Modal';
+import { AutenticacaoClienteEnderecoForm } from '../../../pages-react-router/CadastroClientes/AutenticacaoCliente/AutenticacaoClienteEnderecoForm';
+import { ClienteService } from '../../../services/clienteService';
 import type { ICheckoutInfo } from '../../../interfaces/checkout';
+import type { IEnderecoCliente } from '../../../interfaces/pagamento';
 
 type Props = {
   data: ICheckoutInfo;
@@ -13,6 +16,7 @@ type Props = {
   enderecoCobrancaSelecionado?: string | null;
   onSelectEndereco: (uuid: string | null) => void;
   onSelectEnderecoCobranca?: (uuid: string | null) => void;
+  onEnderecoAdicionado?: () => void;
 };
 
 export const FinalizarCompraEnderecoCard = ({
@@ -21,33 +25,100 @@ export const FinalizarCompraEnderecoCard = ({
   enderecoCobrancaSelecionado,
   onSelectEndereco,
   onSelectEnderecoCobranca,
+  onEnderecoAdicionado,
 }: Props) => {
   const temLista = data.enderecosDisponiveis && data.enderecosDisponiveis.length > 0;
   const [modalAberto, setModalAberto] = useState(false);
   const [abaAtiva, setAbaAtiva] = useState<'entrega' | 'cobranca'>('entrega');
+  const [modalNovoEndereco, setModalNovoEndereco] = useState(false);
+  const [novoEndereco, setNovoEndereco] = useState<Omit<IEnderecoCliente, 'uuid'>>({
+    logradouro: '',
+    numero: '',
+    complemento: '',
+    bairro: '',
+    cidade: '',
+    estado: '',
+    cep: '',
+    tipo: 'entrega',
+    principal: false,
+    apelido: '',
+  });
+  const [salvandoEndereco, setSalvandoEndereco] = useState(false);
+  const [erroEndereco, setErroEndereco] = useState<string | null>(null);
+  const [listaAtualizada, setListaAtualizada] = useState<IEnderecoCliente[]>(data.enderecosDisponiveis || []);
 
-  if (temLista) {
+  const handleAdicionarEndereco = async () => {
+    if (!novoEndereco.logradouro || !novoEndereco.numero || !novoEndereco.bairro || !novoEndereco.cidade || !novoEndereco.estado || !novoEndereco.cep) {
+      setErroEndereco('Preencha todos os campos obrigatórios');
+      return;
+    }
+    setSalvandoEndereco(true);
+    setErroEndereco(null);
+    try {
+      const enderecosAtualizados = await ClienteService.adicionarEndereco(novoEndereco);
+      setListaAtualizada(enderecosAtualizados);
+      // Propaga ao container para que data.enderecosDisponiveis (usado na submissão
+      // do pedido) inclua o novo endereço; sem isso a venda não encontra o endereço.
+      onEnderecoAdicionado?.();
+      setModalNovoEndereco(false);
+      setNovoEndereco({
+        logradouro: '',
+        numero: '',
+        complemento: '',
+        bairro: '',
+        cidade: '',
+        estado: '',
+        cep: '',
+        tipo: 'entrega',
+        principal: false,
+        apelido: '',
+      });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Erro ao adicionar endereço';
+      setErroEndereco(msg);
+    } finally {
+      setSalvandoEndereco(false);
+    }
+  };
+
+  if (temLista || listaAtualizada.length > 0) {
+    const enderecosParaExibir = listaAtualizada.length > 0 ? listaAtualizada : data.enderecosDisponiveis;
     return (
-      <div className={`card ${styles['checkout-card-spaced']}`}>
+      <div className={`card ${styles['checkout-card-spaced']}`} data-cy="checkout-addresses">
         <div className={styles['endereco-header']}>
-          <h3>Endereços</h3>
-          <button
-            className={`btn-secondary ${styles['btn-configurar-enderecos']}`}
-            onClick={() => setModalAberto(true)}
-            data-cy="btn-configurar-enderecos"
-          >
-            <Settings size={16} />
-            Configurar Cobrança e Entrega
-          </button>
+          <h3 data-cy="checkout-addresses-title">Endereços</h3>
+          <div className={styles['endereco-header-actions']}>
+            <button
+              className={`btn-secondary ${styles['btn-configurar-enderecos']}`}
+              onClick={() => setModalAberto(true)}
+              data-cy="btn-configurar-enderecos"
+            >
+              <Settings size={16} />
+              Configurar
+            </button>
+            <button
+              className="btn-secondary"
+              onClick={() => setModalNovoEndereco(true)}
+              data-cy="checkout-add-new-address"
+            >
+              <Plus size={16} />
+              Novo Endereço
+            </button>
+          </div>
         </div>
         <EnderecoEntregaCard
-          enderecos={data.enderecosDisponiveis!}
+          enderecos={enderecosParaExibir!}
           selecionado={enderecoSelecionado}
           onSelect={onSelectEndereco}
+          onAdd={() => setModalNovoEndereco(true)}
         />
         {enderecoSelecionado && (
-          <p className={styles['endereco-selecionado-info']}>
+          <p className={styles['endereco-selecionado-info']} data-cy="checkout-address-selected">
             ✓ Endereço selecionado para entrega
+            {(() => {
+              const sel = enderecosParaExibir?.find((e) => e.uuid === enderecoSelecionado);
+              return sel ? `: ${sel.logradouro}, ${sel.numero}` : '';
+            })()}
           </p>
         )}
         {enderecoCobrancaSelecionado && (
@@ -75,12 +146,13 @@ export const FinalizarCompraEnderecoCard = ({
           {abaAtiva === 'entrega' && (
             <div className={styles['tab-content']}>
               <EnderecoEntregaCard
-                enderecos={data.enderecosDisponiveis!}
+                enderecos={enderecosParaExibir!}
                 selecionado={enderecoSelecionado}
                 onSelect={(uuid: string) => {
                   onSelectEndereco(uuid);
                   setModalAberto(false);
                 }}
+                onAdd={() => setModalNovoEndereco(true)}
               />
             </div>
           )}
@@ -88,12 +160,13 @@ export const FinalizarCompraEnderecoCard = ({
           {abaAtiva === 'cobranca' && onSelectEnderecoCobranca && (
             <div className={styles['tab-content']}>
               <EnderecoEntregaCard
-                enderecos={data.enderecosDisponiveis!}
+                enderecos={enderecosParaExibir!}
                 selecionado={enderecoCobrancaSelecionado}
                 onSelect={(uuid: string) => {
                   onSelectEnderecoCobranca(uuid);
                   setModalAberto(false);
                 }}
+                onAdd={() => setModalNovoEndereco(true)}
               />
             </div>
           )}
@@ -105,6 +178,43 @@ export const FinalizarCompraEnderecoCard = ({
               </p>
             </div>
           )}
+        </Modal>
+
+        <Modal
+          isOpen={modalNovoEndereco}
+          onClose={() => setModalNovoEndereco(false)}
+          title="Adicionar Novo Endereço"
+        >
+          <div className={styles['modal-novo-endereco']} data-cy="checkout-new-address-form">
+            {erroEndereco && (
+              <div className={styles['error-banner']} data-cy="address-error">
+                {erroEndereco}
+              </div>
+            )}
+            <AutenticacaoClienteEnderecoForm
+              titulo="Dados do Endereço"
+              endereco={novoEndereco}
+              onChange={setNovoEndereco}
+            />
+            <div className={styles['modal-novo-endereco-acoes']}>
+              <button
+                className="btn-secondary"
+                onClick={() => setModalNovoEndereco(false)}
+                disabled={salvandoEndereco}
+                data-cy="checkout-cancel-address-button"
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-primary"
+                onClick={handleAdicionarEndereco}
+                disabled={salvandoEndereco}
+                data-cy="checkout-save-address-button"
+              >
+                {salvandoEndereco ? 'Salvando...' : 'Salvar Endereço'}
+              </button>
+            </div>
+          </div>
         </Modal>
       </div>
     );

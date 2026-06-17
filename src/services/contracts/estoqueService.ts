@@ -30,9 +30,17 @@ export interface IEntradaEstoque {
   dataEntrada?: string;
 }
 
+export interface IAtualizacaoEstoque {
+  estoqueUuid: string;
+  quantidadeDisponivel?: number;
+  precoVenda?: number;
+  valorCustoAtual?: number;
+}
+
 export interface IEstoqueService {
   listarEstoque(): Promise<IItemEstoque[]>;
   listarEstoqueCritico(limite?: number): Promise<IItemEstoque[]>;
   obterKpis(limiteCritico?: number): Promise<IKpisEstoque>;
   registrarEntrada(dados: IEntradaEstoque): Promise<{ mensagem: string }>;
+  atualizarEstoque(dados: IAtualizacaoEstoque): Promise<{ mensagem: string }>;
 }

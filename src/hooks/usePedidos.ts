@@ -3,10 +3,15 @@ import { useAppSelector, useAppDispatch } from '../store/hooks';
 import {
   fetchPedidosCliente,
   fetchPedidosEmTroca,
+  fetchPedidosEmDevolucao,
   solicitarTrocaThunk,
   autorizarTrocaThunk,
   rejeitarTrocaThunk,
   confirmarRecebimentoTrocaThunk,
+  confirmarRecebimentoEntregaThunk,
+  autorizarDevolucaoThunk,
+  rejeitarDevolucaoThunk,
+  confirmarRecebimentoDevolucaoThunk,
 } from '../store/slices/pedidoSlice';
 import type { StatusPedido } from '../interfaces/pedido';
 
@@ -34,12 +39,18 @@ export function usePedidos(clienteUuid?: string) {
     [dispatch],
   );
 
+  const confirmarRecebimentoEntrega = useCallback(
+    (pedidoUuid: string) => dispatch(confirmarRecebimentoEntregaThunk(pedidoUuid)),
+    [dispatch],
+  );
+
   return {
     pedidos,
     loading: status === 'loading',
     error,
     pedidosPorStatus,
     solicitarTroca,
+    confirmarRecebimentoEntrega,
   };
 }
 
@@ -49,6 +60,7 @@ export function usePedidosTrocaAdmin() {
 
   useEffect(() => {
     dispatch(fetchPedidosEmTroca());
+    dispatch(fetchPedidosEmDevolucao());
   }, [dispatch]);
 
   const autorizarTroca = useCallback(
@@ -64,7 +76,24 @@ export function usePedidosTrocaAdmin() {
 
   const confirmarRecebimento = useCallback(
     (pedidoUuid: string, retornarEstoque: boolean) =>
-      dispatch(confirmarRecebimentoTrocaThunk({ pedidoUuid, retornarEstoque })),
+      dispatch(confirmarRecebimentoTrocaThunk({ pedidoUuid, retornarEstoque })).unwrap(),
+    [dispatch],
+  );
+
+  const autorizarDevolucao = useCallback(
+    (pedidoUuid: string) => dispatch(autorizarDevolucaoThunk(pedidoUuid)),
+    [dispatch],
+  );
+
+  const rejeitarDevolucao = useCallback(
+    (pedidoUuid: string, motivo: string) =>
+      dispatch(rejeitarDevolucaoThunk({ pedidoUuid, motivo })),
+    [dispatch],
+  );
+
+  const confirmarRecebimentoDevolucao = useCallback(
+    (pedidoUuid: string, retornarEstoque: boolean) =>
+      dispatch(confirmarRecebimentoDevolucaoThunk({ pedidoUuid, retornarEstoque })).unwrap(),
     [dispatch],
   );
 
@@ -75,5 +104,8 @@ export function usePedidosTrocaAdmin() {
     autorizarTroca,
     rejeitarTroca,
     confirmarRecebimento,
+    autorizarDevolucao,
+    rejeitarDevolucao,
+    confirmarRecebimentoDevolucao,
   };
 }

@@ -2,26 +2,47 @@ import pedidosMock from '@/mocks/pedidosMock.json';
 import livrosMock from '@/mocks/listaLivrosAdminMock.json';
 import type { IDashboardAdminInfo, IAtividadeRecente } from '@/interfaces/dashboardAdmin';
 import type { IPedido } from '@/interfaces/pedido';
-import type { IDashboardAdminService } from '../contracts/dashboardAdminService';
+import type { IDashboardAdminService, DashboardAdminFilters } from '../contracts/dashboardAdminService';
+
+// Mapeamento de período para dias
+const PERIODO_DIAS_MAP: Record<string, number> = {
+  '7d': 7,
+  '30d': 30,
+  '1w': 7,
+  '2w': 14,
+  '1m': 30,
+  '3m': 90,
+  '6m': 180,
+  '1a': 365,
+};
 
 export class DashboardAdminServiceMock implements IDashboardAdminService {
-  async getDashboardInfo(): Promise<IDashboardAdminInfo> {
-    console.log('[Mock] Calculando dashboard admin dinamicamente.');
+  async getDashboardInfo(filters?: DashboardAdminFilters): Promise<IDashboardAdminInfo> {
+    console.log('[Mock] Calculando dashboard admin dinamicamente.', filters);
 
     const pedidos = pedidosMock as IPedido[];
     const livros = livrosMock.livros;
+
+    // Filtra pedidos por período se especificado
+    let pedidosFiltrados = pedidos;
+    if (filters?.periodoReceita && filters.periodoReceita !== 'todos') {
+      const dias = PERIODO_DIAS_MAP[filters.periodoReceita] || 0;
+      const dataCorte = new Date();
+      dataCorte.setDate(dataCorte.getDate() - dias);
+      pedidosFiltrados = pedidos.filter((p) => new Date(p.data) >= dataCorte);
+    }
 
     // Simulando Março como mês atual
     const dataAtual = new Date('2026-03-02');
     const mesAtual = dataAtual.getMonth();
     const anoAtual = dataAtual.getFullYear();
 
-    const pedidosMesAtual = pedidos.filter((p) => {
+    const pedidosMesAtual = pedidosFiltrados.filter((p) => {
       const d = new Date(p.data);
       return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
     });
 
-    const pedidosMesAnterior = pedidos.filter((p) => {
+    const pedidosMesAnterior = pedidosFiltrados.filter((p) => {
       const d = new Date(p.data);
       return d.getMonth() === mesAtual - 1 && d.getFullYear() === anoAtual;
     });
@@ -34,10 +55,10 @@ export class DashboardAdminServiceMock implements IDashboardAdminService {
         : 100;
 
     const ticketMedio =
-      pedidos.length > 0 ? pedidos.reduce((acc, p) => acc + p.total, 0) / pedidos.length : 0;
+      pedidosFiltrados.length > 0 ? pedidosFiltrados.reduce((acc, p) => acc + p.total, 0) / pedidosFiltrados.length : 0;
 
     const statusLabels = ['Entregues', 'Em Trânsito', 'Preparando', 'Pendentes', 'Devoluções'];
-    const statusData = statusLabels.map((label) => pedidos.filter((p) => p.status === label).length);
+    const statusData = statusLabels.map((label) => pedidosFiltrados.filter((p) => p.status === label).length);
 
     const mesesLabels = ['Jan', 'Fev', 'Mar'];
     const categorias = ['Ficção', 'Técnico'];
@@ -45,7 +66,7 @@ export class DashboardAdminServiceMock implements IDashboardAdminService {
     const datasetsCategoria = categorias.map((cat) => ({
       label: cat,
       data: mesesLabels.map((_, i) =>
-        pedidos
+        pedidosFiltrados
           .filter((p) => new Date(p.data).getMonth() === i)
           .reduce((acc, p) => acc + p.itens.filter((item) => item.categoria === cat).length, 0),
       ),
@@ -54,12 +75,12 @@ export class DashboardAdminServiceMock implements IDashboardAdminService {
     }));
 
     const receitaMensal = mesesLabels.map((_, i) =>
-      pedidos
+      pedidosFiltrados
         .filter((p) => new Date(p.data).getMonth() === i)
         .reduce((acc, p) => acc + p.total, 0),
     );
 
-    const atividadesRecentes: IAtividadeRecente[] = pedidos
+    const atividadesRecentes: IAtividadeRecente[] = pedidosFiltrados
       .slice(-5)
       .reverse()
       .map((p) => ({
@@ -74,8 +95,8 @@ export class DashboardAdminServiceMock implements IDashboardAdminService {
       metricas: {
         totalVendasMes,
         percentualCrescimento,
-        pedidosPendentes: pedidos.filter((p) => p.status === 'Pendentes').length,
-        trocasSolicitadas: pedidos.filter((p) => p.status === 'Devoluções').length,
+        pedidosPendentes: pedidosFiltrados.filter((p) => p.status === 'Pendentes').length,
+        trocasSolicitadas: pedidosFiltrados.filter((p) => p.status === 'Devoluções').length,
         ticketMedio,
         percentualCrescimentoTicket: 5.4,
         clientesAtivos: 2,

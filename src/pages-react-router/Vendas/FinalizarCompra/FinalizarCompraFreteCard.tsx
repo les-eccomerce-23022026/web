@@ -18,8 +18,8 @@ export const FinalizarCompraFreteCard = ({
   subtotal,
   initialCep,
 }: Props) => (
-  <div className={`card ${styles['checkout-card-spaced']}`}>
-    <h3 className={styles['checkout-section-title']}>Frete</h3>
+  <div className={`card ${styles['checkout-card-spaced']}`} data-cy="checkout-freight-section">
+    <h3 className={styles['checkout-section-title']} data-cy="checkout-freight-title">Frete</h3>
     <FreteCalculo
       key={initialCep || 'sem-cep'}
       entrega={entregaParaFreteCalculo}
@@ -30,7 +30,7 @@ export const FinalizarCompraFreteCard = ({
       initialCep={initialCep}
     />
     {freteSelecionado && (
-      <p className={styles['frete-selecionado-info']}>
+      <p className={styles['frete-selecionado-info']} data-cy="checkout-freight-selected-info">
         ✓ Frete {freteSelecionado.tipo} selecionado: {'R$ '}
         {freteSelecionado.valor.toFixed(2).replace('.', ',')} — {freteSelecionado.prazo}
       </p>

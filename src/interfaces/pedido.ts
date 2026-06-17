@@ -2,21 +2,40 @@ export type StatusPedido =
   | 'Entregue'
   | 'Em Trânsito'
   | 'Preparando'
+  | 'Pendente'
   | 'Pendentes'
   | 'Aguardando Pagamento'
+  | 'Pagamento Pendente'
   | 'Em Processamento'
   | 'Em Troca'
   | 'Troca Autorizada'
+  | 'Troca Rejeitada'
   | 'Trocado'
   | 'Cancelado'
-  | 'Devoluções';
+  | 'Rejeitado'
+  | 'Devoluções'
+  | 'Em Devolução'
+  | 'Devolução Autorizada'
+  | 'Devolução Rejeitada'
+  | 'Devolvido'
+  // Backend snake_case format (compatibilidade)
+  | 'EM_TROCA'
+  | 'TROCA_AUTORIZADA'
+  | 'TROCA_REJEITADA'
+  | 'TROCADO'
+  | 'EM_DEVOLUCAO'
+  | 'DEVOLUCAO_AUTORIZADA'
+  | 'DEVOLUCAO_REJEITADA'
+  | 'DEVOLVIDO';
 
 export interface IItemPedido {
+  uuid?: string;
   livroUuid: string;
   titulo?: string;
   quantidade: number;
   precoUnitario: number;
   categoria: string;
+  emTroca?: boolean;
 }
 
 export interface IFormaPagamentoPedido {
@@ -31,6 +50,7 @@ export interface IPedido {
   uuid: string;
   data: string; // ISO 8601
   dataEntrega?: string; // ISO 8601 - data em que o pedido foi entregue
+  dataPrevistaEntrega?: string; // ISO 8601 - data prevista calculada no despacho
   clienteUuid: string;
   itens: IItemPedido[];
   total: number;

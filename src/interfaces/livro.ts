@@ -1,3 +1,17 @@
+export interface ICriarLivroPayload {
+  titulo: string;
+  isbn: string;
+  autorNome: string;
+  editoraNome: string;
+  categoriaNome?: string;
+  grupoPrecificacaoNome: string;
+  precoVenda: number;
+  quantidadeEstoque: number;
+  sinopse?: string;
+  valorCusto: number;
+  ano: number;
+}
+
 export interface ILivro {
   uuid: string;
   titulo: string;

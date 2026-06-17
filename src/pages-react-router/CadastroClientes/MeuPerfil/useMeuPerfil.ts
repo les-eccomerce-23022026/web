@@ -32,7 +32,7 @@ export function useMeuPerfil() {
   // --- Estado Local para Rascunho de Edição (Formulários) ---
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error'>('success');
-  const [secaoAtiva, setSecaoAtiva] = useState<'perfil' | 'enderecos' | 'cartoes' | 'senha' | 'perigo'>('perfil');
+  const [secaoAtiva, setSecaoAtiva] = useState<'perfil' | 'enderecos' | 'cartoes' | 'senha' | 'cupons' | 'perigo'>('perfil');
 
   // Perfil (Inputs)
   const [nome, setNome] = useState('');
@@ -69,6 +69,7 @@ export function useMeuPerfil() {
   // Loading específico para cartões
   const [isCartaoLoading, setIsCartaoLoading] = useState(false);
 
+  const [novoEndApelido, setNovoEndApelido] = useState('');
   const [novoEndLogradouro, setNovoEndLogradouro] = useState('');
   const [novoEndNumero, setNovoEndNumero] = useState('');
   const [novoEndComplemento, setNovoEndComplemento] = useState('');
@@ -290,6 +291,7 @@ export function useMeuPerfil() {
   const handleAdicionarEndereco = async () => {
     try {
       const payload = {
+        apelido: novoEndApelido,
         logradouro: novoEndLogradouro,
         numero: novoEndNumero,
         complemento: novoEndComplemento,
@@ -334,6 +336,7 @@ export function useMeuPerfil() {
   const finalizarFluxoEndereco = () => {
     setShowNovoEndereco(false);
     setEnderecoEditandoUuid(null);
+    setNovoEndApelido('');
     setNovoEndLogradouro('');
     setNovoEndNumero('');
     setNovoEndComplemento('');
@@ -485,6 +488,8 @@ export function useMeuPerfil() {
       setShowNovoEndereco,
       enderecoEditandoUuid,
       setEnderecoEditandoUuid,
+      novoEndApelido,
+      setNovoEndApelido,
       novoEndLogradouro,
       setNovoEndLogradouro,
       novoEndNumero,

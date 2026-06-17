@@ -55,6 +55,7 @@ export const FinalizarCompraPedidoCarregado = ({
     selecionarFrete,
     entregaParaFreteCalculo,
     cepDestinoFrete,
+    recarregar,
   } = hook;
 
   const linhasPagamentoIniciais = useLinhasPagamentoIniciais(data, carrinho, freteSelecionado, cuponsAplicados);
@@ -132,21 +133,23 @@ export const FinalizarCompraPedidoCarregado = ({
 
   const rnOk = validarValorMinimoPorMeioNaDivisaoPagamento(linhasPagamento, resumo.total).ok;
 
-  const temFormaPagamento =
-    temFormaPagamentoFinalizarCompra(
-      cuponsAplicados.length,
-      parcelasLiquidacao,
-      novosCartoesPorLinha,
-      null,
-      null,
-    ) && rnOk;
+  const temFormaPagamento = temFormaPagamentoFinalizarCompra(
+    cuponsAplicados.length,
+    parcelasLiquidacao,
+    novosCartoesPorLinha,
+    null,
+    null,
+  );
+
+  const cartaoSelecionado = linhasPagamento.find(l => l.tipo === 'cartao_salvo')?.cartaoSalvoUuid || null;
+  const novoCartao = linhasPagamento.find(l => l.tipo === 'cartao_novo') ? (novosCartoesPorLinha[linhasPagamento.find(l => l.tipo === 'cartao_novo')!.id] || null) : null;
 
   const saldoPagamentoOk = pagamentoCobreSaldoFinalizarCompra(
     resumo.total,
     parcelasLiquidacao,
     novosCartoesPorLinha,
-    null,
-    null,
+    cartaoSelecionado,
+    novoCartao,
   );
 
   const handleAplicarCupom = (cupom: ICupomAplicado) => {
@@ -179,6 +182,7 @@ export const FinalizarCompraPedidoCarregado = ({
           enderecoCobrancaSelecionado={enderecoCobrancaSelecionado}
           onSelectEndereco={setEnderecoSelecionado}
           onSelectEnderecoCobranca={setEnderecoCobrancaSelecionado}
+          onEnderecoAdicionado={recarregar}
           entregaParaFreteCalculo={entregaParaFreteCalculo}
           freteSelecionado={freteSelecionado}
           onFreteSelecionado={selecionarFrete}
@@ -211,6 +215,7 @@ export const FinalizarCompraPedidoCarregado = ({
             void handleFinalizarCompra({
               novosCartoesPorLinha: Object.keys(novosCartoesPorLinha).length > 0 ? novosCartoesPorLinha : undefined,
               enderecoEntrega: enderecoEntregaInputDeCheckout(data, enderecoSelecionado) ?? undefined,
+              cartaoSalvoUuid: cartaoSelecionado,
             })
           }
         />

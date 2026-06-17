@@ -1,0 +1,32 @@
+{
+  "sucesso": true,
+  "dados": {
+    "resposta": "Levando em conta seu histórico de compras e nossa conversa anterior sobre ficção científica, aqui estão sugestões ainda mais personalizadas para você:",
+    "produtosRecomendados": [
+      {
+        "uuid": "d4e5f6a7-b8c9-0123-defa-123456789012",
+        "titulo": "O Fim da Eternidade",
+        "autor": "Isaac Asimov",
+        "categoria": "Ficção Científica",
+        "sinopse": "Uma agência que controla o tempo e as consequências de suas manipulações na história humana.",
+        "isbn": "978-0-345-43569-0",
+        "preco": 42.90,
+        "similaridade": 0.91,
+        "motivo": "Como você comprou Fundação anteriormente, esta obra do mesmo autor certamente vai agradar"
+      },
+      {
+        "uuid": "e5f6a7b8-c9d0-1234-efab-234567890123",
+        "titulo": "Hiperion",
+        "autor": "Dan Simmons",
+        "categoria": "Ficção Científica",
+        "sinopse": "Sete peregrinos viajam ao misterioso planeta Hiperion, cada um carregando uma história trágica.",
+        "isbn": "978-0-553-28368-6",
+        "preco": 52.90,
+        "similaridade": 0.87,
+        "motivo": "Combina os elementos épicos de Duna com a profundidade narrativa que você aprecia"
+      }
+    ],
+    "contextoUsado": true,
+    "tempoRespostaMs": 1567
+  }
+}

@@ -14,6 +14,7 @@ type Props = {
   enderecoCobrancaSelecionado?: string | null;
   onSelectEndereco: (uuid: string | null) => void;
   onSelectEnderecoCobranca?: (uuid: string | null) => void;
+  onEnderecoAdicionado?: () => void;
   entregaParaFreteCalculo: FreteCalculoEntregaApi;
   freteSelecionado: IFreteOpcao | null;
   onFreteSelecionado: (frete: IFreteOpcao) => void;
@@ -39,6 +40,7 @@ export const FinalizarCompraColunaPrincipal = (p: Props) => (
       enderecoCobrancaSelecionado={p.enderecoCobrancaSelecionado}
       onSelectEndereco={p.onSelectEndereco}
       onSelectEnderecoCobranca={p.onSelectEnderecoCobranca}
+      onEnderecoAdicionado={p.onEnderecoAdicionado}
     />
     <FinalizarCompraFreteCard
       entregaParaFreteCalculo={p.entregaParaFreteCalculo}
@@ -50,6 +52,7 @@ export const FinalizarCompraColunaPrincipal = (p: Props) => (
     <FinalizarCompraPagamentoCard
       data={p.data}
       total={p.total}
+      subtotal={p.subtotal}
       cuponsAplicados={p.cuponsAplicados}
       linhasPagamento={p.linhasPagamento}
       novosCartoesPorLinha={p.novosCartoesPorLinha}

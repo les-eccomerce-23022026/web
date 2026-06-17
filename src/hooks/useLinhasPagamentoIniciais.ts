@@ -9,17 +9,22 @@ import type { ICupomAplicado } from '../interfaces/pagamento';
 
 export const useLinhasPagamentoIniciais = (data: ICheckoutInfo, carrinho: ICarrinho | null | undefined, freteSelecionado: IFreteOpcao | null, cuponsAplicados: ICupomAplicado[]) => {
   return useMemo(() => {
-    if (!data || !carrinho?.itens?.length) return [];
-    const r = calcularResumoPedidoFinalizarCompra(carrinho, data, freteSelecionado, cuponsAplicados, []);
+    // Se não há carrinho ou itens, retorna array vazio
+    if (!carrinho?.itens?.length) return [];
+    
+    // Se não há data, usa valores padrão
+    const checkoutData = data || { cartoesSalvos: [] } as ICheckoutInfo;
+    
+    const r = calcularResumoPedidoFinalizarCompra(carrinho, checkoutData, freteSelecionado, cuponsAplicados);
     const total = Math.round(r.total * 100) / 100;
     const id = generateSafeId();
 
-    if (data.cartoesSalvos.length > 0) {
+    if (checkoutData.cartoesSalvos.length > 0) {
       return [
         {
           id,
           tipo: 'cartao_salvo' as const,
-          cartaoSalvoUuid: data.cartoesSalvos[0].uuid,
+          cartaoSalvoUuid: checkoutData.cartoesSalvos[0].uuid,
           valor: total,
           parcelasCartao: 1,
         },

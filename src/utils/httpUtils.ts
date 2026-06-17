@@ -41,10 +41,10 @@ async function parseJsonBody<T>(response: Response): Promise<T> {
   return unwrapEnvelope<T>(resposta);
 }
 
-async function responseToResult<T>(url: string, response: Response): Promise<T> {
+async function responseToResult<T>(url: string, response: Response, originalRequest?: Request): Promise<T> {
   if (response.status === 401) {
     const { handleUnauthorized } = await import('./authHandlers');
-    return handleUnauthorized<T>(url, response);
+    return handleUnauthorized<T>(url, response, originalRequest);
   }
   if (response.status === 403) {
     throw new Error('Você não tem permissão para acessar este recurso.');
@@ -65,14 +65,14 @@ function rethrowNetworkError(error: unknown): never {
   // Erro de timeout (AbortController)
   if (err?.name === 'AbortError') {
     throw new Error(
-      'Tempo de conexão esgotado. O servidor não respondeu em 10 segundos. Verifique se o backend está rodando em localhost:3002.',
+      'Tempo de conexão esgotado. O servidor não respondeu em 20 segundos. Verifique se o backend está rodando.',
     );
   }
 
   // Erro de rede (Failed to fetch)
   if (err?.message === 'Failed to fetch') {
     throw new Error(
-      'Não foi possível conectar ao servidor. Verifique se o backend está rodando em localhost:3002 e tente novamente.',
+      'Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.',
     );
   }
 

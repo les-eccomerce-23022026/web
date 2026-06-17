@@ -56,29 +56,6 @@ export const restoreSession = createAsyncThunk(
   'auth/restoreSession',
   async (_, { rejectWithValue }) => {
     try {
-      // #region agent log
-      const storedSnapshot = typeof window !== 'undefined' ? lerSessaoArmazenada() : null;
-      if (typeof fetch !== 'undefined') {
-        fetch('http://127.0.0.1:7252/ingest/8c947da7-7023-400a-ab71-9b9c5909fd2b', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'a8ec46' },
-          body: JSON.stringify({
-            sessionId: 'a8ec46',
-            runId: 'post-fix',
-            hypothesisId: 'B,C',
-            location: 'authSlice.ts:restoreSession-start',
-            message: 'restoreSession iniciado',
-            data: {
-              isServer: typeof window === 'undefined',
-              hasStored: !!storedSnapshot,
-              useMock: USE_MOCK,
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-      }
-      // #endregion
-
       if (USE_MOCK && typeof window !== 'undefined') {
         const stored = lerSessaoArmazenada();
         if (stored?.user) {
@@ -86,6 +63,17 @@ export const restoreSession = createAsyncThunk(
         }
         return rejectWithValue(null);
       }
+
+      // [BANCO DE TESTES DESABILITADO]
+      // if (
+      //   typeof window !== 'undefined' &&
+      //   (window as Window & { __USE_TEST_DB__?: boolean }).__USE_TEST_DB__
+      // ) {
+      //   const storedE2e = lerSessaoArmazenada();
+      //   if (storedE2e?.user && storedE2e.token) {
+      //     return { user: storedE2e.user, token: storedE2e.token };
+      //   }
+      // }
 
       const { AuthService } = await import('@/services/authService');
       return await AuthService.me();
@@ -100,52 +88,35 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     loginSuccess: (state, action: PayloadAction<{ token?: string; user: AuthUser | null }>) => {
-      console.log('[AuthSlice] loginSuccess action recebido');
-      console.log('[AuthSlice] payload:', action.payload);
+      if (!action.payload.user) {
+        // Não alterar estado de autenticação se não houver dados de usuário
+        return;
+      }
       state.isAuthenticated = true;
-      // ⚠️ SEGURANÇA: Em produção, NÃO armazenar token no Redux (apenas em cookie HttpOnly)
       const isProduction = process.env.NODE_ENV === 'production';
       state.token = isProduction ? null : (action.payload.token ?? null);
       state.user = action.payload.user;
       state.authError = null;
       state.sessionLoading = false;
-      console.log('[AuthSlice] Estado após loginSuccess:', {
-        isAuthenticated: state.isAuthenticated,
-        user: state.user,
-        token: state.token ? '***' : null,
-      });
-      if (!action.payload.user) {
-        console.log('[AuthSlice] User null, limpando sessão');
-        limparSessaoArmazenada();
-        return;
-      }
-      // Em produção, salvar apenas user (sem token) no sessionStorage
       salvarSessaoArmazenada(action.payload.user, isProduction ? null : action.payload.token);
-      console.log('[AuthSlice] Sessão salva no storage');
     },
     logout: (state) => {
-      console.log('[AuthSlice] logout action recebido');
       state.isAuthenticated = false;
       state.token = null;
       state.user = null;
       state.authError = null;
       state.sessionLoading = false;
       limparSessaoArmazenada();
-      console.log('[AuthSlice] Estado após logout:', state);
     },
     setAuthError: (state, action: PayloadAction<string | null>) => {
-      console.log('[AuthSlice] setAuthError:', action.payload);
       state.authError = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(restoreSession.fulfilled, (state, action) => {
-        console.log('[AuthSlice] restoreSession.fulfilled');
-        console.log('[AuthSlice] payload:', action.payload);
         if (action.payload) {
           state.isAuthenticated = true;
-          // ⚠️ SEGURANÇA: Em produção, não restaurar token do sessionStorage
           const isProduction = process.env.NODE_ENV === 'production';
           state.token = isProduction ? null : (action.payload.token ?? state.token);
           state.user = action.payload.user;
@@ -154,20 +125,13 @@ const authSlice = createSlice({
           }
         }
         state.sessionLoading = false;
-        console.log('[AuthSlice] Estado após restoreSession:', {
-          isAuthenticated: state.isAuthenticated,
-          user: state.user,
-          sessionLoading: state.sessionLoading,
-        });
       })
       .addCase(restoreSession.rejected, (state) => {
-        console.log('[AuthSlice] restoreSession.rejected');
         state.isAuthenticated = false;
         state.token = null;
         state.user = null;
         state.sessionLoading = false;
         limparSessaoArmazenada();
-        console.log('[AuthSlice] Estado após restoreSession rejected:', state);
       });
   },
 });

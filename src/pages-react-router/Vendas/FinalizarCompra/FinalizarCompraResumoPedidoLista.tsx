@@ -19,13 +19,13 @@ export const FinalizarCompraResumoPedidoLista = ({
 
   return (
     <ul className={styles['checkout-summary-list']} data-cy="checkout-summary-list">
-      <li className={styles['checkout-summary-item']}>
+      <li className={styles['checkout-summary-item']} data-cy="checkout-subtotal">
         <span>
           Subtotal ({quantidadeItens} {labelItens}):
         </span>
         <span>R$ {subtotal.toFixed(2).replace('.', ',')}</span>
       </li>
-      <li className={styles['checkout-summary-item']}>
+      <li className={styles['checkout-summary-item']} data-cy="checkout-frete">
         <span>Frete:</span>
         <span>R$ {frete.toFixed(2).replace('.', ',')}</span>
       </li>
@@ -36,8 +36,8 @@ export const FinalizarCompraResumoPedidoLista = ({
         </li>
       )}
       {valorPagoParcialmente > 0 && (
-        <li className={styles['checkout-summary-item-discount']}>
-          <span>Valor coberto por cupons/créditos:</span>
+        <li className={styles['checkout-summary-item-discount']} data-cy="checkout-total-pagamento">
+          <span>Valor pago em cartões/PIX:</span>
           <span>R$ {valorPagoParcialmente.toFixed(2).replace('.', ',')}</span>
         </li>
       )}

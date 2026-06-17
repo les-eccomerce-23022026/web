@@ -1,0 +1,30 @@
+{
+  "reporterEnabled": "spec,mochawesome,json",
+  "specReporter": {
+    "showSpecs": true,
+    "showPassed": true,
+    "showFailed": true,
+    "showSkipped": true,
+    "showPending": true,
+    "showSuiteTimes": true,
+    "showSlowTests": 10000,
+    "slowTestThreshold": 5000
+  },
+  "mochawesomeReporterOptions": {
+    "reportDir": "cypress/results/mochawesome",
+    "reportFilename": "mochawesome",
+    "overwrite": false,
+    "html": true,
+    "json": true,
+    "charts": true,
+    "reportPageTitle": "Relatório de Testes E2E - LES E-Commerce",
+    "inlineAssets": true,
+    "saveJson": true,
+    "saveHtml": true
+  },
+  "jsonReporterOptions": {
+    "outputFolder": "cypress/results/json",
+    "outputFile": "results.json",
+    "toConsole": true
+  }
+}

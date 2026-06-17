@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch } from '../../../store/hooks';
@@ -12,10 +12,14 @@ import {
   buildNovoLivroFromForm,
 } from './cadastrarLivroValidacao';
 import { ROTAS } from '@/config/rotas';
+import { ApiClient } from '../../../services/apiClient';
+import { API_ENDPOINTS } from '@/config/apiConfig';
 
 function CadastrarLivroAdmin() {
   const dispatch = useAppDispatch();
   const router = useRouter();
+
+  const [categorias, setCategorias] = useState<Array<{ slug: string; nome: string }>>([]);
 
   const [form, setForm] = useState({
     titulo: '',
@@ -30,6 +34,12 @@ function CadastrarLivroAdmin() {
     grupoPrecificacao: '', // RN0013
     dataEntrada: new Date().toISOString().split('T')[0], // RN0064
   });
+
+  useEffect(() => {
+    ApiClient.get<Array<{ slug: string; nome: string }>>(API_ENDPOINTS.categoriasCatalogo)
+      .then((lista) => setCategorias(lista))
+      .catch(() => {});
+  }, []);
 
   const handleFieldChange = (field: string, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
@@ -91,7 +101,8 @@ function CadastrarLivroAdmin() {
             </div>
             <div className="form-group">
               <label>Grupo de Precificação *</label>
-              <select 
+              <select
+                data-cy="cadastro-livro-grupo-preco-select"
                 value={form.grupoPrecificacao}
                 onChange={(e) => handleFieldChange('grupoPrecificacao', e.target.value)}
                 style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ddd' }}
@@ -155,13 +166,19 @@ function CadastrarLivroAdmin() {
         <div className="card">
           <h3 className="cadastrar-livro-section-title">2. Classificação e Conteúdo</h3>
           <div className="form-group">
-            <label>Categoria Principal</label>
-            <input 
-              type="text" 
-              placeholder="Ex: Ficção" 
+            <label>Categoria Principal *</label>
+            <select
+              data-cy="cadastro-livro-categoria-select"
               value={form.categoria}
               onChange={(e) => handleFieldChange('categoria', e.target.value)}
-            />
+              required
+              style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ddd', width: '100%' }}
+            >
+              <option value="">Selecione a categoria...</option>
+              {categorias.map((cat) => (
+                <option key={cat.slug} value={cat.nome}>{cat.nome}</option>
+              ))}
+            </select>
           </div>
           <div className="form-group cadastrar-livro-form-group-spaced">
             <label>Sinopse *</label>
@@ -176,7 +193,7 @@ function CadastrarLivroAdmin() {
 
         <div className="cadastrar-livro-actions">
           <button onClick={() => router.push(ROTAS.ADMIN.LIVROS)} className="btn-secondary cadastrar-livro-action-btn">Cancelar</button>
-          <button onClick={handleSave} className="btn-primary cadastrar-livro-action-btn">✅ Salvar Novo Livro</button>
+          <button data-cy="cadastro-livro-salvar-btn" onClick={handleSave} className="btn-primary cadastrar-livro-action-btn">✅ Salvar Novo Livro</button>
         </div>
       </div>
     </div>

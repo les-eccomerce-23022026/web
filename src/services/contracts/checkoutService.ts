@@ -5,17 +5,16 @@ export interface IVendaInput {
   itens: {
     livroUuid: string;
     quantidade: number;
-    precoUnitario: number;
   }[];
-  valorTotalItens: number;
   valorFrete: number;
-  /** Deve ser `valorTotalItens + valorFrete` (sem desconto de cupom — cupons são liquidados em `/pagamentos/selecionar`). */
-  valorTotal: number;
+  /** Opcional - se não fornecido, backend calculará a partir do catálogo (regra U6: preços validados no backend). */
+  valorTotal?: number;
   /** UUID da cotação persistida no backend (preferencial). */
   cotacaoUuid?: string;
 }
 
 export interface IVendaResultado {
+  uuid?: string;
   id?: string;
   ven_uuid?: string;
   status?: string;

@@ -9,6 +9,7 @@ import {
   Users,
   Settings,
   Package,
+  Store,
   Menu,
   X,
 } from 'lucide-react';
@@ -16,6 +17,7 @@ import type { LucideIcon } from 'lucide-react';
 import styles from './style.module.css';
 import { ROTAS } from '@/config/rotas';
 import { useAuthorization } from '@/hooks/useAuthorization';
+import { useAppSelector } from '@/store/hooks';
 import type { PermissionAction } from '@/config/permissions';
 
 type NavItem = {
@@ -38,9 +40,18 @@ const MENU_ATENDIMENTO: NavItem[] = [
   { href: ROTAS.ADMIN.CLIENTES, label: 'Gestão de Clientes', icon: Users, permissao: 'manage_users' },
 ];
 
+const MENU_ADMIN_SISTEMA: NavItem[] = [
+  { href: ROTAS.ADMIN.HOME, label: 'Dashboard Analytics', icon: LayoutDashboard },
+  { href: ROTAS.ADMIN.LOJAS, label: 'Gestão de Lojas', icon: Store },
+  { href: ROTAS.ADMIN.ADMINISTRADORES, label: 'Administradores de Lojas', icon: Settings },
+  { href: ROTAS.ADMIN.CLIENTES, label: 'Gestão de Clientes', icon: Users },
+];
+
 export const AdminLayoutNav = () => {
   const pathname = usePathname();
   const { hasPermission } = useAuthorization();
+  const user = useAppSelector((state) => state.auth.user);
+  const isAdminSistema = user?.role === 'admin_sistema';
   const [menuAberto, setMenuAberto] = useState(false);
   const isActive = (path: string) => pathname === path;
 
@@ -63,11 +74,11 @@ export const AdminLayoutNav = () => {
     );
   };
 
-  const menuPrincipalFiltrado = MENU_PRINCIPAL.filter(item => 
+  const menuPrincipalFiltrado = MENU_PRINCIPAL.filter(item =>
     !item.permissao || hasPermission(item.permissao)
   );
 
-  const menuAtendimentoFiltrado = MENU_ATENDIMENTO.filter(item => 
+  const menuAtendimentoFiltrado = MENU_ATENDIMENTO.filter(item =>
     !item.permissao || hasPermission(item.permissao)
   );
 
@@ -77,10 +88,11 @@ export const AdminLayoutNav = () => {
         className={styles.menuHamburger}
         onClick={() => setMenuAberto(!menuAberto)}
         aria-label={menuAberto ? 'Fechar menu' : 'Abrir menu'}
+        data-cy="menu-hamburger"
       >
         {menuAberto ? <X size={24} /> : <Menu size={24} />}
       </button>
-      
+
       {/* Overlay para fechar sidebar ao clicar fora */}
       {menuAberto && (
         <div
@@ -89,16 +101,23 @@ export const AdminLayoutNav = () => {
           aria-hidden="true"
         />
       )}
-      
+
       <aside className={`${styles.sidebarAdmin} ${menuAberto ? styles.sidebarAberto : ''}`}>
-        <ul>
-          <li className={styles.sidebarGroupTitle}>Menu Principal</li>
-          {menuPrincipalFiltrado.map(renderItem)}
-          {menuAtendimentoFiltrado.length > 0 && (
-            <li className={styles.sidebarGroupTitle}>Atendimento</li>
-          )}
-          {menuAtendimentoFiltrado.map(renderItem)}
-        </ul>
+        {isAdminSistema ? (
+          <ul data-cy="menu-admin-sistema">
+            <li className={styles.sidebarGroupTitle}>Menu Principal</li>
+            {MENU_ADMIN_SISTEMA.map(renderItem)}
+          </ul>
+        ) : (
+          <ul data-cy="menu-admin-loja">
+            <li className={styles.sidebarGroupTitle}>Menu Principal</li>
+            {menuPrincipalFiltrado.map(renderItem)}
+            {menuAtendimentoFiltrado.length > 0 && (
+              <li className={styles.sidebarGroupTitle}>Atendimento</li>
+            )}
+            {menuAtendimentoFiltrado.map(renderItem)}
+          </ul>
+        )}
       </aside>
     </>
   );

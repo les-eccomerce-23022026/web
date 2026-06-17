@@ -23,10 +23,10 @@ export const GerenciarAdminsModalExclusao = ({
       title={ativo ? 'Inativar Administrador' : 'Ativar Administrador'}
       footer={
         <>
-          <button className="btn-secondary" onClick={onClose}>
+          <button className="btn-secondary" data-cy="modal-toggle-admin-cancelar" onClick={onClose}>
             Cancelar
           </button>
-          <button className="btn-primary" onClick={onConfirm}>
+          <button className="btn-primary" data-cy="modal-toggle-admin-confirmar" onClick={onConfirm}>
             {ativo ? 'Sim, Inativar' : 'Sim, Ativar'}
           </button>
         </>

@@ -6,19 +6,16 @@ import { GerenciarLojasTabela } from './GerenciarLojasTabela';
 import { GerenciarLojasModalFormulario } from './GerenciarLojasModalFormulario';
 import { GerenciarLojasModalSalvar } from './GerenciarLojasModalSalvar';
 import { GerenciarLojasModalExclusao } from './GerenciarLojasModalExclusao';
-import { LoadingState } from '@/components/Comum/LoadingState/LoadingState';
+import type { IFiltroStatus } from './useGerenciarLojas';
+
+const OPCOES_STATUS: { valor: IFiltroStatus; label: string }[] = [
+  { valor: 'todos', label: 'Todos os status' },
+  { valor: 'ativo', label: 'Ativas' },
+  { valor: 'inativo', label: 'Inativas' },
+];
 
 function GerenciarLojas() {
   const h = useGerenciarLojas();
-
-  // Estado de carregamento
-  if (h.isLoading) {
-    return (
-      <div className={styles.pageContent}>
-        <LoadingState message="Carregando lojas..." />
-      </div>
-    );
-  }
 
   return (
     <div className={styles.pageContent}>
@@ -33,6 +30,14 @@ function GerenciarLojas() {
           Nova Loja
         </button>
       </header>
+
+      {/* Indicador de total */}
+      {!h.isLoading && (
+        <p className={styles.lojaHeaderInfo} data-cy="info-total-lojas">
+          {h.total} {h.total === 1 ? 'loja cadastrada' : 'lojas cadastradas'}
+          {h.totalAtivas > 0 && ` · ${h.totalAtivas} ativa${h.totalAtivas !== 1 ? 's' : ''}`}
+        </p>
+      )}
 
       {/* Mensagem de feedback da página */}
       {h.pageMessage && (
@@ -51,20 +56,30 @@ function GerenciarLojas() {
         <div className={styles.filtroInput}>
           <input
             type="text"
-            placeholder="Buscar por nome, slug ou CNPJ..."
-            value={h.filtro}
-            onChange={(e) => {
-              h.setFiltro(e.target.value);
-              h.setPaginaAtual(1);
-            }}
+            placeholder="Buscar por nome ou CNPJ..."
+            value={h.filtroNome}
+            onChange={(e) => h.handleFiltroNomeChange(e.target.value)}
             data-cy="input-filtro-loja"
           />
         </div>
+        <select
+          className={styles.filtroStatus}
+          value={h.filtroStatus}
+          onChange={(e) => h.handleFiltroStatusChange(e.target.value as IFiltroStatus)}
+          data-cy="select-filtro-status"
+        >
+          {OPCOES_STATUS.map((op) => (
+            <option key={op.valor} value={op.valor}>
+              {op.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Tabela de lojas */}
       <GerenciarLojasTabela
         lojas={h.lojas}
+        isLoading={h.isLoading}
         onEdit={h.startEdit}
         onToggle={h.triggerDelete}
       />
@@ -75,7 +90,7 @@ function GerenciarLojas() {
           <button
             className={styles.paginacaoBotao}
             onClick={() => h.setPaginaAtual(h.paginaAtual - 1)}
-            disabled={h.paginaAtual === 1}
+            disabled={h.paginaAtual === 1 || h.isLoading}
             data-cy="btn-pagina-anterior"
           >
             ← Anterior
@@ -86,7 +101,7 @@ function GerenciarLojas() {
           <button
             className={styles.paginacaoBotao}
             onClick={() => h.setPaginaAtual(h.paginaAtual + 1)}
-            disabled={h.paginaAtual === h.totalPaginas}
+            disabled={h.paginaAtual === h.totalPaginas || h.isLoading}
             data-cy="btn-proxima-pagina"
           >
             Próxima →
@@ -119,7 +134,7 @@ function GerenciarLojas() {
         onSave={h.handleSave}
       />
 
-      {/* Modal de exclusão/ativação */}
+      {/* Modal de inativação/ativação */}
       <GerenciarLojasModalExclusao
         isOpen={h.isDeleteModalOpen}
         lojaToToggle={h.lojaToToggle}

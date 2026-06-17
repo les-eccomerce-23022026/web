@@ -13,8 +13,11 @@ export function aplicarFiltrosListaClientes(
     out = out.filter((c) => c.email.toLowerCase().includes(filtros.email!.toLowerCase()));
   }
   if (filtros.cpf) {
-    const cpfLimpo = filtros.cpf.replace(/\D/g, '');
-    out = out.filter((c) => c.cpf.replace(/\D/g, '').includes(cpfLimpo));
+    const cpfLimpo = filtros.cpf.replace(/\D/g, "");
+    out = out.filter((c) => c.cpf.replace(/\D/g, "").includes(cpfLimpo));
+  }
+  if (filtros.ativo !== undefined) {
+    out = out.filter((c) => c.ativo === filtros.ativo);
   }
   return out;
 }

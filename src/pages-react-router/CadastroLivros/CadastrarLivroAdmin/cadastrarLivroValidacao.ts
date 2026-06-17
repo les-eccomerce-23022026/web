@@ -1,4 +1,4 @@
-import type { ILivro } from '../../../interfaces/livro';
+import type { ILivro, ICriarLivroPayload } from '../../../interfaces/livro';
 
 type FormCadastro = {
   titulo: string;
@@ -15,12 +15,14 @@ type FormCadastro = {
 
 export function getMargemByGrupo(grupo: string): number {
   switch (grupo) {
-    case 'Lançamento':
-      return 0.5;
-    case 'Padrão':
-      return 0.35;
-    case 'Promoção':
+    case 'Varejo':
+      return 0.3;
+    case 'Atacado':
       return 0.15;
+    case 'Técnico':
+      return 0.4;
+    case 'Promocional':
+      return 0.1;
     default:
       return 0;
   }
@@ -47,6 +49,11 @@ function erroCamposEstoqueRN(form: FormCadastro): string | null {
   return null;
 }
 
+function erroCategoriaObrigatoria(form: FormCadastro): string | null {
+  if (!form.categoria) return 'Categoria Principal é obrigatória.';
+  return null;
+}
+
 function erroQuantidadeEstoque(form: FormCadastro): string | null {
   const qtdEstoque = parseInt(form.estoque, 10);
   if (isNaN(qtdEstoque) || qtdEstoque <= 0) {
@@ -62,6 +69,7 @@ export function mensagemErroSalvarLivro(
   return (
     erroCamposBasicos(form, precoVendaCalculado) ??
     erroCamposEstoqueRN(form) ??
+    erroCategoriaObrigatoria(form) ??
     erroQuantidadeEstoque(form) ??
     compararCustoPreco(form.custo, precoVendaCalculado)
   );
@@ -90,5 +98,21 @@ export function buildNovoLivroFromForm(form: FormCadastro, precoVendaCalculado: 
     status: 'Ativo',
     categoria: form.categoria || 'Geral',
     imagem: 'https://via.placeholder.com/400x600?text=Capa+Indisponivel',
+  };
+}
+
+export function buildCriarLivroPayload(form: FormCadastro, precoVendaCalculado: string): ICriarLivroPayload {
+  return {
+    titulo: form.titulo,
+    isbn: form.isbn,
+    autorNome: form.autor,
+    editoraNome: form.fornecedor,
+    categoriaNome: form.categoria || undefined,
+    grupoPrecificacaoNome: form.grupoPrecificacao,
+    precoVenda: parseFloat(precoVendaCalculado),
+    quantidadeEstoque: parseInt(form.estoque, 10),
+    sinopse: form.sinopse || undefined,
+    valorCusto: parseFloat(form.custo),
+    ano: new Date().getFullYear(),
   };
 }

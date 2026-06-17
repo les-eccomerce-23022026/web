@@ -1,121 +1,150 @@
-# React + TypeScript + Vite (LES — frontend)
+# LES — Interface do Cliente (Frontend)
 
-## Sessão e API
+Aplicação web da Livraria E-Commerce (LES) que permite ao cliente navegar pelo catálogo, realizar compras, acompanhar pedidos e gerenciar sua conta. Administradores de loja e de sistema também possuem painéis dedicados acessíveis pela mesma interface.
 
-- Por padrão `VITE_API_BASE_URL` é `/api`: o Vite faz **proxy** para `http://localhost:3000` (ver `vite.config.ts`), mantendo a **mesma origem** que o app (`localhost:5173`) para o cookie de sessão HttpOnly.
-- O cliente HTTP usa `credentials: 'include'`. O JWT **não** fica em `sessionStorage`; apenas um snapshot de `user` pode ser guardado para UX.
-- Com backend em outra origem (ex.: URL absoluta em `VITE_API_BASE_URL`), cookies exigem `SameSite=None; Secure` e HTTPS — prefira proxy ou mesmo host em produção.
+---
 
-## Documentação (SSoT e quadro local)
-
-- Especificação e ADRs: [`../documentacao-exigida/README.md`](../documentacao-exigida/README.md)
-- Kanban frontend: [`docs/PROJECT-BOARD.md`](docs/PROJECT-BOARD.md)
-- Diretrizes de agente: [`AGENTS.md`](AGENTS.md)
-
-## Testes E2E
-
-### Fluxo de Compra Principal (Visual)
-
-Para executar os testes do fluxo de compra com navegador aberto (visual):
+## Inicialização
 
 ```bash
-npm run test:e2e:fluxo-compra:headed
-```
-
-Este comando executa os 3 testes principais do fluxo de compra:
-- Happy Path completo (Login → Carrinho → Checkout → Frete PAC → Cupom → Cartão → Venda)
-- Fluxo completo cross-domain (Cliente compra → Admin despacha → Admin entrega → Cliente solicita troca → Admin autoriza → Admin confirma recebimento → Cliente usa cupom)
-- Screenshots do fluxo de venda
-
-### Outros Comandos de Teste
-
-```bash
-# Executar fluxo de compra sem navegador (headless)
-npm run test:e2e:fluxo-compra:run
-
-# Modo interativo GUI (Cypress Test Runner)
-npm run test:e2e:fluxo-compra:gui
-
-# Happy path individual com navegador
-npm run test:e2e:happy-path:headed
-
-# Cross-domain individual com navegador
-npm run test:e2e:cross-domain:headed
-
-# Screenshots individual com navegador
-npm run test:e2e:screenshots:headed
+cd web
+npm install
+cp .env.example .env
+npm run dev          # abre em http://localhost:3000
 ```
 
 ---
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Como a Interface se Comunica com o Sistema
 
-Currently, two official plugins are available:
+A interface nunca acessa o servidor diretamente pelo navegador. Todas as requisições passam pelo próprio servidor web, que as repassa internamente ao backend. Isso garante que a sessão do usuário (armazenada em cookie seguro) nunca fique exposta no navegador.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```mermaid
+sequenceDiagram
+    participant U as Usuário (navegador)
+    participant W as Servidor Web :3000
+    participant B as Backend LES :5001
 
-## React Compiler
+    U->>W: Acessa /catalogo
+    W-->>U: Página renderizada
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+    U->>W: Faz login
+    W->>B: Encaminha credenciais
+    B-->>W: Confirma sessão (cookie seguro)
+    W-->>U: Sessão iniciada (cookie seguro)
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+    U->>W: Consulta pedidos
+    W->>B: Encaminha pedido com sessão
+    B-->>W: Dados do pedido
+    W-->>U: Exibe pedidos
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Acesso e Sessão do Usuário
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- A sessão do usuário é mantida por um **cookie seguro** definido pelo servidor — nenhum dado sensível fica salvo no navegador.
+- Ao fechar o navegador ou fazer logout, a sessão é encerrada automaticamente.
+
+---
+
+## Entrada na Plataforma
+
+> [!IMPORTANT]
+> **Não existe uma página de login separada.** Login e cadastro de clientes são realizados na página **Minha Conta** (`/minha-conta`).
+> Qualquer tentativa de acessar `/login`, `/registro` ou `/cadastro` redireciona automaticamente para lá.
+
+```mermaid
+flowchart TD
+    A([Visitante]) --> B{Tenta acessar\nrecurso restrito?}
+    B -- Não --> C[Navega livremente\ncatálogo · livros · home]
+    B -- Sim --> D[Redireciona para\nMinha Conta]
+    D --> E{O que deseja?}
+    E -- Entrar --> F[Faz login\nSessão iniciada]
+    E -- Criar conta --> G[Realiza cadastro\nSessão iniciada]
+    F --> H([Acesso liberado])
+    G --> H
+    H --> I[Carrinho · Checkout\nPedidos · Perfil]
+    H --> J[Encerra sessão\nLogout]
+    J --> A
 ```
+
+---
+
+## Perfis de Acesso
+
+| Perfil | O que pode fazer |
+|--------|-----------------|
+| **Cliente** | Navegar, comprar, acompanhar pedidos, solicitar trocas e devoluções |
+| **Administrador de Loja** | Gerenciar livros, estoque, pedidos e pagamentos da loja |
+| **Administrador de Sistema** | Gerenciar lojas, usuários e configurações globais |
+
+---
+
+## Scripts de Desenvolvimento
+
+| Comando | Descrição |
+|---------|-----------|
+| `npm run dev` | Inicia a aplicação em modo de desenvolvimento (porta 3000) |
+| `npm run dev:e2e` | Inicia a aplicação para execução de testes (porta 3001) |
+| `npm run build` | Gera a versão de produção |
+| `npm run lint` | Verifica qualidade do código |
+
+---
+
+## Testes Automatizados
+
+Os cenários de teste cobrem os principais fluxos do negócio, organizados em grupos temáticos:
+
+```mermaid
+mindmap
+  root((Cenários de Teste))
+    Acesso e Conta
+      Fundamentais
+      Gerenciamento de Usuário
+    Compra
+      Carrinho
+      Pagamentos
+      Fluxo de Compra
+    Pós-venda
+      Entregas
+      Trocas e Devoluções
+    Administração
+      Gestão de Livros
+      APIs do Sistema
+      Gestão Administrativa
+```
+
+```bash
+# Executar grupo específico
+npm run test:e2e:grupo1-fundamentais
+npm run test:e2e:grupo2-gerenciamento-usuario
+npm run test:e2e:grupo3-carrinho
+npm run test:e2e:grupo4-admin-livros
+npm run test:e2e:grupo5-admin-sistema-apis
+npm run test:e2e:grupo6-pagamentos
+npm run test:e2e:grupo7-compra
+npm run test:e2e:grupo8-entregas
+npm run test:e2e:grupo9-trocas-devolucoes
+npm run test:e2e:grupo10-admin-sistema-gestao
+
+# Executar todos os testes
+npm run test:e2e:all
+
+# Com navegador visível (sufixo :headed)
+npm run test:e2e:grupo1-fundamentais:headed
+
+# Cenário específico
+npx cypress run --spec 'cypress/e2e/autenticacao/**/*.cy.ts'
+```
+
+> **Problema no Ubuntu 24.04:** caso os testes não abram, execute `npm run cypress:reset` para reinstalar o navegador de testes.
+
+---
+
+## Documentação Relacionada
+
+- [Backend (API)](../backend/README.md)
+- [Visão geral do projeto](../README.md)
+- [Requisitos e decisões de arquitetura](../documentacao-exigida/README.md)
+- [Diretrizes para desenvolvimento](AGENTS.md)
