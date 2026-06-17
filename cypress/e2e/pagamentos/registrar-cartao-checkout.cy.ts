@@ -22,7 +22,7 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
       method: 'POST',
       url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/auth/login`,
       headers: { 'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}` },
-      body: { email: 'clientetest@email.com', senha: '@asdf123' },
+      body: { email: 'clientetest@email.com', senha: 'ASDF@asdf123' },
     }).then((loginRes) => {
       const token = loginRes.body.dados.token;
       cy.request({
@@ -91,7 +91,7 @@ describe('Pagamentos — Registrar novo cartão no checkout (CDU002, RF0018)', (
     cy.get('[data-cy^="checkout-card-item-"]').first().should('have.attr', 'data-selected', 'true');
 
     // Verificar que o cartão foi salvo (usar API para validar)
-    loginApi('clientetest@email.com', '@asdf123').then((token) => {
+    loginApi('clientetest@email.com', 'ASDF@asdf123').then((token) => {
       cy.request({
         method: 'GET',
         url: `${Cypress.env('apiUrl') || 'http://localhost:3001/api'}/clientes/perfil/cartoes`,

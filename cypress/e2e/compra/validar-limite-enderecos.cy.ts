@@ -36,7 +36,7 @@ describe('Validação de Regra de Negócio — Limite de Endereços (RN)', () =>
       headers: {
         'X-Test-Rate-Limit-Key': `cypress-e2e-${Date.now()}`,
       },
-      body: { email: 'clientetest@email.com', senha: '@asdf123' },
+      body: { email: 'clientetest@email.com', senha: 'ASDF@asdf123' },
     }).then((loginRes) => {
       const token = loginRes.body.dados.token;
 

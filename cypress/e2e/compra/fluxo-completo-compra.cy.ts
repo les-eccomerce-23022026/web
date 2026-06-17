@@ -16,7 +16,7 @@
 
 describe('Fluxo Completo de Compra', () => {
   const clienteEmail = 'clientetest@email.com';
-  const clienteSenha = '@asdf123';
+  const clienteSenha = 'ASDF@asdf123';
   const cepTeste = '08720-510';
 
   beforeEach(() => {
@@ -43,13 +43,15 @@ describe('Fluxo Completo de Compra', () => {
    * Adiciona os mesmos livros do fluxo manual: Orgulho e Preconceito, O Poder do Hábito
    */
   function adicionarLivrosAoCarrinho() {
-    cy.visit('/');
-    cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(0).click();
-    cy.get('[data-cy="header-cart-link"]').should('be.visible');
-
-    cy.visit('/');
-    cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(1).click();
-    cy.get('[data-cy="header-cart-link"]').should('be.visible');
+    // O POST /carrinho/itens só dispara com auth re-hidratada (isAuthenticated=true);
+    // aguarda o header autenticado antes de clicar e espera o sync concluir.
+    for (let i = 0; i < 2; i += 1) {
+      cy.intercept('POST', '**/carrinho/itens').as(`syncCarrinho${i}`);
+      cy.visit('/');
+      cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
+      cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(i).click();
+      cy.wait(`@syncCarrinho${i}`, { timeout: 10000 });
+    }
   }
 
   /**
@@ -69,10 +71,11 @@ describe('Fluxo Completo de Compra', () => {
    * Seleciona o endereço "Rua das Flores, 123, São Paulo/SP"
    */
   function selecionarEnderecoExistente() {
-    // Selecionar o primeiro endereço existente
+    // A lista de endereços é carregada por GET autenticado; sem auth re-hidratada
+    // volta vazia e o item nunca aparece. Aguarda auth e a lista popular.
+    cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
+    cy.get('[data-cy^="checkout-address-item-"]', { timeout: 10000 }).should('have.length.at.least', 1);
     cy.get('[data-cy^="checkout-address-item-"]').first().click();
-    
-    // Verificar que endereço foi selecionado
     cy.get('[data-cy="checkout-address-selected"]').should('be.visible');
   }
 

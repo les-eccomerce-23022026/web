@@ -1,12 +1,12 @@
 describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU006, CDU008, CDU009, RF0041, RF0042, RF0044, RF0046)', () => {
   const CREDENCIAIS_CLIENTE = {
     email: 'clientetest@email.com',
-    senha: '@asdf123',
+    senha: 'ASDF@asdf123',
   };
 
   const CREDENCIAIS_ADMIN = {
     email: 'admintest@email.com',
-    senha: '@asdf123',
+    senha: 'ASDF@asdf123',
   };
 
   const MOTIVO_TROCA = 'Produto chegou com defeito na capa, quero trocar por outro exemplar';
@@ -178,9 +178,14 @@ describe('Trocas — Fluxo Completo de Troca e Geração de Cupom (CDU004, CDU00
     });
 
     // === ETAPA 13: Aplicar cupom no checkout ===
-    // Usar um item DIFERENTE (índice 2) para evitar constraint com livro do pedido
+    // Usar um item DIFERENTE (índice 2) para evitar constraint com livro do pedido.
+    // O POST /carrinho/itens só dispara com auth re-hidratada; aguarda o header
+    // autenticado antes de clicar e espera o sync concluir (senão o item não persiste).
+    cy.intercept('POST', '**/carrinho/itens').as('syncCarrinhoTroca');
     cy.visit('/');
+    cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
     cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(2).click();
+    cy.wait('@syncCarrinhoTroca', { timeout: 10000 });
 
     // Navegar para carrinho explicitamente
     cy.visit('/carrinho');

@@ -14,7 +14,7 @@
  */
 
 const ADMIN_SISTEMA_EMAIL = 'admin@livraria.com.br';
-const ADMIN_SISTEMA_SENHA = '@asdf123';
+const ADMIN_SISTEMA_SENHA = 'ASDF@asdf123';
 
 describe('Registro e Ciclo do Administrador de Loja', () => {
   beforeEach(() => {

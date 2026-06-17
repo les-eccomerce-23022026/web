@@ -154,8 +154,7 @@ export function useChatRecomendacao() {
       const idAssistente = mensagemAssistente.id;
       setMensagens((prev) => [...prev, mensagemUsuario, mensagemAssistente]);
 
-      // Aborta um stream anterior e cria um novo controller para esta request.
-      abortRef.current?.abort();
+      // Cria um novo controller para esta request (não cancela requisições anteriores)
       const controller = new AbortController();
       abortRef.current = controller;
       const { signal } = controller;

@@ -10,7 +10,7 @@
 
 describe('Sistema de Reservas de Estoque', () => {
   const clienteEmail = 'clientetest@email.com';
-  const clienteSenha = '@asdf123';
+  const clienteSenha = 'ASDF@asdf123';
 
   const API = Cypress.env('apiUrl') ?? 'http://localhost:3001/api';
 
@@ -50,9 +50,13 @@ describe('Sistema de Reservas de Estoque', () => {
    * Helper para adicionar livro ao carrinho
    */
   function adicionarLivroAoCarrinho() {
+    // O POST /carrinho/itens só ocorre com auth re-hidratada (isAuthenticated=true);
+    // aguarda o header autenticado antes de clicar e espera o sync concluir.
+    cy.intercept('POST', '**/carrinho/itens').as('syncItemCarrinho');
     cy.visit('/');
+    cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
     cy.get('[data-cy="adicionar-carrinho-card-button"]').first().click();
-    cy.get('[data-cy="header-cart-link"]').should('be.visible');
+    cy.wait('@syncItemCarrinho', { timeout: 10000 });
   }
 
   /**
@@ -143,8 +147,10 @@ describe('Sistema de Reservas de Estoque', () => {
       cy.log('=== ETAPA 2: Navegar para carrinho ===');
       navegarParaCarrinho();
 
-      // Aguardar que o Redux re-hidrate com isAuthenticated=true antes de limpar
-      cy.get('[data-cy="header-cart-link"]').should('be.visible');
+      // Aguardar que o Redux re-hidrate com isAuthenticated=true antes de limpar.
+      // O botão limpar usa `usarCarrinhoLocal = !isAuthenticated && !sessionLoading`;
+      // se clicarmos antes da auth assentar, a limpeza é local e o DELETE não dispara.
+      cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
       cy.get('[data-cy="carrinho-item-row"]').should('have.length.at.least', 1);
 
       cy.log('=== ETAPA 3: Limpar carrinho ===');

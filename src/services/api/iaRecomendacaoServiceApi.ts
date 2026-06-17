@@ -238,7 +238,8 @@ export class IaRecomendacaoServiceApi implements IIaRecomendacaoService {
 
   private async lerMensagemErro(response: Response): Promise<string> {
     try {
-      const corpo = (await response.json()) as { message?: string };
+      const corpo = (await response.json()) as { message?: string; mensagem?: string };
+      if (corpo?.mensagem) return corpo.mensagem;
       if (corpo?.message) return corpo.message;
     } catch {
       // ignora corpo não-JSON

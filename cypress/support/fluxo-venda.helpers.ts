@@ -9,9 +9,9 @@
  * - Usar uuids DETERMINÍSTICOS (nunca `.first()` em listas grandes).
  */
 
-export const CLIENTE = { email: 'clientetest@email.com', senha: '@asdf123' };
-export const ADMIN = { email: 'admintest@email.com', senha: '@asdf123' };
-export const ADMIN_SISTEMA = { email: 'admin_sistema@test.com', senha: '@asdf123' };
+export const CLIENTE = { email: 'clientetest@email.com', senha: 'ASDF@asdf123' };
+export const ADMIN = { email: 'admintest@email.com', senha: 'ASDF@asdf123' };
+export const ADMIN_SISTEMA = { email: 'admin_sistema@test.com', senha: 'ASDF@asdf123' };
 
 export const CARTAO_VISA = {
   numero: '4111111111111111',
@@ -191,12 +191,21 @@ export function loginAdminSistemaApi() {
   return loginApi(ADMIN_SISTEMA.email, ADMIN_SISTEMA.senha);
 }
 
-/** Adiciona N livros ao carrinho a partir da home. */
+/**
+ * Adiciona N livros ao carrinho a partir da home.
+ *
+ * O carrinho só sincroniza com o backend (POST /carrinho/itens) quando
+ * `isAuthenticated=true`; caso contrário usa estado local e o item não persiste.
+ * Por isso aguardamos o header autenticado (auth re-hidratada após o `visit`)
+ * antes de clicar e, então, esperamos o POST concluir.
+ */
 export function adicionarLivrosAoCarrinho(quantidade = 2) {
   for (let i = 0; i < quantidade; i += 1) {
+    cy.intercept('POST', '**/carrinho/itens').as(`syncCarrinho${i}`);
     cy.visit('/');
+    cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
     cy.get('[data-cy="adicionar-carrinho-card-button"]').eq(i).click();
-    cy.get('[data-cy="header-cart-link"]').should('be.visible');
+    cy.wait(`@syncCarrinho${i}`, { timeout: 10000 });
   }
 }
 
@@ -207,6 +216,10 @@ export function irParaCheckoutComEnderecoEFrete(cep = '08720-510') {
   cy.get('[data-cy="carrinho-finalizar-compra"]', { timeout: 10000 }).click({ force: true });
   cy.url().should('include', '/checkout');
 
+  // Aguarda a auth re-hidratar antes de interagir: a lista de endereços é
+  // carregada por GET autenticado; sem token ela volta vazia e o item nunca aparece.
+  cy.get('[data-cy="header-user-profile"]', { timeout: 10000 }).should('be.visible');
+  cy.get('[data-cy^="checkout-address-item-"]', { timeout: 10000 }).should('have.length.at.least', 1);
   cy.get('[data-cy^="checkout-address-item-"]').first().click();
   cy.get('[data-cy="checkout-address-selected"]').should('be.visible');
 
@@ -216,4 +229,16 @@ export function irParaCheckoutComEnderecoEFrete(cep = '08720-510') {
   cy.get('[data-cy="checkout-freight-options"]').should('be.visible');
   cy.get('[data-cy="checkout-freight-option-PAC"]').click();
   cy.get('[data-cy="checkout-freight-selected-info"]').should('be.visible');
+
+  // O resumo (Subtotal/Frete/Total) recalcula de forma assíncrona após a seleção
+  // do frete. Garante que o frete escolhido (PAC) já está refletido no resumo
+  // antes de retornar, evitando capturar o total ainda com o frete padrão.
+  cy.get('[data-cy="checkout-freight-selected-info"]')
+    .invoke('text')
+    .then((info) => {
+      const valor = info.match(/R\$\s*([\d.,]+)/)?.[1];
+      if (valor) {
+        cy.get('[data-cy="checkout-frete"]', { timeout: 10000 }).should('contain.text', valor);
+      }
+    });
 }

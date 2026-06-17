@@ -8,12 +8,12 @@ import {
 describe('Trocas — Fluxo de Confirmar Recebimento e Geração de Cupom (RF0044)', () => {
   const CREDENCIAIS_ADMIN = {
     email: 'admintest@email.com',
-    senha: '@asdf123',
+    senha: 'ASDF@asdf123',
   };
 
   const CREDENCIAIS_CLIENTE = {
     email: 'clientetest@email.com',
-    senha: '@asdf123',
+    senha: 'ASDF@asdf123',
   };
 
   let pedidoUuid: string;

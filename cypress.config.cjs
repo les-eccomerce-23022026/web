@@ -148,6 +148,15 @@ module.exports = defineConfig({
           launchOptions.args.push('--disable-gpu');
           launchOptions.args.push('--disable-dev-shm-usage');
 
+          // Evita crash do renderer ("Chrome Renderer process just crashed")
+          // em specs longos/pesados: amplia o heap V8 e impede o Chrome de
+          // suspender/limitar processos em background durante a execução.
+          launchOptions.args.push('--js-flags=--max-old-space-size=4096');
+          launchOptions.args.push('--disable-background-timer-throttling');
+          launchOptions.args.push('--disable-backgrounding-occluded-windows');
+          launchOptions.args.push('--disable-renderer-backgrounding');
+          launchOptions.args.push('--disable-software-rasterizer');
+
           // CRÍTICO: só adiciona --no-sandbox quando realmente necessário
           if (shouldUseNoSandbox()) {
             launchOptions.args.push('--no-sandbox');
